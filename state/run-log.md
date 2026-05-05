@@ -70,3 +70,18 @@
 - evaluator: started
 - evaluator: status=done promotion=true The endpoint persistence task is complete in substance. The repository has Prisma/SQLite dependencies, schema and migrations, generated client setup, deterministic `db:prepare`, idempotent protected seed defaults, schema documentation, and repeatability coverage. The implementation maps directly to `endpoint-tool-management.md` and stays within the persistence foundation scope without adding out-of-scope UI, MCP, REST, auth, or reset behavior. I did not rerun required commands because the evaluator sandbox is read-only, but the supplied deterministic check summary reports all mandatory gates passing. -> state/artifacts/20260505T163232-endpoint-domain-and-schema/evaluator.log
 - next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T163232-endpoint-domain-and-schema/npm-run-verify-next-server.log
+- commit: commit: created
+- promote: failed -> state/artifacts/20260505T163232-endpoint-domain-and-schema/promote.log
+- backlog: rendered current=endpoint-domain-and-schema
+- health: xxxxx
+- cycle: finished
+
+### cycle 2026-05-05T16:37:10+09:00 task=endpoint-domain-and-schema
+- artifacts: state/artifacts/20260505T163710-endpoint-domain-and-schema
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260505T163710-endpoint-domain-and-schema/worker.jsonl
+- worker-summary: Completed the handoff for `endpoint-domain-and-schema`.
+- evaluator: started
+- evaluator: status=done promotion=true The task is complete in substance. The implementation adds Prisma/SQLite wiring, migrations, Prisma client configuration, deterministic db preparation, idempotent protected endpoint seed defaults, generated schema documentation, and repeatability coverage. The inspected changes stay within the endpoint persistence foundation scope and map directly to endpoint-tool-management.md. I could not rerun commands in the read-only evaluator sandbox, but the supplied deterministic check summary reports all mandatory gates passing. -> state/artifacts/20260505T163710-endpoint-domain-and-schema/evaluator.log
+- next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T163710-endpoint-domain-and-schema/npm-run-verify-next-server.log
