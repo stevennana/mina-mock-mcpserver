@@ -1,0 +1,12 @@
+file:///Users/stevenna/WebstormProjects/mina-mock-mcpserver/scripts/ralph/promote-task.mjs:54
+    throw new Error(`Next task '${nextTaskId}' does not exist in active plans.`);
+          ^
+
+Error: Next task 'endpoint-validation-and-matching' does not exist in active plans.
+    at buildNextTaskUpdate (file:///Users/stevenna/WebstormProjects/mina-mock-mcpserver/scripts/ralph/promote-task.mjs:54:11)
+    at file:///Users/stevenna/WebstormProjects/mina-mock-mcpserver/scripts/ralph/promote-task.mjs:168:24
+    at ModuleJob.run (node:internal/modules/esm/module_job:371:25)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:669:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.5.0

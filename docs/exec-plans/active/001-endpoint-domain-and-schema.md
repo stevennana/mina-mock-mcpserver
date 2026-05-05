@@ -110,3 +110,4 @@ Confirm that this task maps to the primary product spec `endpoint-tool-managemen
 - 2026-05-05T17:10:00+09:00 - Added Prisma SQLite schema and initial migration for endpoints, ordered parameters, response cases, timestamps, delete-code/default/failure fields, and immutable endpoint IDs.
 - 2026-05-05T17:15:00+09:00 - Added idempotent default seed for protected enabled `endpoint_default_echo` plus a repeatability unit test that runs `db:prepare` twice against an isolated SQLite file.
 - 2026-05-05T17:18:00+09:00 - Documented implemented persistence assumptions in `docs/generated/db-schema.md`.
+- 2026-05-05T16:18:17+09:00 - Re-verified the current checkout for this handoff; `npm run db:prepare`, `npm run test:unit`, and `npm run verify` all passed.
