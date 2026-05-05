@@ -1,0 +1,12 @@
+[main 5764936] ralph: oauth-client-credentials-grant 2026-05-05T21:19:37+09:00
+ 33 files changed, 2939 insertions(+), 108 deletions(-)
+ rename docs/exec-plans/{active => completed}/016-oauth-code-token-jwt.md (94%)
+ create mode 100644 prisma/migrations/202605050009_oauth_client_credentials_tokens/migration.sql
+ create mode 100644 state/artifacts/20260505T210051-oauth-code-token-jwt/backlog.log
+ create mode 100644 state/artifacts/20260505T210051-oauth-code-token-jwt/promote.log
+ create mode 100644 state/artifacts/20260505T211124-oauth-client-credentials-grant/commit.log
+ create mode 100644 state/artifacts/20260505T211124-oauth-client-credentials-grant/evaluator.log
+ create mode 100644 state/artifacts/20260505T211124-oauth-client-credentials-grant/task-prompt.log
+ create mode 100644 state/artifacts/20260505T211124-oauth-client-credentials-grant/worker.jsonl
+ create mode 100644 tests/e2e/oauth-client-credentials.spec.ts
+commit: created

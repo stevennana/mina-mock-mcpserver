@@ -5,7 +5,7 @@
   "id": "oauth-discovery-metadata",
   "title": "OAuth Discovery Metadata and JWKS",
   "order": 18,
-  "status": "queued",
+  "status": "active",
   "next_task_on_success": "oauth-mcp-rest-permission-enforcement",
   "prompt_docs": [
     "AGENTS.md",
@@ -103,3 +103,5 @@ Confirm that this task maps to the primary product spec `oauth-consent-and-token
 
 - Start here. Append timestamped progress notes as work lands.
 - Note when existing partial implementations were found and reused instead of replaced.
+- 2026-05-05T12:19:37.153Z: restored as current task after oauth-client-credentials-grant promotion.
+- 2026-05-05T12:26:34Z: found existing RS256 JWT issuance and request-origin issuer handling; added shared discovery/JWKS helpers, well-known route handlers, `/oauth/jwks`, a `/config` connection guide, docs updates, and unit/E2E coverage for metadata consistency and JWKS token verification.

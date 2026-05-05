@@ -18,7 +18,7 @@ Describe the user-facing structure of MCP Mock Server so an agent can implement 
 | /oauth-users | OAuth users | Built-in default locked |
 | /oauth-clients | OAuth clients | Redirect URIs and allowed endpoints |
 | /tokens | Issued tokens | Claims, permissions, revoke, filters |
-| /config | Server config | Base URL, MCP/REST/OAuth examples, Nginx guide |
+| /config | Server config | Base URL, MCP/REST/OAuth examples, discovery metadata, JWKS, Nginx guide |
 | /reset | Reset | Root-password protected reset |
 | /audit | Audit log | Public mutation, protected delete, and token evidence |
 | /oauth/login | OAuth login | Separate from admin UI |
@@ -39,7 +39,7 @@ Describe the user-facing structure of MCP Mock Server so an agent can implement 
 | OAuth clients | Manage generated client secrets, redirect URIs, client credentials TTL presets, and allowed endpoint set |
 | OAuth login/consent | Complete authorization-code flow and select endpoint permissions |
 | Issued tokens | Inspect claims, permissions, expiration, and revoke tokens |
-| Config/guide | Show base URL, MCP/REST/OAuth URLs, sample client config, curl, Nginx |
+| Config/guide | Show base URL, MCP/REST/OAuth URLs, OAuth discovery metadata, JWKS, sample client config, curl, Nginx |
 | Reset | Root-protected reset to current seed defaults with exact confirmation text |
 | Audit | Review mutation and security-relevant event history without exposing submitted secrets |
 

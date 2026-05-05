@@ -17,3 +17,4 @@
 - 2026-05-05T11:47:42.510Z: promoted oauth-clients-management-ui -> oauth-authorize-login-consent
 - 2026-05-05T12:00:21.257Z: promoted oauth-authorize-login-consent -> oauth-code-token-jwt
 - 2026-05-05T12:10:54.414Z: promoted oauth-code-token-jwt -> oauth-client-credentials-grant
+- 2026-05-05T12:19:37.153Z: promoted oauth-client-credentials-grant -> oauth-discovery-metadata

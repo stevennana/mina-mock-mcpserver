@@ -555,6 +555,39 @@ h1 {
   padding: 12px;
 }
 
+.guide-panel {
+  margin-bottom: 16px;
+}
+
+.guide-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.guide-list div {
+  display: grid;
+  grid-template-columns: minmax(180px, 0.35fr) minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  border: 1px solid #e4e9f0;
+  border-radius: 8px;
+  padding: 12px;
+  background: #fbfcfe;
+}
+
+.guide-list span {
+  color: var(--muted);
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.guide-list code {
+  overflow-wrap: anywhere;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 0.86rem;
+}
+
 .console-shell {
   display: grid;
   grid-template-columns: 1fr;
@@ -762,6 +795,7 @@ h1 {
   .status-grid,
   .panel ul,
   .summary-strip,
+  .guide-list div,
   .oauth-detail-grid {
     grid-template-columns: 1fr;
   }

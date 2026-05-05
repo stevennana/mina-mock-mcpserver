@@ -706,3 +706,18 @@
 - evaluator: started
 - evaluator: status=done promotion=true The implementation matches the oauth-consent-and-token-runtime spec for this task. /oauth/token dispatches client_credentials, validates enabled client credentials, issues client-subject RS256 JWTs with grant_type=client_credentials, uses client credentials TTL, persists machine tokens with nullable oauthUserId, and computes endpoint permissions as all allowed endpoints or the requested endpoint-scope intersection. Unit and E2E coverage exercise valid issuance, scope narrowing, no-scope full allowed permissions, invalid credentials, and disabled clients. The mandatory deterministic checks are reported passing. -> state/artifacts/20260505T211124-oauth-client-credentials-grant/evaluator.log
 - next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T211124-oauth-client-credentials-grant/npm-run-test-e2e-grep-oauth-client-credentials-next-server.log
+- commit: commit: created
+- promote: Promoted oauth-client-credentials-grant -> oauth-discovery-metadata
+- backlog: rendered current=oauth-discovery-metadata
+- health: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxoooooooooooooooo
+- cycle: finished
+
+### cycle 2026-05-05T21:20:07+09:00 task=oauth-discovery-metadata
+- artifacts: state/artifacts/20260505T212007-oauth-discovery-metadata
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260505T212007-oauth-discovery-metadata/worker.jsonl
+- worker-summary: Implemented `oauth-discovery-metadata` and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+- evaluator: started
+- evaluator: status=not_done promotion=false Most OAuth discovery/JWKS scope is implemented and the provided deterministic checks passed, but the implementation advertises an MCP OAuth endpoint at /mcp/oauth in protected-resource metadata and the /config connection example while no app/mcp/oauth route exists. That means the metadata/guide are not fully aligned with actual runtime routes, and the @oauth-discovery test only asserts the advertised string instead of proving the route exists. -> state/artifacts/20260505T212007-oauth-discovery-metadata/evaluator.log
+- next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T212007-oauth-discovery-metadata/npm-run-test-e2e-grep-oauth-discovery-next-server.log

@@ -30,6 +30,7 @@ Remote MCP adoption is moving auth, transport, and permission bugs into client i
 - prove no-auth, Basic, and OAuth bearer client behavior against strict routes
 - issue mock OAuth tokens with endpoint-level permissions through browser consent or non-interactive client credentials
 - create mock OAuth authorization codes through browser login and consent with explicit endpoint permission selection
+- expose OAuth discovery metadata and a public JWKS that match the mock RS256 token issuer
 - simulate failure cases that clients often mishandle
 - persist configuration and provide root-password-protected reset/recovery for a public test service
 

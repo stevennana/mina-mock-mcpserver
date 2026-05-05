@@ -24,6 +24,7 @@ export default async function Home() {
         <Link href="/basic-users">Basic Users</Link>
         <Link href="/oauth-users">OAuth Users</Link>
         <Link href="/oauth-clients">OAuth Clients</Link>
+        <Link href="/config">Config</Link>
         <Link href="/reset">Reset</Link>
         <Link href="/audit">Audit</Link>
       </nav>
@@ -33,6 +34,9 @@ export default async function Home() {
         <p className="lede">
           Public remote MCP mock server for testing no-auth, Basic Auth, mock OAuth bearer tokens,
           endpoint permissions, and tool-call failure modes.
+        </p>
+        <p className="lede compact">
+          Use the <Link href="/config">connection guide</Link> for MCP, OAuth discovery metadata, and JWKS URLs.
         </p>
       </section>
 

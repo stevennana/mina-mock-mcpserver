@@ -1,1 +1,1 @@
-oauth-client-credentials-grant
+oauth-discovery-metadata

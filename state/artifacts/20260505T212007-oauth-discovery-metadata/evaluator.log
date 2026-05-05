@@ -1,0 +1,1991 @@
+/Users/stevenna/WebstormProjects/mina-mock-mcpserver/scripts/ralph/generated/current-evaluator-prompt.txt
+OpenAI Codex v0.128.0 (research preview)
+--------
+workdir: /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 019df81d-9da7-7073-aaca-aa3d2a20ef7e
+--------
+user
+You are the promotion evaluator for a repository-local Ralph loop.
+
+Read these documents before deciding:
+- AGENTS.md
+- ARCHITECTURE.md
+- docs/PRODUCT_SENSE.md
+- docs/SECURITY.md
+- docs/FRONTEND.md
+- docs/product-specs/oauth-consent-and-token-runtime.md
+- docs/exec-plans/active/018-oauth-discovery-metadata.md
+
+Current task id: oauth-discovery-metadata
+Current task title: OAuth Discovery Metadata and JWKS
+
+Objective:
+Expose OAuth protected-resource, authorization-server, OIDC configuration, and JWKS metadata aligned with the mock server runtime.
+
+Scope:
+- Implement discovery route handlers.
+- Implement JWKS route matching signing keys.
+- Update connection guide UI/docs for metadata endpoints.
+- Add unit/E2E tests tagged `@oauth-discovery`.
+
+Out of scope:
+- Client credentials grant already handled.
+- MCP permission enforcement.
+- Token UI/revocation.
+
+Exit criteria:
+1. Metadata endpoints return valid, internally consistent JSON.
+2. JWKS can be used to verify issued tokens according to the signing approach.
+3. Connection guide examples match actual routes.
+4. `@oauth-discovery` passes.
+5. All required checks pass.
+
+Evaluator notes:
+Required commands are mandatory promotion gates, not suggestions.
+Do not promote if any required check fails.
+Do not accept broad feature work outside this task.
+Confirm that this task maps to the primary product spec `oauth-consent-and-token-runtime.md` or is explicitly final hardening.
+
+Deterministic check summary:
+{
+  "checked_at": "2026-05-05T12:29:43.575Z",
+  "task_id": "oauth-discovery-metadata",
+  "commands": [
+    {
+      "command": "npm run test:unit",
+      "ok": true,
+      "output": "\n> mina-mock-mcpserver@1.0.0 test:unit\n> node --import tsx --test \"tests/unit/**/*.test.ts\"\n\n✔ Basic passwords are hashed and verified without plaintext storage (153.209834ms)\n✔ Basic Authorization parser handles missing, valid, unsupported, and malformed headers (1.174708ms)\n✔ Basic Authorization resolver authenticates enabled users and fails closed otherwise (1391.302625ms)\n✔ Basic credential verification uses stored hashes and enabled state (1316.926958ms)\n✔ built-in default Basic user cannot be disabled, changed, or deleted (900.877708ms)\n✔ normalizeLogLevel accepts supported operator log levels (0.367417ms)\n✔ normalizeLogLevel defaults invalid input to info (0.058667ms)\n✔ getBootstrapStatus reports prepared foundation state (0.053875ms)\n✔ db:prepare is repeatable and keeps seed rows singular (4939.458916ms)\n✔ endpoint runtime selects exact response cases after applying defaults (0.80775ms)\n✔ endpoint runtime falls back to the configured default case on no exact match (0.135ms)\n✔ endpoint runtime reports disabled endpoints and invalid arguments deterministically (0.073083ms)\n✔ endpoint validation accepts the MVP editor field set (0.637291ms)\n✔ endpoint validation returns field-level errors for UI rendering (0.366583ms)\n✔ MCP input schema generation reflects endpoint parameters (0.391542ms)\n✔ MCP initialize returns explicit no-auth MVP capabilities (0.75275ms)\n✔ MCP initialized notification is accepted without a JSON-RPC body (0.0745ms)\n✔ MCP tools/list returns loaded tools without executing them (0.075334ms)\n✔ MCP tools/call converts endpoint success to content and structuredContent (0.163875ms)\n✔ MCP tools/call maps unknown tools and invalid params to JSON-RPC invalid params (0.093833ms)\n✔ MCP unknown methods return JSON-RPC method not found (0.058375ms)\n✔ OAuth authorize validates client and exact registered redirect URI (1677.650042ms)\n✔ OAuth consent creates a single-use-ready authorization code with endpoint bindings (1259.245083ms)\n✔ OAuth consent rejects invalid users and endpoint selections outside the client allowed set (983.031208ms)\n✔ OAuth client secrets are generated once, hashed, and verifiable (1723.203792ms)\n✔ OAuth client allowed endpoints persist and reject unknown endpoint IDs (1214.461292ms)\n✔ built-in default OAuth client cannot be disabled, regenerated, or deleted (959.496167ms)\n✔ OAuth discovery metadata advertises only implemented grant and endpoint behavior (0.794834ms)\n✔ OAuth issuer resolution respects configured base URL before request origin (0.099ms)\n✔ OAuth JWKS exposes the public RS256 key without private material (1.931875ms)\n✔ authorization_code exchange issues RS256 JWT claims and stores token metadata (1685.916083ms)\n✔ client_credentials exchange issues client-subject JWT with scoped endpoint intersection (1323.313084ms)\n✔ client_credentials exchange rejects invalid credentials and disabled clients (949.581833ms)\n✔ authorization_code exchange rejects reuse, redirect mismatch, expired code, invalid client, and unsupported grants (852.89875ms)\n✔ OAuth user passwords are hashed and verified without plaintext storage (1397.777292ms)\n✔ built-in default OAuth user cannot be disabled, changed, or deleted (1181.783667ms)\n✔ OAuth user TTL validation rejects non-preset and never-expiring values (953.87975ms)\n✔ Ralph promotion resolves ordered successor filenames by taskmeta id (53.776584ms)\n✔ reset requires confirmation and leaves endpoint state untouched on failure (1425.148375ms)\n✔ reset clears mutable endpoint data and recreates current seed defaults (1331.601291ms)\n✔ REST tool metadata maps endpoint parameters without MCP JSON-RPC envelope (1.688292ms)\n✔ REST tool call mapper preserves success bodies and maps deterministic errors (0.167667ms)\nℹ tests 42\nℹ suites 0\nℹ pass 42\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 5311.351292\n"
+    },
+    {
+      "command": "npm run test:e2e -- --grep @oauth-discovery",
+      "ok": true,
+      "output": "\n> mina-mock-mcpserver@1.0.0 test:e2e\n> playwright test --grep @oauth-discovery\n\n\nRunning 1 test using 1 worker\n\n  ✓  1 [chromium] › tests/e2e/oauth-discovery.spec.ts:17:5 › OAuth discovery metadata and JWKS are internally consistent @oauth-discovery (1.1s)\n\n  1 passed (5.5s)\n",
+      "preflight": {
+        "command": "ensure-e2e-port-free.sh 3100",
+        "error": "",
+        "ok": true,
+        "output": "port-cleanup: 127.0.0.1:3100 already free\n"
+      },
+      "next_server_log_path": "/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T212007-oauth-discovery-metadata/npm-run-test-e2e-grep-oauth-discovery-next-server.log"
+    },
+    {
+      "command": "npm run verify",
+      "ok": true,
+      "output": "\n> mina-mock-mcpserver@1.0.0 verify\n> npm run lint && npm run typecheck && npm run build && npm run test:unit && npm run test:e2e && npm run start:smoke\n\n\n> mina-mock-mcpserver@1.0.0 lint\n> eslint .\n\n\n> mina-mock-mcpserver@1.0.0 typecheck\n> tsc --noEmit\n\n\n> mina-mock-mcpserver@1.0.0 build\n> next build\n\n   ▲ Next.js 15.5.15\n\n   Creating an optimized production build ...\n ✓ Compiled successfully in 927ms\n   Linting and checking validity of types ...\n   Collecting page data ...\n   Generating static pages (0/25) ...\n   Generating static pages (6/25) \r\n   Generating static pages (12/25) \r\n   Generating static pages (18/25) \r\n ✓ Generating static pages (25/25)\n   Finalizing page optimization ...\n   Collecting build traces ...\n\nRoute (app)                                     Size  First Load JS\n┌ ○ /                                          167 B         106 kB\n├ ○ /_not-found                                999 B         103 kB\n├ ƒ /.well-known/oauth-authorization-server    177 B         102 kB\n├ ƒ /.well-known/oauth-protected-resource      177 B         102 kB\n├ ƒ /.well-known/openid-configuration          177 B         102 kB\n├ ƒ /api/audit                                 177 B         102 kB\n├ ƒ /api/basic-users                           177 B         102 kB\n├ ƒ /api/basic-users/[id]                      177 B         102 kB\n├ ƒ /api/endpoints                             177 B         102 kB\n├ ƒ /api/endpoints/[id]                        177 B         102 kB\n├ ƒ /api/health                                177 B         102 kB\n├ ƒ /api/oauth-clients                         177 B         102 kB\n├ ƒ /api/oauth-clients/[id]                    177 B         102 kB\n├ ƒ /api/oauth-clients/[id]/secret             177 B         102 kB\n├ ƒ /api/oauth-users                           177 B         102 kB\n├ ƒ /api/oauth-users/[id]                      177 B         102 kB\n├ ƒ /api/reset                                 177 B         102 kB\n├ ○ /audit                                     167 B         106 kB\n├ ○ /basic-users                             2.22 kB         108 kB\n├ ƒ /config                                    167 B         106 kB\n├ ○ /endpoints                               5.62 kB         111 kB\n├ ƒ /mcp                                       177 B         102 kB\n├ ƒ /mcp/basic                                 177 B         102 kB\n├ ƒ /mcp/none                                  177 B         102 kB\n├ ○ /oauth-clients                              3 kB         109 kB\n├ ○ /oauth-users                             2.42 kB         108 kB\n├ ƒ /oauth/authorize                           177 B         102 kB\n├ ƒ /oauth/consent                             177 B         102 kB\n├ ƒ /oauth/jwks                                177 B         102 kB\n├ ƒ /oauth/login                               177 B         102 kB\n├ ƒ /oauth/token                               177 B         102 kB\n├ ○ /reset                                   1.01 kB         107 kB\n├ ƒ /rest/tools                                177 B         102 kB\n└ ƒ /rest/tools/[name]/call                    177 B         102 kB\n+ First Load JS shared by all                 102 kB\n  ├ chunks/255-4f212684648fcab9.js             46 kB\n  ├ chunks/4bd1b696-c023c6e3521b1417.js      54.2 kB\n  └ other shared chunks (total)              1.92 kB\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n\n\n> mina-mock-mcpserver@1.0.0 test:unit\n> node --import tsx --test \"tests/unit/**/*.test.ts\"\n\n✔ Basic passwords are hashed and verified without plaintext storage (106.907167ms)\n✔ Basic Authorization parser handles missing, valid, unsupported, and malformed headers (1.561459ms)\n✔ Basic Authorization resolver authenticates enabled users and fails closed otherwise (1269.089292ms)\n✔ Basic credential verification uses stored hashes and enabled state (1270.182291ms)\n✔ built-in default Basic user cannot be disabled, changed, or deleted (962.041542ms)\n✔ normalizeLogLevel accepts supported operator log levels (0.368084ms)\n✔ normalizeLogLevel defaults invalid input to info (0.06ms)\n✔ getBootstrapStatus reports prepared foundation state (0.0545ms)\n✔ db:prepare is repeatable and keeps seed rows singular (4893.529166ms)\n✔ endpoint runtime selects exact response cases after applying defaults (0.910416ms)\n✔ endpoint runtime falls back to the configured default case on no exact match (0.143542ms)\n✔ endpoint runtime reports disabled endpoints and invalid arguments deterministically (0.101916ms)\n✔ endpoint validation accepts the MVP editor field set (0.642084ms)\n✔ endpoint validation returns field-level errors for UI rendering (0.367417ms)\n✔ MCP input schema generation reflects endpoint parameters (0.405125ms)\n✔ MCP initialize returns explicit no-auth MVP capabilities (0.742625ms)\n✔ MCP initialized notification is accepted without a JSON-RPC body (0.06825ms)\n✔ MCP tools/list returns loaded tools without executing them (0.070833ms)\n✔ MCP tools/call converts endpoint success to content and structuredContent (0.161209ms)\n✔ MCP tools/call maps unknown tools and invalid params to JSON-RPC invalid params (0.107ms)\n✔ MCP unknown methods return JSON-RPC method not found (0.066833ms)\n✔ OAuth authorize validates client and exact registered redirect URI (1469.5395ms)\n✔ OAuth consent creates a single-use-ready authorization code with endpoint bindings (1205.968875ms)\n✔ OAuth consent rejects invalid users and endpoint selections outside the client allowed set (1008.092208ms)\n✔ OAuth client secrets are generated once, hashed, and verifiable (1484.4925ms)\n✔ OAuth client allowed endpoints persist and reject unknown endpoint IDs (1227.740417ms)\n✔ built-in default OAuth client cannot be disabled, regenerated, or deleted (982.10325ms)\n✔ OAuth discovery metadata advertises only implemented grant and endpoint behavior (0.803333ms)\n✔ OAuth issuer resolution respects configured base URL before request origin (0.0975ms)\n✔ OAuth JWKS exposes the public RS256 key without private material (2.098792ms)\n✔ authorization_code exchange issues RS256 JWT claims and stores token metadata (1528.171459ms)\n✔ client_credentials exchange issues client-subject JWT with scoped endpoint intersection (1285.415167ms)\n✔ client_credentials exchange rejects invalid credentials and disabled clients (969.233209ms)\n✔ authorization_code exchange rejects reuse, redirect mismatch, expired code, invalid client, and unsupported grants (868.697625ms)\n✔ OAuth user passwords are hashed and verified without plaintext storage (1290.136916ms)\n✔ built-in default OAuth user cannot be disabled, changed, or deleted (1144.052708ms)\n✔ OAuth user TTL validation rejects non-preset and never-expiring values (948.174166ms)\n✔ Ralph promotion resolves ordered successor filenames by taskmeta id (60.855625ms)\n✔ reset requires confirmation and leaves endpoint state untouched on failure (1337.125ms)\n✔ reset clears mutable endpoint data and recreates current seed defaults (1268.823625ms)\n✔ REST tool metadata maps endpoint parameters without MCP JSON-RPC envelope (0.707542ms)\n✔ REST tool call mapper preserves success bodies and maps deterministic errors (0.130333ms)\nℹ tests 42\nℹ suites 0\nℹ pass 42\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 5216.360459\n\n> mina-mock-mcpserver@1.0.0 test:e2e\n> playwright test\n\n\nRunning 20 tests using 1 worker\n\n  ✓   1 [chromium] › tests/e2e/basic-auth-mcp.spec.ts:7:5 › Basic Auth MCP strict route and unified precedence fail closed and allow valid callers @basic-auth-mcp (668ms)\n  ✓   2 [chromium] › tests/e2e/basic-users.spec.ts:5:5 › Basic users management UI protects default and manages editable users @ui-basic-users (1.7s)\n  ✓   3 [chromium] › tests/e2e/bootstrap.spec.ts:3:5 › foundation dashboard renders planned MCP mock server surfaces (450ms)\n  ✓   4 [chromium] › tests/e2e/bootstrap.spec.ts:11:5 › health endpoint reports ok status (154ms)\n  ✓   5 [chromium] › tests/e2e/endpoint-console.spec.ts:5:5 › endpoint schema preview and console shell stay stable on desktop and mobile @ui-endpoint-console (1.0s)\n  ✓   6 [chromium] › tests/e2e/endpoint-delete-audit.spec.ts:17:5 › endpoint delete requires confirmation and writes non-secret audit evidence @endpoint-delete-audit (3.1s)\n  ✓   7 [chromium] › tests/e2e/endpoint-editor.spec.ts:5:5 › endpoint editor supports persisted create, edit, search, screenshots, and responsive checks @ui-endpoint-editor (1.3s)\n  ✓   8 [chromium] › tests/e2e/mcp-initialize-list.spec.ts:3:5 › no-auth MCP initialize, initialized notification, and tools/list use enabled endpoint schemas @mcp-initialize-list (169ms)\n  ✓   9 [chromium] › tests/e2e/mcp-tools-call.spec.ts:3:5 › no-auth MCP tools/call executes enabled endpoint cases and deterministic errors @mcp-tools-call (62ms)\n  ✓  10 [chromium] › tests/e2e/oauth-client-credentials.spec.ts:12:5 › OAuth client_credentials issues tokens with endpoint scope intersection @oauth-client-credentials (887ms)\n  ✓  11 [chromium] › tests/e2e/oauth-clients.spec.ts:5:5 › OAuth clients management UI protects default, shows secrets once, and persists allowed endpoints @ui-oauth-clients (2.6s)\n  ✓  12 [chromium] › tests/e2e/oauth-code-token.spec.ts:12:5 › OAuth authorization code exchanges once for endpoint-permission JWT @oauth-code-token (1.7s)\n  ✓  13 [chromium] › tests/e2e/oauth-code-token.spec.ts:108:5 › OAuth token endpoint rejects invalid authorization_code exchanges @oauth-code-token (27ms)\n  ✓  14 [chromium] › tests/e2e/oauth-consent.spec.ts:6:5 › OAuth authorization login and consent creates an endpoint-bound code @oauth-consent (743ms)\n  ✓  15 [chromium] › tests/e2e/oauth-consent.spec.ts:81:5 › OAuth authorize and login invalid paths fail deterministically @oauth-consent (1.0s)\n  ✓  16 [chromium] › tests/e2e/oauth-discovery.spec.ts:17:5 › OAuth discovery metadata and JWKS are internally consistent @oauth-discovery (1.4s)\n  ✓  17 [chromium] › tests/e2e/oauth-users.spec.ts:5:5 › OAuth users management UI protects default, validates TTLs, and manages editable users @ui-oauth-users (2.1s)\n  ✓  18 [chromium] › tests/e2e/rest-tools-call.spec.ts:7:5 › REST tools call executes exact matches, Basic auth, errors, and console evidence @rest-tools-call (1.3s)\n  ✓  19 [chromium] › tests/e2e/rest-tools-list.spec.ts:7:5 › REST tools list exposes enabled metadata for no-auth and Basic callers @rest-tools-list (760ms)\n  ✓  20 [chromium] › tests/e2e/root-reset.spec.ts:16:5 › root reset requires password and restores deterministic endpoint defaults @root-reset (3.4s)\n\n  20 passed (29.0s)\n\n> mina-mock-mcpserver@1.0.0 start:smoke\n> node scripts/start-smoke.mjs\n\n\n> mina-mock-mcpserver@1.0.0 db:prepare\n> node scripts/db-prepare.mjs\n\nDatasource \"db\": SQLite database \"runtime.sqlite\" at \"file:./data/runtime.sqlite\"\n\n9 migrations found in prisma/migrations\n\n\nNo pending migrations to apply.\n\n✔ Generated Prisma Client (v7.8.0) to ./node_modules/@prisma/client in 57ms\n\nStart by importing your Prisma Client (See: https://pris.ly/d/importing-client)\n\n\nPrepared SQLite runtime state with Prisma migrations and seed defaults.\n\n> mina-mock-mcpserver@1.0.0 build\n> next build\n\n   ▲ Next.js 15.5.15\n\n   Creating an optimized production build ...\n ✓ Compiled successfully in 932ms\n   Linting and checking validity of types ...\n   Collecting page data ...\n   Generating static pages (0/25) ...\n   Generating static pages (6/25) \r\n   Generating static pages (12/25) \r\n   Generating static pages (18/25) \r\n ✓ Generating static pages (25/25)\n   Finalizing page optimization ...\n   Collecting build traces ...\n\nRoute (app)                                     Size  First Load JS\n┌ ○ /                                          167 B         106 kB\n├ ○ /_not-found                                999 B         103 kB\n├ ƒ /.well-known/oauth-authorization-server    177 B         102 kB\n├ ƒ /.well-known/oauth-protected-resource      177 B         102 kB\n├ ƒ /.well-known/openid-configuration          177 B         102 kB\n├ ƒ /api/audit                                 177 B         102 kB\n├ ƒ /api/basic-users                           177 B         102 kB\n├ ƒ /api/basic-users/[id]                      177 B         102 kB\n├ ƒ /api/endpoints                             177 B         102 kB\n├ ƒ /api/endpoints/[id]                        177 B         102 kB\n├ ƒ /api/health                                177 B         102 kB\n├ ƒ /api/oauth-clients                         177 B         102 kB\n├ ƒ /api/oauth-clients/[id]                    177 B         102 kB\n├ ƒ /api/oauth-clients/[id]/secret             177 B         102 kB\n├ ƒ /api/oauth-users                           177 B         102 kB\n├ ƒ /api/oauth-users/[id]                      177 B         102 kB\n├ ƒ /api/reset                                 177 B         102 kB\n├ ○ /audit                                     167 B         106 kB\n├ ○ /basic-users                             2.22 kB         108 kB\n├ ƒ /config                                    167 B         106 kB\n├ ○ /endpoints                               5.62 kB         111 kB\n├ ƒ /mcp                                       177 B         102 kB\n├ ƒ /mcp/basic                                 177 B         102 kB\n├ ƒ /mcp/none                                  177 B         102 kB\n├ ○ /oauth-clients                              3 kB         109 kB\n├ ○ /oauth-users                             2.42 kB         108 kB\n├ ƒ /oauth/authorize                           177 B         102 kB\n├ ƒ /oauth/consent                             177 B         102 kB\n├ ƒ /oauth/jwks                                177 B         102 kB\n├ ƒ /oauth/login                               177 B         102 kB\n├ ƒ /oauth/token                               177 B         102 kB\n├ ○ /reset                                   1.01 kB         107 kB\n├ ƒ /rest/tools                                177 B         102 kB\n└ ƒ /rest/tools/[name]/call                    177 B         102 kB\n+ First Load JS shared by all                 102 kB\n  ├ chunks/255-4f212684648fcab9.js             46 kB\n  ├ chunks/4bd1b696-c023c6e3521b1417.js      54.2 kB\n  └ other shared chunks (total)              1.92 kB\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n\n   ▲ Next.js 15.5.15\n   - Local:        http://localhost:3100\n   - Network:      http://192.168.100.125:3100\n\n ✓ Starting...\n ✓ Ready in 265ms\nProduction-style startup smoke passed at http://127.0.0.1:3100/api/health\n",
+      "preflight": {
+        "command": "ensure-e2e-port-free.sh 3100",
+        "error": "",
+        "ok": true,
+        "output": "port-cleanup: 127.0.0.1:3100 already free\n"
+      },
+      "next_server_log_path": "/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T212007-oauth-discovery-metadata/npm-run-verify-next-server.log"
+    }
+  ],
+  "missing_files": [],
+  "pass": true
+}
+
+Worker handoff summary from the last run:
+Implemented `oauth-discovery-metadata` and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+
+Added OAuth discovery/JWKS helpers and routes for `/.well-known/oauth-protected-resource`, `/.well-known/oauth-authorization-server`, `/.well-known/openid-configuration`, and `/oauth/jwks`. Updated `/oauth/token` issuer resolution, added the `/config` connection guide entries, updated scoped docs and the active progress log, and added unit plus `@oauth-discovery` E2E coverage.
+
+Required checks passed:
+- `npm run test:unit`
+- `npm run test:e2e -- --grep @oauth-discovery`
+- `npm run verify`
+
+Exit criteria appear satisfied. Nothing remains for this task.
+
+Your job:
+- inspect the repository and current implementation
+- determine whether the current task is actually complete
+- mark `done` only if the exit criteria are satisfied in substance, not just approximately
+- prefer conservative decisions
+- recommend promotion only if the task is truly ready
+
+Return JSON only using the provided schema.
+
+codex
+{"decision":"not_done","recommend_promotion":false,"confidence":0,"summary":"Starting evaluation; I’ll read the required docs and inspect the implemented discovery/JWKS paths against the task contract before deciding.","satisfied_exit_criteria":[],"missing_requirements":["evaluation in progress"],"human_review_triggers":[]}
+codex
+{"decision":"not_done","recommend_promotion":false,"confidence":0,"summary":"I need repository evidence rather than the handoff alone, so I’m gathering the required documentation and the relevant route/test files now.","satisfied_exit_criteria":[],"missing_requirements":["evaluation in progress"],"human_review_triggers":[]}
+exec
+/bin/zsh -lc "sed -n '1,220p' AGENTS.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# AGENTS.md
+
+## Purpose
+MCP Mock Server is a public remote MCP mock server and web UI for testing no-auth, Basic Auth, and mock OAuth bearer tool calls.
+
+This repository is optimized for agent-legible development and a Ralph-style task-promotion loop.
+
+## Read Order
+Before changing code or plans, read these files in order:
+
+1. `ARCHITECTURE.md`
+2. `docs/PRODUCT_SENSE.md`
+3. `docs/design-docs/core-beliefs.md`
+4. `docs/product-specs/index.md`
+5. `docs/FRONTEND.md`
+6. `docs/PLANS.md`
+7. active plans in `docs/exec-plans/active/`
+
+## Scope Guardrails
+### In scope for v1
+- Next.js App Router web gateway and route handlers
+- TypeScript domain/services with Prisma SQLite persistence
+- endpoint/tool management with up to three parameters and exact-match response cases
+- no-auth, Basic, and OAuth bearer MCP/REST runtime paths
+- OAuth user/client/token administration, authorization code flow, client credentials flow, discovery metadata, and JWKS
+- failure simulation, audit log, server config, reset, logging, Docker/Nginx guidance, and Ralph harness
+
+### Explicitly out of scope for v1
+- production-grade identity management
+- external OAuth provider integration
+- true multi-tenant isolation
+- enterprise RBAC for the public admin UI
+- handling sensitive customer data
+- full MCP resources, prompts, sampling, elicitation, or task-augmented execution in MVP
+- replacing a real authorization server
+
+## Product Shape
+- public admin UI for mock endpoint, auth, token, config, reset, and audit management
+- MCP Streamable HTTP-style JSON-RPC endpoints at /mcp and strict auth aliases
+- REST tool list/call API for curl and Postman style testing
+- mock OAuth authorization server with login, consent, token, revocation, and discovery metadata
+- SQLite-backed persistence with deterministic seed defaults
+
+## Technical Shape
+- Next.js App Router and TypeScript with npm scripts
+- Prisma plus SQLite for migrations, seed defaults, and persistent runtime state
+- layered domain shape: types, config, repo, service, runtime, UI
+- Playwright for E2E and UI verification, node --import tsx --test for unit tests
+- logs/ plus LOG_LEVEL and start:logged for operator-visible server flow
+
+## Validation Strategy
+Use layered checks:
+- unit tests for domain rules
+- integration tests for repository/runtime boundaries where needed
+- small E2E coverage for the required user journeys only
+
+Promotion is blocked when required checks fail. Required test commands in active task contracts are hard gates, not suggestions.
+While iterating, prefer the smallest targeted check for the code you just changed. Use the full required command set before considering the task done.
+If a feature depends on an outside resource such as AI chat or another remote service, keep it in the required E2E flows before allowing promotion.
+If a task is mainly UI or UX work, require a dedicated `@ui-*` Playwright command with screenshot, responsive, and accessibility checks before allowing promotion.
+If `taskmeta.promotion_mode` is `deterministic_only`, passing the required commands is sufficient for promotion without human review.
+For manual server inspection, prefer `npm run start:logged` and set `LOG_LEVEL` intentionally instead of relying only on ephemeral terminal output.
+
+### Required E2E flows
+- endpoint create/edit/delete and console call flow
+- MCP initialize, tools/list, and tools/call in no-auth mode
+- Basic user creation and strict /mcp/basic success/failure
+- REST tools list/call across auth modes
+- OAuth browser consent, token exchange, allowed tool call, denied tool call, and revocation
+- failure simulation and audit evidence
+- config/health/reset/startup smoke
+
+## Documentation Discipline
+- If behavior changes, update the related spec or design doc in the same cycle.
+- Prefer small, executable plans over vague TODOs.
+- When a repeated mistake appears, first document it; if it keeps recurring, promote it into tests or lint rules.
+- Keep the documented test strategy current; do not leave promotion gates implied.
+- When adding or editing tests, explain what behavior the test protects if that intent would otherwise be easy to lose.
+
+## Search Discipline
+- Search the codebase before concluding that a thing is unimplemented.
+- Prefer multiple targeted searches over one broad assumption.
+- If you find a partial implementation, adapt or complete it instead of duplicating it blindly.
+
+## Optional Companion Skills
+- If the customer allows them and they are installed, consider relevant companion skills before planning or implementation.
+- Good candidates include database, Next.js pattern, UI design, responsive UI, and clean-architecture skills.
+
+## Done Definition
+A task is done only when its scoped behavior works in substance, docs and tests match the implementation, required deterministic commands pass, and promotion rules in taskmeta are satisfied.
+
+exec
+/bin/zsh -lc "sed -n '1,260p' ARCHITECTURE.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# ARCHITECTURE.md
+
+## Goal
+Build MCP Mock Server as an agent-legible codebase with strong boundaries, a short instruction surface, and enough extension seams to support future change without overbuilding v1.
+
+## System Overview
+MCP Mock Server is a web application with:
+- a public Next.js UI served on port 3000
+- server-side route handlers for admin APIs, MCP, REST, OAuth, and discovery metadata
+- SQLite persistence prepared by npm run db:prepare
+- operator logs under logs/ with LOG_LEVEL selection
+- Ralph scripts under scripts/ralph/ driving active task promotion
+
+## Architectural Priorities
+- isolate MCP protocol formatting from endpoint matching and auth decisions
+- keep auth mode resolution explicit and fail closed for invalid Basic/Bearer headers
+- store immutable endpoint IDs and treat names as external labels
+- make seeded built-in users/clients impossible to delete or disable through normal flows
+- prove persistence and production-style startup with deterministic commands
+
+## Layered Domain Model
+Use a strict forward-only dependency shape inside each domain:
+
+`Types -> Config -> Repo -> Service -> Runtime -> UI`
+
+### Why this matters
+The repository is intended to work well with long-running agent loops. Strict boundaries reduce accidental coupling and make failure analysis easier.
+
+## Primary Domains
+| Domain | Responsibility |
+|---|---|
+| Endpoint catalog | Endpoint CRUD, parameters, response cases, delete code, enabled state |
+| Matcher/runtime | Argument normalization, exact match, default/no-match, delay/error/malformed behavior |
+| MCP protocol | JSON-RPC request handling, initialize, tools/list, tools/call, MCP errors |
+| REST API | Tool list/call responses and REST error mapping |
+| Basic auth | Basic users, password hashing, built-in default protection, 401 behavior |
+| OAuth | Users, clients, codes, JWTs, permissions, revocation, discovery metadata |
+| Admin UI | Dashboards, editors, console, config, reset, audit screens |
+| Operations | SQLite prep, seed defaults, base URL, Docker/Nginx docs, logs, health |
+
+## Frontend / Backend Shape
+### Frontend
+- App Router screens should be dense, operational, and optimized for repeated testing
+- UI routes read and mutate through server-backed APIs, not local-only state
+- route-level loading and error states are required for public mutation surfaces
+- test console shows raw request, raw response, principal, matched case, and elapsed time
+- OAuth login and consent UI is separate from the admin navigation
+
+### Server
+- Next.js route handlers own HTTP surfaces for MVP
+- domain services own validation, matching, auth, token, and reset logic
+- repositories isolate Prisma access
+- protocol adapters convert domain outcomes into MCP JSON-RPC or REST responses
+- startup code prepares runtime state before production-style serving
+
+## Persistence Strategy
+- SQLite is the source of truth for endpoints, parameters, cases, users, clients, codes, tokens, audit events, and settings
+- Prisma migrations define the schema and db:prepare applies migrations plus idempotent seed defaults
+- built-in default/default Basic user, OAuth user, and OAuth client are recreated and protected
+- issued token records store jti and metadata; raw tokens are shown only at issuance unless explicitly configured
+- tests use isolated temporary databases or resettable seed state
+
+## Verification Shape
+- unit tests cover validators, matching, auth precedence, JWT claims, permissions, reset, and protocol formatting
+- Playwright proves browser-visible workflows and external-client-like OAuth/MCP/REST flows
+- start:smoke builds, prepares runtime state, starts the production server, probes health, and shuts down
+- verify runs lint, typecheck, build, unit, E2E, and startup smoke
+- failing required checks block Ralph promotion
+
+## Long-Running Agent Readiness
+- docs are the system of record
+- plans are executable, not aspirational
+- domain boundaries are explicit
+- repeated issues should be upgraded into tests or static checks
+
+exec
+/bin/zsh -lc "sed -n '1,260p' docs/SECURITY.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+exec
+/bin/zsh -lc "sed -n '1,220p' docs/PRODUCT_SENSE.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# SECURITY.md
+
+## Purpose
+Define the security posture for MCP Mock Server's current shipped slice.
+
+## Core Security Rules
+- validate Origin for Streamable HTTP-style MCP routes where browser-origin risk applies
+- unsupported Authorization schemes return 401
+- invalid Basic/Bearer credentials never downgrade to no-auth
+- OAuth tokens must verify signature, issuer, audience, expiry, jti revocation, and endpoint permissions
+- built-in identities and clients cannot be disabled or deleted through normal UI/API flows
+- built-in Basic Auth identities also cannot have passwords changed through normal UI/API flows
+- built-in OAuth login identities also cannot have passwords or token TTLs changed through normal UI/API flows
+- built-in OAuth clients cannot be disabled, deleted, edited, or assigned regenerated secrets through normal UI/API flows
+- root password comparisons must avoid logging and should use constant-time comparison where practical
+
+## Secrets and Config
+- ROOT_PASSWORD gates reset, delete override, base URL override, and optional historical token deletion
+- client secrets and passwords are never logged
+- endpoint delete audit entries store method/reason metadata, not submitted delete codes or root passwords
+- reset audit entries store success/failure reason and seed counts, not submitted root passwords
+- passwords are stored only as hashes
+- Basic Auth password verification compares submitted credentials against stored hashes without logging submitted passwords
+- OAuth login-user passwords are stored only as hashes and are not logged by management APIs
+- OAuth client secrets are generated server-side, stored only as hashes, and returned only at creation or regeneration
+- OAuth browser consent uses exact registered redirect URI matching and a short-lived signed login ticket before authorization code creation
+- OAuth authorization codes are stored as single-use-ready records with expiry, client, redirect URI, user, audience/resource, and selected endpoint bindings
+- `/oauth/token` authorization-code exchange requires the same client, client secret, and redirect URI; consumed, expired, mismatched, or unknown codes fail with OAuth-style errors
+- `/oauth/token` client-credentials exchange requires a valid enabled client and secret, does not require user login, and intersects requested endpoint scopes with the client's allowed endpoint set
+- Access tokens are RS256 JWTs signed with `OAUTH_JWT_PRIVATE_KEY_PEM` when configured, otherwise a documented development key; issued token metadata is stored by `jti`, and raw token values are not persisted
+- `/oauth/jwks` publishes only the public RS256 verification key with the active token `kid`; private key parameters must never be present in the JWKS response
+- OAuth discovery metadata must describe implemented mock capabilities only and must not advertise refresh tokens, PKCE, external providers, or unimplemented revocation behavior
+- raw JWT values are shown only at issuance unless a config explicitly permits storage
+- LOG_LEVEL controls verbosity but must not expose secrets even at trace/debug
+
+## Public Surfaces
+- public admin UI routes and /api/* mutation endpoints
+- MCP routes /mcp, /mcp/none, /mcp/basic, /mcp/oauth
+- REST mock routes /rest/tools and /rest/tools/:name/call
+- OAuth browser, token, revocation, discovery, and JWKS routes
+- health and public config endpoints
+
+## Verification
+- unit tests for password hashing, auth precedence, root checks, built-in immutability, JWT signing/claims, code exchange failure cases, and permission denial
+- E2E tests for Basic 401/success and OAuth 401/403/revocation
+- reset tests prove endpoint defaults are recreated after root-password and confirmation checks
+- audit tests prove failed delete attempts and reset events are recorded
+
+ succeeded in 0ms:
+# PRODUCT_SENSE.md
+
+## One-Line Product Definition
+MCP Mock Server is a public remote MCP mock server and web UI for testing no-auth, Basic Auth, and mock OAuth bearer tool calls.
+
+## Who It Is For
+### Primary user
+MCP client developers, AI agent developers, demo/QA users, and the server operator.
+
+## User Problem
+MCP client and AI-agent developers need a configurable remote server that behaves enough like a real MCP server to prove connection, auth, token, permission, and tool-call behavior before integrating with production systems.
+
+## Why This Product Exists
+Remote MCP adoption is moving auth, transport, and permission bugs into client integration work. A public mock server gives teams a repeatable target for manual testing, automated E2E checks, demos, and negative-path validation.
+
+## Product Principles
+- realistic MCP and OAuth behavior over decorative admin features
+- public-by-design administration with light destructive-operation protection
+- destructive endpoint deletion requires a delete code or root-password override and leaves non-secret audit evidence
+- deterministic mocks: exact-match cases, explicit defaults, and observable failures
+- endpoint permissions are visible, selectable, and enforced
+- operator recovery paths must be simple and root-password protected
+
+## Core Value in v1
+- create a mock endpoint once and exercise it through MCP and REST
+- inspect the generated MCP input schema and execute REST no-auth or Basic calls from the endpoint console with raw evidence
+- initialize no-auth MCP clients, list enabled tools, and execute exact-match tool calls
+- manage Basic Auth test users while keeping the built-in default/default fixture locked
+- list enabled tools and call configured mock tools through simple REST routes for curl and Postman style testing
+- prove no-auth, Basic, and OAuth bearer client behavior against strict routes
+- issue mock OAuth tokens with endpoint-level permissions through browser consent or non-interactive client credentials
+- create mock OAuth authorization codes through browser login and consent with explicit endpoint permission selection
+- expose OAuth discovery metadata and a public JWKS that match the mock RS256 token issuer
+- simulate failure cases that clients often mishandle
+- persist configuration and provide root-password-protected reset/recovery for a public test service
+
+## Non-Goals for v1
+- production-grade identity management
+- external OAuth provider integration
+- true multi-tenant isolation
+- enterprise RBAC for the public admin UI
+- handling sensitive customer data
+- full MCP resources, prompts, sampling, elicitation, or task-augmented execution in MVP
+- replacing a real authorization server
+
+## v1 Success Signals
+- a new endpoint can be created and edited through the public endpoint UI, then listed through tools/list and GET /rest/tools, called through tools/call, and called through POST /rest/tools/:name/call
+- Basic default/default and additional users work on strict Basic routes while invalid credentials return 401
+- OAuth default/default remains locked while additional login users can be configured with hashed passwords and MVP token TTL presets
+- OAuth default/default client remains locked while additional clients can be configured with generated copy-once secrets, redirect URIs, client credentials TTL presets, and maximum allowed endpoint sets
+- OAuth consent can select endpoints, exchange a single-use code for a JWT with endpoint permission claims, allow selected tools, deny unselected tools with 403, and return 401 after revocation
+- OAuth client credentials can issue a JWT without browser login, using the client's TTL and only the endpoint-scope intersection allowed for that client
+- token and audit screens show enough evidence to debug a client test, including endpoint delete success/failure without stored secrets
+- SQLite state survives restart and root reset restores currently implemented built-in endpoint and Basic user defaults
+- npm run verify and npm run start:smoke pass before task promotion
+
+## Product Risks
+- public UI can be abused or reset if root/delete-code handling is weak
+- OAuth semantics can drift into unrealistic behavior unless routes and E2E checks pin 401/403/token claims
+- MCP spec details may change, so the implementation must isolate protocol formatting
+- failure simulation can intentionally violate protocol behavior and needs visible warnings
+- persistent SQLite state can make tests flaky unless seeded and isolated deterministically
+
+exec
+/bin/zsh -lc "sed -n '1,320p' docs/product-specs/oauth-consent-and-token-runtime.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+exec
+/bin/zsh -lc "sed -n '1,260p' docs/FRONTEND.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# OAuth Consent and Token Runtime
+
+## Goal
+The mock OAuth server issues JWT bearer tokens through browser consent and client credentials, with endpoint-level permissions and revocation.
+
+## Trigger / Entry
+OAuth users and clients management
+
+## User-Visible Behavior
+- OAuth users and clients management
+- OAuth user management lists the locked built-in `default/default` login fixture and allows non-built-in users to be created, password-edited, TTL-edited, enabled/disabled, and deleted
+- OAuth login-user token TTLs use MVP presets only: 15 minutes, 1 hour, 8 hours, and 24 hours; never-expiring tokens are not available in this slice
+- OAuth user passwords are stored as hashes and never returned through the public management API
+- OAuth client management lists the locked built-in `default/default` client fixture and allows non-built-in clients to be created, edited, regenerated, disabled/enabled, and deleted
+- OAuth client secrets are generated server-side, stored as hashes, and returned only on create or regenerate responses
+- OAuth clients store redirect URIs, client credentials TTL presets, and a maximum allowed endpoint set that later consent and client credentials flows must not exceed
+- Login and consent flow
+- `/oauth/authorize` accepts authorization-code requests only after exact client and registered redirect URI validation
+- mock login verifies enabled OAuth users and carries the request to consent with a short-lived signed login ticket
+- consent displays client, redirect URI, resource, user, authorization-code TTL, and an endpoint permission checklist constrained to the client's allowed endpoint set
+- approving consent creates a single-use-ready authorization code bound to client, redirect URI, user, selected endpoints, resource/audience, state, expiry, and unused status, then redirects with `code` and `state`
+- Token issuance
+- `/oauth/token` supports the `authorization_code` grant with form-encoded `grant_type`, `code`, `redirect_uri`, `client_id`, and `client_secret`
+- valid code exchange marks the code used, returns `access_token`, `token_type`, `expires_in`, and `scope`, and stores issued token metadata by JWT `jti`
+- `/oauth/token` supports the `client_credentials` grant with form-encoded `grant_type`, `client_id`, `client_secret`, optional `scope`, and optional `resource`; no login or consent UI is involved
+- client-credentials tokens use the client credentials TTL, subject `client:<client_id>`, `grant_type=client_credentials`, and endpoint permissions equal to all client-allowed endpoints when no scope is requested or the intersection of requested `endpoint:<endpoint_id>` scopes and client-allowed endpoints when scope is present
+- access tokens are RS256 JWTs with issuer, audience/resource, subject, client ID, grant type, issued/expiry times, `jti`, scope, and `endpoint_permissions`
+- expired, reused, unknown, redirect-mismatched, client-mismatched, or client-secret-invalid authorization-code exchanges fail with deterministic OAuth-style errors
+- Token list/detail/revoke
+- Discovery metadata
+- `/.well-known/oauth-protected-resource`, `/.well-known/oauth-authorization-server`, `/.well-known/openid-configuration`, and `/oauth/jwks` expose the mock server's implemented OAuth capabilities only
+- Discovery advertises authorization code and client credentials grants, `code` response type, `client_secret_post` token authentication, endpoint scope format, token endpoint, authorization endpoint, and JWKS URI
+- Discovery must not advertise refresh tokens, PKCE, external identity providers, or revocation until those behaviors are implemented
+- `/oauth/jwks` exposes only the public RS256 verification key matching issued token `kid` and never private signing material
+
+## Validation
+- Built-in OAuth login user cannot be disabled, deleted, password-changed, or TTL-changed through normal public UI/API flows
+- Non-built-in OAuth login user CRUD validates username shape, password length, unique usernames, and token TTL presets
+- Built-in OAuth client cannot be disabled, deleted, edited, or secret-regenerated through normal public UI/API flows
+- Non-built-in OAuth client CRUD validates client ID shape, redirect URI shape, TTL presets, unique client IDs, and existing allowed endpoint IDs
+- Authorization code lifetime/single-use
+- Client redirect validation
+- Consent endpoint selection must be a subset of the registered OAuth client's allowed endpoint IDs
+- Client-credentials requested scopes must never expand beyond the registered OAuth client's allowed endpoint IDs
+- JWT claims/signature/expiry
+- Permission filtering
+- Revocation lookup
+- 401 versus 403 mapping
+- Authorization-code browser flow selects endpoint permissions, exchanges code for token, calls /mcp/oauth successfully for allowed endpoint, receives 403 for denied endpoint, revokes token and receives 401
+
+ succeeded in 0ms:
+# FRONTEND.md
+
+## Goal
+Describe the user-facing structure of MCP Mock Server so an agent can implement the UI without guessing the product model.
+
+## Tech Direction
+- Next.js application
+- TypeScript
+- App Router
+- server-backed data flows where appropriate
+
+## Route Map
+| Route | Surface | Notes |
+|---|---|---|
+| / | Dashboard | Counts, URL examples, public UI warning |
+| /endpoints | Endpoint tools | List/search/create/edit/delete/test |
+| /basic-users | Basic Auth users | Built-in default locked |
+| /oauth-users | OAuth users | Built-in default locked |
+| /oauth-clients | OAuth clients | Redirect URIs and allowed endpoints |
+| /tokens | Issued tokens | Claims, permissions, revoke, filters |
+| /config | Server config | Base URL, MCP/REST/OAuth examples, discovery metadata, JWKS, Nginx guide |
+| /reset | Reset | Root-password protected reset |
+| /audit | Audit log | Public mutation, protected delete, and token evidence |
+| /oauth/login | OAuth login | Separate from admin UI |
+| /oauth/consent | OAuth consent | Endpoint permission checklist |
+| /api/* | Admin/API | Health, CRUD, config, reset, audit |
+| /mcp, /mcp/none, /mcp/basic, /mcp/oauth | MCP JSON-RPC | Unified plus strict auth routes |
+| /rest/tools, /rest/tools/:name/call | REST mock API | Same tool catalog through REST |
+| /.well-known/*, /oauth/jwks, /oauth/token, /oauth/revoke | OAuth metadata/runtime | Discovery, token, revocation |
+
+## Primary Screens
+| Screen | Primary jobs |
+|---|---|
+| Dashboard | Summarize service state and show connection examples |
+| Endpoints | List, search, create, and edit mock tools, response cases, failure simulation, and delete protection |
+| Endpoint console | Preview MCP/REST call shape with selected auth mode, run REST no-auth and Basic calls, and show raw execution evidence |
+| Basic Auth users | List/search/create/password-edit/disable/delete Basic test identities and show the built-in default/default lock state |
+| OAuth users | List/search/create/password-edit/disable/delete OAuth login identities and token TTL presets with built-in default locked |
+| OAuth clients | Manage generated client secrets, redirect URIs, client credentials TTL presets, and allowed endpoint set |
+| OAuth login/consent | Complete authorization-code flow and select endpoint permissions |
+| Issued tokens | Inspect claims, permissions, expiration, and revoke tokens |
+| Config/guide | Show base URL, MCP/REST/OAuth URLs, OAuth discovery metadata, JWKS, sample client config, curl, Nginx |
+| Reset | Root-protected reset to current seed defaults with exact confirmation text |
+| Audit | Review mutation and security-relevant event history without exposing submitted secrets |
+
+## UI Rules
+- favor quiet, dense, operational layouts over marketing composition
+- use icons for copy, edit, delete, revoke, reset, refresh, and external-link actions where available
+- every destructive action has a confirmation path and explains whether delete code or root password is accepted
+- endpoint deletion keeps confirmation inputs separate from the endpoint editor values and clears submitted secrets after attempts
+- show protocol/auth warnings inline on malformed-response and public-admin controls
+- tables must support search/filter states without layout shift
+- endpoint editor forms must surface API/domain validation errors next to the affected fields
+- endpoint editor forms must show generated MCP `inputSchema` from the shared endpoint domain schema helper
+- endpoint console REST execution is available for no-auth and Basic modes and shows raw request, raw response, principal, matched case, and elapsed time
+- Basic user forms must not display password hashes and must disable mutation controls for built-in rows
+- OAuth user forms must not display password hashes, must use bounded token TTL presets, and must disable mutation controls for the built-in row
+- OAuth client forms must not display stored secret hashes, must show generated raw client secrets only at creation or regeneration, and must disable mutation controls for the built-in row
+- console outputs must preserve raw JSON formatting and elapsed/auth/match metadata
+- console shell states must clearly mark unavailable runtime actions instead of faking calls
+- UI-focused tasks must include desktop and mobile screenshots plus accessibility checks
+
+## Search / Share / Admin Notes
+- the admin UI is intentionally public, so copy must avoid implying enterprise security
+- root-password fields are used only for protected actions and must not be logged
+- reset confirmation must make clear that currently implemented endpoint data is deleted and seed defaults are recreated
+- copy buttons should exist for MCP URLs, REST URLs, client config, curl examples, client secrets at issuance, and JWTs at issuance
+- OAuth consent should make selected endpoint permissions unambiguous
+- OAuth consent must show client, redirect URI, resource, login user, authorization-code TTL, and the endpoint checklist outside the public admin navigation
+
+## Frontend Non-Goals for v1
+- no marketing landing page before the usable dashboard
+- no enterprise account settings or RBAC screens
+- no hidden destructive operations without confirmation
+- no decorative UI that obscures raw request/response evidence
+
+exec
+/bin/zsh -lc "sed -n '1,300p' docs/exec-plans/active/018-oauth-discovery-metadata.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# OAuth Discovery Metadata and JWKS
+
+```json taskmeta
+{
+  "id": "oauth-discovery-metadata",
+  "title": "OAuth Discovery Metadata and JWKS",
+  "order": 18,
+  "status": "active",
+  "next_task_on_success": "oauth-mcp-rest-permission-enforcement",
+  "prompt_docs": [
+    "AGENTS.md",
+    "ARCHITECTURE.md",
+    "docs/PRODUCT_SENSE.md",
+    "docs/SECURITY.md",
+    "docs/FRONTEND.md",
+    "docs/product-specs/oauth-consent-and-token-runtime.md"
+  ],
+  "required_commands": [
+    "npm run test:unit",
+    "npm run test:e2e -- --grep @oauth-discovery",
+    "npm run verify"
+  ],
+  "required_files": [],
+  "human_review_triggers": [
+    "The task broadens into unrelated feature fronts.",
+    "Required checks do not prove the claimed behavior.",
+    "Implementation changes contradict the product spec or security/reliability docs."
+  ],
+  "promotion_mode": "deterministic"
+}
+```
+
+## Objective
+
+Expose OAuth protected-resource, authorization-server, OIDC configuration, and JWKS metadata aligned with the mock server runtime.
+
+## Clarity notes
+
+- This task advertises already implemented OAuth capabilities; it should not claim unsupported features.
+- Metadata URLs must respect configured base URL behavior as far as currently implemented.
+- JWKS must match the token signing approach.
+- Connection guide should show metadata endpoints for MCP client setup.
+
+## Expected result
+
+- `.well-known/oauth-protected-resource`, `.well-known/oauth-authorization-server`, `.well-known/openid-configuration`, and `/oauth/jwks` return consistent JSON.
+- Metadata advertises authorization endpoint, token endpoint, JWKS endpoint, supported grants, response types, auth methods, and scopes.
+- Connection guide includes discovery URLs and examples.
+- Tests prove metadata shape and URL consistency.
+
+## Objections / risks to avoid
+
+- Do not advertise refresh tokens, PKCE, or external providers unless actually supported.
+- Do not expose private signing material in JWKS.
+- Do not hardcode public URLs in a way that breaks reverse proxy deployment.
+- Do not add new OAuth grants here.
+
+## Scope
+
+- Implement discovery route handlers.
+- Implement JWKS route matching signing keys.
+- Update connection guide UI/docs for metadata endpoints.
+- Add unit/E2E tests tagged `@oauth-discovery`.
+
+## Out of scope
+
+- Client credentials grant already handled.
+- MCP permission enforcement.
+- Token UI/revocation.
+
+## Exit criteria
+
+1. Metadata endpoints return valid, internally consistent JSON.
+2. JWKS can be used to verify issued tokens according to the signing approach.
+3. Connection guide examples match actual routes.
+4. `@oauth-discovery` passes.
+5. All required checks pass.
+
+## Required checks
+
+- npm run test:unit
+- npm run test:e2e -- --grep @oauth-discovery
+- npm run verify
+
+## Implementation notes
+
+- Keep mock-server limitations explicit.
+
+## Docs to update
+
+- docs/PRODUCT_SENSE.md
+- docs/SECURITY.md
+- docs/FRONTEND.md
+
+## Evaluator notes
+
+Required commands are mandatory promotion gates, not suggestions.
+Do not promote if any required check fails.
+Do not accept broad feature work outside this task.
+Confirm that this task maps to the primary product spec `oauth-consent-and-token-runtime.md` or is explicitly final hardening.
+
+## Progress log
+
+- Start here. Append timestamped progress notes as work lands.
+- Note when existing partial implementations were found and reused instead of replaced.
+- 2026-05-05T12:19:37.153Z: restored as current task after oauth-client-credentials-grant promotion.
+- 2026-05-05T12:26:34Z: found existing RS256 JWT issuance and request-origin issuer handling; added shared discovery/JWKS helpers, well-known route handlers, `/oauth/jwks`, a `/config` connection guide, docs updates, and unit/E2E coverage for metadata consistency and JWKS token verification.
+
+exec
+/bin/zsh -lc 'rg -n "discovery|jwks|openid|oauth-protected-resource|oauth-authorization-server|well-known|issuer|metadata" app src lib tests docs -S' in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+lib/rest/http.ts:79:      message: "This REST endpoint supports tool metadata listing with GET and tool calls with POST only.",
+docs/SECURITY.md:10:- OAuth tokens must verify signature, issuer, audience, expiry, jti revocation, and endpoint permissions
+docs/SECURITY.md:20:- endpoint delete audit entries store method/reason metadata, not submitted delete codes or root passwords
+docs/SECURITY.md:30:- Access tokens are RS256 JWTs signed with `OAUTH_JWT_PRIVATE_KEY_PEM` when configured, otherwise a documented development key; issued token metadata is stored by `jti`, and raw token values are not persisted
+docs/SECURITY.md:31:- `/oauth/jwks` publishes only the public RS256 verification key with the active token `kid`; private key parameters must never be present in the JWKS response
+docs/SECURITY.md:32:- OAuth discovery metadata must describe implemented mock capabilities only and must not advertise refresh tokens, PKCE, external providers, or unimplemented revocation behavior
+docs/SECURITY.md:40:- OAuth browser, token, revocation, discovery, and JWKS routes
+docs/exec-plans/active/018-oauth-discovery-metadata.md:1:# OAuth Discovery Metadata and JWKS
+docs/exec-plans/active/018-oauth-discovery-metadata.md:5:  "id": "oauth-discovery-metadata",
+docs/exec-plans/active/018-oauth-discovery-metadata.md:6:  "title": "OAuth Discovery Metadata and JWKS",
+docs/exec-plans/active/018-oauth-discovery-metadata.md:20:    "npm run test:e2e -- --grep @oauth-discovery",
+docs/exec-plans/active/018-oauth-discovery-metadata.md:35:Expose OAuth protected-resource, authorization-server, OIDC configuration, and JWKS metadata aligned with the mock server runtime.
+docs/exec-plans/active/018-oauth-discovery-metadata.md:40:- Metadata URLs must respect configured base URL behavior as far as currently implemented.
+docs/exec-plans/active/018-oauth-discovery-metadata.md:41:- JWKS must match the token signing approach.
+docs/exec-plans/active/018-oauth-discovery-metadata.md:42:- Connection guide should show metadata endpoints for MCP client setup.
+docs/exec-plans/active/018-oauth-discovery-metadata.md:46:- `.well-known/oauth-protected-resource`, `.well-known/oauth-authorization-server`, `.well-known/openid-configuration`, and `/oauth/jwks` return consistent JSON.
+docs/exec-plans/active/018-oauth-discovery-metadata.md:47:- Metadata advertises authorization endpoint, token endpoint, JWKS endpoint, supported grants, response types, auth methods, and scopes.
+docs/exec-plans/active/018-oauth-discovery-metadata.md:48:- Connection guide includes discovery URLs and examples.
+docs/exec-plans/active/018-oauth-discovery-metadata.md:49:- Tests prove metadata shape and URL consistency.
+docs/exec-plans/active/018-oauth-discovery-metadata.md:54:- Do not expose private signing material in JWKS.
+docs/exec-plans/active/018-oauth-discovery-metadata.md:60:- Implement discovery route handlers.
+docs/exec-plans/active/018-oauth-discovery-metadata.md:61:- Implement JWKS route matching signing keys.
+docs/exec-plans/active/018-oauth-discovery-metadata.md:62:- Update connection guide UI/docs for metadata endpoints.
+docs/exec-plans/active/018-oauth-discovery-metadata.md:63:- Add unit/E2E tests tagged `@oauth-discovery`.
+docs/exec-plans/active/018-oauth-discovery-metadata.md:73:1. Metadata endpoints return valid, internally consistent JSON.
+docs/exec-plans/active/018-oauth-discovery-metadata.md:74:2. JWKS can be used to verify issued tokens according to the signing approach.
+docs/exec-plans/active/018-oauth-discovery-metadata.md:76:4. `@oauth-discovery` passes.
+docs/exec-plans/active/018-oauth-discovery-metadata.md:82:- npm run test:e2e -- --grep @oauth-discovery
+docs/exec-plans/active/018-oauth-discovery-metadata.md:107:- 2026-05-05T12:26:34Z: found existing RS256 JWT issuance and request-origin issuer handling; added shared discovery/JWKS helpers, well-known route handlers, `/oauth/jwks`, a `/config` connection guide, docs updates, and unit/E2E coverage for metadata consistency and JWKS token verification.
+tests/e2e/rest-tools-list.spec.ts:7:test("REST tools list exposes enabled metadata for no-auth and Basic callers @rest-tools-list", async ({ request }) => {
+tests/e2e/rest-tools-list.spec.ts:28:          description: "City name for REST metadata.",
+tests/e2e/rest-tools-list.spec.ts:100:        description: "City name for REST metadata.",
+docs/exec-plans/active/020-issued-token-ui-revocation.md:47:- Token detail shows claims and endpoint_permissions metadata.
+docs/exec-plans/active/020-issued-token-ui-revocation.md:69:- Discovery metadata.
+docs/exec-plans/active/020-issued-token-ui-revocation.md:87:- Keep token metadata useful for client debugging.
+tests/e2e/oauth-discovery.spec.ts:17:test("OAuth discovery metadata and JWKS are internally consistent @oauth-discovery", async ({ page, request }) => {
+tests/e2e/oauth-discovery.spec.ts:18:  const authorizationServerResponse = await request.get("/.well-known/oauth-authorization-server");
+tests/e2e/oauth-discovery.spec.ts:21:  const expectedBaseUrl = authorizationServer.issuer as string;
+tests/e2e/oauth-discovery.spec.ts:23:  const protectedResourceResponse = await request.get("/.well-known/oauth-protected-resource");
+tests/e2e/oauth-discovery.spec.ts:28:    authorization_servers: [`${expectedBaseUrl}/.well-known/oauth-authorization-server`],
+tests/e2e/oauth-discovery.spec.ts:35:    issuer: expectedBaseUrl,
+tests/e2e/oauth-discovery.spec.ts:38:    jwks_uri: `${expectedBaseUrl}/oauth/jwks`,
+tests/e2e/oauth-discovery.spec.ts:48:  const openidResponse = await request.get("/.well-known/openid-configuration");
+tests/e2e/oauth-discovery.spec.ts:49:  expect(openidResponse.status()).toBe(200);
+tests/e2e/oauth-discovery.spec.ts:50:  const openid = await openidResponse.json();
+tests/e2e/oauth-discovery.spec.ts:51:  expect(openid.issuer).toBe(authorizationServer.issuer);
+tests/e2e/oauth-discovery.spec.ts:52:  expect(openid.authorization_endpoint).toBe(authorizationServer.authorization_endpoint);
+tests/e2e/oauth-discovery.spec.ts:53:  expect(openid.token_endpoint).toBe(authorizationServer.token_endpoint);
+tests/e2e/oauth-discovery.spec.ts:54:  expect(openid.jwks_uri).toBe(authorizationServer.jwks_uri);
+tests/e2e/oauth-discovery.spec.ts:55:  expect(openid.id_token_signing_alg_values_supported).toEqual([]);
+tests/e2e/oauth-discovery.spec.ts:57:  const jwksResponse = await request.get("/oauth/jwks");
+tests/e2e/oauth-discovery.spec.ts:58:  expect(jwksResponse.status()).toBe(200);
+tests/e2e/oauth-discovery.spec.ts:59:  const jwks = await jwksResponse.json();
+tests/e2e/oauth-discovery.spec.ts:60:  expect(jwks.keys).toHaveLength(1);
+tests/e2e/oauth-discovery.spec.ts:61:  const jwk = jwks.keys[0];
+tests/e2e/oauth-discovery.spec.ts:99:  await expect(connectionExample).toContainText("/.well-known/oauth-protected-resource");
+tests/e2e/oauth-discovery.spec.ts:100:  await expect(connectionExample).toContainText("/.well-known/oauth-authorization-server");
+tests/e2e/oauth-discovery.spec.ts:101:  await expect(connectionExample).toContainText("/.well-known/openid-configuration");
+tests/e2e/oauth-discovery.spec.ts:102:  await expect(connectionExample).toContainText("/oauth/jwks");
+docs/exec-plans/active/index.md:14:7. `007-mcp-initialize-and-tools-list.md` -> `mcp-initialize-and-tools-list` -> Implement no-auth MCP JSON-RPC initialization and tool discovery before adding tool execution.
+docs/exec-plans/active/index.md:25:18. `018-oauth-discovery-metadata.md` -> `oauth-discovery-metadata` -> Expose OAuth protected-resource, authorization-server, OIDC configuration, and JWKS metadata aligned with the mock server runtime.
+docs/exec-plans/active/index.md:44:- the task metadata declares a valid `next_task_on_success`, or explicitly declares that the queue ends here
+docs/exec-plans/active/023-operator-config-health-logs.md:46:- Base URL resolution affects OAuth metadata and client examples.
+docs/exec-plans/active/023-operator-config-health-logs.md:53:- Connection guide shows MCP, REST, OAuth discovery URLs, sample client config, curl examples, and public UI warning.
+lib/audit/service.ts:16:  metadata?: Record<string, string | number | boolean | null>;
+lib/audit/service.ts:27:  metadata: Record<string, unknown>;
+lib/audit/service.ts:31:function parseMetadata(value: string): Record<string, unknown> {
+lib/audit/service.ts:50:      metadataJson: JSON.stringify(input.metadata ?? {}),
+lib/audit/service.ts:69:    metadata: parseMetadata(event.metadataJson),
+docs/FRONTEND.md:21:| /config | Server config | Base URL, MCP/REST/OAuth examples, discovery metadata, JWKS, Nginx guide |
+docs/FRONTEND.md:29:| /.well-known/*, /oauth/jwks, /oauth/token, /oauth/revoke | OAuth metadata/runtime | Discovery, token, revocation |
+docs/FRONTEND.md:42:| Config/guide | Show base URL, MCP/REST/OAuth URLs, OAuth discovery metadata, JWKS, sample client config, curl, Nginx |
+docs/FRONTEND.md:59:- console outputs must preserve raw JSON formatting and elapsed/auth/match metadata
+app/page.tsx:39:          Use the <Link href="/config">connection guide</Link> for MCP, OAuth discovery metadata, and JWKS URLs.
+docs/exec-plans/active/019-oauth-mcp-rest-permission-enforcement.md:62:- Check signature, issuer, audience/resource, expiry, jti revocation state, and endpoint permissions.
+lib/reset/service.ts:31:      metadata: { reason },
+lib/reset/service.ts:67:        metadata: {
+docs/product-specs/oauth-consent-and-token-runtime.md:24:- valid code exchange marks the code used, returns `access_token`, `token_type`, `expires_in`, and `scope`, and stores issued token metadata by JWT `jti`
+docs/product-specs/oauth-consent-and-token-runtime.md:27:- access tokens are RS256 JWTs with issuer, audience/resource, subject, client ID, grant type, issued/expiry times, `jti`, scope, and `endpoint_permissions`
+docs/product-specs/oauth-consent-and-token-runtime.md:30:- Discovery metadata
+docs/product-specs/oauth-consent-and-token-runtime.md:31:- `/.well-known/oauth-protected-resource`, `/.well-known/oauth-authorization-server`, `/.well-known/openid-configuration`, and `/oauth/jwks` expose the mock server's implemented OAuth capabilities only
+docs/product-specs/oauth-consent-and-token-runtime.md:32:- Discovery advertises authorization code and client credentials grants, `code` response type, `client_secret_post` token authentication, endpoint scope format, token endpoint, authorization endpoint, and JWKS URI
+docs/product-specs/oauth-consent-and-token-runtime.md:33:- Discovery must not advertise refresh tokens, PKCE, external identity providers, or revocation until those behaviors are implemented
+docs/product-specs/oauth-consent-and-token-runtime.md:34:- `/oauth/jwks` exposes only the public RS256 verification key matching issued token `kid` and never private signing material
+docs/PRODUCT_SENSE.md:33:- expose OAuth discovery metadata and a public JWKS that match the mock RS256 token issuer
+lib/basic-auth/service.ts:83:      metadata: { enabled: user.enabled },
+lib/basic-auth/service.ts:125:      metadata: { enabled: user.enabled, passwordChanged: Boolean(validInput.password) },
+docs/exec-plans/completed/017-oauth-client-credentials-grant.md:9:  "next_task_on_success": "oauth-discovery-metadata",
+docs/exec-plans/completed/017-oauth-client-credentials-grant.md:39:- This task is only the grant behavior, not metadata discovery.
+docs/exec-plans/completed/017-oauth-client-credentials-grant.md:56:- Do not implement discovery metadata here.
+docs/exec-plans/completed/017-oauth-client-credentials-grant.md:67:- OAuth discovery metadata.
+tests/unit/oauth-discovery.test.ts:5:  oauthAuthorizationServerMetadata,
+tests/unit/oauth-discovery.test.ts:7:  oauthProtectedResourceMetadata,
+tests/unit/oauth-discovery.test.ts:8:  openIdConfigurationMetadata,
+tests/unit/oauth-discovery.test.ts:9:  resolveOAuthIssuer,
+tests/unit/oauth-discovery.test.ts:10:} from "@/lib/oauth/discovery";
+tests/unit/oauth-discovery.test.ts:13:test("OAuth discovery metadata advertises only implemented grant and endpoint behavior", () => {
+tests/unit/oauth-discovery.test.ts:15:  const authorizationServer = oauthAuthorizationServerMetadata(baseUrl);
+tests/unit/oauth-discovery.test.ts:16:  const protectedResource = oauthProtectedResourceMetadata(baseUrl);
+tests/unit/oauth-discovery.test.ts:17:  const openid = openIdConfigurationMetadata(baseUrl);
+tests/unit/oauth-discovery.test.ts:19:  assert.equal(authorizationServer.issuer, baseUrl);
+tests/unit/oauth-discovery.test.ts:22:  assert.equal(authorizationServer.jwks_uri, `${baseUrl}/oauth/jwks`);
+tests/unit/oauth-discovery.test.ts:30:  assert.deepEqual(protectedResource.authorization_servers, [`${baseUrl}/.well-known/oauth-authorization-server`]);
+tests/unit/oauth-discovery.test.ts:32:  assert.equal(openid.issuer, authorizationServer.issuer);
+tests/unit/oauth-discovery.test.ts:33:  assert.equal(openid.token_endpoint, authorizationServer.token_endpoint);
+tests/unit/oauth-discovery.test.ts:34:  assert.deepEqual(openid.id_token_signing_alg_values_supported, []);
+tests/unit/oauth-discovery.test.ts:37:test("OAuth issuer resolution respects configured base URL before request origin", () => {
+tests/unit/oauth-discovery.test.ts:38:  const previousIssuer = process.env.OAUTH_ISSUER;
+tests/unit/oauth-discovery.test.ts:41:  delete process.env.OAUTH_ISSUER;
+tests/unit/oauth-discovery.test.ts:44:    assert.equal(resolveOAuthIssuer("http://127.0.0.1:3100/oauth/token"), "https://configured.example");
+tests/unit/oauth-discovery.test.ts:45:    process.env.OAUTH_ISSUER = "https://issuer.example/";
+tests/unit/oauth-discovery.test.ts:46:    assert.equal(resolveOAuthIssuer("http://127.0.0.1:3100/oauth/token"), "https://issuer.example");
+tests/unit/oauth-discovery.test.ts:48:    if (previousIssuer === undefined) {
+tests/unit/oauth-discovery.test.ts:49:      delete process.env.OAUTH_ISSUER;
+tests/unit/oauth-discovery.test.ts:51:      process.env.OAUTH_ISSUER = previousIssuer;
+tests/unit/oauth-discovery.test.ts:61:test("OAuth JWKS exposes the public RS256 key without private material", () => {
+tests/unit/oauth-discovery.test.ts:62:  const jwks = oauthJsonWebKeySet();
+tests/unit/oauth-discovery.test.ts:63:  assert.equal(jwks.keys.length, 1);
+tests/unit/oauth-discovery.test.ts:64:  const [key] = jwks.keys;
+tests/unit/oauth-discovery.test.ts:72:  const message = "jwks-verification-sample";
+tests/unit/rest-tools.test.ts:5:test("REST tool metadata maps endpoint parameters without MCP JSON-RPC envelope", () => {
+tests/unit/oauth-token.test.ts:68:test("authorization_code exchange issues RS256 JWT claims and stores token metadata", async () => {
+tests/unit/oauth-token.test.ts:90:        issuer: "https://issuer.example",
+tests/unit/oauth-token.test.ts:107:    assert.equal(decoded.payload.iss, "https://issuer.example");
+tests/unit/oauth-token.test.ts:159:        issuer: "https://issuer.example",
+tests/unit/oauth-token.test.ts:171:    assert.equal(narrowedClaims.iss, "https://issuer.example");
+tests/unit/oauth-token.test.ts:192:        issuer: "https://issuer.example",
+docs/exec-plans/completed/015-oauth-authorize-login-consent.md:71:- Discovery metadata.
+lib/oauth/api.ts:152:export function oauthTokenInputFromFormData(formData: FormData, issuer?: string): OAuthTokenExchangeInput {
+lib/oauth/api.ts:161:    issuer,
+lib/endpoints/service.ts:287:        metadata: { reason: "protected_default" },
+lib/endpoints/service.ts:303:        metadata: { reason: "invalid_confirmation" },
+lib/endpoints/service.ts:319:        metadata: { method },
+lib/oauth/service.ts:14:  DEFAULT_OAUTH_ISSUER,
+lib/oauth/service.ts:184:function oauthIssuer(inputIssuer?: string) {
+lib/oauth/service.ts:185:  return inputIssuer || process.env.OAUTH_ISSUER || process.env.APP_BASE_URL || DEFAULT_OAUTH_ISSUER;
+lib/oauth/service.ts:331:      metadata: { enabled: user.enabled, accessTokenTtlSeconds: user.accessTokenTtlSeconds },
+lib/oauth/service.ts:367:        metadata: {
+lib/oauth/service.ts:419:      metadata: {
+lib/oauth/service.ts:470:        metadata: {
+lib/oauth/service.ts:780:        metadata: {
+lib/oauth/service.ts:850:      iss: oauthIssuer(input.issuer),
+lib/oauth/service.ts:888:        metadata: {
+lib/oauth/service.ts:948:    const resource = input.resource || oauthIssuer(input.issuer);
+lib/oauth/service.ts:950:      iss: oauthIssuer(input.issuer),
+lib/oauth/service.ts:984:        metadata: {
+app/config/page.tsx:3:import { oauthDiscoveryUrls, resolveOAuthIssuer } from "@/lib/oauth/discovery";
+app/config/page.tsx:11:  const urls = oauthDiscoveryUrls(resolveOAuthIssuer(`${protocol}://${host}`));
+app/config/page.tsx:12:  const metadataEndpoints = [
+app/config/page.tsx:13:    [".well-known/oauth-protected-resource", urls.protectedResourceMetadata],
+app/config/page.tsx:14:    [".well-known/oauth-authorization-server", urls.authorizationServerMetadata],
+app/config/page.tsx:15:    [".well-known/openid-configuration", urls.openidConfiguration],
+app/config/page.tsx:16:    ["OAuth JWKS", urls.jwksUri],
+app/config/page.tsx:37:            Runtime URLs for MCP clients, REST clients, and OAuth discovery-aware setup.
+app/config/page.tsx:42:      <section className="panel guide-panel" aria-labelledby="discovery-title">
+app/config/page.tsx:43:        <h2 id="discovery-title">OAuth discovery metadata</h2>
+app/config/page.tsx:45:          {metadataEndpoints.map(([label, url]) => (
+app/config/page.tsx:60:    oauth_protected_resource: urls.protectedResourceMetadata,
+app/config/page.tsx:61:    oauth_authorization_server: urls.authorizationServerMetadata,
+app/config/page.tsx:62:    openid_configuration: urls.openidConfiguration,
+app/config/page.tsx:63:    jwks_uri: urls.jwksUri,
+app/config/page.tsx:73:        <h2 id="curl-title">Metadata checks</h2>
+app/config/page.tsx:74:        <pre className="json-panel" aria-label="OAuth discovery curl examples">{`curl ${urls.protectedResourceMetadata}
+app/config/page.tsx:75:curl ${urls.authorizationServerMetadata}
+app/config/page.tsx:76:curl ${urls.openidConfiguration}
+app/config/page.tsx:77:curl ${urls.jwksUri}`}</pre>
+lib/oauth/types.ts:15:export const DEFAULT_OAUTH_ISSUER = "http://localhost:3000";
+lib/oauth/types.ts:230:  issuer?: string;
+lib/oauth/discovery.ts:3:  DEFAULT_OAUTH_ISSUER,
+lib/oauth/discovery.ts:15:  return process.env.OAUTH_ISSUER || process.env.APP_BASE_URL || "";
+lib/oauth/discovery.ts:19:  return baseUrl.replace(/\/+$/, "") || DEFAULT_OAUTH_ISSUER;
+lib/oauth/discovery.ts:26:export function resolveOAuthIssuer(requestUrl?: string) {
+lib/oauth/discovery.ts:33:  return DEFAULT_OAUTH_ISSUER;
+lib/oauth/discovery.ts:36:export function oauthDiscoveryUrls(baseUrl: string) {
+lib/oauth/discovery.ts:38:    issuer: normalizeBaseUrl(baseUrl),
+lib/oauth/discovery.ts:41:    jwksUri: absoluteUrl(baseUrl, "/oauth/jwks"),
+lib/oauth/discovery.ts:42:    protectedResourceMetadata: absoluteUrl(baseUrl, "/.well-known/oauth-protected-resource"),
+lib/oauth/discovery.ts:43:    authorizationServerMetadata: absoluteUrl(baseUrl, "/.well-known/oauth-authorization-server"),
+lib/oauth/discovery.ts:44:    openidConfiguration: absoluteUrl(baseUrl, "/.well-known/openid-configuration"),
+lib/oauth/discovery.ts:49:export function oauthAuthorizationServerMetadata(baseUrl: string) {
+lib/oauth/discovery.ts:50:  const urls = oauthDiscoveryUrls(baseUrl);
+lib/oauth/discovery.ts:52:    issuer: urls.issuer,
+lib/oauth/discovery.ts:55:    jwks_uri: urls.jwksUri,
+lib/oauth/discovery.ts:64:export function oauthProtectedResourceMetadata(baseUrl: string) {
+lib/oauth/discovery.ts:65:  const urls = oauthDiscoveryUrls(baseUrl);
+lib/oauth/discovery.ts:68:    authorization_servers: [urls.authorizationServerMetadata],
+lib/oauth/discovery.ts:75:export function openIdConfigurationMetadata(baseUrl: string) {
+lib/oauth/discovery.ts:76:  const authorizationServer = oauthAuthorizationServerMetadata(baseUrl);
+app/oauth/token/route.ts:3:import { resolveOAuthIssuer } from "@/lib/oauth/discovery";
+app/oauth/token/route.ts:8:    const issuer = resolveOAuthIssuer(request.url);
+app/oauth/token/route.ts:9:    const result = await exchangeOAuthToken(oauthTokenInputFromFormData(await request.formData(), issuer));
+app/oauth/jwks/route.ts:2:import { oauthJsonWebKeySet } from "@/lib/oauth/discovery";
+docs/exec-plans/completed/016-oauth-code-token-jwt.md:47:- JWT claims include issuer, audience/resource, subject, client_id, grant_type, iat, exp, jti, scope, and endpoint_permissions.
+docs/exec-plans/completed/016-oauth-code-token-jwt.md:49:- Issued token metadata is stored by `jti` for later revocation.
+docs/exec-plans/completed/016-oauth-code-token-jwt.md:62:- Persist issued token metadata.
+docs/exec-plans/completed/016-oauth-code-token-jwt.md:70:- Discovery/JWKS unless needed minimally for signing key exposure later.
+app/layout.tsx:1:import type { Metadata } from "next";
+app/layout.tsx:4:export const metadata: Metadata = {
+app/audit/page.tsx:23:            Public destructive endpoint actions are recorded with outcome and reason metadata only.
+app/audit/page.tsx:51:                  <code>{JSON.stringify(event.metadata)}</code>
+docs/exec-plans/completed/014-oauth-clients-management-ui.md:72:- Discovery metadata.
+docs/exec-plans/completed/011-rest-tools-list-runtime.md:39:- This task only lists REST tool metadata; REST calling is next.
+docs/exec-plans/completed/011-rest-tools-list-runtime.md:46:- `GET /rest/tools` returns enabled endpoint metadata and parameters.
+docs/exec-plans/completed/011-rest-tools-list-runtime.md:73:1. REST list response matches PRD metadata shape.
+docs/exec-plans/completed/011-rest-tools-list-runtime.md:107:- 2026-05-05T11:07:35Z: added explicit REST tool metadata mapping, GET /rest/tools, unit mapping coverage, and @rest-tools-list E2E coverage for no-auth, valid Basic, invalid Basic, unsupported Authorization, and disabled endpoint filtering.
+docs/design-docs/system-shape.md:8:- API route handlers provide admin CRUD, MCP, REST, OAuth, discovery, health, reset, and audit surfaces
+docs/generated/db-schema.md:103:| `metadataJson` | `String` | JSON metadata with method or reason codes only; submitted secrets are not stored. |
+docs/exec-plans/completed/007-mcp-initialize-and-tools-list.md:35:Implement no-auth MCP JSON-RPC initialization and tool discovery before adding tool execution.
+docs/references/prd-analysis.md:19:- OAuth user/client management, browser consent, client credentials, JWT issuance, discovery metadata, token UI, and revocation.
+
+codex
+{"decision":"not_done","recommend_promotion":false,"confidence":0,"summary":"The required docs map this task directly to the OAuth consent/token spec, and the active plan uses deterministic promotion. I’m now checking the actual helper outputs, route wiring, and tests for over-advertised capabilities or key/issuer drift.","satisfied_exit_criteria":[],"missing_requirements":["implementation review still in progress"],"human_review_triggers":[]}
+exec
+/bin/zsh -lc "sed -n '1,220p' lib/oauth/discovery.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import { createPublicKey } from "node:crypto";
+import {
+  DEFAULT_OAUTH_ISSUER,
+  DEFAULT_OAUTH_PRIVATE_KEY_PEM,
+  OAUTH_JWT_ALGORITHM,
+  OAUTH_JWT_KEY_ID,
+} from "@/lib/oauth/types";
+
+const ENDPOINT_SCOPE_PATTERN = "endpoint:<endpoint_id>";
+const SUPPORTED_GRANT_TYPES = ["authorization_code", "client_credentials"] as const;
+const SUPPORTED_RESPONSE_TYPES = ["code"] as const;
+const SUPPORTED_CLIENT_AUTH_METHODS = ["client_secret_post"] as const;
+
+function configuredBaseUrl() {
+  return process.env.OAUTH_ISSUER || process.env.APP_BASE_URL || "";
+}
+
+function normalizeBaseUrl(baseUrl: string) {
+  return baseUrl.replace(/\/+$/, "") || DEFAULT_OAUTH_ISSUER;
+}
+
+function absoluteUrl(baseUrl: string, path: string) {
+  return `${normalizeBaseUrl(baseUrl)}${path}`;
+}
+
+export function resolveOAuthIssuer(requestUrl?: string) {
+  if (configuredBaseUrl()) {
+    return normalizeBaseUrl(configuredBaseUrl());
+  }
+  if (requestUrl) {
+    return normalizeBaseUrl(new URL(requestUrl).origin);
+  }
+  return DEFAULT_OAUTH_ISSUER;
+}
+
+export function oauthDiscoveryUrls(baseUrl: string) {
+  return {
+    issuer: normalizeBaseUrl(baseUrl),
+    authorizationEndpoint: absoluteUrl(baseUrl, "/oauth/authorize"),
+    tokenEndpoint: absoluteUrl(baseUrl, "/oauth/token"),
+    jwksUri: absoluteUrl(baseUrl, "/oauth/jwks"),
+    protectedResourceMetadata: absoluteUrl(baseUrl, "/.well-known/oauth-protected-resource"),
+    authorizationServerMetadata: absoluteUrl(baseUrl, "/.well-known/oauth-authorization-server"),
+    openidConfiguration: absoluteUrl(baseUrl, "/.well-known/openid-configuration"),
+    mcpOAuthEndpoint: absoluteUrl(baseUrl, "/mcp/oauth"),
+  };
+}
+
+export function oauthAuthorizationServerMetadata(baseUrl: string) {
+  const urls = oauthDiscoveryUrls(baseUrl);
+  return {
+    issuer: urls.issuer,
+    authorization_endpoint: urls.authorizationEndpoint,
+    token_endpoint: urls.tokenEndpoint,
+    jwks_uri: urls.jwksUri,
+    response_types_supported: [...SUPPORTED_RESPONSE_TYPES],
+    grant_types_supported: [...SUPPORTED_GRANT_TYPES],
+    token_endpoint_auth_methods_supported: [...SUPPORTED_CLIENT_AUTH_METHODS],
+    scopes_supported: [ENDPOINT_SCOPE_PATTERN],
+    code_challenge_methods_supported: [],
+  };
+}
+
+export function oauthProtectedResourceMetadata(baseUrl: string) {
+  const urls = oauthDiscoveryUrls(baseUrl);
+  return {
+    resource: "mcp-mock-server",
+    authorization_servers: [urls.authorizationServerMetadata],
+    bearer_methods_supported: ["header"],
+    scopes_supported: [ENDPOINT_SCOPE_PATTERN],
+    mcp_endpoint: urls.mcpOAuthEndpoint,
+  };
+}
+
+export function openIdConfigurationMetadata(baseUrl: string) {
+  const authorizationServer = oauthAuthorizationServerMetadata(baseUrl);
+  return {
+    ...authorizationServer,
+    subject_types_supported: ["public"],
+    id_token_signing_alg_values_supported: [],
+    claims_supported: ["iss", "aud", "sub", "client_id", "grant_type", "iat", "exp", "jti", "scope"],
+  };
+}
+
+export function oauthJsonWebKeySet() {
+  const jwk = createPublicKey(process.env.OAUTH_JWT_PRIVATE_KEY_PEM || DEFAULT_OAUTH_PRIVATE_KEY_PEM).export({
+    format: "jwk",
+  });
+
+  return {
+    keys: [
+      {
+        kty: jwk.kty,
+        n: jwk.n,
+        e: jwk.e,
+        kid: OAUTH_JWT_KEY_ID,
+        alg: OAUTH_JWT_ALGORITHM,
+        use: "sig",
+        key_ops: ["verify"],
+      },
+    ],
+  };
+}
+
+exec
+/bin/zsh -lc "find app -path '*well-known*' -o -path '*oauth/jwks*' | sort" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+app/.well-known
+app/.well-known/oauth-authorization-server
+app/.well-known/oauth-authorization-server/route.ts
+app/.well-known/oauth-protected-resource
+app/.well-known/oauth-protected-resource/route.ts
+app/.well-known/openid-configuration
+app/.well-known/openid-configuration/route.ts
+app/oauth/jwks
+app/oauth/jwks/route.ts
+
+exec
+/bin/zsh -lc "sed -n '1,140p' tests/unit/oauth-discovery.test.ts && sed -n '1,150p' tests/e2e/oauth-discovery.spec.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+exec
+/bin/zsh -lc "sed -n '1,140p' app/.well-known/oauth-authorization-server/route.ts && sed -n '1,140p' app/.well-known/oauth-protected-resource/route.ts && sed -n '1,140p' app/.well-known/openid-configuration/route.ts && sed -n '1,140p' app/oauth/jwks/route.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import assert from "node:assert/strict";
+import { createPublicKey, createSign, createVerify } from "node:crypto";
+import test from "node:test";
+import {
+  oauthAuthorizationServerMetadata,
+  oauthJsonWebKeySet,
+  oauthProtectedResourceMetadata,
+  openIdConfigurationMetadata,
+  resolveOAuthIssuer,
+} from "@/lib/oauth/discovery";
+import { DEFAULT_OAUTH_PRIVATE_KEY_PEM, OAUTH_JWT_KEY_ID } from "@/lib/oauth/types";
+
+test("OAuth discovery metadata advertises only implemented grant and endpoint behavior", () => {
+  const baseUrl = "https://mock.example";
+  const authorizationServer = oauthAuthorizationServerMetadata(baseUrl);
+  const protectedResource = oauthProtectedResourceMetadata(baseUrl);
+  const openid = openIdConfigurationMetadata(baseUrl);
+
+  assert.equal(authorizationServer.issuer, baseUrl);
+  assert.equal(authorizationServer.authorization_endpoint, `${baseUrl}/oauth/authorize`);
+  assert.equal(authorizationServer.token_endpoint, `${baseUrl}/oauth/token`);
+  assert.equal(authorizationServer.jwks_uri, `${baseUrl}/oauth/jwks`);
+  assert.deepEqual(authorizationServer.grant_types_supported, ["authorization_code", "client_credentials"]);
+  assert.deepEqual(authorizationServer.response_types_supported, ["code"]);
+  assert.deepEqual(authorizationServer.token_endpoint_auth_methods_supported, ["client_secret_post"]);
+  assert.deepEqual(authorizationServer.scopes_supported, ["endpoint:<endpoint_id>"]);
+  assert.equal("revocation_endpoint" in authorizationServer, false);
+  assert.equal(authorizationServer.grant_types_supported.includes("refresh_token" as never), false);
+
+  assert.deepEqual(protectedResource.authorization_servers, [`${baseUrl}/.well-known/oauth-authorization-server`]);
+  assert.equal(protectedResource.mcp_endpoint, `${baseUrl}/mcp/oauth`);
+  assert.equal(openid.issuer, authorizationServer.issuer);
+  assert.equal(openid.token_endpoint, authorizationServer.token_endpoint);
+  assert.deepEqual(openid.id_token_signing_alg_values_supported, []);
+});
+
+test("OAuth issuer resolution respects configured base URL before request origin", () => {
+  const previousIssuer = process.env.OAUTH_ISSUER;
+  const previousBaseUrl = process.env.APP_BASE_URL;
+  process.env.APP_BASE_URL = "https://configured.example/";
+  delete process.env.OAUTH_ISSUER;
+
+  try {
+    assert.equal(resolveOAuthIssuer("http://127.0.0.1:3100/oauth/token"), "https://configured.example");
+    process.env.OAUTH_ISSUER = "https://issuer.example/";
+    assert.equal(resolveOAuthIssuer("http://127.0.0.1:3100/oauth/token"), "https://issuer.example");
+  } finally {
+    if (previousIssuer === undefined) {
+      delete process.env.OAUTH_ISSUER;
+    } else {
+      process.env.OAUTH_ISSUER = previousIssuer;
+    }
+    if (previousBaseUrl === undefined) {
+      delete process.env.APP_BASE_URL;
+    } else {
+      process.env.APP_BASE_URL = previousBaseUrl;
+    }
+  }
+});
+
+test("OAuth JWKS exposes the public RS256 key without private material", () => {
+  const jwks = oauthJsonWebKeySet();
+  assert.equal(jwks.keys.length, 1);
+  const [key] = jwks.keys;
+  assert.equal(key.kid, OAUTH_JWT_KEY_ID);
+  assert.equal(key.alg, "RS256");
+  assert.equal(key.use, "sig");
+  assert.equal("d" in key, false);
+  assert.equal("p" in key, false);
+  assert.equal("q" in key, false);
+
+  const message = "jwks-verification-sample";
+  const signature = createSign("RSA-SHA256").update(message).end().sign(DEFAULT_OAUTH_PRIVATE_KEY_PEM, "base64url");
+  const publicKey = createPublicKey({ key, format: "jwk" });
+  const verified = createVerify("RSA-SHA256").update(message).end().verify(publicKey, signature, "base64url");
+  assert.equal(verified, true);
+});
+import { expect, test } from "@playwright/test";
+import { createPublicKey, createVerify } from "node:crypto";
+
+function decodeJwt(token: string) {
+  const [encodedHeader, encodedPayload, signature] = token.split(".");
+  expect(encodedHeader).toBeTruthy();
+  expect(encodedPayload).toBeTruthy();
+  expect(signature).toBeTruthy();
+  return {
+    header: JSON.parse(Buffer.from(encodedHeader ?? "", "base64url").toString("utf8")),
+    payload: JSON.parse(Buffer.from(encodedPayload ?? "", "base64url").toString("utf8")),
+    signingInput: `${encodedHeader}.${encodedPayload}`,
+    signature,
+  };
+}
+
+test("OAuth discovery metadata and JWKS are internally consistent @oauth-discovery", async ({ page, request }) => {
+  const authorizationServerResponse = await request.get("/.well-known/oauth-authorization-server");
+  expect(authorizationServerResponse.status()).toBe(200);
+  const authorizationServer = await authorizationServerResponse.json();
+  const expectedBaseUrl = authorizationServer.issuer as string;
+
+  const protectedResourceResponse = await request.get("/.well-known/oauth-protected-resource");
+  expect(protectedResourceResponse.status()).toBe(200);
+  const protectedResource = await protectedResourceResponse.json();
+  expect(protectedResource).toMatchObject({
+    resource: "mcp-mock-server",
+    authorization_servers: [`${expectedBaseUrl}/.well-known/oauth-authorization-server`],
+    bearer_methods_supported: ["header"],
+    scopes_supported: ["endpoint:<endpoint_id>"],
+    mcp_endpoint: `${expectedBaseUrl}/mcp/oauth`,
+  });
+
+  expect(authorizationServer).toMatchObject({
+    issuer: expectedBaseUrl,
+    authorization_endpoint: `${expectedBaseUrl}/oauth/authorize`,
+    token_endpoint: `${expectedBaseUrl}/oauth/token`,
+    jwks_uri: `${expectedBaseUrl}/oauth/jwks`,
+    response_types_supported: ["code"],
+    grant_types_supported: ["authorization_code", "client_credentials"],
+    token_endpoint_auth_methods_supported: ["client_secret_post"],
+    scopes_supported: ["endpoint:<endpoint_id>"],
+  });
+  expect(authorizationServer.grant_types_supported).not.toContain("refresh_token");
+  expect(authorizationServer).not.toHaveProperty("revocation_endpoint");
+  expect(authorizationServer.code_challenge_methods_supported).toEqual([]);
+
+  const openidResponse = await request.get("/.well-known/openid-configuration");
+  expect(openidResponse.status()).toBe(200);
+  const openid = await openidResponse.json();
+  expect(openid.issuer).toBe(authorizationServer.issuer);
+  expect(openid.authorization_endpoint).toBe(authorizationServer.authorization_endpoint);
+  expect(openid.token_endpoint).toBe(authorizationServer.token_endpoint);
+  expect(openid.jwks_uri).toBe(authorizationServer.jwks_uri);
+  expect(openid.id_token_signing_alg_values_supported).toEqual([]);
+
+  const jwksResponse = await request.get("/oauth/jwks");
+  expect(jwksResponse.status()).toBe(200);
+  const jwks = await jwksResponse.json();
+  expect(jwks.keys).toHaveLength(1);
+  const jwk = jwks.keys[0];
+  expect(jwk).toMatchObject({ kty: "RSA", kid: "mcp-mock-dev-rs256-1", alg: "RS256", use: "sig" });
+  expect(jwk).not.toHaveProperty("d");
+  expect(jwk).not.toHaveProperty("p");
+  expect(jwk).not.toHaveProperty("q");
+
+  const tokenResponse = await request.post("/oauth/token", {
+    form: {
+      grant_type: "client_credentials",
+      client_id: "default",
+      client_secret: "default",
+      scope: "endpoint:endpoint_default_echo",
+      resource: "mcp-mock-server",
+    },
+  });
+  expect(tokenResponse.status()).toBe(200);
+  const tokenPayload = await tokenResponse.json();
+  const decoded = decodeJwt(tokenPayload.access_token);
+  expect(decoded.header).toMatchObject({ alg: "RS256", typ: "JWT", kid: jwk.kid });
+  expect(decoded.payload).toMatchObject({
+    iss: expectedBaseUrl,
+    aud: "mcp-mock-server",
+    resource: "mcp-mock-server",
+    client_id: "default",
+    grant_type: "client_credentials",
+    endpoint_permissions: ["endpoint_default_echo"],
+  });
+
+  const publicKey = createPublicKey({ key: jwk, format: "jwk" });
+  const verified = createVerify("RSA-SHA256")
+    .update(decoded.signingInput)
+    .end()
+    .verify(publicKey, decoded.signature ?? "", "base64url");
+  expect(verified).toBe(true);
+
+  await page.goto("/config");
+  await expect(page.getByRole("heading", { name: "Config" })).toBeVisible();
+  const connectionExample = page.getByLabel("MCP OAuth connection example");
+  await expect(connectionExample).toContainText("/.well-known/oauth-protected-resource");
+  await expect(connectionExample).toContainText("/.well-known/oauth-authorization-server");
+  await expect(connectionExample).toContainText("/.well-known/openid-configuration");
+  await expect(connectionExample).toContainText("/oauth/jwks");
+});
+
+ succeeded in 0ms:
+import { NextResponse } from "next/server";
+import { oauthAuthorizationServerMetadata, resolveOAuthIssuer } from "@/lib/oauth/discovery";
+
+export async function GET(request: Request) {
+  return NextResponse.json(oauthAuthorizationServerMetadata(resolveOAuthIssuer(request.url)));
+}
+import { NextResponse } from "next/server";
+import { oauthProtectedResourceMetadata, resolveOAuthIssuer } from "@/lib/oauth/discovery";
+
+export async function GET(request: Request) {
+  return NextResponse.json(oauthProtectedResourceMetadata(resolveOAuthIssuer(request.url)));
+}
+import { NextResponse } from "next/server";
+import { openIdConfigurationMetadata, resolveOAuthIssuer } from "@/lib/oauth/discovery";
+
+export async function GET(request: Request) {
+  return NextResponse.json(openIdConfigurationMetadata(resolveOAuthIssuer(request.url)));
+}
+import { NextResponse } from "next/server";
+import { oauthJsonWebKeySet } from "@/lib/oauth/discovery";
+
+export async function GET() {
+  return NextResponse.json(oauthJsonWebKeySet());
+}
+
+exec
+/bin/zsh -lc "sed -n '1,180p' app/config/page.tsx" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import Link from "next/link";
+import { headers } from "next/headers";
+import { oauthDiscoveryUrls, resolveOAuthIssuer } from "@/lib/oauth/discovery";
+
+export const dynamic = "force-dynamic";
+
+export default async function ConfigPage() {
+  const requestHeaders = await headers();
+  const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host") ?? "localhost:3000";
+  const protocol = requestHeaders.get("x-forwarded-proto") ?? "http";
+  const urls = oauthDiscoveryUrls(resolveOAuthIssuer(`${protocol}://${host}`));
+  const metadataEndpoints = [
+    [".well-known/oauth-protected-resource", urls.protectedResourceMetadata],
+    [".well-known/oauth-authorization-server", urls.authorizationServerMetadata],
+    [".well-known/openid-configuration", urls.openidConfiguration],
+    ["OAuth JWKS", urls.jwksUri],
+  ] as const;
+
+  return (
+    <main className="shell app-shell">
+      <nav className="top-nav" aria-label="Primary">
+        <Link href="/">Dashboard</Link>
+        <Link href="/endpoints">Endpoints</Link>
+        <Link href="/basic-users">Basic Users</Link>
+        <Link href="/oauth-users">OAuth Users</Link>
+        <Link href="/oauth-clients">OAuth Clients</Link>
+        <Link href="/config" aria-current="page">Config</Link>
+        <Link href="/reset">Reset</Link>
+        <Link href="/audit">Audit</Link>
+      </nav>
+
+      <section className="page-header" aria-labelledby="config-title">
+        <div>
+          <p className="eyebrow">Connection guide</p>
+          <h1 id="config-title">Config</h1>
+          <p className="lede compact">
+            Runtime URLs for MCP clients, REST clients, and OAuth discovery-aware setup.
+          </p>
+        </div>
+      </section>
+
+      <section className="panel guide-panel" aria-labelledby="discovery-title">
+        <h2 id="discovery-title">OAuth discovery metadata</h2>
+        <div className="guide-list">
+          {metadataEndpoints.map(([label, url]) => (
+            <div key={label}>
+              <span>{label}</span>
+              <code>{url}</code>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="panel guide-panel" aria-labelledby="mcp-title">
+        <h2 id="mcp-title">MCP client setup</h2>
+        <pre className="json-panel" aria-label="MCP OAuth connection example">
+{JSON.stringify(
+  {
+    mcp_url: urls.mcpOAuthEndpoint,
+    oauth_protected_resource: urls.protectedResourceMetadata,
+    oauth_authorization_server: urls.authorizationServerMetadata,
+    openid_configuration: urls.openidConfiguration,
+    jwks_uri: urls.jwksUri,
+    scope_format: "endpoint:<endpoint_id>",
+  },
+  null,
+  2,
+)}
+        </pre>
+      </section>
+
+      <section className="panel guide-panel" aria-labelledby="curl-title">
+        <h2 id="curl-title">Metadata checks</h2>
+        <pre className="json-panel" aria-label="OAuth discovery curl examples">{`curl ${urls.protectedResourceMetadata}
+curl ${urls.authorizationServerMetadata}
+curl ${urls.openidConfiguration}
+curl ${urls.jwksUri}`}</pre>
+      </section>
+    </main>
+  );
+}
+
+exec
+/bin/zsh -lc "find app/mcp -maxdepth 3 -type f -print -exec sed -n '1,120p' {} \\;" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+app/mcp/basic/route.ts
+export { dynamic, handleStrictBasicMcpPost as POST, unsupportedStreamableHttpMethod as DELETE, unsupportedStreamableHttpMethod as GET } from "@/lib/mcp/http";
+app/mcp/route.ts
+export { dynamic, handleUnifiedMcpPost as POST, unsupportedStreamableHttpMethod as DELETE, unsupportedStreamableHttpMethod as GET } from "@/lib/mcp/http";
+app/mcp/none/route.ts
+export { dynamic, handleNoAuthMcpPost as POST, unsupportedStreamableHttpMethod as DELETE, unsupportedStreamableHttpMethod as GET } from "@/lib/mcp/http";
+
+exec
+/bin/zsh -lc "sed -n '820,1010p' lib/oauth/service.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+    });
+    if (!code) {
+      throw new OAuthTokenError("invalid_grant", "Authorization code is invalid.");
+    }
+    if (!code.oauthClient.enabled || code.oauthClient.clientId !== input.clientId) {
+      throw new OAuthTokenError("invalid_client", "OAuth client is invalid.");
+    }
+    if (!(await verifyBasicPassword(input.clientSecret, code.oauthClient.secretHash))) {
+      throw new OAuthTokenError("invalid_client", "OAuth client is invalid.");
+    }
+    if (code.redirectUri !== input.redirectUri) {
+      throw new OAuthTokenError("invalid_grant", "redirect_uri does not match the authorization code.");
+    }
+    if (code.usedAt) {
+      throw new OAuthTokenError("invalid_grant", "Authorization code has already been used.");
+    }
+    if (code.expiresAt.getTime() <= now.getTime()) {
+      throw new OAuthTokenError("invalid_grant", "Authorization code is expired.");
+    }
+    if (!code.oauthUser.enabled) {
+      throw new OAuthTokenError("invalid_grant", "OAuth user is disabled.");
+    }
+
+    const endpointPermissions = code.selectedEndpoints.map((endpoint) => endpoint.endpointId).sort();
+    const iat = Math.floor(now.getTime() / 1000);
+    const expiresIn = code.oauthUser.accessTokenTtlSeconds;
+    const exp = iat + expiresIn;
+    const jti = `oauth_token_${randomUUID()}`;
+    const scope = endpointScope(endpointPermissions);
+    const claims: OAuthAccessTokenClaims = {
+      iss: oauthIssuer(input.issuer),
+      aud: code.resource,
+      resource: code.resource,
+      sub: code.oauthUser.id,
+      client_id: code.oauthClient.clientId,
+      grant_type: "authorization_code",
+      iat,
+      exp,
+      jti,
+      scope,
+      endpoint_permissions: endpointPermissions,
+    };
+
+    await tx.oAuthAuthorizationCode.update({
+      where: { id: code.id },
+      data: { usedAt: now },
+    });
+    await tx.oAuthIssuedToken.create({
+      data: {
+        id: `oauth_issued_token_${randomUUID()}`,
+        jti,
+        oauthClientId: code.oauthClientId,
+        oauthUserId: code.oauthUserId,
+        grantType: "authorization_code",
+        scope,
+        resource: code.resource,
+        endpointPermissionsJson: JSON.stringify(endpointPermissions),
+        issuedAt: new Date(iat * 1000),
+        expiresAt: new Date(exp * 1000),
+      },
+    });
+    await recordAuditEvent(
+      {
+        eventType: "oauth_token.issue",
+        subjectType: "oauth_issued_token",
+        subjectId: jti,
+        subjectName: code.oauthClient.clientId,
+        outcome: "success",
+        metadata: {
+          grantType: "authorization_code",
+          oauthClientId: code.oauthClientId,
+          oauthUserId: code.oauthUserId,
+          resource: code.resource,
+          endpointPermissionCount: endpointPermissions.length,
+          expiresAt: new Date(exp * 1000).toISOString(),
+        },
+      },
+      tx,
+    );
+
+    return {
+      accessToken: signJwt({ alg: OAUTH_JWT_ALGORITHM, typ: "JWT", kid: OAUTH_JWT_KEY_ID }, claims),
+      expiresIn,
+      scope,
+    };
+  });
+
+  return {
+    access_token: result.accessToken,
+    token_type: "Bearer",
+    expires_in: result.expiresIn,
+    scope: result.scope,
+  };
+}
+
+export async function issueOAuthClientCredentialsToken(
+  input: OAuthTokenExchangeInput,
+  client: OAuthTokenExchangeClient = createPrismaClient(),
+): Promise<OAuthTokenExchangeResult> {
+  if (input.grantType !== "client_credentials") {
+    throw new OAuthTokenError("unsupported_grant_type", "Only grant_type=client_credentials is supported.");
+  }
+  if (!input.clientId || !input.clientSecret) {
+    throw new OAuthTokenError("invalid_request", "client_id and client_secret are required.");
+  }
+
+  const now = input.now ?? new Date();
+  const result = await client.$transaction(async (tx) => {
+    const oauthClient = await tx.oAuthClient.findUnique({
+      where: { clientId: input.clientId },
+      include: { allowedEndpoints: true },
+    });
+    if (!oauthClient?.enabled) {
+      throw new OAuthTokenError("invalid_client", "OAuth client is invalid.");
+    }
+    if (!(await verifyBasicPassword(input.clientSecret, oauthClient.secretHash))) {
+      throw new OAuthTokenError("invalid_client", "OAuth client is invalid.");
+    }
+
+    const endpointPermissions = endpointPermissionsFromRequestedScope(
+      input.scope ?? "",
+      oauthClient.allowedEndpoints.map((endpoint) => endpoint.endpointId),
+    );
+    const iat = Math.floor(now.getTime() / 1000);
+    const expiresIn = oauthClient.clientCredentialsTtlSeconds;
+    const exp = iat + expiresIn;
+    const jti = `oauth_token_${randomUUID()}`;
+    const scope = endpointScope(endpointPermissions);
+    const resource = input.resource || oauthIssuer(input.issuer);
+    const claims: OAuthAccessTokenClaims = {
+      iss: oauthIssuer(input.issuer),
+      aud: resource,
+      resource,
+      sub: `client:${oauthClient.clientId}`,
+      client_id: oauthClient.clientId,
+      grant_type: "client_credentials",
+      iat,
+      exp,
+      jti,
+      scope,
+      endpoint_permissions: endpointPermissions,
+    };
+
+    await tx.oAuthIssuedToken.create({
+      data: {
+        id: `oauth_issued_token_${randomUUID()}`,
+        jti,
+        oauthClientId: oauthClient.id,
+        oauthUserId: null,
+        grantType: "client_credentials",
+        scope,
+        resource,
+        endpointPermissionsJson: JSON.stringify(endpointPermissions),
+        issuedAt: new Date(iat * 1000),
+        expiresAt: new Date(exp * 1000),
+      },
+    });
+    await recordAuditEvent(
+      {
+        eventType: "oauth_token.issue",
+        subjectType: "oauth_issued_token",
+        subjectId: jti,
+        subjectName: oauthClient.clientId,
+        outcome: "success",
+        metadata: {
+          grantType: "client_credentials",
+          oauthClientId: oauthClient.id,
+          oauthUserId: null,
+          resource,
+          endpointPermissionCount: endpointPermissions.length,
+          expiresAt: new Date(exp * 1000).toISOString(),
+        },
+      },
+      tx,
+    );
+
+    return {
+      accessToken: signJwt({ alg: OAUTH_JWT_ALGORITHM, typ: "JWT", kid: OAUTH_JWT_KEY_ID }, claims),
+      expiresIn,
+      scope,
+    };
+  });
+
+  return {
+    access_token: result.accessToken,
+    token_type: "Bearer",
+    expires_in: result.expiresIn,
+    scope: result.scope,
+  };
+}
+
+
+exec
+/bin/zsh -lc "sed -n '1,280p' lib/oauth/types.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+export const DEFAULT_OAUTH_USER_ID = "oauth_user_default";
+export const DEFAULT_OAUTH_USERNAME = "default";
+export const DEFAULT_OAUTH_PASSWORD = "default";
+export const DEFAULT_OAUTH_ACCESS_TOKEN_TTL_SECONDS = 3600;
+export const DEFAULT_OAUTH_CLIENT_ID = "oauth_client_default";
+export const DEFAULT_OAUTH_CLIENT_IDENTIFIER = "default";
+export const DEFAULT_OAUTH_CLIENT_SECRET = "default";
+export const DEFAULT_OAUTH_CLIENT_DISPLAY_NAME = "Default OAuth client";
+export const DEFAULT_OAUTH_CLIENT_REDIRECT_URI = "http://localhost:3000/oauth/callback";
+export const DEFAULT_OAUTH_CLIENT_CREDENTIALS_TTL_SECONDS = 3600;
+export const OAUTH_AUTHORIZATION_CODE_TTL_SECONDS = 300;
+export const OAUTH_LOGIN_TICKET_TTL_SECONDS = 300;
+export const OAUTH_JWT_ALGORITHM = "RS256";
+export const OAUTH_JWT_KEY_ID = "mcp-mock-dev-rs256-1";
+export const DEFAULT_OAUTH_ISSUER = "http://localhost:3000";
+export const DEFAULT_OAUTH_PRIVATE_KEY_PEM = `-----BEGIN RSA PRIVATE KEY-----
+MIIEpAIBAAKCAQEAxAIjGddtMHg0fsCV/+yvH8rg73MhhgGIB9pO+HJAZBMeurqK
+w9jan83Zlc1JcBU5l0o0WMR6kZcakRB35qb1qE2bbck0UVdFutT99X8GQhqi66xO
+4AZ6r8z4i0nPZko0Xt4IrP/Kw+hOJCFqEW6i/n14xbC1yO/KtzSnEq+Q9qOutJtW
+QLPm5VepcaEZMI6bu29YvMpqsQF4g6GhMe6rQGs6BKfHo6aGzz4GCFPK7HZrTP5s
+H3EgwFZ2ckei4X6/hCFACOpamTxAnqEscGU4pikJ0bQEP7V0xkmpidT9KrKr0a/X
+de+onF65v7Kr8q2NKK0mh+Q4VFbCNa2dG0X6TwIDAQABAoIBAQCeVUudeFQPr0pY
+iaGh1sOwXuZNByexZFNKZKMeNsylCnzsQfwOMIKKTHLTe70y+TJIb/zRKAYKzZD8
+Vd1FSOFwTyCbEslcW69MOPnc8ftQMswgrFQay6EXme+8NKeA7bhYWeuQNCDLGEDn
+FsbjxgeMpDaHGzP9WRbb34CGq6PiVvPo4IVFhs1deUmyVUFTnsIfofu40vodmiNY
+NqEquhzOOKPL37eH0ps8nHL9JWAhlYlUSIU7ekgjweL/5BESlL3vX+Oo+uPHotIq
+HG0AhcXxX2HXp7h9LGNYbsx1lHcmUmVzKqJOkXYJrp+4QppcIS1Y8XJ70EN5ozx+
+xJ+zlv7hAoGBAPAMbtZdjw6Rr3GylYps4vL5j1HgQd/PQWSkaeyFohRubVDlIN60
+v7ufH1xOP/JxrTm8665EqX/978MO7KNuNzh8bFIyOsaLxwxcRvtPQYj8kZG3/3up
+fLzICUOd0eohuL1MuVhaf+Dom8nVl/uW95zgGVwQqbQ5elfIVl77ArdTAoGBANEI
+hHqYylibHYjy1JtaJ+1kkM1rZ4yP1TvhacIDTlAaGCEoBVEnVUOefY9a6O/8aYyo
+aqp+HItHeAS3Igxlp0VmYVW0Vx7muKSslscC1dvYYAlyHOfiO+Nuy8vbGiCUrkih
+FjEmhWb5RpiHnpzKI+AGgjYQFIzC4KQ2mH4rI72VAoGBAMKbocPiR5ctHsoTWM7H
+ZdpL3hgnseALO12nOUSKNhNQTwl1KIfEi2hFIXyI56ja5e/YLE201qGwMg+16ry4
+HsaJgJvGowXRzgZETTtyTpQLBszXGaWci0bU+UW7DbI9snKtX9m0TNX+XkZsBnHu
+O0IQIB8WVy6IJppCDVulLdeHAoGASp9jy/BnrCIT9SPbSmpw/op8Nxk0qjVexjW+
+b4iGmIn4Oz3yR/pmsfEOmfK2XZYaiCBHk/3Zas9kxSoreYmAoYHfFZ1/zIRJPmBu
+ozUb65PfFQAr2YwmHRccofXh6eeqIDuBlKJP1WcAEMu5j/eJvxwTuAEdlPKtB3KG
+FeSIqdECgYA4HkiNFs0mPkv5F2nGv42wQkznw9Vh7kazqWKIDDil12ubj6KyXdd/
+V2RkTFFdlxnMBU+AsKJumfaWO3QGe9p2KdispGMsEOR1Moy1vKHuH6RvwsCJFF7i
+Jcffckhd4R6kO9uS7d3wr+fCqIbqRibWZjgXNt+Ib3PwNedjQoU+TA==
+-----END RSA PRIVATE KEY-----`;
+
+export const OAUTH_ACCESS_TOKEN_TTL_PRESETS = [
+  { label: "15 minutes", seconds: 900 },
+  { label: "1 hour", seconds: 3600 },
+  { label: "8 hours", seconds: 28800 },
+  { label: "24 hours", seconds: 86400 },
+] as const;
+
+export const OAUTH_CLIENT_CREDENTIALS_TTL_PRESETS = [
+  { label: "15 minutes", seconds: 900 },
+  { label: "1 hour", seconds: 3600 },
+  { label: "8 hours", seconds: 28800 },
+  { label: "24 hours", seconds: 86400 },
+] as const;
+
+export type OAuthUserSummary = {
+  id: string;
+  username: string;
+  enabled: boolean;
+  builtIn: boolean;
+  accessTokenTtlSeconds: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type OAuthUserListResult = {
+  total: number;
+  enabled: number;
+  disabled: number;
+  users: OAuthUserSummary[];
+  ttlPresets: typeof OAUTH_ACCESS_TOKEN_TTL_PRESETS;
+};
+
+export type OAuthUserCreateInput = {
+  username: string;
+  password: string;
+  enabled: boolean;
+  accessTokenTtlSeconds: number;
+};
+
+export type OAuthUserUpdateInput = {
+  password?: string | null;
+  enabled?: boolean;
+  accessTokenTtlSeconds?: number;
+};
+
+export class OAuthUserValidationError extends Error {
+  constructor(public readonly fieldErrors: Record<string, string>) {
+    super("OAuth user validation failed.");
+  }
+}
+
+export class OAuthUserBuiltInError extends Error {
+  constructor(public readonly action: "update" | "delete") {
+    super("Built-in OAuth user cannot be changed.");
+  }
+}
+
+export class OAuthUserNotFoundError extends Error {
+  constructor() {
+    super("OAuth user not found.");
+  }
+}
+
+export type OAuthClientEndpointOption = {
+  id: string;
+  name: string;
+  title: string;
+  enabled: boolean;
+};
+
+export type OAuthClientSummary = {
+  id: string;
+  clientId: string;
+  displayName: string;
+  enabled: boolean;
+  builtIn: boolean;
+  redirectUris: string[];
+  clientCredentialsTtlSeconds: number;
+  allowedEndpointIds: string[];
+  allowedEndpoints: OAuthClientEndpointOption[];
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type OAuthClientListResult = {
+  total: number;
+  enabled: number;
+  disabled: number;
+  clients: OAuthClientSummary[];
+  endpointOptions: OAuthClientEndpointOption[];
+  ttlPresets: typeof OAUTH_CLIENT_CREDENTIALS_TTL_PRESETS;
+};
+
+export type OAuthClientCreateInput = {
+  clientId: string;
+  displayName: string;
+  enabled: boolean;
+  redirectUris: string[];
+  clientCredentialsTtlSeconds: number;
+  allowedEndpointIds: string[];
+};
+
+export type OAuthClientUpdateInput = {
+  displayName?: string;
+  enabled?: boolean;
+  redirectUris?: string[];
+  clientCredentialsTtlSeconds?: number;
+  allowedEndpointIds?: string[];
+};
+
+export type OAuthClientSecretResult = {
+  client: OAuthClientSummary;
+  clientSecret: string;
+};
+
+export class OAuthClientValidationError extends Error {
+  constructor(public readonly fieldErrors: Record<string, string>) {
+    super("OAuth client validation failed.");
+  }
+}
+
+export class OAuthClientBuiltInError extends Error {
+  constructor(public readonly action: "update" | "delete" | "regenerateSecret") {
+    super("Built-in OAuth client cannot be changed.");
+  }
+}
+
+export class OAuthClientNotFoundError extends Error {
+  constructor() {
+    super("OAuth client not found.");
+  }
+}
+
+export type OAuthAuthorizeRequest = {
+  responseType: string;
+  clientId: string;
+  redirectUri: string;
+  state: string | null;
+  resource: string;
+};
+
+export type OAuthAuthorizeContext = {
+  request: OAuthAuthorizeRequest;
+  client: OAuthClientSummary;
+  codeTtlSeconds: number;
+};
+
+export type OAuthConsentContext = OAuthAuthorizeContext & {
+  user: OAuthUserSummary;
+  loginTicket: string;
+};
+
+export type OAuthAuthorizationCodeSummary = {
+  id: string;
+  code: string;
+  oauthClientId: string;
+  oauthUserId: string;
+  redirectUri: string;
+  resource: string;
+  state: string | null;
+  selectedEndpointIds: string[];
+  expiresAt: string;
+  usedAt: string | null;
+  createdAt: string;
+};
+
+export class OAuthAuthorizeRequestError extends Error {
+  constructor(public readonly code: string, message: string, public readonly field?: string) {
+    super(message);
+  }
+}
+
+export class OAuthLoginError extends Error {
+  constructor(public readonly code: "invalid_user" | "invalid_ticket" | "invalid_selection", message: string) {
+    super(message);
+  }
+}
+
+export type OAuthTokenExchangeInput = {
+  grantType: string;
+  code: string;
+  redirectUri: string;
+  clientId: string;
+  clientSecret: string;
+  scope?: string;
+  resource?: string;
+  issuer?: string;
+  now?: Date;
+};
+
+export type OAuthAccessTokenClaims = {
+  iss: string;
+  aud: string;
+  resource: string;
+  sub: string;
+  client_id: string;
+  grant_type: "authorization_code" | "client_credentials";
+  iat: number;
+  exp: number;
+  jti: string;
+  scope: string;
+  endpoint_permissions: string[];
+};
+
+export type OAuthTokenExchangeResult = {
+  access_token: string;
+  token_type: "Bearer";
+  expires_in: number;
+  scope: string;
+};
+
+export class OAuthTokenError extends Error {
+  constructor(
+    public readonly code: "invalid_request" | "invalid_client" | "invalid_grant" | "unsupported_grant_type",
+    message: string,
+    public readonly status = code === "invalid_client" ? 401 : 400,
+  ) {
+    super(message);
+  }
+}
+
+exec
+/bin/zsh -lc 'git status --short' in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+git: warning: confstr() failed with code 5: couldn't get path of DARWIN_USER_TEMP_DIR; using /tmp instead
+git: error: couldn't create cache file '/tmp/xcrun_db-Jm18zxh3' (errno=Operation not permitted)
+git: warning: confstr() failed with code 5: couldn't get path of DARWIN_USER_TEMP_DIR; using /tmp instead
+git: error: couldn't create cache file '/tmp/xcrun_db-46tVkrkv' (errno=Operation not permitted)
+ M app/globals.css
+ M app/oauth/token/route.ts
+ M app/page.tsx
+ M docs/FRONTEND.md
+ M docs/PRODUCT_SENSE.md
+ M docs/SECURITY.md
+ D docs/exec-plans/active/017-oauth-client-credentials-grant.md
+ M docs/exec-plans/active/018-oauth-discovery-metadata.md
+ M docs/product-specs/oauth-consent-and-token-runtime.md
+ M scripts/ralph/generated/current-evaluator-prompt.txt
+ M scripts/ralph/generated/current-task-prompt.txt
+ M state/artifacts/20260505T211124-oauth-client-credentials-grant/commit.log
+ M state/backlog.md
+ M state/blocker-tracker.json
+ M state/current-cycle.json
+ M state/current-task.txt
+ M state/deterministic-checks.json
+ M state/last-result.txt
+ M state/run-log.md
+ M state/task-history.md
+?? app/.well-known/
+?? app/config/
+?? app/oauth/jwks/
+?? docs/exec-plans/completed/017-oauth-client-credentials-grant.md
+?? lib/oauth/discovery.ts
+?? state/artifacts/20260505T211124-oauth-client-credentials-grant/backlog.log
+?? state/artifacts/20260505T211124-oauth-client-credentials-grant/promote.log
+?? state/artifacts/20260505T212007-oauth-discovery-metadata/
+?? tests/e2e/oauth-discovery.spec.ts
+?? tests/unit/oauth-discovery.test.ts
+
+exec
+/bin/zsh -lc 'git diff --stat' in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+git: warning: confstr() failed with code 5: couldn't get path of DARWIN_USER_TEMP_DIR; using /tmp instead
+git: error: couldn't create cache file '/tmp/xcrun_db-enBg2Lfj' (errno=Operation not permitted)
+git: warning: confstr() failed with code 5: couldn't get path of DARWIN_USER_TEMP_DIR; using /tmp instead
+git: error: couldn't create cache file '/tmp/xcrun_db-D0wNgX5w' (errno=Operation not permitted)
+ app/globals.css                                    |  34 +++++++
+ app/oauth/token/route.ts                           |   3 +-
+ app/page.tsx                                       |   4 +
+ docs/FRONTEND.md                                   |   4 +-
+ docs/PRODUCT_SENSE.md                              |   1 +
+ docs/SECURITY.md                                   |   2 +
+ .../active/017-oauth-client-credentials-grant.md   | 106 ---------------------
+ .../active/018-oauth-discovery-metadata.md         |   4 +-
+ .../oauth-consent-and-token-runtime.md             |   4 +
+ .../ralph/generated/current-evaluator-prompt.txt   |  56 ++++++-----
+ scripts/ralph/generated/current-task-prompt.txt    |  58 +++++------
+ .../commit.log                                     |  12 +++
+ state/backlog.md                                   |   4 +-
+ state/blocker-tracker.json                         |   2 +-
+ state/current-cycle.json                           |  10 +-
+ state/current-task.txt                             |   2 +-
+ state/deterministic-checks.json                    |  16 ++--
+ state/last-result.txt                              |  10 +-
+ state/run-log.md                                   |  13 +++
+ state/task-history.md                              |   1 +
+ 20 files changed, 155 insertions(+), 191 deletions(-)
+
+exec
+/bin/zsh -lc "sed -n '1,220p' lib/mcp/http.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+exec
+/bin/zsh -lc 'rg -n "mcp/oauth|handle.*OAuth|Bearer|oauth" lib/mcp app/mcp tests/e2e -S' in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import { NextResponse } from "next/server";
+import { resolveBasicAuthorizationHeader } from "@/lib/auth/basic";
+import { callEndpointByName, listEnabledMcpTools } from "@/lib/endpoints/service";
+import { handleMcpJsonRpcMessage } from "@/lib/mcp/protocol";
+
+export const dynamic = "force-dynamic";
+
+function unauthorizedBasicResponse(message = "Valid Basic credentials are required.") {
+  return NextResponse.json(
+    {
+      error: "unauthorized",
+      message,
+    },
+    {
+      status: 401,
+      headers: {
+        "WWW-Authenticate": 'Basic realm="MCP Mock Server"',
+      },
+    },
+  );
+}
+
+async function handleMcpJsonRpcPost(request: Request) {
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json(
+      {
+        jsonrpc: "2.0",
+        id: null,
+        error: { code: -32700, message: "Parse error" },
+      },
+      { status: 400 },
+    );
+  }
+
+  const result = await handleMcpJsonRpcMessage(body, listEnabledMcpTools, callEndpointByName);
+  if (result.kind === "accepted") {
+    return new Response(null, { status: 202 });
+  }
+
+  return NextResponse.json(result.body, { status: result.status });
+}
+
+export async function handleNoAuthMcpPost(request: Request) {
+  return handleMcpJsonRpcPost(request);
+}
+
+export async function handleUnifiedMcpPost(request: Request) {
+  const authorization = request.headers.get("Authorization");
+  const resolution = await resolveBasicAuthorizationHeader(authorization);
+
+  if (resolution.kind === "unauthorized") {
+    return unauthorizedBasicResponse("Authorization header was invalid.");
+  }
+  if (resolution.kind === "authenticated" || resolution.kind === "missing") {
+    return handleMcpJsonRpcPost(request);
+  }
+
+  return unauthorizedBasicResponse();
+}
+
+export async function handleStrictBasicMcpPost(request: Request) {
+  const resolution = await resolveBasicAuthorizationHeader(request.headers.get("Authorization"));
+  if (resolution.kind !== "authenticated") {
+    return unauthorizedBasicResponse();
+  }
+
+  return handleMcpJsonRpcPost(request);
+}
+
+export function unsupportedStreamableHttpMethod() {
+  return NextResponse.json(
+    {
+      error: "method_not_allowed",
+      message: "This MVP MCP endpoint supports JSON-RPC over HTTP POST only; SSE streams and session termination are not implemented.",
+    },
+    {
+      status: 405,
+      headers: { Allow: "POST" },
+    },
+  );
+}
+
+ succeeded in 0ms:
+tests/e2e/rest-tools-list.spec.ts:127:    headers: { Authorization: "Bearer deferred" },
+tests/e2e/oauth-discovery.spec.ts:17:test("OAuth discovery metadata and JWKS are internally consistent @oauth-discovery", async ({ page, request }) => {
+tests/e2e/oauth-discovery.spec.ts:18:  const authorizationServerResponse = await request.get("/.well-known/oauth-authorization-server");
+tests/e2e/oauth-discovery.spec.ts:23:  const protectedResourceResponse = await request.get("/.well-known/oauth-protected-resource");
+tests/e2e/oauth-discovery.spec.ts:28:    authorization_servers: [`${expectedBaseUrl}/.well-known/oauth-authorization-server`],
+tests/e2e/oauth-discovery.spec.ts:31:    mcp_endpoint: `${expectedBaseUrl}/mcp/oauth`,
+tests/e2e/oauth-discovery.spec.ts:36:    authorization_endpoint: `${expectedBaseUrl}/oauth/authorize`,
+tests/e2e/oauth-discovery.spec.ts:37:    token_endpoint: `${expectedBaseUrl}/oauth/token`,
+tests/e2e/oauth-discovery.spec.ts:38:    jwks_uri: `${expectedBaseUrl}/oauth/jwks`,
+tests/e2e/oauth-discovery.spec.ts:57:  const jwksResponse = await request.get("/oauth/jwks");
+tests/e2e/oauth-discovery.spec.ts:67:  const tokenResponse = await request.post("/oauth/token", {
+tests/e2e/oauth-discovery.spec.ts:99:  await expect(connectionExample).toContainText("/.well-known/oauth-protected-resource");
+tests/e2e/oauth-discovery.spec.ts:100:  await expect(connectionExample).toContainText("/.well-known/oauth-authorization-server");
+tests/e2e/oauth-discovery.spec.ts:102:  await expect(connectionExample).toContainText("/oauth/jwks");
+tests/e2e/oauth-users.spec.ts:5:test("OAuth users management UI protects default, validates TTLs, and manages editable users @ui-oauth-users", async ({
+tests/e2e/oauth-users.spec.ts:9:  const username = `ui_oauth_${Date.now()}`;
+tests/e2e/oauth-users.spec.ts:11:  await page.goto("/oauth-users");
+tests/e2e/oauth-users.spec.ts:23:  const lockedResponse = await request.patch("/api/oauth-users/oauth_user_default", {
+tests/e2e/oauth-users.spec.ts:28:  const invalidTtl = await request.post("/api/oauth-users", {
+tests/e2e/oauth-users.spec.ts:53:  await page.screenshot({ path: "test-results/ui-oauth-users-desktop.png", fullPage: true });
+tests/e2e/oauth-users.spec.ts:70:  await page.screenshot({ path: "test-results/ui-oauth-users-mobile.png", fullPage: true });
+tests/e2e/oauth-client-credentials.spec.ts:12:test("OAuth client_credentials issues tokens with endpoint scope intersection @oauth-client-credentials", async ({
+tests/e2e/oauth-client-credentials.spec.ts:31:  const createResponse = await request.post("/api/oauth-clients", {
+tests/e2e/oauth-client-credentials.spec.ts:36:      redirectUris: ["http://localhost:3000/oauth/callback"],
+tests/e2e/oauth-client-credentials.spec.ts:43:  const oauthClientId = created.client.id as string;
+tests/e2e/oauth-client-credentials.spec.ts:46:  const narrowedResponse = await request.post("/oauth/token", {
+tests/e2e/oauth-client-credentials.spec.ts:57:  expect(narrowedPayload.token_type).toBe("Bearer");
+tests/e2e/oauth-client-credentials.spec.ts:69:  const fullResponse = await request.post("/oauth/token", {
+tests/e2e/oauth-client-credentials.spec.ts:81:  const invalidSecretResponse = await request.post("/oauth/token", {
+tests/e2e/oauth-client-credentials.spec.ts:94:  const disableResponse = await request.patch(`/api/oauth-clients/${oauthClientId}`, { data: { enabled: false } });
+tests/e2e/oauth-client-credentials.spec.ts:96:  const disabledResponse = await request.post("/oauth/token", {
+tests/e2e/oauth-clients.spec.ts:5:test("OAuth clients management UI protects default, shows secrets once, and persists allowed endpoints @ui-oauth-clients", async ({
+tests/e2e/oauth-clients.spec.ts:11:  await page.goto("/oauth-clients");
+tests/e2e/oauth-clients.spec.ts:24:  const lockedResponse = await request.patch("/api/oauth-clients/oauth_client_default", {
+tests/e2e/oauth-clients.spec.ts:29:  const invalidEndpoint = await request.post("/api/oauth-clients", {
+tests/e2e/oauth-clients.spec.ts:48:  await page.getByLabel("Redirect URIs").fill("http://localhost:3000/oauth/callback\nhttp://127.0.0.1:3100/callback");
+tests/e2e/oauth-clients.spec.ts:58:  const listResponse = await request.get("/api/oauth-clients");
+tests/e2e/oauth-clients.spec.ts:63:  await page.screenshot({ path: "test-results/ui-oauth-clients-desktop.png", fullPage: true });
+tests/e2e/oauth-clients.spec.ts:85:  await page.screenshot({ path: "test-results/ui-oauth-clients-mobile.png", fullPage: true });
+tests/e2e/oauth-code-token.spec.ts:12:test("OAuth authorization code exchanges once for endpoint-permission JWT @oauth-code-token", async ({
+tests/e2e/oauth-code-token.spec.ts:17:  const redirectUri = "http://127.0.0.1:3100/oauth/callback";
+tests/e2e/oauth-code-token.spec.ts:18:  const createResponse = await request.post("/api/oauth-clients", {
+tests/e2e/oauth-code-token.spec.ts:30:  const oauthClientId = created.client.id as string;
+tests/e2e/oauth-code-token.spec.ts:41:  await page.goto(`/oauth/authorize?${authorizeParams.toString()}`);
+tests/e2e/oauth-code-token.spec.ts:46:  await page.waitForURL(/\/oauth\/callback\?code=.*state=state-token-e2e/);
+tests/e2e/oauth-code-token.spec.ts:52:  const tokenResponse = await request.post("/oauth/token", {
+tests/e2e/oauth-code-token.spec.ts:63:  expect(tokenPayload.token_type).toBe("Bearer");
+tests/e2e/oauth-code-token.spec.ts:79:  const reuseResponse = await request.post("/oauth/token", {
+tests/e2e/oauth-code-token.spec.ts:96:    expect(storedToken.oauthClientId).toBe(oauthClientId);
+tests/e2e/oauth-code-token.spec.ts:104:  const deleteResponse = await request.delete(`/api/oauth-clients/${oauthClientId}`);
+tests/e2e/oauth-code-token.spec.ts:108:test("OAuth token endpoint rejects invalid authorization_code exchanges @oauth-code-token", async ({ request }) => {
+tests/e2e/oauth-code-token.spec.ts:109:  const redirectUri = "http://localhost:3000/oauth/callback";
+tests/e2e/oauth-code-token.spec.ts:110:  const unsupported = await request.post("/oauth/token", {
+tests/e2e/oauth-code-token.spec.ts:120:  const missing = await request.post("/oauth/token", {
+tests/e2e/oauth-code-token.spec.ts:132:  const invalid = await request.post("/oauth/token", {
+tests/e2e/oauth-code-token.spec.ts:144:  const invalidClient = await request.post("/oauth/token", {
+tests/e2e/oauth-consent.spec.ts:6:test("OAuth authorization login and consent creates an endpoint-bound code @oauth-consent", async ({
+tests/e2e/oauth-consent.spec.ts:11:  const redirectUri = "http://127.0.0.1:3100/oauth/callback";
+tests/e2e/oauth-consent.spec.ts:12:  const createResponse = await request.post("/api/oauth-clients", {
+tests/e2e/oauth-consent.spec.ts:24:  const oauthClientId = created.client.id as string;
+tests/e2e/oauth-consent.spec.ts:34:  await page.goto(`/oauth/authorize?${authorizeParams.toString()}`);
+tests/e2e/oauth-consent.spec.ts:47:  await page.screenshot({ path: "test-results/oauth-consent-desktop.png", fullPage: true });
+tests/e2e/oauth-consent.spec.ts:53:  await page.screenshot({ path: "test-results/oauth-consent-mobile.png", fullPage: true });
+tests/e2e/oauth-consent.spec.ts:56:  await page.waitForURL(/\/oauth\/callback\?code=.*state=state-e2e/);
+tests/e2e/oauth-consent.spec.ts:67:    expect(storedCode.oauthClientId).toBe(oauthClientId);
+tests/e2e/oauth-consent.spec.ts:77:  const deleteResponse = await request.delete(`/api/oauth-clients/${oauthClientId}`);
+tests/e2e/oauth-consent.spec.ts:81:test("OAuth authorize and login invalid paths fail deterministically @oauth-consent", async ({ page }) => {
+tests/e2e/oauth-consent.spec.ts:83:    `/oauth/authorize?${new URLSearchParams({
+tests/e2e/oauth-consent.spec.ts:86:      redirect_uri: "http://127.0.0.1:3100/oauth/callback",
+tests/e2e/oauth-consent.spec.ts:93:    `/oauth/authorize?${new URLSearchParams({
+tests/e2e/oauth-consent.spec.ts:103:    `/oauth/login?${new URLSearchParams({
+tests/e2e/oauth-consent.spec.ts:106:      redirect_uri: "http://localhost:3000/oauth/callback",
+
+codex
+{"decision":"not_done","recommend_promotion":false,"confidence":0.78,"summary":"Most OAuth discovery/JWKS scope is implemented and the provided deterministic checks passed, but the implementation advertises an MCP OAuth endpoint at /mcp/oauth in protected-resource metadata and the /config connection example while no app/mcp/oauth route exists. That means the metadata/guide are not fully aligned with actual runtime routes, and the @oauth-discovery test only asserts the advertised string instead of proving the route exists.","satisfied_exit_criteria":["Discovery route handlers exist for /.well-known/oauth-protected-resource, /.well-known/oauth-authorization-server, /.well-known/openid-configuration, and /oauth/jwks.","Metadata is internally consistent for issuer, authorization endpoint, token endpoint, JWKS URI, grants, response types, auth method, and scope format.","JWKS exposes a public RS256 key without private key fields and the E2E test verifies an issued client_credentials token signature with it.","Connection guide includes the metadata and JWKS endpoints.","Provided deterministic summary reports npm run test:unit, npm run test:e2e -- --grep @oauth-discovery, and npm run verify all passed.","Task maps to docs/product-specs/oauth-consent-and-token-runtime.md."],"missing_requirements":["Protected-resource metadata and the /config MCP OAuth connection example advertise /mcp/oauth, but the repository currently has app/mcp, app/mcp/none, and app/mcp/basic only. This violates alignment with actual runtime routes and makes the guide example partially inaccurate.","The @oauth-discovery E2E test does not catch the missing advertised MCP OAuth route; it only checks that /mcp/oauth appears in metadata/config text."],"human_review_triggers":["Required checks do not prove the claimed behavior.","Implementation changes contradict the product spec or security/reliability docs."]}
+tokens used
+38,027
+{"decision":"not_done","recommend_promotion":false,"confidence":0.78,"summary":"Most OAuth discovery/JWKS scope is implemented and the provided deterministic checks passed, but the implementation advertises an MCP OAuth endpoint at /mcp/oauth in protected-resource metadata and the /config connection example while no app/mcp/oauth route exists. That means the metadata/guide are not fully aligned with actual runtime routes, and the @oauth-discovery test only asserts the advertised string instead of proving the route exists.","satisfied_exit_criteria":["Discovery route handlers exist for /.well-known/oauth-protected-resource, /.well-known/oauth-authorization-server, /.well-known/openid-configuration, and /oauth/jwks.","Metadata is internally consistent for issuer, authorization endpoint, token endpoint, JWKS URI, grants, response types, auth method, and scope format.","JWKS exposes a public RS256 key without private key fields and the E2E test verifies an issued client_credentials token signature with it.","Connection guide includes the metadata and JWKS endpoints.","Provided deterministic summary reports npm run test:unit, npm run test:e2e -- --grep @oauth-discovery, and npm run verify all passed.","Task maps to docs/product-specs/oauth-consent-and-token-runtime.md."],"missing_requirements":["Protected-resource metadata and the /config MCP OAuth connection example advertise /mcp/oauth, but the repository currently has app/mcp, app/mcp/none, and app/mcp/basic only. This violates alignment with actual runtime routes and makes the guide example partially inaccurate.","The @oauth-discovery E2E test does not catch the missing advertised MCP OAuth route; it only checks that /mcp/oauth appears in metadata/config text."],"human_review_triggers":["Required checks do not prove the claimed behavior.","Implementation changes contradict the product spec or security/reliability docs."]}
+evaluation: not_done promotion=false

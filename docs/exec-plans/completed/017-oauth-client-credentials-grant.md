@@ -5,7 +5,7 @@
   "id": "oauth-client-credentials-grant",
   "title": "OAuth Client Credentials Grant",
   "order": 17,
-  "status": "active",
+  "status": "completed",
   "next_task_on_success": "oauth-discovery-metadata",
   "prompt_docs": [
     "AGENTS.md",
@@ -25,7 +25,8 @@
     "Required checks do not prove the claimed behavior.",
     "Implementation changes contradict the product spec or security/reliability docs."
   ],
-  "promotion_mode": "deterministic"
+  "promotion_mode": "deterministic",
+  "completed_at": "2026-05-05T12:19:37.153Z"
 }
 ```
 
@@ -104,3 +105,4 @@ Confirm that this task maps to the primary product spec `oauth-consent-and-token
 - Note when existing partial implementations were found and reused instead of replaced.
 - 2026-05-05T12:10:54.414Z: restored as current task after oauth-code-token-jwt promotion.
 - 2026-05-05T12:38:00.000Z: found authorization-code JWT issuance and token persistence helpers already implemented; reused the route error mapping/signing approach while adding a client_credentials token branch and focused unit/E2E coverage.
+- 2026-05-05T12:19:37.153Z: automatically promoted after deterministic checks and evaluator approval.

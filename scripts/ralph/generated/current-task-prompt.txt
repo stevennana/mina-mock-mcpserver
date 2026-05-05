@@ -3,55 +3,55 @@ Read the following repository documents before making changes:
 - ARCHITECTURE.md
 - docs/PRODUCT_SENSE.md
 - docs/SECURITY.md
+- docs/FRONTEND.md
 - docs/product-specs/oauth-consent-and-token-runtime.md
-- docs/exec-plans/active/017-oauth-client-credentials-grant.md
+- docs/exec-plans/active/018-oauth-discovery-metadata.md
 
-Current task id: oauth-client-credentials-grant
-Current task title: OAuth Client Credentials Grant
+Current task id: oauth-discovery-metadata
+Current task title: OAuth Discovery Metadata and JWKS
 
 Objective:
-Implement non-interactive client_credentials token issuance with endpoint scope intersection.
+Expose OAuth protected-resource, authorization-server, OIDC configuration, and JWKS metadata aligned with the mock server runtime.
 
 Clarity notes:
-- This task is only the grant behavior, not metadata discovery.
-- Client credentials tokens use subject `client:<client_id>` and client TTL settings.
-- Requested scopes narrow access and must never expand beyond client allowed endpoints.
-- No user login is involved.
+- This task advertises already implemented OAuth capabilities; it should not claim unsupported features.
+- Metadata URLs must respect configured base URL behavior as far as currently implemented.
+- JWKS must match the token signing approach.
+- Connection guide should show metadata endpoints for MCP client setup.
 
 Expected result:
-- Valid clients can request client_credentials tokens.
-- No scope grants all client-allowed endpoints; requested scopes grant the intersection only.
-- Invalid client credentials or disabled clients are rejected.
-- Issued token records are stored consistently with authorization-code tokens.
+- `.well-known/oauth-protected-resource`, `.well-known/oauth-authorization-server`, `.well-known/openid-configuration`, and `/oauth/jwks` return consistent JSON.
+- Metadata advertises authorization endpoint, token endpoint, JWKS endpoint, supported grants, response types, auth methods, and scopes.
+- Connection guide includes discovery URLs and examples.
+- Tests prove metadata shape and URL consistency.
 
 Objections / risks to avoid:
-- Do not allow requested scopes to exceed allowed endpoints.
-- Do not require browser login for this grant.
-- Do not leak client secrets in errors or logs.
-- Do not implement discovery metadata here.
+- Do not advertise refresh tokens, PKCE, or external providers unless actually supported.
+- Do not expose private signing material in JWKS.
+- Do not hardcode public URLs in a way that breaks reverse proxy deployment.
+- Do not add new OAuth grants here.
 
 Scope:
-- Add client_credentials branch to `/oauth/token`.
-- Validate client ID/secret and enabled state.
-- Compute endpoint permission set from requested scopes and allowed endpoints.
-- Add unit and E2E tests tagged `@oauth-client-credentials`.
+- Implement discovery route handlers.
+- Implement JWKS route matching signing keys.
+- Update connection guide UI/docs for metadata endpoints.
+- Add unit/E2E tests tagged `@oauth-discovery`.
 
 Out of scope:
-- OAuth discovery metadata.
-- MCP bearer enforcement.
+- Client credentials grant already handled.
+- MCP permission enforcement.
 - Token UI/revocation.
-- Refresh tokens.
 
 Exit criteria:
-1. Client credentials tokens can be issued for valid clients.
-2. Scope intersection behavior is tested.
-3. Invalid/disabled clients fail safely.
-4. Token claims distinguish grant_type and subject from authorization-code tokens.
+1. Metadata endpoints return valid, internally consistent JSON.
+2. JWKS can be used to verify issued tokens according to the signing approach.
+3. Connection guide examples match actual routes.
+4. `@oauth-discovery` passes.
 5. All required checks pass.
 
 Required checks:
 - npm run test:unit
-- npm run test:e2e -- --grep @oauth-client-credentials
+- npm run test:e2e -- --grep @oauth-discovery
 - npm run verify
 
 Evaluator notes:
@@ -65,7 +65,7 @@ Required repository artifacts for this task:
 
 Required commands for this task:
 - npm run test:unit
-- npm run test:e2e -- --grep @oauth-client-credentials
+- npm run test:e2e -- --grep @oauth-discovery
 - npm run verify
 
 Previous known gaps from the last evaluation:
