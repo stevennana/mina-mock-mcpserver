@@ -5,55 +5,55 @@ Read the following repository documents before making changes:
 - docs/FRONTEND.md
 - docs/SECURITY.md
 - docs/product-specs/oauth-consent-and-token-runtime.md
-- docs/exec-plans/active/014-oauth-clients-management-ui.md
+- docs/exec-plans/active/015-oauth-authorize-login-consent.md
 
-Current task id: oauth-clients-management-ui
-Current task title: OAuth Clients Management UI and Allowed Endpoints
+Current task id: oauth-authorize-login-consent
+Current task title: OAuth Authorize, Login, and Consent UI
 
 Objective:
-Implement OAuth client persistence, secret generation, redirect URI management, allowed endpoint selection, and client UI.
+Implement the browser authorization entry, mock login, consent screen, endpoint selection, and authorization code creation.
 
 Clarity notes:
-- This task is only OAuth clients and their maximum allowed endpoint set.
-- Client secrets are sensitive copy-once-style values.
-- Allowed endpoints constrain later consent and client credentials flows.
-- The built-in default/default client must remain protected.
+- This task stops at issuing an authorization code; token exchange is next.
+- Consent must show endpoint permissions clearly because later tokens enforce them.
+- Authorization code records must be single-use-ready and bound to client, redirect URI, user, selected endpoints, and resource/audience.
+- The OAuth login UI is separate from the public admin navigation.
 
 Expected result:
-- OAuth clients can be created with user-entered client ID and generated secret.
-- Redirect URIs, display name, allowed endpoints, enabled state, and client credentials TTL can be edited.
-- Built-in client is visible as locked and cannot be disabled/deleted through normal flows.
-- `@ui-oauth-clients` proves the management UI.
+- Valid `/oauth/authorize` requests reach login and consent.
+- Consent displays client, redirect URI, resource, user, TTL, and endpoint checklist.
+- Submitting consent redirects to the registered redirect URI with `code` and `state`.
+- Invalid client/redirect/user cases fail deterministically.
 
 Objections / risks to avoid:
-- Do not implement `/oauth/token` here.
-- Do not repeatedly display stored client secrets unless explicitly configured later.
-- Do not allow clients to request endpoints outside their allowed set later.
-- Do not delete or weaken the built-in client.
+- Do not exchange codes for tokens in this task.
+- Do not skip consent by issuing codes directly from admin UI.
+- Do not accept unregistered redirect URIs.
+- Do not allow endpoint selections outside the client allowed set.
 
 Scope:
-- Add OAuth client model/service if not present.
-- Generate and hash/store client secrets according to implementation decision.
-- Build OAuth clients screen/API.
-- Implement allowed endpoint selection.
-- Add unit/UI tests tagged `@ui-oauth-clients`.
+- Validate authorization request parameters.
+- Build login and consent screens.
+- Persist authorization codes with expiry and selected endpoint IDs.
+- Redirect with code/state or appropriate errors.
+- Add E2E tests tagged `@oauth-consent`.
 
 Out of scope:
-- OAuth user management already done.
-- Authorization/login/consent flow.
-- Client credentials token issuance.
+- `/oauth/token` exchange.
+- Client credentials grant.
 - Discovery metadata.
+- MCP bearer enforcement.
 
 Exit criteria:
-1. Client CRUD works for non-built-in clients.
-2. Client secret generation/display behavior is safe and tested.
-3. Allowed endpoint mappings persist correctly.
-4. Built-in client remains protected.
+1. A valid user can complete login and consent for an OAuth client.
+2. Authorization codes store the selected endpoint permissions and binding data.
+3. Invalid redirect/client/user paths are tested.
+4. `@oauth-consent` passes.
 5. All required checks pass.
 
 Required checks:
 - npm run test:unit
-- npm run test:e2e -- --grep @ui-oauth-clients
+- npm run test:e2e -- --grep @oauth-consent
 - npm run verify
 
 Evaluator notes:
@@ -67,7 +67,7 @@ Required repository artifacts for this task:
 
 Required commands for this task:
 - npm run test:unit
-- npm run test:e2e -- --grep @ui-oauth-clients
+- npm run test:e2e -- --grep @oauth-consent
 - npm run verify
 
 Previous known gaps from the last evaluation:

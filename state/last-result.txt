@@ -1,10 +1,11 @@
-Implemented `oauth-clients-management-ui` and wrote the handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+Implemented `oauth-authorize-login-consent` and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
 
-What changed: OAuth client persistence/migration, default locked `default/default` client seed/reset support, generated scrypt-hashed copy-once secrets, client CRUD/regenerate APIs, `/oauth-clients` UI with redirect URI and allowed endpoint management, docs, and unit/E2E coverage.
+What changed: added OAuth authorization-code schema/persistence, `/oauth/authorize`, `/oauth/login`, `/oauth/consent`, signed short-lived login tickets, endpoint permission consent, code redirect with `state`, focused unit tests, `@oauth-consent` E2E tests, and the required docs/progress updates.
 
-Required checks passed:
+Required checks all passed:
+
 - `npm run test:unit`
-- `npm run test:e2e -- --grep @ui-oauth-clients`
+- `npm run test:e2e -- --grep @oauth-consent`
 - `npm run verify`
 
-Exit criteria appear satisfied. Remaining work for this task: none. Note: the worktree still includes pre-existing Ralph/task-state changes from before this implementation.
+Exit criteria appear satisfied. Token exchange remains untouched and deferred to the next task.

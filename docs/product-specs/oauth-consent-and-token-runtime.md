@@ -15,6 +15,10 @@ OAuth users and clients management
 - OAuth client secrets are generated server-side, stored as hashes, and returned only on create or regenerate responses
 - OAuth clients store redirect URIs, client credentials TTL presets, and a maximum allowed endpoint set that later consent and client credentials flows must not exceed
 - Login and consent flow
+- `/oauth/authorize` accepts authorization-code requests only after exact client and registered redirect URI validation
+- mock login verifies enabled OAuth users and carries the request to consent with a short-lived signed login ticket
+- consent displays client, redirect URI, resource, user, authorization-code TTL, and an endpoint permission checklist constrained to the client's allowed endpoint set
+- approving consent creates a single-use-ready authorization code bound to client, redirect URI, user, selected endpoints, resource/audience, state, expiry, and unused status, then redirects with `code` and `state`
 - Token issuance
 - Token list/detail/revoke
 - Discovery metadata
@@ -26,6 +30,7 @@ OAuth users and clients management
 - Non-built-in OAuth client CRUD validates client ID shape, redirect URI shape, TTL presets, unique client IDs, and existing allowed endpoint IDs
 - Authorization code lifetime/single-use
 - Client redirect validation
+- Consent endpoint selection must be a subset of the registered OAuth client's allowed endpoint IDs
 - JWT claims/signature/expiry
 - Permission filtering
 - Revocation lookup

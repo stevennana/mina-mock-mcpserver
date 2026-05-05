@@ -1,0 +1,3068 @@
+/Users/stevenna/WebstormProjects/mina-mock-mcpserver/scripts/ralph/generated/current-evaluator-prompt.txt
+OpenAI Codex v0.128.0 (research preview)
+--------
+workdir: /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 019df801-474c-7a71-a973-0e5ab4911a78
+--------
+user
+You are the promotion evaluator for a repository-local Ralph loop.
+
+Read these documents before deciding:
+- AGENTS.md
+- ARCHITECTURE.md
+- docs/PRODUCT_SENSE.md
+- docs/FRONTEND.md
+- docs/SECURITY.md
+- docs/product-specs/oauth-consent-and-token-runtime.md
+- docs/exec-plans/active/015-oauth-authorize-login-consent.md
+
+Current task id: oauth-authorize-login-consent
+Current task title: OAuth Authorize, Login, and Consent UI
+
+Objective:
+Implement the browser authorization entry, mock login, consent screen, endpoint selection, and authorization code creation.
+
+Scope:
+- Validate authorization request parameters.
+- Build login and consent screens.
+- Persist authorization codes with expiry and selected endpoint IDs.
+- Redirect with code/state or appropriate errors.
+- Add E2E tests tagged `@oauth-consent`.
+
+Out of scope:
+- `/oauth/token` exchange.
+- Client credentials grant.
+- Discovery metadata.
+- MCP bearer enforcement.
+
+Exit criteria:
+1. A valid user can complete login and consent for an OAuth client.
+2. Authorization codes store the selected endpoint permissions and binding data.
+3. Invalid redirect/client/user paths are tested.
+4. `@oauth-consent` passes.
+5. All required checks pass.
+
+Evaluator notes:
+Required commands are mandatory promotion gates, not suggestions.
+Do not promote if any required check fails.
+Do not accept broad feature work outside this task.
+Confirm that this task maps to the primary product spec `oauth-consent-and-token-runtime.md` or is explicitly final hardening.
+
+Deterministic check summary:
+{
+  "checked_at": "2026-05-05T11:58:46.458Z",
+  "task_id": "oauth-authorize-login-consent",
+  "commands": [
+    {
+      "command": "npm run test:unit",
+      "ok": true,
+      "output": "\n> mina-mock-mcpserver@1.0.0 test:unit\n> node --import tsx --test \"tests/unit/**/*.test.ts\"\n\n✔ Basic passwords are hashed and verified without plaintext storage (106.990208ms)\n✔ Basic Authorization parser handles missing, valid, unsupported, and malformed headers (0.872042ms)\n✔ Basic Authorization resolver authenticates enabled users and fails closed otherwise (1387.33225ms)\n✔ Basic credential verification uses stored hashes and enabled state (1110.396708ms)\n✔ built-in default Basic user cannot be disabled, changed, or deleted (839.255833ms)\n✔ normalizeLogLevel accepts supported operator log levels (0.81425ms)\n✔ normalizeLogLevel defaults invalid input to info (0.150708ms)\n✔ getBootstrapStatus reports prepared foundation state (0.144167ms)\n✔ db:prepare is repeatable and keeps seed rows singular (4503.783792ms)\n✔ endpoint runtime selects exact response cases after applying defaults (0.807542ms)\n✔ endpoint runtime falls back to the configured default case on no exact match (0.123958ms)\n✔ endpoint runtime reports disabled endpoints and invalid arguments deterministically (0.077708ms)\n✔ endpoint validation accepts the MVP editor field set (0.638291ms)\n✔ endpoint validation returns field-level errors for UI rendering (0.360708ms)\n✔ MCP input schema generation reflects endpoint parameters (0.380959ms)\n✔ MCP initialize returns explicit no-auth MVP capabilities (0.752916ms)\n✔ MCP initialized notification is accepted without a JSON-RPC body (0.069959ms)\n✔ MCP tools/list returns loaded tools without executing them (0.073208ms)\n✔ MCP tools/call converts endpoint success to content and structuredContent (0.135084ms)\n✔ MCP tools/call maps unknown tools and invalid params to JSON-RPC invalid params (0.096083ms)\n✔ MCP unknown methods return JSON-RPC method not found (0.056333ms)\n✔ OAuth authorize validates client and exact registered redirect URI (1514.321459ms)\n✔ OAuth consent creates a single-use-ready authorization code with endpoint bindings (1139.166125ms)\n✔ OAuth consent rejects invalid users and endpoint selections outside the client allowed set (891.620917ms)\n✔ OAuth client secrets are generated once, hashed, and verifiable (1675.672041ms)\n✔ OAuth client allowed endpoints persist and reject unknown endpoint IDs (1068.130541ms)\n✔ built-in default OAuth client cannot be disabled, regenerated, or deleted (861.385666ms)\n✔ OAuth user passwords are hashed and verified without plaintext storage (1612.1265ms)\n✔ built-in default OAuth user cannot be disabled, changed, or deleted (1026.440292ms)\n✔ OAuth user TTL validation rejects non-preset and never-expiring values (823.744458ms)\n✔ Ralph promotion resolves ordered successor filenames by taskmeta id (61.348417ms)\n✔ reset requires confirmation and leaves endpoint state untouched on failure (1436.433792ms)\n✔ reset clears mutable endpoint data and recreates current seed defaults (1175.886375ms)\n✔ REST tool metadata maps endpoint parameters without MCP JSON-RPC envelope (0.865208ms)\n✔ REST tool call mapper preserves success bodies and maps deterministic errors (0.146917ms)\nℹ tests 35\nℹ suites 0\nℹ pass 35\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 4838.404708\n"
+    },
+    {
+      "command": "npm run test:e2e -- --grep @oauth-consent",
+      "ok": true,
+      "output": "\n> mina-mock-mcpserver@1.0.0 test:e2e\n> playwright test --grep @oauth-consent\n\n\nRunning 2 tests using 1 worker\n\n  ✓  1 [chromium] › tests/e2e/oauth-consent.spec.ts:6:5 › OAuth authorization login and consent creates an endpoint-bound code @oauth-consent (2.0s)\n  ✓  2 [chromium] › tests/e2e/oauth-consent.spec.ts:81:5 › OAuth authorize and login invalid paths fail deterministically @oauth-consent (1.2s)\n\n  2 passed (7.5s)\n",
+      "preflight": {
+        "command": "ensure-e2e-port-free.sh 3100",
+        "error": "",
+        "ok": true,
+        "output": "port-cleanup: 127.0.0.1:3100 already free\n"
+      },
+      "next_server_log_path": "/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T204812-oauth-authorize-login-consent/npm-run-test-e2e-grep-oauth-consent-next-server.log"
+    },
+    {
+      "command": "npm run verify",
+      "ok": true,
+      "output": "\n> mina-mock-mcpserver@1.0.0 verify\n> npm run lint && npm run typecheck && npm run build && npm run test:unit && npm run test:e2e && npm run start:smoke\n\n\n> mina-mock-mcpserver@1.0.0 lint\n> eslint .\n\n\n> mina-mock-mcpserver@1.0.0 typecheck\n> tsc --noEmit\n\n\n> mina-mock-mcpserver@1.0.0 build\n> next build\n\n   ▲ Next.js 15.5.15\n\n   Creating an optimized production build ...\n ✓ Compiled successfully in 900ms\n   Linting and checking validity of types ...\n   Collecting page data ...\n   Generating static pages (0/20) ...\n   Generating static pages (5/20) \r\n   Generating static pages (10/20) \r\n   Generating static pages (15/20) \r\n ✓ Generating static pages (20/20)\n   Finalizing page optimization ...\n   Collecting build traces ...\n\nRoute (app)                                 Size  First Load JS\n┌ ○ /                                      164 B         106 kB\n├ ○ /_not-found                            999 B         103 kB\n├ ƒ /api/audit                             168 B         102 kB\n├ ƒ /api/basic-users                       168 B         102 kB\n├ ƒ /api/basic-users/[id]                  168 B         102 kB\n├ ƒ /api/endpoints                         168 B         102 kB\n├ ƒ /api/endpoints/[id]                    168 B         102 kB\n├ ƒ /api/health                            168 B         102 kB\n├ ƒ /api/oauth-clients                     168 B         102 kB\n├ ƒ /api/oauth-clients/[id]                168 B         102 kB\n├ ƒ /api/oauth-clients/[id]/secret         168 B         102 kB\n├ ƒ /api/oauth-users                       168 B         102 kB\n├ ƒ /api/oauth-users/[id]                  168 B         102 kB\n├ ƒ /api/reset                             168 B         102 kB\n├ ○ /audit                                 164 B         106 kB\n├ ○ /basic-users                         2.22 kB         108 kB\n├ ○ /endpoints                           5.62 kB         111 kB\n├ ƒ /mcp                                   168 B         102 kB\n├ ƒ /mcp/basic                             168 B         102 kB\n├ ƒ /mcp/none                              168 B         102 kB\n├ ○ /oauth-clients                          3 kB         109 kB\n├ ○ /oauth-users                         2.42 kB         108 kB\n├ ƒ /oauth/authorize                       168 B         102 kB\n├ ƒ /oauth/consent                         168 B         102 kB\n├ ƒ /oauth/login                           168 B         102 kB\n├ ○ /reset                               1.01 kB         107 kB\n├ ƒ /rest/tools                            168 B         102 kB\n└ ƒ /rest/tools/[name]/call                168 B         102 kB\n+ First Load JS shared by all             102 kB\n  ├ chunks/255-4f212684648fcab9.js         46 kB\n  ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB\n  └ other shared chunks (total)          1.92 kB\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n\n\n> mina-mock-mcpserver@1.0.0 test:unit\n> node --import tsx --test \"tests/unit/**/*.test.ts\"\n\n✔ Basic passwords are hashed and verified without plaintext storage (91.813833ms)\n✔ Basic Authorization parser handles missing, valid, unsupported, and malformed headers (0.621917ms)\n✔ Basic Authorization resolver authenticates enabled users and fails closed otherwise (1039.878ms)\n✔ Basic credential verification uses stored hashes and enabled state (1082.580084ms)\n✔ built-in default Basic user cannot be disabled, changed, or deleted (841.915334ms)\n✔ normalizeLogLevel accepts supported operator log levels (0.363834ms)\n✔ normalizeLogLevel defaults invalid input to info (0.061583ms)\n✔ getBootstrapStatus reports prepared foundation state (0.060167ms)\n✔ db:prepare is repeatable and keeps seed rows singular (4155.639875ms)\n✔ endpoint runtime selects exact response cases after applying defaults (0.817458ms)\n✔ endpoint runtime falls back to the configured default case on no exact match (0.123708ms)\n✔ endpoint runtime reports disabled endpoints and invalid arguments deterministically (0.072583ms)\n✔ endpoint validation accepts the MVP editor field set (0.675792ms)\n✔ endpoint validation returns field-level errors for UI rendering (0.353458ms)\n✔ MCP input schema generation reflects endpoint parameters (0.392125ms)\n✔ MCP initialize returns explicit no-auth MVP capabilities (0.739ms)\n✔ MCP initialized notification is accepted without a JSON-RPC body (0.07425ms)\n✔ MCP tools/list returns loaded tools without executing them (0.0795ms)\n✔ MCP tools/call converts endpoint success to content and structuredContent (0.135458ms)\n✔ MCP tools/call maps unknown tools and invalid params to JSON-RPC invalid params (0.099375ms)\n✔ MCP unknown methods return JSON-RPC method not found (0.064792ms)\n✔ OAuth authorize validates client and exact registered redirect URI (1128.689084ms)\n✔ OAuth consent creates a single-use-ready authorization code with endpoint bindings (1029.425333ms)\n✔ OAuth consent rejects invalid users and endpoint selections outside the client allowed set (918.730458ms)\n✔ OAuth client secrets are generated once, hashed, and verifiable (1225.360667ms)\n✔ OAuth client allowed endpoints persist and reject unknown endpoint IDs (1078.383167ms)\n✔ built-in default OAuth client cannot be disabled, regenerated, or deleted (857.622584ms)\n✔ OAuth user passwords are hashed and verified without plaintext storage (1086.094958ms)\n✔ built-in default OAuth user cannot be disabled, changed, or deleted (1070.856584ms)\n✔ OAuth user TTL validation rejects non-preset and never-expiring values (825.968584ms)\n✔ Ralph promotion resolves ordered successor filenames by taskmeta id (52.246917ms)\n✔ reset requires confirmation and leaves endpoint state untouched on failure (1092.276083ms)\n✔ reset clears mutable endpoint data and recreates current seed defaults (1096.372208ms)\n✔ REST tool metadata maps endpoint parameters without MCP JSON-RPC envelope (0.677708ms)\n✔ REST tool call mapper preserves success bodies and maps deterministic errors (0.374791ms)\nℹ tests 35\nℹ suites 0\nℹ pass 35\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 4518.2405\n\n> mina-mock-mcpserver@1.0.0 test:e2e\n> playwright test\n\n\nRunning 16 tests using 1 worker\n\n  ✓   1 [chromium] › tests/e2e/basic-auth-mcp.spec.ts:7:5 › Basic Auth MCP strict route and unified precedence fail closed and allow valid callers @basic-auth-mcp (671ms)\n  ✓   2 [chromium] › tests/e2e/basic-users.spec.ts:5:5 › Basic users management UI protects default and manages editable users @ui-basic-users (1.7s)\n  ✓   3 [chromium] › tests/e2e/bootstrap.spec.ts:3:5 › foundation dashboard renders planned MCP mock server surfaces (478ms)\n  ✓   4 [chromium] › tests/e2e/bootstrap.spec.ts:11:5 › health endpoint reports ok status (154ms)\n  ✓   5 [chromium] › tests/e2e/endpoint-console.spec.ts:5:5 › endpoint schema preview and console shell stay stable on desktop and mobile @ui-endpoint-console (1.0s)\n  ✓   6 [chromium] › tests/e2e/endpoint-delete-audit.spec.ts:17:5 › endpoint delete requires confirmation and writes non-secret audit evidence @endpoint-delete-audit (3.1s)\n  ✓   7 [chromium] › tests/e2e/endpoint-editor.spec.ts:5:5 › endpoint editor supports persisted create, edit, search, screenshots, and responsive checks @ui-endpoint-editor (1.3s)\n  ✓   8 [chromium] › tests/e2e/mcp-initialize-list.spec.ts:3:5 › no-auth MCP initialize, initialized notification, and tools/list use enabled endpoint schemas @mcp-initialize-list (220ms)\n  ✓   9 [chromium] › tests/e2e/mcp-tools-call.spec.ts:3:5 › no-auth MCP tools/call executes enabled endpoint cases and deterministic errors @mcp-tools-call (51ms)\n  ✓  10 [chromium] › tests/e2e/oauth-clients.spec.ts:5:5 › OAuth clients management UI protects default, shows secrets once, and persists allowed endpoints @ui-oauth-clients (2.7s)\n  ✓  11 [chromium] › tests/e2e/oauth-consent.spec.ts:6:5 › OAuth authorization login and consent creates an endpoint-bound code @oauth-consent (1.8s)\n  ✓  12 [chromium] › tests/e2e/oauth-consent.spec.ts:81:5 › OAuth authorize and login invalid paths fail deterministically @oauth-consent (1.1s)\n  ✓  13 [chromium] › tests/e2e/oauth-users.spec.ts:5:5 › OAuth users management UI protects default, validates TTLs, and manages editable users @ui-oauth-users (2.1s)\n  ✓  14 [chromium] › tests/e2e/rest-tools-call.spec.ts:7:5 › REST tools call executes exact matches, Basic auth, errors, and console evidence @rest-tools-call (1.3s)\n  ✓  15 [chromium] › tests/e2e/rest-tools-list.spec.ts:7:5 › REST tools list exposes enabled metadata for no-auth and Basic callers @rest-tools-list (343ms)\n  ✓  16 [chromium] › tests/e2e/root-reset.spec.ts:16:5 › root reset requires password and restores deterministic endpoint defaults @root-reset (3.6s)\n\n  16 passed (26.0s)\n\n> mina-mock-mcpserver@1.0.0 start:smoke\n> node scripts/start-smoke.mjs\n\n\n> mina-mock-mcpserver@1.0.0 db:prepare\n> node scripts/db-prepare.mjs\n\nDatasource \"db\": SQLite database \"runtime.sqlite\" at \"file:./data/runtime.sqlite\"\n\n7 migrations found in prisma/migrations\n\n\nNo pending migrations to apply.\n\n✔ Generated Prisma Client (v7.8.0) to ./node_modules/@prisma/client in 55ms\n\nStart by importing your Prisma Client (See: https://pris.ly/d/importing-client)\n\n\nPrepared SQLite runtime state with Prisma migrations and seed defaults.\n\n> mina-mock-mcpserver@1.0.0 build\n> next build\n\n   ▲ Next.js 15.5.15\n\n   Creating an optimized production build ...\n ✓ Compiled successfully in 891ms\n   Linting and checking validity of types ...\n   Collecting page data ...\n   Generating static pages (0/20) ...\n   Generating static pages (5/20) \r\n   Generating static pages (10/20) \r\n   Generating static pages (15/20) \r\n ✓ Generating static pages (20/20)\n   Finalizing page optimization ...\n   Collecting build traces ...\n\nRoute (app)                                 Size  First Load JS\n┌ ○ /                                      164 B         106 kB\n├ ○ /_not-found                            999 B         103 kB\n├ ƒ /api/audit                             168 B         102 kB\n├ ƒ /api/basic-users                       168 B         102 kB\n├ ƒ /api/basic-users/[id]                  168 B         102 kB\n├ ƒ /api/endpoints                         168 B         102 kB\n├ ƒ /api/endpoints/[id]                    168 B         102 kB\n├ ƒ /api/health                            168 B         102 kB\n├ ƒ /api/oauth-clients                     168 B         102 kB\n├ ƒ /api/oauth-clients/[id]                168 B         102 kB\n├ ƒ /api/oauth-clients/[id]/secret         168 B         102 kB\n├ ƒ /api/oauth-users                       168 B         102 kB\n├ ƒ /api/oauth-users/[id]                  168 B         102 kB\n├ ƒ /api/reset                             168 B         102 kB\n├ ○ /audit                                 164 B         106 kB\n├ ○ /basic-users                         2.22 kB         108 kB\n├ ○ /endpoints                           5.62 kB         111 kB\n├ ƒ /mcp                                   168 B         102 kB\n├ ƒ /mcp/basic                             168 B         102 kB\n├ ƒ /mcp/none                              168 B         102 kB\n├ ○ /oauth-clients                          3 kB         109 kB\n├ ○ /oauth-users                         2.42 kB         108 kB\n├ ƒ /oauth/authorize                       168 B         102 kB\n├ ƒ /oauth/consent                         168 B         102 kB\n├ ƒ /oauth/login                           168 B         102 kB\n├ ○ /reset                               1.01 kB         107 kB\n├ ƒ /rest/tools                            168 B         102 kB\n└ ƒ /rest/tools/[name]/call                168 B         102 kB\n+ First Load JS shared by all             102 kB\n  ├ chunks/255-4f212684648fcab9.js         46 kB\n  ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB\n  └ other shared chunks (total)          1.92 kB\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n\n   ▲ Next.js 15.5.15\n   - Local:        http://localhost:3100\n   - Network:      http://192.168.100.125:3100\n\n ✓ Starting...\n ✓ Ready in 264ms\nProduction-style startup smoke passed at http://127.0.0.1:3100/api/health\n",
+      "preflight": {
+        "command": "ensure-e2e-port-free.sh 3100",
+        "error": "",
+        "ok": true,
+        "output": "port-cleanup: 127.0.0.1:3100 already free\n"
+      },
+      "next_server_log_path": "/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T204812-oauth-authorize-login-consent/npm-run-verify-next-server.log"
+    }
+  ],
+  "missing_files": [],
+  "pass": true
+}
+
+Worker handoff summary from the last run:
+Implemented `oauth-authorize-login-consent` and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+
+What changed: added OAuth authorization-code schema/persistence, `/oauth/authorize`, `/oauth/login`, `/oauth/consent`, signed short-lived login tickets, endpoint permission consent, code redirect with `state`, focused unit tests, `@oauth-consent` E2E tests, and the required docs/progress updates.
+
+Required checks all passed:
+
+- `npm run test:unit`
+- `npm run test:e2e -- --grep @oauth-consent`
+- `npm run verify`
+
+Exit criteria appear satisfied. Token exchange remains untouched and deferred to the next task.
+
+Your job:
+- inspect the repository and current implementation
+- determine whether the current task is actually complete
+- mark `done` only if the exit criteria are satisfied in substance, not just approximately
+- prefer conservative decisions
+- recommend promotion only if the task is truly ready
+
+Return JSON only using the provided schema.
+
+codex
+{"decision":"not_done","recommend_promotion":false,"confidence":0.0,"summary":"Starting evaluation by reading the required repo guidance, task plan, and relevant implementation/test files before making a promotion decision.","satisfied_exit_criteria":[],"missing_requirements":[],"human_review_triggers":[]}
+exec
+/bin/zsh -lc "sed -n '1,220p' AGENTS.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# AGENTS.md
+
+## Purpose
+MCP Mock Server is a public remote MCP mock server and web UI for testing no-auth, Basic Auth, and mock OAuth bearer tool calls.
+
+This repository is optimized for agent-legible development and a Ralph-style task-promotion loop.
+
+## Read Order
+Before changing code or plans, read these files in order:
+
+1. `ARCHITECTURE.md`
+2. `docs/PRODUCT_SENSE.md`
+3. `docs/design-docs/core-beliefs.md`
+4. `docs/product-specs/index.md`
+5. `docs/FRONTEND.md`
+6. `docs/PLANS.md`
+7. active plans in `docs/exec-plans/active/`
+
+## Scope Guardrails
+### In scope for v1
+- Next.js App Router web gateway and route handlers
+- TypeScript domain/services with Prisma SQLite persistence
+- endpoint/tool management with up to three parameters and exact-match response cases
+- no-auth, Basic, and OAuth bearer MCP/REST runtime paths
+- OAuth user/client/token administration, authorization code flow, client credentials flow, discovery metadata, and JWKS
+- failure simulation, audit log, server config, reset, logging, Docker/Nginx guidance, and Ralph harness
+
+### Explicitly out of scope for v1
+- production-grade identity management
+- external OAuth provider integration
+- true multi-tenant isolation
+- enterprise RBAC for the public admin UI
+- handling sensitive customer data
+- full MCP resources, prompts, sampling, elicitation, or task-augmented execution in MVP
+- replacing a real authorization server
+
+## Product Shape
+- public admin UI for mock endpoint, auth, token, config, reset, and audit management
+- MCP Streamable HTTP-style JSON-RPC endpoints at /mcp and strict auth aliases
+- REST tool list/call API for curl and Postman style testing
+- mock OAuth authorization server with login, consent, token, revocation, and discovery metadata
+- SQLite-backed persistence with deterministic seed defaults
+
+## Technical Shape
+- Next.js App Router and TypeScript with npm scripts
+- Prisma plus SQLite for migrations, seed defaults, and persistent runtime state
+- layered domain shape: types, config, repo, service, runtime, UI
+- Playwright for E2E and UI verification, node --import tsx --test for unit tests
+- logs/ plus LOG_LEVEL and start:logged for operator-visible server flow
+
+## Validation Strategy
+Use layered checks:
+- unit tests for domain rules
+- integration tests for repository/runtime boundaries where needed
+- small E2E coverage for the required user journeys only
+
+Promotion is blocked when required checks fail. Required test commands in active task contracts are hard gates, not suggestions.
+While iterating, prefer the smallest targeted check for the code you just changed. Use the full required command set before considering the task done.
+If a feature depends on an outside resource such as AI chat or another remote service, keep it in the required E2E flows before allowing promotion.
+If a task is mainly UI or UX work, require a dedicated `@ui-*` Playwright command with screenshot, responsive, and accessibility checks before allowing promotion.
+If `taskmeta.promotion_mode` is `deterministic_only`, passing the required commands is sufficient for promotion without human review.
+For manual server inspection, prefer `npm run start:logged` and set `LOG_LEVEL` intentionally instead of relying only on ephemeral terminal output.
+
+### Required E2E flows
+- endpoint create/edit/delete and console call flow
+- MCP initialize, tools/list, and tools/call in no-auth mode
+- Basic user creation and strict /mcp/basic success/failure
+- REST tools list/call across auth modes
+- OAuth browser consent, token exchange, allowed tool call, denied tool call, and revocation
+- failure simulation and audit evidence
+- config/health/reset/startup smoke
+
+## Documentation Discipline
+- If behavior changes, update the related spec or design doc in the same cycle.
+- Prefer small, executable plans over vague TODOs.
+- When a repeated mistake appears, first document it; if it keeps recurring, promote it into tests or lint rules.
+- Keep the documented test strategy current; do not leave promotion gates implied.
+- When adding or editing tests, explain what behavior the test protects if that intent would otherwise be easy to lose.
+
+## Search Discipline
+- Search the codebase before concluding that a thing is unimplemented.
+- Prefer multiple targeted searches over one broad assumption.
+- If you find a partial implementation, adapt or complete it instead of duplicating it blindly.
+
+## Optional Companion Skills
+- If the customer allows them and they are installed, consider relevant companion skills before planning or implementation.
+- Good candidates include database, Next.js pattern, UI design, responsive UI, and clean-architecture skills.
+
+## Done Definition
+A task is done only when its scoped behavior works in substance, docs and tests match the implementation, required deterministic commands pass, and promotion rules in taskmeta are satisfied.
+
+exec
+/bin/zsh -lc "sed -n '1,240p' ARCHITECTURE.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+exec
+/bin/zsh -lc "sed -n '1,220p' docs/PRODUCT_SENSE.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# ARCHITECTURE.md
+
+## Goal
+Build MCP Mock Server as an agent-legible codebase with strong boundaries, a short instruction surface, and enough extension seams to support future change without overbuilding v1.
+
+## System Overview
+MCP Mock Server is a web application with:
+- a public Next.js UI served on port 3000
+- server-side route handlers for admin APIs, MCP, REST, OAuth, and discovery metadata
+- SQLite persistence prepared by npm run db:prepare
+- operator logs under logs/ with LOG_LEVEL selection
+- Ralph scripts under scripts/ralph/ driving active task promotion
+
+## Architectural Priorities
+- isolate MCP protocol formatting from endpoint matching and auth decisions
+- keep auth mode resolution explicit and fail closed for invalid Basic/Bearer headers
+- store immutable endpoint IDs and treat names as external labels
+- make seeded built-in users/clients impossible to delete or disable through normal flows
+- prove persistence and production-style startup with deterministic commands
+
+## Layered Domain Model
+Use a strict forward-only dependency shape inside each domain:
+
+`Types -> Config -> Repo -> Service -> Runtime -> UI`
+
+### Why this matters
+The repository is intended to work well with long-running agent loops. Strict boundaries reduce accidental coupling and make failure analysis easier.
+
+## Primary Domains
+| Domain | Responsibility |
+|---|---|
+| Endpoint catalog | Endpoint CRUD, parameters, response cases, delete code, enabled state |
+| Matcher/runtime | Argument normalization, exact match, default/no-match, delay/error/malformed behavior |
+| MCP protocol | JSON-RPC request handling, initialize, tools/list, tools/call, MCP errors |
+| REST API | Tool list/call responses and REST error mapping |
+| Basic auth | Basic users, password hashing, built-in default protection, 401 behavior |
+| OAuth | Users, clients, codes, JWTs, permissions, revocation, discovery metadata |
+| Admin UI | Dashboards, editors, console, config, reset, audit screens |
+| Operations | SQLite prep, seed defaults, base URL, Docker/Nginx docs, logs, health |
+
+## Frontend / Backend Shape
+### Frontend
+- App Router screens should be dense, operational, and optimized for repeated testing
+- UI routes read and mutate through server-backed APIs, not local-only state
+- route-level loading and error states are required for public mutation surfaces
+- test console shows raw request, raw response, principal, matched case, and elapsed time
+- OAuth login and consent UI is separate from the admin navigation
+
+### Server
+- Next.js route handlers own HTTP surfaces for MVP
+- domain services own validation, matching, auth, token, and reset logic
+- repositories isolate Prisma access
+- protocol adapters convert domain outcomes into MCP JSON-RPC or REST responses
+- startup code prepares runtime state before production-style serving
+
+## Persistence Strategy
+- SQLite is the source of truth for endpoints, parameters, cases, users, clients, codes, tokens, audit events, and settings
+- Prisma migrations define the schema and db:prepare applies migrations plus idempotent seed defaults
+- built-in default/default Basic user, OAuth user, and OAuth client are recreated and protected
+- issued token records store jti and metadata; raw tokens are shown only at issuance unless explicitly configured
+- tests use isolated temporary databases or resettable seed state
+
+## Verification Shape
+- unit tests cover validators, matching, auth precedence, JWT claims, permissions, reset, and protocol formatting
+- Playwright proves browser-visible workflows and external-client-like OAuth/MCP/REST flows
+- start:smoke builds, prepares runtime state, starts the production server, probes health, and shuts down
+- verify runs lint, typecheck, build, unit, E2E, and startup smoke
+- failing required checks block Ralph promotion
+
+## Long-Running Agent Readiness
+- docs are the system of record
+- plans are executable, not aspirational
+- domain boundaries are explicit
+- repeated issues should be upgraded into tests or static checks
+
+ succeeded in 0ms:
+# PRODUCT_SENSE.md
+
+## One-Line Product Definition
+MCP Mock Server is a public remote MCP mock server and web UI for testing no-auth, Basic Auth, and mock OAuth bearer tool calls.
+
+## Who It Is For
+### Primary user
+MCP client developers, AI agent developers, demo/QA users, and the server operator.
+
+## User Problem
+MCP client and AI-agent developers need a configurable remote server that behaves enough like a real MCP server to prove connection, auth, token, permission, and tool-call behavior before integrating with production systems.
+
+## Why This Product Exists
+Remote MCP adoption is moving auth, transport, and permission bugs into client integration work. A public mock server gives teams a repeatable target for manual testing, automated E2E checks, demos, and negative-path validation.
+
+## Product Principles
+- realistic MCP and OAuth behavior over decorative admin features
+- public-by-design administration with light destructive-operation protection
+- destructive endpoint deletion requires a delete code or root-password override and leaves non-secret audit evidence
+- deterministic mocks: exact-match cases, explicit defaults, and observable failures
+- endpoint permissions are visible, selectable, and enforced
+- operator recovery paths must be simple and root-password protected
+
+## Core Value in v1
+- create a mock endpoint once and exercise it through MCP and REST
+- inspect the generated MCP input schema and execute REST no-auth or Basic calls from the endpoint console with raw evidence
+- initialize no-auth MCP clients, list enabled tools, and execute exact-match tool calls
+- manage Basic Auth test users while keeping the built-in default/default fixture locked
+- list enabled tools and call configured mock tools through simple REST routes for curl and Postman style testing
+- prove no-auth, Basic, and OAuth bearer client behavior against strict routes
+- issue mock OAuth tokens with endpoint-level permissions through browser consent or client credentials
+- create mock OAuth authorization codes through browser login and consent with explicit endpoint permission selection
+- simulate failure cases that clients often mishandle
+- persist configuration and provide root-password-protected reset/recovery for a public test service
+
+## Non-Goals for v1
+- production-grade identity management
+- external OAuth provider integration
+- true multi-tenant isolation
+- enterprise RBAC for the public admin UI
+- handling sensitive customer data
+- full MCP resources, prompts, sampling, elicitation, or task-augmented execution in MVP
+- replacing a real authorization server
+
+## v1 Success Signals
+- a new endpoint can be created and edited through the public endpoint UI, then listed through tools/list and GET /rest/tools, called through tools/call, and called through POST /rest/tools/:name/call
+- Basic default/default and additional users work on strict Basic routes while invalid credentials return 401
+- OAuth default/default remains locked while additional login users can be configured with hashed passwords and MVP token TTL presets
+- OAuth default/default client remains locked while additional clients can be configured with generated copy-once secrets, redirect URIs, client credentials TTL presets, and maximum allowed endpoint sets
+- OAuth consent can select endpoints, exchange a code for a JWT, allow selected tools, deny unselected tools with 403, and return 401 after revocation
+- token and audit screens show enough evidence to debug a client test, including endpoint delete success/failure without stored secrets
+- SQLite state survives restart and root reset restores currently implemented built-in endpoint and Basic user defaults
+- npm run verify and npm run start:smoke pass before task promotion
+
+## Product Risks
+- public UI can be abused or reset if root/delete-code handling is weak
+- OAuth semantics can drift into unrealistic behavior unless routes and E2E checks pin 401/403/token claims
+- MCP spec details may change, so the implementation must isolate protocol formatting
+- failure simulation can intentionally violate protocol behavior and needs visible warnings
+- persistent SQLite state can make tests flaky unless seeded and isolated deterministically
+
+exec
+/bin/zsh -lc "sed -n '1,220p' docs/FRONTEND.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# FRONTEND.md
+
+## Goal
+Describe the user-facing structure of MCP Mock Server so an agent can implement the UI without guessing the product model.
+
+## Tech Direction
+- Next.js application
+- TypeScript
+- App Router
+- server-backed data flows where appropriate
+
+## Route Map
+| Route | Surface | Notes |
+|---|---|---|
+| / | Dashboard | Counts, URL examples, public UI warning |
+| /endpoints | Endpoint tools | List/search/create/edit/delete/test |
+| /basic-users | Basic Auth users | Built-in default locked |
+| /oauth-users | OAuth users | Built-in default locked |
+| /oauth-clients | OAuth clients | Redirect URIs and allowed endpoints |
+| /tokens | Issued tokens | Claims, permissions, revoke, filters |
+| /config | Server config | Base URL, MCP/REST/OAuth examples, Nginx guide |
+| /reset | Reset | Root-password protected reset |
+| /audit | Audit log | Public mutation, protected delete, and token evidence |
+| /oauth/login | OAuth login | Separate from admin UI |
+| /oauth/consent | OAuth consent | Endpoint permission checklist |
+| /api/* | Admin/API | Health, CRUD, config, reset, audit |
+| /mcp, /mcp/none, /mcp/basic, /mcp/oauth | MCP JSON-RPC | Unified plus strict auth routes |
+| /rest/tools, /rest/tools/:name/call | REST mock API | Same tool catalog through REST |
+| /.well-known/*, /oauth/jwks, /oauth/token, /oauth/revoke | OAuth metadata/runtime | Discovery, token, revocation |
+
+## Primary Screens
+| Screen | Primary jobs |
+|---|---|
+| Dashboard | Summarize service state and show connection examples |
+| Endpoints | List, search, create, and edit mock tools, response cases, failure simulation, and delete protection |
+| Endpoint console | Preview MCP/REST call shape with selected auth mode, run REST no-auth and Basic calls, and show raw execution evidence |
+| Basic Auth users | List/search/create/password-edit/disable/delete Basic test identities and show the built-in default/default lock state |
+| OAuth users | List/search/create/password-edit/disable/delete OAuth login identities and token TTL presets with built-in default locked |
+| OAuth clients | Manage generated client secrets, redirect URIs, client credentials TTL presets, and allowed endpoint set |
+| OAuth login/consent | Complete authorization-code flow and select endpoint permissions |
+| Issued tokens | Inspect claims, permissions, expiration, and revoke tokens |
+| Config/guide | Show base URL, MCP/REST/OAuth URLs, sample client config, curl, Nginx |
+| Reset | Root-protected reset to current seed defaults with exact confirmation text |
+| Audit | Review mutation and security-relevant event history without exposing submitted secrets |
+
+## UI Rules
+- favor quiet, dense, operational layouts over marketing composition
+- use icons for copy, edit, delete, revoke, reset, refresh, and external-link actions where available
+- every destructive action has a confirmation path and explains whether delete code or root password is accepted
+- endpoint deletion keeps confirmation inputs separate from the endpoint editor values and clears submitted secrets after attempts
+- show protocol/auth warnings inline on malformed-response and public-admin controls
+- tables must support search/filter states without layout shift
+- endpoint editor forms must surface API/domain validation errors next to the affected fields
+- endpoint editor forms must show generated MCP `inputSchema` from the shared endpoint domain schema helper
+- endpoint console REST execution is available for no-auth and Basic modes and shows raw request, raw response, principal, matched case, and elapsed time
+- Basic user forms must not display password hashes and must disable mutation controls for built-in rows
+- OAuth user forms must not display password hashes, must use bounded token TTL presets, and must disable mutation controls for the built-in row
+- OAuth client forms must not display stored secret hashes, must show generated raw client secrets only at creation or regeneration, and must disable mutation controls for the built-in row
+- console outputs must preserve raw JSON formatting and elapsed/auth/match metadata
+- console shell states must clearly mark unavailable runtime actions instead of faking calls
+- UI-focused tasks must include desktop and mobile screenshots plus accessibility checks
+
+## Search / Share / Admin Notes
+- the admin UI is intentionally public, so copy must avoid implying enterprise security
+- root-password fields are used only for protected actions and must not be logged
+- reset confirmation must make clear that currently implemented endpoint data is deleted and seed defaults are recreated
+- copy buttons should exist for MCP URLs, REST URLs, client config, curl examples, client secrets at issuance, and JWTs at issuance
+- OAuth consent should make selected endpoint permissions unambiguous
+- OAuth consent must show client, redirect URI, resource, login user, authorization-code TTL, and the endpoint checklist outside the public admin navigation
+
+## Frontend Non-Goals for v1
+- no marketing landing page before the usable dashboard
+- no enterprise account settings or RBAC screens
+- no hidden destructive operations without confirmation
+- no decorative UI that obscures raw request/response evidence
+
+codex
+{"decision":"not_done","recommend_promotion":false,"confidence":0,"summary":"I’ve read the top-level architecture and product docs. Next I’m checking the security/spec/active plan, then I’ll inspect the OAuth authorize/login/consent implementation and tests against the stated exit criteria.","satisfied_exit_criteria":[],"missing_requirements":[],"human_review_triggers":[]}
+exec
+/bin/zsh -lc "sed -n '1,260p' docs/SECURITY.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# SECURITY.md
+
+## Purpose
+Define the security posture for MCP Mock Server's current shipped slice.
+
+## Core Security Rules
+- validate Origin for Streamable HTTP-style MCP routes where browser-origin risk applies
+- unsupported Authorization schemes return 401
+- invalid Basic/Bearer credentials never downgrade to no-auth
+- OAuth tokens must verify signature, issuer, audience, expiry, jti revocation, and endpoint permissions
+- built-in identities and clients cannot be disabled or deleted through normal UI/API flows
+- built-in Basic Auth identities also cannot have passwords changed through normal UI/API flows
+- built-in OAuth login identities also cannot have passwords or token TTLs changed through normal UI/API flows
+- built-in OAuth clients cannot be disabled, deleted, edited, or assigned regenerated secrets through normal UI/API flows
+- root password comparisons must avoid logging and should use constant-time comparison where practical
+
+## Secrets and Config
+- ROOT_PASSWORD gates reset, delete override, base URL override, and optional historical token deletion
+- client secrets and passwords are never logged
+- endpoint delete audit entries store method/reason metadata, not submitted delete codes or root passwords
+- reset audit entries store success/failure reason and seed counts, not submitted root passwords
+- passwords are stored only as hashes
+- Basic Auth password verification compares submitted credentials against stored hashes without logging submitted passwords
+- OAuth login-user passwords are stored only as hashes and are not logged by management APIs
+- OAuth client secrets are generated server-side, stored only as hashes, and returned only at creation or regeneration
+- OAuth browser consent uses exact registered redirect URI matching and a short-lived signed login ticket before authorization code creation
+- OAuth authorization codes are stored as single-use-ready records with expiry, client, redirect URI, user, audience/resource, and selected endpoint bindings
+- raw JWT values are shown only at issuance unless a config explicitly permits storage
+- LOG_LEVEL controls verbosity but must not expose secrets even at trace/debug
+
+## Public Surfaces
+- public admin UI routes and /api/* mutation endpoints
+- MCP routes /mcp, /mcp/none, /mcp/basic, /mcp/oauth
+- REST mock routes /rest/tools and /rest/tools/:name/call
+- OAuth browser, token, revocation, discovery, and JWKS routes
+- health and public config endpoints
+
+## Verification
+- unit tests for password hashing, auth precedence, root checks, built-in immutability, JWT validation, and permission denial
+- E2E tests for Basic 401/success and OAuth 401/403/revocation
+- reset tests prove endpoint defaults are recreated after root-password and confirmation checks
+- audit tests prove failed delete attempts and reset events are recorded
+
+exec
+/bin/zsh -lc "sed -n '1,280p' docs/product-specs/oauth-consent-and-token-runtime.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# OAuth Consent and Token Runtime
+
+## Goal
+The mock OAuth server issues JWT bearer tokens through browser consent and client credentials, with endpoint-level permissions and revocation.
+
+## Trigger / Entry
+OAuth users and clients management
+
+## User-Visible Behavior
+- OAuth users and clients management
+- OAuth user management lists the locked built-in `default/default` login fixture and allows non-built-in users to be created, password-edited, TTL-edited, enabled/disabled, and deleted
+- OAuth login-user token TTLs use MVP presets only: 15 minutes, 1 hour, 8 hours, and 24 hours; never-expiring tokens are not available in this slice
+- OAuth user passwords are stored as hashes and never returned through the public management API
+- OAuth client management lists the locked built-in `default/default` client fixture and allows non-built-in clients to be created, edited, regenerated, disabled/enabled, and deleted
+- OAuth client secrets are generated server-side, stored as hashes, and returned only on create or regenerate responses
+- OAuth clients store redirect URIs, client credentials TTL presets, and a maximum allowed endpoint set that later consent and client credentials flows must not exceed
+- Login and consent flow
+- `/oauth/authorize` accepts authorization-code requests only after exact client and registered redirect URI validation
+- mock login verifies enabled OAuth users and carries the request to consent with a short-lived signed login ticket
+- consent displays client, redirect URI, resource, user, authorization-code TTL, and an endpoint permission checklist constrained to the client's allowed endpoint set
+- approving consent creates a single-use-ready authorization code bound to client, redirect URI, user, selected endpoints, resource/audience, state, expiry, and unused status, then redirects with `code` and `state`
+- Token issuance
+- Token list/detail/revoke
+- Discovery metadata
+
+## Validation
+- Built-in OAuth login user cannot be disabled, deleted, password-changed, or TTL-changed through normal public UI/API flows
+- Non-built-in OAuth login user CRUD validates username shape, password length, unique usernames, and token TTL presets
+- Built-in OAuth client cannot be disabled, deleted, edited, or secret-regenerated through normal public UI/API flows
+- Non-built-in OAuth client CRUD validates client ID shape, redirect URI shape, TTL presets, unique client IDs, and existing allowed endpoint IDs
+- Authorization code lifetime/single-use
+- Client redirect validation
+- Consent endpoint selection must be a subset of the registered OAuth client's allowed endpoint IDs
+- JWT claims/signature/expiry
+- Permission filtering
+- Revocation lookup
+- 401 versus 403 mapping
+- Authorization-code browser flow selects endpoint permissions, exchanges code for token, calls /mcp/oauth successfully for allowed endpoint, receives 403 for denied endpoint, revokes token and receives 401
+
+exec
+/bin/zsh -lc "sed -n '1,260p' docs/exec-plans/active/015-oauth-authorize-login-consent.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# OAuth Authorize, Login, and Consent UI
+
+```json taskmeta
+{
+  "id": "oauth-authorize-login-consent",
+  "title": "OAuth Authorize, Login, and Consent UI",
+  "order": 15,
+  "status": "active",
+  "next_task_on_success": "oauth-code-token-jwt",
+  "prompt_docs": [
+    "AGENTS.md",
+    "ARCHITECTURE.md",
+    "docs/PRODUCT_SENSE.md",
+    "docs/FRONTEND.md",
+    "docs/SECURITY.md",
+    "docs/product-specs/oauth-consent-and-token-runtime.md"
+  ],
+  "required_commands": [
+    "npm run test:unit",
+    "npm run test:e2e -- --grep @oauth-consent",
+    "npm run verify"
+  ],
+  "required_files": [],
+  "human_review_triggers": [
+    "The task broadens into unrelated feature fronts.",
+    "Required checks do not prove the claimed behavior.",
+    "Implementation changes contradict the product spec or security/reliability docs."
+  ],
+  "promotion_mode": "deterministic"
+}
+```
+
+## Objective
+
+Implement the browser authorization entry, mock login, consent screen, endpoint selection, and authorization code creation.
+
+## Clarity notes
+
+- This task stops at issuing an authorization code; token exchange is next.
+- Consent must show endpoint permissions clearly because later tokens enforce them.
+- Authorization code records must be single-use-ready and bound to client, redirect URI, user, selected endpoints, and resource/audience.
+- The OAuth login UI is separate from the public admin navigation.
+
+## Expected result
+
+- Valid `/oauth/authorize` requests reach login and consent.
+- Consent displays client, redirect URI, resource, user, TTL, and endpoint checklist.
+- Submitting consent redirects to the registered redirect URI with `code` and `state`.
+- Invalid client/redirect/user cases fail deterministically.
+
+## Objections / risks to avoid
+
+- Do not exchange codes for tokens in this task.
+- Do not skip consent by issuing codes directly from admin UI.
+- Do not accept unregistered redirect URIs.
+- Do not allow endpoint selections outside the client allowed set.
+
+## Scope
+
+- Validate authorization request parameters.
+- Build login and consent screens.
+- Persist authorization codes with expiry and selected endpoint IDs.
+- Redirect with code/state or appropriate errors.
+- Add E2E tests tagged `@oauth-consent`.
+
+## Out of scope
+
+- `/oauth/token` exchange.
+- Client credentials grant.
+- Discovery metadata.
+- MCP bearer enforcement.
+
+## Exit criteria
+
+1. A valid user can complete login and consent for an OAuth client.
+2. Authorization codes store the selected endpoint permissions and binding data.
+3. Invalid redirect/client/user paths are tested.
+4. `@oauth-consent` passes.
+5. All required checks pass.
+
+## Required checks
+
+- npm run test:unit
+- npm run test:e2e -- --grep @oauth-consent
+- npm run verify
+
+## Implementation notes
+
+- Permit empty-permission token only with explicit user confirmation if implemented in this slice.
+
+## Docs to update
+
+- docs/PRODUCT_SENSE.md
+- docs/FRONTEND.md
+- docs/SECURITY.md
+
+## Evaluator notes
+
+Required commands are mandatory promotion gates, not suggestions.
+Do not promote if any required check fails.
+Do not accept broad feature work outside this task.
+Confirm that this task maps to the primary product spec `oauth-consent-and-token-runtime.md` or is explicitly final hardening.
+
+## Progress log
+
+- Start here. Append timestamped progress notes as work lands.
+- Note when existing partial implementations were found and reused instead of replaced.
+- 2026-05-05T11:47:42.510Z: restored as current task after oauth-clients-management-ui promotion.
+- 2026-05-05T13:34:00.000Z: found existing OAuth user/client services and reused them for authorize validation, login verification, client allowed-endpoint consent constraints, and tests.
+- 2026-05-05T13:50:00.000Z: added authorization-code Prisma persistence with selected endpoint bindings, signed login ticket flow, `/oauth/authorize`, `/oauth/login`, `/oauth/consent`, focused unit tests, and `@oauth-consent` E2E coverage.
+
+exec
+/bin/zsh -lc 'rg -n "oauth|authorization code|authorize|consent|login" docs/PLANS.md docs/product-specs/index.md docs/design-docs/core-beliefs.md' in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+docs/design-docs/core-beliefs.md:5:3. Endpoint permissions must be visible in OAuth consent and mechanically enforced in runtime calls.
+docs/product-specs/index.md:14:| `oauth-consent-and-token-runtime.md` | confirmed | OAuth Consent and Token Runtime |
+
+exec
+/bin/zsh -lc 'rg --files app src prisma tests docs | rg "oauth|authorize|consent|login|schema|migration"' in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+tests/e2e/oauth-consent.spec.ts
+tests/e2e/oauth-users.spec.ts
+tests/e2e/oauth-clients.spec.ts
+docs/product-specs/oauth-consent-and-token-runtime.md
+prisma/schema.prisma
+docs/generated/db-schema.md
+tests/unit/oauth-authorize.test.ts
+tests/unit/oauth-users.test.ts
+tests/unit/oauth-clients.test.ts
+app/oauth-users/page.tsx
+app/oauth-users/oauth-users-manager.tsx
+docs/exec-plans/active/017-oauth-client-credentials-grant.md
+docs/exec-plans/active/015-oauth-authorize-login-consent.md
+docs/exec-plans/active/018-oauth-discovery-metadata.md
+docs/exec-plans/active/019-oauth-mcp-rest-permission-enforcement.md
+docs/exec-plans/active/016-oauth-code-token-jwt.md
+docs/exec-plans/completed/001-endpoint-domain-and-schema.md
+docs/exec-plans/completed/014-oauth-clients-management-ui.md
+docs/exec-plans/completed/004-endpoint-console-schema-preview-ui.md
+docs/exec-plans/completed/013-oauth-users-management-ui.md
+app/oauth/login/page.tsx
+prisma/migrations/202605050006_oauth_clients/migration.sql
+app/oauth/consent/page.tsx
+app/oauth/authorize/page.tsx
+app/api/oauth-clients/[id]/secret/route.ts
+app/api/oauth-clients/[id]/route.ts
+app/api/oauth-clients/route.ts
+prisma/migrations/202605050001_endpoint_persistence/migration.sql
+prisma/migrations/202605050005_oauth_users/migration.sql
+prisma/migrations/202605050003_audit_events/migration.sql
+prisma/migrations/202605050004_basic_users/migration.sql
+prisma/migrations/202605050007_oauth_authorization_codes/migration.sql
+app/oauth-clients/page.tsx
+app/oauth-clients/oauth-clients-manager.tsx
+app/api/oauth-users/route.ts
+prisma/migrations/202605050002_endpoint_title_response_case_config/migration.sql
+app/api/oauth-users/[id]/route.ts
+
+exec
+/bin/zsh -lc 'rg -n "AuthorizationCode|authorizationCode|authorize|consent|login ticket|loginTicket|selectedEndpoint|endpointIds|oauth/authorize|oauth/consent|oauth/login" app src prisma tests docs' in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+docs/SECURITY.md:26:- OAuth browser consent uses exact registered redirect URI matching and a short-lived signed login ticket before authorization code creation
+tests/e2e/rest-tools-call.spec.ts:137:    error: "unauthorized",
+prisma/schema.prisma:28:  oauthCodePermissions  OAuthAuthorizationCodeEndpoint[]
+prisma/schema.prisma:109:  authorizationCodes    OAuthAuthorizationCode[]
+prisma/schema.prisma:126:  authorizationCodes          OAuthAuthorizationCode[]
+prisma/schema.prisma:142:model OAuthAuthorizationCode {
+prisma/schema.prisma:155:  selectedEndpoints   OAuthAuthorizationCodeEndpoint[]
+prisma/schema.prisma:162:model OAuthAuthorizationCodeEndpoint {
+prisma/schema.prisma:163:  authorizationCodeId String
+prisma/schema.prisma:166:  authorizationCode   OAuthAuthorizationCode @relation(fields: [authorizationCodeId], references: [id], onDelete: Cascade)
+prisma/schema.prisma:169:  @@id([authorizationCodeId, endpointId])
+tests/e2e/bootstrap.spec.ts:8:  await expect(page.getByText("OAuth consent and token runtime")).toBeVisible();
+tests/e2e/rest-tools-list.spec.ts:122:    error: "unauthorized",
+docs/FRONTEND.md:24:| /oauth/login | OAuth login | Separate from admin UI |
+docs/FRONTEND.md:25:| /oauth/consent | OAuth consent | Endpoint permission checklist |
+docs/FRONTEND.md:40:| OAuth login/consent | Complete authorization-code flow and select endpoint permissions |
+docs/FRONTEND.md:68:- OAuth consent should make selected endpoint permissions unambiguous
+docs/FRONTEND.md:69:- OAuth consent must show client, redirect URI, resource, login user, authorization-code TTL, and the endpoint checklist outside the public admin navigation
+app/page.tsx:10:  "OAuth consent and token runtime",
+tests/e2e/oauth-consent.spec.ts:6:test("OAuth authorization login and consent creates an endpoint-bound code @oauth-consent", async ({
+tests/e2e/oauth-consent.spec.ts:10:  const clientId = `consent-client-${Date.now()}`;
+tests/e2e/oauth-consent.spec.ts:26:  const authorizeParams = new URLSearchParams({
+tests/e2e/oauth-consent.spec.ts:34:  await page.goto(`/oauth/authorize?${authorizeParams.toString()}`);
+tests/e2e/oauth-consent.spec.ts:35:  await expect(page.getByRole("heading", { name: "Sign in for consent" })).toBeVisible();
+tests/e2e/oauth-consent.spec.ts:47:  await page.screenshot({ path: "test-results/oauth-consent-desktop.png", fullPage: true });
+tests/e2e/oauth-consent.spec.ts:53:  await page.screenshot({ path: "test-results/oauth-consent-mobile.png", fullPage: true });
+tests/e2e/oauth-consent.spec.ts:63:    const storedCode = await prisma.oAuthAuthorizationCode.findUniqueOrThrow({
+tests/e2e/oauth-consent.spec.ts:65:      include: { selectedEndpoints: true },
+tests/e2e/oauth-consent.spec.ts:72:    expect(storedCode.selectedEndpoints.map((endpoint) => endpoint.endpointId)).toEqual(["endpoint_default_echo"]);
+tests/e2e/oauth-consent.spec.ts:81:test("OAuth authorize and login invalid paths fail deterministically @oauth-consent", async ({ page }) => {
+tests/e2e/oauth-consent.spec.ts:83:    `/oauth/authorize?${new URLSearchParams({
+tests/e2e/oauth-consent.spec.ts:93:    `/oauth/authorize?${new URLSearchParams({
+tests/e2e/oauth-consent.spec.ts:103:    `/oauth/login?${new URLSearchParams({
+docs/product-specs/index.md:14:| `oauth-consent-and-token-runtime.md` | confirmed | OAuth Consent and Token Runtime |
+app/oauth/login/page.tsx:21:  const authorizeRequest = {
+app/oauth/login/page.tsx:31:      authorizeRequest,
+app/oauth/login/page.tsx:36:    params.set("login_ticket", context.loginTicket);
+app/oauth/login/page.tsx:37:    target = `/oauth/consent?${params.toString()}`;
+app/oauth/login/page.tsx:39:    const params = new URLSearchParams(authorizeRequest);
+app/oauth/login/page.tsx:44:    target = `/oauth/login?${params.toString()}`;
+app/oauth/login/page.tsx:58:          <h1 id="oauth-login-title">Sign in for consent</h1>
+app/oauth/authorize/page.tsx:34:    redirect(`/oauth/login?${authorizationRequestToSearchParams(context.request).toString()}`);
+prisma/migrations/202605050007_oauth_authorization_codes/migration.sql:1:CREATE TABLE "OAuthAuthorizationCode" (
+prisma/migrations/202605050007_oauth_authorization_codes/migration.sql:12:    CONSTRAINT "OAuthAuthorizationCode_oauthClientId_fkey" FOREIGN KEY ("oauthClientId") REFERENCES "OAuthClient" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+prisma/migrations/202605050007_oauth_authorization_codes/migration.sql:13:    CONSTRAINT "OAuthAuthorizationCode_oauthUserId_fkey" FOREIGN KEY ("oauthUserId") REFERENCES "OAuthUser" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+prisma/migrations/202605050007_oauth_authorization_codes/migration.sql:16:CREATE TABLE "OAuthAuthorizationCodeEndpoint" (
+prisma/migrations/202605050007_oauth_authorization_codes/migration.sql:17:    "authorizationCodeId" TEXT NOT NULL,
+prisma/migrations/202605050007_oauth_authorization_codes/migration.sql:21:    PRIMARY KEY ("authorizationCodeId", "endpointId"),
+prisma/migrations/202605050007_oauth_authorization_codes/migration.sql:22:    CONSTRAINT "OAuthAuthorizationCodeEndpoint_authorizationCodeId_fkey" FOREIGN KEY ("authorizationCodeId") REFERENCES "OAuthAuthorizationCode" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+prisma/migrations/202605050007_oauth_authorization_codes/migration.sql:23:    CONSTRAINT "OAuthAuthorizationCodeEndpoint_endpointId_fkey" FOREIGN KEY ("endpointId") REFERENCES "Endpoint" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+prisma/migrations/202605050007_oauth_authorization_codes/migration.sql:26:CREATE UNIQUE INDEX "OAuthAuthorizationCode_code_key" ON "OAuthAuthorizationCode"("code");
+prisma/migrations/202605050007_oauth_authorization_codes/migration.sql:27:CREATE INDEX "OAuthAuthorizationCode_code_idx" ON "OAuthAuthorizationCode"("code");
+prisma/migrations/202605050007_oauth_authorization_codes/migration.sql:28:CREATE INDEX "OAuthAuthorizationCode_oauthClientId_oauthUserId_idx" ON "OAuthAuthorizationCode"("oauthClientId", "oauthUserId");
+prisma/migrations/202605050007_oauth_authorization_codes/migration.sql:29:CREATE INDEX "OAuthAuthorizationCode_expiresAt_idx" ON "OAuthAuthorizationCode"("expiresAt");
+prisma/migrations/202605050007_oauth_authorization_codes/migration.sql:30:CREATE INDEX "OAuthAuthorizationCodeEndpoint_endpointId_idx" ON "OAuthAuthorizationCodeEndpoint"("endpointId");
+tests/unit/oauth-authorize.test.ts:11:  createOAuthAuthorizationCode,
+tests/unit/oauth-authorize.test.ts:24:  const directory = await mkdtemp(join(tmpdir(), "mcp-mock-oauth-authorize-"));
+tests/unit/oauth-authorize.test.ts:55:test("OAuth authorize validates client and exact registered redirect URI", async () => {
+tests/unit/oauth-authorize.test.ts:72:test("OAuth consent creates a single-use-ready authorization code with endpoint bindings", async () => {
+tests/unit/oauth-authorize.test.ts:76:        authorizeRequest: defaultAuthorizeRequest(),
+tests/unit/oauth-authorize.test.ts:83:    const code = await createOAuthAuthorizationCode(
+tests/unit/oauth-authorize.test.ts:85:        authorizeRequest: defaultAuthorizeRequest(),
+tests/unit/oauth-authorize.test.ts:86:        loginTicket: login.loginTicket,
+tests/unit/oauth-authorize.test.ts:87:        selectedEndpointIds: [endpoint.id],
+tests/unit/oauth-authorize.test.ts:91:    const stored = await client.oAuthAuthorizationCode.findUniqueOrThrow({
+tests/unit/oauth-authorize.test.ts:93:      include: { selectedEndpoints: true },
+tests/unit/oauth-authorize.test.ts:103:    assert.deepEqual(stored.selectedEndpoints.map((selected) => selected.endpointId), [endpoint.id]);
+tests/unit/oauth-authorize.test.ts:108:test("OAuth consent rejects invalid users and endpoint selections outside the client allowed set", async () => {
+tests/unit/oauth-authorize.test.ts:111:      () => loginOAuthUserForConsent({ authorizeRequest: defaultAuthorizeRequest(), username: "default", password: "wrong" }, client),
+tests/unit/oauth-authorize.test.ts:117:        authorizeRequest: defaultAuthorizeRequest(),
+tests/unit/oauth-authorize.test.ts:125:        createOAuthAuthorizationCode(
+tests/unit/oauth-authorize.test.ts:127:            authorizeRequest: defaultAuthorizeRequest(),
+tests/unit/oauth-authorize.test.ts:128:            loginTicket: login.loginTicket,
+tests/unit/oauth-authorize.test.ts:129:            selectedEndpointIds: ["endpoint-outside-client"],
+app/oauth/consent/page.tsx:4:  createOAuthAuthorizationCode,
+app/oauth/consent/page.tsx:13:  const authorizeRequest = {
+app/oauth/consent/page.tsx:20:  const loginTicket = String(formData.get("login_ticket") ?? "");
+app/oauth/consent/page.tsx:23:    const code = await createOAuthAuthorizationCode({
+app/oauth/consent/page.tsx:24:      authorizeRequest,
+app/oauth/consent/page.tsx:25:      loginTicket,
+app/oauth/consent/page.tsx:26:      selectedEndpointIds: formData.getAll("endpoint_id").map(String),
+app/oauth/consent/page.tsx:34:      responseType: authorizeRequest.response_type,
+app/oauth/consent/page.tsx:35:      clientId: authorizeRequest.client_id,
+app/oauth/consent/page.tsx:36:      redirectUri: authorizeRequest.redirect_uri,
+app/oauth/consent/page.tsx:37:      resource: authorizeRequest.resource,
+app/oauth/consent/page.tsx:38:      state: authorizeRequest.state || null,
+app/oauth/consent/page.tsx:40:    params.set("login_ticket", loginTicket);
+app/oauth/consent/page.tsx:42:      "consent_error",
+app/oauth/consent/page.tsx:43:      error instanceof OAuthLoginError || error instanceof OAuthAuthorizeRequestError ? error.code : "consent_failed",
+app/oauth/consent/page.tsx:45:    target = `/oauth/consent?${params.toString()}`;
+app/oauth/consent/page.tsx:52:  const loginTicket = typeof params.login_ticket === "string" ? params.login_ticket : "";
+app/oauth/consent/page.tsx:54:    const context = await validateOAuthConsentRequest({ authorizeRequest: params, loginTicket });
+app/oauth/consent/page.tsx:55:    const consentError = typeof params.consent_error === "string" ? params.consent_error : "";
+app/oauth/consent/page.tsx:58:        <section className="oauth-panel" aria-labelledby="oauth-consent-title">
+app/oauth/consent/page.tsx:59:          <p className="eyebrow">Mock OAuth consent</p>
+app/oauth/consent/page.tsx:60:          <h1 id="oauth-consent-title">Approve endpoint access</h1>
+app/oauth/consent/page.tsx:83:          {consentError ? <p className="form-message error">Select at least one allowed endpoint permission.</p> : null}
+app/oauth/consent/page.tsx:89:            <input type="hidden" name="login_ticket" value={context.loginTicket} />
+app/oauth/consent/page.tsx:117:          <section className="oauth-panel" aria-labelledby="oauth-consent-error-title">
+app/oauth/consent/page.tsx:118:            <p className="eyebrow">Mock OAuth consent</p>
+app/oauth/consent/page.tsx:119:            <h1 id="oauth-consent-error-title">Consent unavailable</h1>
+tests/unit/basic-auth.test.ts:88:      kind: "unauthorized",
+tests/unit/basic-auth.test.ts:92:      kind: "unauthorized",
+docs/exec-plans/active/017-oauth-client-credentials-grant.md:15:    "docs/product-specs/oauth-consent-and-token-runtime.md"
+docs/exec-plans/active/017-oauth-client-credentials-grant.md:99:Confirm that this task maps to the primary product spec `oauth-consent-and-token-runtime.md` or is explicitly final hardening.
+docs/design-docs/core-beliefs.md:5:3. Endpoint permissions must be visible in OAuth consent and mechanically enforced in runtime calls.
+docs/exec-plans/active/015-oauth-authorize-login-consent.md:5:  "id": "oauth-authorize-login-consent",
+docs/exec-plans/active/015-oauth-authorize-login-consent.md:16:    "docs/product-specs/oauth-consent-and-token-runtime.md"
+docs/exec-plans/active/015-oauth-authorize-login-consent.md:20:    "npm run test:e2e -- --grep @oauth-consent",
+docs/exec-plans/active/015-oauth-authorize-login-consent.md:35:Implement the browser authorization entry, mock login, consent screen, endpoint selection, and authorization code creation.
+docs/exec-plans/active/015-oauth-authorize-login-consent.md:46:- Valid `/oauth/authorize` requests reach login and consent.
+docs/exec-plans/active/015-oauth-authorize-login-consent.md:48:- Submitting consent redirects to the registered redirect URI with `code` and `state`.
+docs/exec-plans/active/015-oauth-authorize-login-consent.md:54:- Do not skip consent by issuing codes directly from admin UI.
+docs/exec-plans/active/015-oauth-authorize-login-consent.md:61:- Build login and consent screens.
+docs/exec-plans/active/015-oauth-authorize-login-consent.md:64:- Add E2E tests tagged `@oauth-consent`.
+docs/exec-plans/active/015-oauth-authorize-login-consent.md:75:1. A valid user can complete login and consent for an OAuth client.
+docs/exec-plans/active/015-oauth-authorize-login-consent.md:78:4. `@oauth-consent` passes.
+docs/exec-plans/active/015-oauth-authorize-login-consent.md:84:- npm run test:e2e -- --grep @oauth-consent
+docs/exec-plans/active/015-oauth-authorize-login-consent.md:102:Confirm that this task maps to the primary product spec `oauth-consent-and-token-runtime.md` or is explicitly final hardening.
+docs/exec-plans/active/015-oauth-authorize-login-consent.md:109:- 2026-05-05T13:34:00.000Z: found existing OAuth user/client services and reused them for authorize validation, login verification, client allowed-endpoint consent constraints, and tests.
+docs/exec-plans/active/015-oauth-authorize-login-consent.md:110:- 2026-05-05T13:50:00.000Z: added authorization-code Prisma persistence with selected endpoint bindings, signed login ticket flow, `/oauth/authorize`, `/oauth/login`, `/oauth/consent`, focused unit tests, and `@oauth-consent` E2E coverage.
+docs/exec-plans/active/018-oauth-discovery-metadata.md:16:    "docs/product-specs/oauth-consent-and-token-runtime.md"
+docs/exec-plans/active/018-oauth-discovery-metadata.md:100:Confirm that this task maps to the primary product spec `oauth-consent-and-token-runtime.md` or is explicitly final hardening.
+docs/exec-plans/active/020-issued-token-ui-revocation.md:16:    "docs/product-specs/oauth-consent-and-token-runtime.md"
+docs/exec-plans/active/020-issued-token-ui-revocation.md:100:Confirm that this task maps to the primary product spec `oauth-consent-and-token-runtime.md` or is explicitly final hardening.
+docs/exec-plans/active/016-oauth-code-token-jwt.md:15:    "docs/product-specs/oauth-consent-and-token-runtime.md"
+docs/exec-plans/active/016-oauth-code-token-jwt.md:99:Confirm that this task maps to the primary product spec `oauth-consent-and-token-runtime.md` or is explicitly final hardening.
+docs/exec-plans/active/index.md:22:15. `015-oauth-authorize-login-consent.md` -> `oauth-authorize-login-consent` -> Implement the browser authorization entry, mock login, consent screen, endpoint selection, and authorization code creation.
+docs/exec-plans/active/019-oauth-mcp-rest-permission-enforcement.md:17:    "docs/product-specs/oauth-consent-and-token-runtime.md"
+docs/exec-plans/active/019-oauth-mcp-rest-permission-enforcement.md:101:Confirm that this task maps to the primary product spec `oauth-consent-and-token-runtime.md` or is explicitly final hardening.
+docs/PRODUCT_SENSE.md:31:- issue mock OAuth tokens with endpoint-level permissions through browser consent or client credentials
+docs/PRODUCT_SENSE.md:32:- create mock OAuth authorization codes through browser login and consent with explicit endpoint permission selection
+docs/PRODUCT_SENSE.md:50:- OAuth consent can select endpoints, exchange a code for a JWT, allow selected tools, deny unselected tools with 403, and return 401 after revocation
+docs/product-specs/oauth-consent-and-token-runtime.md:4:The mock OAuth server issues JWT bearer tokens through browser consent and client credentials, with endpoint-level permissions and revocation.
+docs/product-specs/oauth-consent-and-token-runtime.md:16:- OAuth clients store redirect URIs, client credentials TTL presets, and a maximum allowed endpoint set that later consent and client credentials flows must not exceed
+docs/product-specs/oauth-consent-and-token-runtime.md:17:- Login and consent flow
+docs/product-specs/oauth-consent-and-token-runtime.md:18:- `/oauth/authorize` accepts authorization-code requests only after exact client and registered redirect URI validation
+docs/product-specs/oauth-consent-and-token-runtime.md:19:- mock login verifies enabled OAuth users and carries the request to consent with a short-lived signed login ticket
+docs/product-specs/oauth-consent-and-token-runtime.md:20:- consent displays client, redirect URI, resource, user, authorization-code TTL, and an endpoint permission checklist constrained to the client's allowed endpoint set
+docs/product-specs/oauth-consent-and-token-runtime.md:21:- approving consent creates a single-use-ready authorization code bound to client, redirect URI, user, selected endpoints, resource/audience, state, expiry, and unused status, then redirects with `code` and `state`
+docs/design-docs/system-shape.md:7:- browser UI and OAuth consent are served by the same Next.js app
+docs/product-specs/rest-mock-api.md:25:  - `401 { "error": "unauthorized", "message": "Authorization header was invalid." }`
+docs/exec-plans/completed/014-oauth-clients-management-ui.md:9:  "next_task_on_success": "oauth-authorize-login-consent",
+docs/exec-plans/completed/014-oauth-clients-management-ui.md:16:    "docs/product-specs/oauth-consent-and-token-runtime.md"
+docs/exec-plans/completed/014-oauth-clients-management-ui.md:42:- Allowed endpoints constrain later consent and client credentials flows.
+docs/exec-plans/completed/014-oauth-clients-management-ui.md:70:- Authorization/login/consent flow.
+docs/exec-plans/completed/014-oauth-clients-management-ui.md:103:Confirm that this task maps to the primary product spec `oauth-consent-and-token-runtime.md` or is explicitly final hardening.
+docs/references/prd-analysis.md:19:- OAuth user/client management, browser consent, client credentials, JWT issuance, discovery metadata, token UI, and revocation.
+docs/exec-plans/completed/011-rest-tools-list-runtime.md:75:3. Invalid Basic returns documented unauthorized response.
+docs/exec-plans/completed/013-oauth-users-management-ui.md:16:    "docs/product-specs/oauth-consent-and-token-runtime.md"
+docs/exec-plans/completed/013-oauth-users-management-ui.md:55:- Do not implement login/authorize/token routes yet.
+docs/exec-plans/completed/013-oauth-users-management-ui.md:102:Confirm that this task maps to the primary product spec `oauth-consent-and-token-runtime.md` or is explicitly final hardening.
+
+exec
+/bin/zsh -lc 'git status --short' in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+git: warning: confstr() failed with code 5: couldn't get path of DARWIN_USER_TEMP_DIR; using /tmp instead
+git: error: couldn't create cache file '/tmp/xcrun_db-lVToubak' (errno=Operation not permitted)
+git: warning: confstr() failed with code 5: couldn't get path of DARWIN_USER_TEMP_DIR; using /tmp instead
+git: error: couldn't create cache file '/tmp/xcrun_db-FiwNIPXb' (errno=Operation not permitted)
+ M app/globals.css
+ M docs/FRONTEND.md
+ M docs/PRODUCT_SENSE.md
+ M docs/SECURITY.md
+ D docs/exec-plans/active/014-oauth-clients-management-ui.md
+ M docs/exec-plans/active/015-oauth-authorize-login-consent.md
+ M docs/product-specs/oauth-consent-and-token-runtime.md
+ M lib/db/seed.ts
+ M lib/oauth/service.ts
+ M lib/oauth/types.ts
+ M lib/reset/service.ts
+ M prisma/schema.prisma
+ M scripts/ralph/generated/current-evaluator-prompt.txt
+ M scripts/ralph/generated/current-task-prompt.txt
+ M state/artifacts/20260505T203544-oauth-clients-management-ui/commit.log
+ M state/backlog.md
+ M state/blocker-tracker.json
+ M state/current-cycle.json
+ M state/current-task.txt
+ M state/deterministic-checks.json
+ M state/last-result.txt
+ M state/run-log.md
+ M state/task-history.md
+?? app/oauth/
+?? docs/exec-plans/completed/014-oauth-clients-management-ui.md
+?? prisma/migrations/202605050007_oauth_authorization_codes/
+?? state/artifacts/20260505T203544-oauth-clients-management-ui/backlog.log
+?? state/artifacts/20260505T203544-oauth-clients-management-ui/promote.log
+?? state/artifacts/20260505T204812-oauth-authorize-login-consent/
+?? tests/e2e/oauth-consent.spec.ts
+?? tests/unit/oauth-authorize.test.ts
+
+exec
+/bin/zsh -lc "sed -n '1,300p' lib/oauth/service.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import { createHmac, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
+import type { Prisma, PrismaClient } from "@prisma/client";
+import { recordAuditEvent } from "@/lib/audit/service";
+import { hashBasicPassword, verifyBasicPassword } from "@/lib/basic-auth/passwords";
+import { createPrismaClient } from "@/lib/db/client";
+import {
+  DEFAULT_OAUTH_ACCESS_TOKEN_TTL_SECONDS,
+  DEFAULT_OAUTH_CLIENT_CREDENTIALS_TTL_SECONDS,
+  DEFAULT_OAUTH_CLIENT_DISPLAY_NAME,
+  DEFAULT_OAUTH_CLIENT_ID,
+  DEFAULT_OAUTH_CLIENT_IDENTIFIER,
+  DEFAULT_OAUTH_CLIENT_REDIRECT_URI,
+  DEFAULT_OAUTH_CLIENT_SECRET,
+  DEFAULT_OAUTH_PASSWORD,
+  DEFAULT_OAUTH_USER_ID,
+  DEFAULT_OAUTH_USERNAME,
+  OAUTH_AUTHORIZATION_CODE_TTL_SECONDS,
+  OAuthClientBuiltInError,
+  OAuthClientNotFoundError,
+  OAuthClientValidationError,
+  OAUTH_CLIENT_CREDENTIALS_TTL_PRESETS,
+  OAuthAuthorizeRequestError,
+  OAuthLoginError,
+  OAUTH_LOGIN_TICKET_TTL_SECONDS,
+  OAuthUserBuiltInError,
+  OAuthUserNotFoundError,
+  OAUTH_ACCESS_TOKEN_TTL_PRESETS,
+} from "@/lib/oauth/types";
+import {
+  validateOAuthClientCreateInput,
+  validateOAuthClientUpdateInput,
+  validateOAuthUserCreateInput,
+  validateOAuthUserUpdateInput,
+} from "@/lib/oauth/validation";
+import type {
+  OAuthClientCreateInput,
+  OAuthClientEndpointOption,
+  OAuthClientListResult,
+  OAuthAuthorizationCodeSummary,
+  OAuthAuthorizeContext,
+  OAuthAuthorizeRequest,
+  OAuthConsentContext,
+  OAuthClientSecretResult,
+  OAuthClientSummary,
+  OAuthClientUpdateInput,
+  OAuthUserCreateInput,
+  OAuthUserListResult,
+  OAuthUserSummary,
+  OAuthUserUpdateInput,
+} from "@/lib/oauth/types";
+
+const oauthClientInclude = {
+  allowedEndpoints: {
+    include: { endpoint: true },
+    orderBy: { endpoint: { name: "asc" } },
+  },
+} satisfies Prisma.OAuthClientInclude;
+
+type OAuthUserRecord = Prisma.OAuthUserGetPayload<object>;
+type OAuthClientRecord = Prisma.OAuthClientGetPayload<{ include: typeof oauthClientInclude }>;
+type OAuthAuthorizationCodeRecord = Prisma.OAuthAuthorizationCodeGetPayload<{
+  include: { selectedEndpoints: true };
+}>;
+type OAuthUserSeedClient = Pick<PrismaClient, "oAuthUser">;
+type OAuthClientSeedClient = Pick<PrismaClient, "oAuthClient" | "oAuthClientAllowedEndpoint" | "endpoint">;
+type OAuthClientEndpointLookupClient = Pick<PrismaClient, "endpoint">;
+type OAuthClientAllowedEndpointWriteClient = Pick<PrismaClient, "oAuthClientAllowedEndpoint">;
+
+function toSummary(user: OAuthUserRecord): OAuthUserSummary {
+  return {
+    id: user.id,
+    username: user.username,
+    enabled: user.enabled,
+    builtIn: user.builtIn,
+    accessTokenTtlSeconds: user.accessTokenTtlSeconds,
+    createdAt: user.createdAt.toISOString(),
+    updatedAt: user.updatedAt.toISOString(),
+  };
+}
+
+export async function seedOAuthUserDefaults(client: OAuthUserSeedClient = createPrismaClient()) {
+  const passwordHash = await hashBasicPassword(DEFAULT_OAUTH_PASSWORD);
+  await client.oAuthUser.upsert({
+    where: { id: DEFAULT_OAUTH_USER_ID },
+    update: {
+      username: DEFAULT_OAUTH_USERNAME,
+      passwordHash,
+      enabled: true,
+      builtIn: true,
+      accessTokenTtlSeconds: DEFAULT_OAUTH_ACCESS_TOKEN_TTL_SECONDS,
+    },
+    create: {
+      id: DEFAULT_OAUTH_USER_ID,
+      username: DEFAULT_OAUTH_USERNAME,
+      passwordHash,
+      enabled: true,
+      builtIn: true,
+      accessTokenTtlSeconds: DEFAULT_OAUTH_ACCESS_TOKEN_TTL_SECONDS,
+    },
+  });
+}
+
+function generateOAuthClientSecret() {
+  return `mcp_mock_${randomBytes(24).toString("base64url")}`;
+}
+
+function endpointToOption(endpoint: { id: string; name: string; title: string; enabled: boolean }): OAuthClientEndpointOption {
+  return {
+    id: endpoint.id,
+    name: endpoint.name,
+    title: endpoint.title,
+    enabled: endpoint.enabled,
+  };
+}
+
+function parseRedirectUris(value: string) {
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed.filter((item): item is string => typeof item === "string") : [];
+  } catch {
+    return [];
+  }
+}
+
+function toClientSummary(client: OAuthClientRecord): OAuthClientSummary {
+  const allowedEndpoints = client.allowedEndpoints.map((allowedEndpoint) => endpointToOption(allowedEndpoint.endpoint));
+  return {
+    id: client.id,
+    clientId: client.clientId,
+    displayName: client.displayName,
+    enabled: client.enabled,
+    builtIn: client.builtIn,
+    redirectUris: parseRedirectUris(client.redirectUrisJson),
+    clientCredentialsTtlSeconds: client.clientCredentialsTtlSeconds,
+    allowedEndpointIds: allowedEndpoints.map((endpoint) => endpoint.id),
+    allowedEndpoints,
+    createdAt: client.createdAt.toISOString(),
+    updatedAt: client.updatedAt.toISOString(),
+  };
+}
+
+function toAuthorizationCodeSummary(code: OAuthAuthorizationCodeRecord): OAuthAuthorizationCodeSummary {
+  return {
+    id: code.id,
+    code: code.code,
+    oauthClientId: code.oauthClientId,
+    oauthUserId: code.oauthUserId,
+    redirectUri: code.redirectUri,
+    resource: code.resource,
+    state: code.state,
+    selectedEndpointIds: code.selectedEndpoints.map((endpoint) => endpoint.endpointId),
+    expiresAt: code.expiresAt.toISOString(),
+    usedAt: code.usedAt?.toISOString() ?? null,
+    createdAt: code.createdAt.toISOString(),
+  };
+}
+
+async function assertAllowedEndpointsExist(endpointIds: string[], client: OAuthClientEndpointLookupClient) {
+  if (endpointIds.length === 0) {
+    return;
+  }
+  const count = await client.endpoint.count({ where: { id: { in: endpointIds } } });
+  if (count !== endpointIds.length) {
+    throw new OAuthClientValidationError({ allowedEndpointIds: "Choose only existing endpoints." });
+  }
+}
+
+async function replaceAllowedEndpoints(
+  oauthClientId: string,
+  endpointIds: string[],
+  client: OAuthClientAllowedEndpointWriteClient,
+) {
+  await client.oAuthClientAllowedEndpoint.deleteMany({ where: { oauthClientId } });
+  if (endpointIds.length > 0) {
+    await client.oAuthClientAllowedEndpoint.createMany({
+      data: endpointIds.map((endpointId) => ({ oauthClientId, endpointId })),
+    });
+  }
+}
+
+export async function seedOAuthClientDefaults(client: OAuthClientSeedClient = createPrismaClient()) {
+  const secretHash = await hashBasicPassword(DEFAULT_OAUTH_CLIENT_SECRET);
+  await client.oAuthClient.upsert({
+    where: { id: DEFAULT_OAUTH_CLIENT_ID },
+    update: {
+      clientId: DEFAULT_OAUTH_CLIENT_IDENTIFIER,
+      displayName: DEFAULT_OAUTH_CLIENT_DISPLAY_NAME,
+      secretHash,
+      enabled: true,
+      builtIn: true,
+      redirectUrisJson: JSON.stringify([DEFAULT_OAUTH_CLIENT_REDIRECT_URI]),
+      clientCredentialsTtlSeconds: DEFAULT_OAUTH_CLIENT_CREDENTIALS_TTL_SECONDS,
+    },
+    create: {
+      id: DEFAULT_OAUTH_CLIENT_ID,
+      clientId: DEFAULT_OAUTH_CLIENT_IDENTIFIER,
+      displayName: DEFAULT_OAUTH_CLIENT_DISPLAY_NAME,
+      secretHash,
+      enabled: true,
+      builtIn: true,
+      redirectUrisJson: JSON.stringify([DEFAULT_OAUTH_CLIENT_REDIRECT_URI]),
+      clientCredentialsTtlSeconds: DEFAULT_OAUTH_CLIENT_CREDENTIALS_TTL_SECONDS,
+    },
+  });
+
+  const defaultEndpoints = await client.endpoint.findMany({ where: { enabled: true }, select: { id: true } });
+  for (const endpoint of defaultEndpoints) {
+    await client.oAuthClientAllowedEndpoint.upsert({
+      where: {
+        oauthClientId_endpointId: {
+          oauthClientId: DEFAULT_OAUTH_CLIENT_ID,
+          endpointId: endpoint.id,
+        },
+      },
+      update: {},
+      create: {
+        oauthClientId: DEFAULT_OAUTH_CLIENT_ID,
+        endpointId: endpoint.id,
+      },
+    });
+  }
+}
+
+export async function listOAuthUsers(client: PrismaClient = createPrismaClient()): Promise<OAuthUserListResult> {
+  const users = await client.oAuthUser.findMany({
+    orderBy: [{ builtIn: "desc" }, { username: "asc" }],
+  });
+  const summaries = users.map(toSummary);
+
+  return {
+    total: summaries.length,
+    enabled: summaries.filter((user) => user.enabled).length,
+    disabled: summaries.filter((user) => !user.enabled).length,
+    users: summaries,
+    ttlPresets: OAUTH_ACCESS_TOKEN_TTL_PRESETS,
+  };
+}
+
+export async function listOAuthClients(client: PrismaClient = createPrismaClient()): Promise<OAuthClientListResult> {
+  const [clients, endpoints] = await Promise.all([
+    client.oAuthClient.findMany({
+      include: oauthClientInclude,
+      orderBy: [{ builtIn: "desc" }, { clientId: "asc" }],
+    }),
+    client.endpoint.findMany({
+      orderBy: [{ enabled: "desc" }, { name: "asc" }],
+      select: { id: true, name: true, title: true, enabled: true },
+    }),
+  ]);
+  const summaries = clients.map(toClientSummary);
+
+  return {
+    total: summaries.length,
+    enabled: summaries.filter((oauthClient) => oauthClient.enabled).length,
+    disabled: summaries.filter((oauthClient) => !oauthClient.enabled).length,
+    clients: summaries,
+    endpointOptions: endpoints.map(endpointToOption),
+    ttlPresets: OAUTH_CLIENT_CREDENTIALS_TTL_PRESETS,
+  };
+}
+
+export async function createOAuthUser(input: OAuthUserCreateInput, client: PrismaClient = createPrismaClient()) {
+  const validInput = validateOAuthUserCreateInput(input);
+  const user = await client.oAuthUser.create({
+    data: {
+      id: `oauth_user_${randomUUID()}`,
+      username: validInput.username,
+      passwordHash: await hashBasicPassword(validInput.password),
+      enabled: validInput.enabled,
+      builtIn: false,
+      accessTokenTtlSeconds: validInput.accessTokenTtlSeconds,
+    },
+  });
+
+  await recordAuditEvent(
+    {
+      eventType: "oauth_user.create",
+      subjectType: "oauth_user",
+      subjectId: user.id,
+      subjectName: user.username,
+      outcome: "success",
+      metadata: { enabled: user.enabled, accessTokenTtlSeconds: user.accessTokenTtlSeconds },
+    },
+    client,
+  );
+
+  return toSummary(user);
+}
+
+export async function createOAuthClient(
+  input: OAuthClientCreateInput,
+  client: PrismaClient = createPrismaClient(),
+): Promise<OAuthClientSecretResult> {
+  const validInput = validateOAuthClientCreateInput(input);
+  await assertAllowedEndpointsExist(validInput.allowedEndpointIds, client);
+  const clientSecret = generateOAuthClientSecret();
+  const oauthClient = await client.$transaction(async (tx) => {
+    const created = await tx.oAuthClient.create({
+      data: {
+        id: `oauth_client_${randomUUID()}`,
+
+exec
+/bin/zsh -lc "sed -n '1,240p' lib/oauth/types.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+export const DEFAULT_OAUTH_USER_ID = "oauth_user_default";
+export const DEFAULT_OAUTH_USERNAME = "default";
+export const DEFAULT_OAUTH_PASSWORD = "default";
+export const DEFAULT_OAUTH_ACCESS_TOKEN_TTL_SECONDS = 3600;
+export const DEFAULT_OAUTH_CLIENT_ID = "oauth_client_default";
+export const DEFAULT_OAUTH_CLIENT_IDENTIFIER = "default";
+export const DEFAULT_OAUTH_CLIENT_SECRET = "default";
+export const DEFAULT_OAUTH_CLIENT_DISPLAY_NAME = "Default OAuth client";
+export const DEFAULT_OAUTH_CLIENT_REDIRECT_URI = "http://localhost:3000/oauth/callback";
+export const DEFAULT_OAUTH_CLIENT_CREDENTIALS_TTL_SECONDS = 3600;
+export const OAUTH_AUTHORIZATION_CODE_TTL_SECONDS = 300;
+export const OAUTH_LOGIN_TICKET_TTL_SECONDS = 300;
+
+export const OAUTH_ACCESS_TOKEN_TTL_PRESETS = [
+  { label: "15 minutes", seconds: 900 },
+  { label: "1 hour", seconds: 3600 },
+  { label: "8 hours", seconds: 28800 },
+  { label: "24 hours", seconds: 86400 },
+] as const;
+
+export const OAUTH_CLIENT_CREDENTIALS_TTL_PRESETS = [
+  { label: "15 minutes", seconds: 900 },
+  { label: "1 hour", seconds: 3600 },
+  { label: "8 hours", seconds: 28800 },
+  { label: "24 hours", seconds: 86400 },
+] as const;
+
+export type OAuthUserSummary = {
+  id: string;
+  username: string;
+  enabled: boolean;
+  builtIn: boolean;
+  accessTokenTtlSeconds: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type OAuthUserListResult = {
+  total: number;
+  enabled: number;
+  disabled: number;
+  users: OAuthUserSummary[];
+  ttlPresets: typeof OAUTH_ACCESS_TOKEN_TTL_PRESETS;
+};
+
+export type OAuthUserCreateInput = {
+  username: string;
+  password: string;
+  enabled: boolean;
+  accessTokenTtlSeconds: number;
+};
+
+export type OAuthUserUpdateInput = {
+  password?: string | null;
+  enabled?: boolean;
+  accessTokenTtlSeconds?: number;
+};
+
+export class OAuthUserValidationError extends Error {
+  constructor(public readonly fieldErrors: Record<string, string>) {
+    super("OAuth user validation failed.");
+  }
+}
+
+export class OAuthUserBuiltInError extends Error {
+  constructor(public readonly action: "update" | "delete") {
+    super("Built-in OAuth user cannot be changed.");
+  }
+}
+
+export class OAuthUserNotFoundError extends Error {
+  constructor() {
+    super("OAuth user not found.");
+  }
+}
+
+export type OAuthClientEndpointOption = {
+  id: string;
+  name: string;
+  title: string;
+  enabled: boolean;
+};
+
+export type OAuthClientSummary = {
+  id: string;
+  clientId: string;
+  displayName: string;
+  enabled: boolean;
+  builtIn: boolean;
+  redirectUris: string[];
+  clientCredentialsTtlSeconds: number;
+  allowedEndpointIds: string[];
+  allowedEndpoints: OAuthClientEndpointOption[];
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type OAuthClientListResult = {
+  total: number;
+  enabled: number;
+  disabled: number;
+  clients: OAuthClientSummary[];
+  endpointOptions: OAuthClientEndpointOption[];
+  ttlPresets: typeof OAUTH_CLIENT_CREDENTIALS_TTL_PRESETS;
+};
+
+export type OAuthClientCreateInput = {
+  clientId: string;
+  displayName: string;
+  enabled: boolean;
+  redirectUris: string[];
+  clientCredentialsTtlSeconds: number;
+  allowedEndpointIds: string[];
+};
+
+export type OAuthClientUpdateInput = {
+  displayName?: string;
+  enabled?: boolean;
+  redirectUris?: string[];
+  clientCredentialsTtlSeconds?: number;
+  allowedEndpointIds?: string[];
+};
+
+export type OAuthClientSecretResult = {
+  client: OAuthClientSummary;
+  clientSecret: string;
+};
+
+export class OAuthClientValidationError extends Error {
+  constructor(public readonly fieldErrors: Record<string, string>) {
+    super("OAuth client validation failed.");
+  }
+}
+
+export class OAuthClientBuiltInError extends Error {
+  constructor(public readonly action: "update" | "delete" | "regenerateSecret") {
+    super("Built-in OAuth client cannot be changed.");
+  }
+}
+
+export class OAuthClientNotFoundError extends Error {
+  constructor() {
+    super("OAuth client not found.");
+  }
+}
+
+export type OAuthAuthorizeRequest = {
+  responseType: string;
+  clientId: string;
+  redirectUri: string;
+  state: string | null;
+  resource: string;
+};
+
+export type OAuthAuthorizeContext = {
+  request: OAuthAuthorizeRequest;
+  client: OAuthClientSummary;
+  codeTtlSeconds: number;
+};
+
+export type OAuthConsentContext = OAuthAuthorizeContext & {
+  user: OAuthUserSummary;
+  loginTicket: string;
+};
+
+export type OAuthAuthorizationCodeSummary = {
+  id: string;
+  code: string;
+  oauthClientId: string;
+  oauthUserId: string;
+  redirectUri: string;
+  resource: string;
+  state: string | null;
+  selectedEndpointIds: string[];
+  expiresAt: string;
+  usedAt: string | null;
+  createdAt: string;
+};
+
+export class OAuthAuthorizeRequestError extends Error {
+  constructor(public readonly code: string, message: string, public readonly field?: string) {
+    super(message);
+  }
+}
+
+export class OAuthLoginError extends Error {
+  constructor(public readonly code: "invalid_user" | "invalid_ticket" | "invalid_selection", message: string) {
+    super(message);
+  }
+}
+
+exec
+/bin/zsh -lc "sed -n '130,190p' prisma/schema.prisma" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+
+model OAuthClientAllowedEndpoint {
+  oauthClientId String
+  endpointId    String
+  createdAt     DateTime    @default(now())
+  oauthClient   OAuthClient @relation(fields: [oauthClientId], references: [id], onDelete: Cascade)
+  endpoint      Endpoint    @relation(fields: [endpointId], references: [id], onDelete: Cascade)
+
+  @@id([oauthClientId, endpointId])
+  @@index([endpointId])
+}
+
+model OAuthAuthorizationCode {
+  id                  String                           @id
+  code                String                           @unique
+  oauthClientId       String
+  oauthUserId         String
+  redirectUri         String
+  resource            String
+  state               String?
+  expiresAt           DateTime
+  usedAt              DateTime?
+  createdAt           DateTime                         @default(now())
+  oauthClient         OAuthClient                      @relation(fields: [oauthClientId], references: [id], onDelete: Cascade)
+  oauthUser           OAuthUser                        @relation(fields: [oauthUserId], references: [id], onDelete: Cascade)
+  selectedEndpoints   OAuthAuthorizationCodeEndpoint[]
+
+  @@index([code])
+  @@index([oauthClientId, oauthUserId])
+  @@index([expiresAt])
+}
+
+model OAuthAuthorizationCodeEndpoint {
+  authorizationCodeId String
+  endpointId          String
+  createdAt           DateTime               @default(now())
+  authorizationCode   OAuthAuthorizationCode @relation(fields: [authorizationCodeId], references: [id], onDelete: Cascade)
+  endpoint            Endpoint               @relation(fields: [endpointId], references: [id], onDelete: Cascade)
+
+  @@id([authorizationCodeId, endpointId])
+  @@index([endpointId])
+}
+
+exec
+/bin/zsh -lc "sed -n '1,220p' prisma/migrations/202605050007_oauth_authorization_codes/migration.sql" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+CREATE TABLE "OAuthAuthorizationCode" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "code" TEXT NOT NULL,
+    "oauthClientId" TEXT NOT NULL,
+    "oauthUserId" TEXT NOT NULL,
+    "redirectUri" TEXT NOT NULL,
+    "resource" TEXT NOT NULL,
+    "state" TEXT,
+    "expiresAt" DATETIME NOT NULL,
+    "usedAt" DATETIME,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "OAuthAuthorizationCode_oauthClientId_fkey" FOREIGN KEY ("oauthClientId") REFERENCES "OAuthClient" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "OAuthAuthorizationCode_oauthUserId_fkey" FOREIGN KEY ("oauthUserId") REFERENCES "OAuthUser" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE "OAuthAuthorizationCodeEndpoint" (
+    "authorizationCodeId" TEXT NOT NULL,
+    "endpointId" TEXT NOT NULL,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY ("authorizationCodeId", "endpointId"),
+    CONSTRAINT "OAuthAuthorizationCodeEndpoint_authorizationCodeId_fkey" FOREIGN KEY ("authorizationCodeId") REFERENCES "OAuthAuthorizationCode" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "OAuthAuthorizationCodeEndpoint_endpointId_fkey" FOREIGN KEY ("endpointId") REFERENCES "Endpoint" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE UNIQUE INDEX "OAuthAuthorizationCode_code_key" ON "OAuthAuthorizationCode"("code");
+CREATE INDEX "OAuthAuthorizationCode_code_idx" ON "OAuthAuthorizationCode"("code");
+CREATE INDEX "OAuthAuthorizationCode_oauthClientId_oauthUserId_idx" ON "OAuthAuthorizationCode"("oauthClientId", "oauthUserId");
+CREATE INDEX "OAuthAuthorizationCode_expiresAt_idx" ON "OAuthAuthorizationCode"("expiresAt");
+CREATE INDEX "OAuthAuthorizationCodeEndpoint_endpointId_idx" ON "OAuthAuthorizationCodeEndpoint"("endpointId");
+
+exec
+/bin/zsh -lc "sed -n '300,760p' lib/oauth/service.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+        id: `oauth_client_${randomUUID()}`,
+        clientId: validInput.clientId,
+        displayName: validInput.displayName,
+        secretHash: await hashBasicPassword(clientSecret),
+        enabled: validInput.enabled,
+        builtIn: false,
+        redirectUrisJson: JSON.stringify(validInput.redirectUris),
+        clientCredentialsTtlSeconds: validInput.clientCredentialsTtlSeconds,
+      },
+    });
+    await replaceAllowedEndpoints(created.id, validInput.allowedEndpointIds, tx);
+    await recordAuditEvent(
+      {
+        eventType: "oauth_client.create",
+        subjectType: "oauth_client",
+        subjectId: created.id,
+        subjectName: created.clientId,
+        outcome: "success",
+        metadata: {
+          enabled: created.enabled,
+          redirectUriCount: validInput.redirectUris.length,
+          allowedEndpointCount: validInput.allowedEndpointIds.length,
+          clientCredentialsTtlSeconds: created.clientCredentialsTtlSeconds,
+        },
+      },
+      tx,
+    );
+    return tx.oAuthClient.findUniqueOrThrow({ where: { id: created.id }, include: oauthClientInclude });
+  });
+
+  return { client: toClientSummary(oauthClient), clientSecret };
+}
+
+export async function updateOAuthUser(
+  id: string,
+  input: OAuthUserUpdateInput,
+  client: PrismaClient = createPrismaClient(),
+) {
+  const existing = await client.oAuthUser.findUnique({ where: { id } });
+  if (!existing) {
+    throw new OAuthUserNotFoundError();
+  }
+  if (existing.builtIn) {
+    throw new OAuthUserBuiltInError("update");
+  }
+
+  const validInput = validateOAuthUserUpdateInput(input);
+  const data: Prisma.OAuthUserUpdateInput = {};
+  if (typeof validInput.enabled === "boolean") {
+    data.enabled = validInput.enabled;
+  }
+  if (validInput.password) {
+    data.passwordHash = await hashBasicPassword(validInput.password);
+  }
+  if (typeof validInput.accessTokenTtlSeconds === "number") {
+    data.accessTokenTtlSeconds = validInput.accessTokenTtlSeconds;
+  }
+
+  const user = await client.oAuthUser.update({
+    where: { id },
+    data,
+  });
+
+  await recordAuditEvent(
+    {
+      eventType: "oauth_user.update",
+      subjectType: "oauth_user",
+      subjectId: user.id,
+      subjectName: user.username,
+      outcome: "success",
+      metadata: {
+        enabled: user.enabled,
+        accessTokenTtlSeconds: user.accessTokenTtlSeconds,
+        passwordChanged: Boolean(validInput.password),
+      },
+    },
+    client,
+  );
+
+  return toSummary(user);
+}
+
+export async function updateOAuthClient(
+  id: string,
+  input: OAuthClientUpdateInput,
+  client: PrismaClient = createPrismaClient(),
+) {
+  const existing = await client.oAuthClient.findUnique({ where: { id } });
+  if (!existing) {
+    throw new OAuthClientNotFoundError();
+  }
+  if (existing.builtIn) {
+    throw new OAuthClientBuiltInError("update");
+  }
+
+  const validInput = validateOAuthClientUpdateInput(input);
+  if (validInput.allowedEndpointIds) {
+    await assertAllowedEndpointsExist(validInput.allowedEndpointIds, client);
+  }
+
+  const oauthClient = await client.$transaction(async (tx) => {
+    const data: Prisma.OAuthClientUpdateInput = {};
+    if (validInput.displayName !== undefined) data.displayName = validInput.displayName;
+    if (typeof validInput.enabled === "boolean") data.enabled = validInput.enabled;
+    if (validInput.redirectUris !== undefined) data.redirectUrisJson = JSON.stringify(validInput.redirectUris);
+    if (typeof validInput.clientCredentialsTtlSeconds === "number") {
+      data.clientCredentialsTtlSeconds = validInput.clientCredentialsTtlSeconds;
+    }
+
+    await tx.oAuthClient.update({ where: { id }, data });
+    if (validInput.allowedEndpointIds) {
+      await replaceAllowedEndpoints(id, validInput.allowedEndpointIds, tx);
+    }
+    const updated = await tx.oAuthClient.findUniqueOrThrow({ where: { id }, include: oauthClientInclude });
+    await recordAuditEvent(
+      {
+        eventType: "oauth_client.update",
+        subjectType: "oauth_client",
+        subjectId: updated.id,
+        subjectName: updated.clientId,
+        outcome: "success",
+        metadata: {
+          enabled: updated.enabled,
+          redirectUriCount: parseRedirectUris(updated.redirectUrisJson).length,
+          allowedEndpointCount: updated.allowedEndpoints.length,
+          clientCredentialsTtlSeconds: updated.clientCredentialsTtlSeconds,
+        },
+      },
+      tx,
+    );
+    return updated;
+  });
+
+  return toClientSummary(oauthClient);
+}
+
+export async function deleteOAuthUser(id: string, client: PrismaClient = createPrismaClient()) {
+  const existing = await client.oAuthUser.findUnique({ where: { id } });
+  if (!existing) {
+    throw new OAuthUserNotFoundError();
+  }
+  if (existing.builtIn) {
+    throw new OAuthUserBuiltInError("delete");
+  }
+
+  await client.$transaction(async (tx) => {
+    await tx.oAuthUser.delete({ where: { id } });
+    await recordAuditEvent(
+      {
+        eventType: "oauth_user.delete",
+        subjectType: "oauth_user",
+        subjectId: existing.id,
+        subjectName: existing.username,
+        outcome: "success",
+      },
+      tx,
+    );
+  });
+
+  return toSummary(existing);
+}
+
+export async function deleteOAuthClient(id: string, client: PrismaClient = createPrismaClient()) {
+  const existing = await client.oAuthClient.findUnique({ where: { id }, include: oauthClientInclude });
+  if (!existing) {
+    throw new OAuthClientNotFoundError();
+  }
+  if (existing.builtIn) {
+    throw new OAuthClientBuiltInError("delete");
+  }
+
+  await client.$transaction(async (tx) => {
+    await tx.oAuthClient.delete({ where: { id } });
+    await recordAuditEvent(
+      {
+        eventType: "oauth_client.delete",
+        subjectType: "oauth_client",
+        subjectId: existing.id,
+        subjectName: existing.clientId,
+        outcome: "success",
+      },
+      tx,
+    );
+  });
+
+  return toClientSummary(existing);
+}
+
+export async function regenerateOAuthClientSecret(
+  id: string,
+  client: PrismaClient = createPrismaClient(),
+): Promise<OAuthClientSecretResult> {
+  const existing = await client.oAuthClient.findUnique({ where: { id } });
+  if (!existing) {
+    throw new OAuthClientNotFoundError();
+  }
+  if (existing.builtIn) {
+    throw new OAuthClientBuiltInError("regenerateSecret");
+  }
+
+  const clientSecret = generateOAuthClientSecret();
+  const oauthClient = await client.$transaction(async (tx) => {
+    await tx.oAuthClient.update({
+      where: { id },
+      data: { secretHash: await hashBasicPassword(clientSecret) },
+    });
+    const updated = await tx.oAuthClient.findUniqueOrThrow({ where: { id }, include: oauthClientInclude });
+    await recordAuditEvent(
+      {
+        eventType: "oauth_client.secret_regenerate",
+        subjectType: "oauth_client",
+        subjectId: updated.id,
+        subjectName: updated.clientId,
+        outcome: "success",
+      },
+      tx,
+    );
+    return updated;
+  });
+
+  return { client: toClientSummary(oauthClient), clientSecret };
+}
+
+export async function verifyOAuthUserCredentials(
+  username: string,
+  password: string,
+  client: PrismaClient = createPrismaClient(),
+) {
+  const user = await client.oAuthUser.findUnique({ where: { username } });
+  if (!user || !user.enabled) {
+    return null;
+  }
+  const verified = await verifyBasicPassword(password, user.passwordHash);
+  return verified ? toSummary(user) : null;
+}
+
+export async function verifyOAuthClientSecret(
+  clientId: string,
+  clientSecret: string,
+  client: PrismaClient = createPrismaClient(),
+) {
+  const oauthClient = await client.oAuthClient.findUnique({ where: { clientId }, include: oauthClientInclude });
+  if (!oauthClient || !oauthClient.enabled) {
+    return null;
+  }
+  const verified = await verifyBasicPassword(clientSecret, oauthClient.secretHash);
+  return verified ? toClientSummary(oauthClient) : null;
+}
+
+function normalizeAuthorizeRequest(input: URLSearchParams | Record<string, string | string[] | undefined>): OAuthAuthorizeRequest {
+  const read = (key: string) => {
+    const value = input instanceof URLSearchParams ? input.get(key) : input[key];
+    return Array.isArray(value) ? value[0] ?? "" : value ?? "";
+  };
+  return {
+    responseType: read("response_type").trim(),
+    clientId: read("client_id").trim(),
+    redirectUri: read("redirect_uri").trim(),
+    state: read("state") ? read("state") : null,
+    resource: read("resource").trim() || "mcp-mock-server",
+  };
+}
+
+export function authorizationRequestToSearchParams(request: OAuthAuthorizeRequest) {
+  const params = new URLSearchParams({
+    response_type: request.responseType,
+    client_id: request.clientId,
+    redirect_uri: request.redirectUri,
+    resource: request.resource,
+  });
+  if (request.state) params.set("state", request.state);
+  return params;
+}
+
+export async function validateOAuthAuthorizeRequest(
+  input: URLSearchParams | Record<string, string | string[] | undefined>,
+  client: PrismaClient = createPrismaClient(),
+): Promise<OAuthAuthorizeContext> {
+  const request = normalizeAuthorizeRequest(input);
+  if (request.responseType !== "code") {
+    throw new OAuthAuthorizeRequestError("unsupported_response_type", "Only response_type=code is supported.", "response_type");
+  }
+  if (!request.clientId) {
+    throw new OAuthAuthorizeRequestError("invalid_request", "client_id is required.", "client_id");
+  }
+  if (!request.redirectUri) {
+    throw new OAuthAuthorizeRequestError("invalid_request", "redirect_uri is required.", "redirect_uri");
+  }
+
+  const oauthClient = await client.oAuthClient.findUnique({ where: { clientId: request.clientId }, include: oauthClientInclude });
+  if (!oauthClient || !oauthClient.enabled) {
+    throw new OAuthAuthorizeRequestError("invalid_client", "OAuth client is not registered or enabled.", "client_id");
+  }
+
+  const redirectUris = parseRedirectUris(oauthClient.redirectUrisJson);
+  if (!redirectUris.includes(request.redirectUri)) {
+    throw new OAuthAuthorizeRequestError("invalid_redirect_uri", "redirect_uri is not registered for this client.", "redirect_uri");
+  }
+
+  return {
+    request,
+    client: toClientSummary(oauthClient),
+    codeTtlSeconds: OAUTH_AUTHORIZATION_CODE_TTL_SECONDS,
+  };
+}
+
+function loginTicketSecret() {
+  return process.env.ROOT_PASSWORD || "mcp-mock-oauth-development-ticket-secret";
+}
+
+function signTicketPayload(encodedPayload: string) {
+  return createHmac("sha256", loginTicketSecret()).update(encodedPayload).digest("base64url");
+}
+
+export function createOAuthLoginTicket(input: { request: OAuthAuthorizeRequest; oauthUserId: string; now?: Date }) {
+  const now = input.now ?? new Date();
+  const payload = {
+    ...input.request,
+    oauthUserId: input.oauthUserId,
+    exp: Math.floor(now.getTime() / 1000) + OAUTH_LOGIN_TICKET_TTL_SECONDS,
+  };
+  const encodedPayload = Buffer.from(JSON.stringify(payload), "utf8").toString("base64url");
+  return `${encodedPayload}.${signTicketPayload(encodedPayload)}`;
+}
+
+function verifyOAuthLoginTicket(ticket: string, expectedRequest: OAuthAuthorizeRequest) {
+  const [encodedPayload, signature] = ticket.split(".");
+  if (!encodedPayload || !signature) {
+    throw new OAuthLoginError("invalid_ticket", "Login ticket is invalid or expired.");
+  }
+  const expectedSignature = signTicketPayload(encodedPayload);
+  const actual = Buffer.from(signature);
+  const expected = Buffer.from(expectedSignature);
+  if (actual.length !== expected.length || !timingSafeEqual(actual, expected)) {
+    throw new OAuthLoginError("invalid_ticket", "Login ticket is invalid or expired.");
+  }
+
+  let payload: OAuthAuthorizeRequest & { oauthUserId: string; exp: number };
+  try {
+    payload = JSON.parse(Buffer.from(encodedPayload, "base64url").toString("utf8"));
+  } catch {
+    throw new OAuthLoginError("invalid_ticket", "Login ticket is invalid or expired.");
+  }
+
+  const matchesRequest =
+    payload.responseType === expectedRequest.responseType &&
+    payload.clientId === expectedRequest.clientId &&
+    payload.redirectUri === expectedRequest.redirectUri &&
+    payload.resource === expectedRequest.resource &&
+    (payload.state ?? null) === expectedRequest.state;
+  if (!matchesRequest || !payload.oauthUserId || payload.exp < Math.floor(Date.now() / 1000)) {
+    throw new OAuthLoginError("invalid_ticket", "Login ticket is invalid or expired.");
+  }
+  return payload.oauthUserId;
+}
+
+export async function loginOAuthUserForConsent(input: {
+  authorizeRequest: URLSearchParams | Record<string, string | string[] | undefined>;
+  username: string;
+  password: string;
+}, client: PrismaClient = createPrismaClient()) {
+  const context = await validateOAuthAuthorizeRequest(input.authorizeRequest, client);
+  const user = await verifyOAuthUserCredentials(input.username, input.password, client);
+  if (!user) {
+    throw new OAuthLoginError("invalid_user", "OAuth username or password is invalid.");
+  }
+  return {
+    ...context,
+    user,
+    loginTicket: createOAuthLoginTicket({ request: context.request, oauthUserId: user.id }),
+  } satisfies OAuthConsentContext;
+}
+
+export async function validateOAuthConsentRequest(input: {
+  authorizeRequest: URLSearchParams | Record<string, string | string[] | undefined>;
+  loginTicket: string;
+}, client: PrismaClient = createPrismaClient()): Promise<OAuthConsentContext> {
+  const context = await validateOAuthAuthorizeRequest(input.authorizeRequest, client);
+  const oauthUserId = verifyOAuthLoginTicket(input.loginTicket, context.request);
+  const user = await client.oAuthUser.findUnique({ where: { id: oauthUserId } });
+  if (!user || !user.enabled) {
+    throw new OAuthLoginError("invalid_user", "OAuth user is not enabled.");
+  }
+  return {
+    ...context,
+    user: toSummary(user),
+    loginTicket: input.loginTicket,
+  };
+}
+
+export async function createOAuthAuthorizationCode(input: {
+  authorizeRequest: URLSearchParams | Record<string, string | string[] | undefined>;
+  loginTicket: string;
+  selectedEndpointIds: string[];
+}, client: PrismaClient = createPrismaClient()): Promise<OAuthAuthorizationCodeSummary> {
+  const context = await validateOAuthConsentRequest(
+    { authorizeRequest: input.authorizeRequest, loginTicket: input.loginTicket },
+    client,
+  );
+  const selectedEndpointIds = Array.from(new Set(input.selectedEndpointIds.map((id) => id.trim()).filter(Boolean)));
+  if (selectedEndpointIds.length === 0) {
+    throw new OAuthLoginError("invalid_selection", "Select at least one endpoint permission.");
+  }
+  const allowedEndpointIds = new Set(context.client.allowedEndpointIds);
+  if (selectedEndpointIds.some((endpointId) => !allowedEndpointIds.has(endpointId))) {
+    throw new OAuthLoginError("invalid_selection", "Endpoint selection is outside this client's allowed set.");
+  }
+
+  const code = await client.$transaction(async (tx) => {
+    const created = await tx.oAuthAuthorizationCode.create({
+      data: {
+        id: `oauth_code_${randomUUID()}`,
+        code: randomBytes(32).toString("base64url"),
+        oauthClientId: context.client.id,
+        oauthUserId: context.user.id,
+        redirectUri: context.request.redirectUri,
+        resource: context.request.resource,
+        state: context.request.state,
+        expiresAt: new Date(Date.now() + OAUTH_AUTHORIZATION_CODE_TTL_SECONDS * 1000),
+      },
+    });
+    await tx.oAuthAuthorizationCodeEndpoint.createMany({
+      data: selectedEndpointIds.map((endpointId) => ({ authorizationCodeId: created.id, endpointId })),
+    });
+    await recordAuditEvent(
+      {
+        eventType: "oauth_code.create",
+        subjectType: "oauth_authorization_code",
+        subjectId: created.id,
+        subjectName: context.client.clientId,
+        outcome: "success",
+        metadata: {
+          oauthClientId: context.client.id,
+          oauthUserId: context.user.id,
+          redirectUri: context.request.redirectUri,
+          resource: context.request.resource,
+          selectedEndpointCount: selectedEndpointIds.length,
+          expiresAt: created.expiresAt.toISOString(),
+        },
+      },
+      tx,
+    );
+    return tx.oAuthAuthorizationCode.findUniqueOrThrow({
+      where: { id: created.id },
+      include: { selectedEndpoints: true },
+    });
+  });
+
+  return toAuthorizationCodeSummary(code);
+}
+
+exec
+/bin/zsh -lc "sed -n '1,260p' app/oauth/login/page.tsx" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+exec
+/bin/zsh -lc "sed -n '1,220p' app/oauth/authorize/page.tsx" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import { redirect } from "next/navigation";
+import { authorizationRequestToSearchParams, loginOAuthUserForConsent, validateOAuthAuthorizeRequest } from "@/lib/oauth/service";
+import { OAuthAuthorizeRequestError, OAuthLoginError } from "@/lib/oauth/types";
+
+type SearchParams = Promise<Record<string, string | string[] | undefined>>;
+
+function hiddenAuthorizeInputs(context: Awaited<ReturnType<typeof validateOAuthAuthorizeRequest>>) {
+  return (
+    <>
+      <input type="hidden" name="response_type" value={context.request.responseType} />
+      <input type="hidden" name="client_id" value={context.request.clientId} />
+      <input type="hidden" name="redirect_uri" value={context.request.redirectUri} />
+      <input type="hidden" name="resource" value={context.request.resource} />
+      {context.request.state ? <input type="hidden" name="state" value={context.request.state} /> : null}
+    </>
+  );
+}
+
+async function submitOAuthLogin(formData: FormData) {
+  "use server";
+  const authorizeRequest = {
+    response_type: String(formData.get("response_type") ?? ""),
+    client_id: String(formData.get("client_id") ?? ""),
+    redirect_uri: String(formData.get("redirect_uri") ?? ""),
+    resource: String(formData.get("resource") ?? ""),
+    state: String(formData.get("state") ?? ""),
+  };
+  let target: string;
+  try {
+    const context = await loginOAuthUserForConsent({
+      authorizeRequest,
+      username: String(formData.get("username") ?? ""),
+      password: String(formData.get("password") ?? ""),
+    });
+    const params = authorizationRequestToSearchParams(context.request);
+    params.set("login_ticket", context.loginTicket);
+    target = `/oauth/consent?${params.toString()}`;
+  } catch (error) {
+    const params = new URLSearchParams(authorizeRequest);
+    params.set(
+      "login_error",
+      error instanceof OAuthLoginError || error instanceof OAuthAuthorizeRequestError ? error.code : "login_failed",
+    );
+    target = `/oauth/login?${params.toString()}`;
+  }
+  redirect(target);
+}
+
+export default async function OAuthLoginPage({ searchParams }: { searchParams: SearchParams }) {
+  const params = await searchParams;
+  try {
+    const context = await validateOAuthAuthorizeRequest(params);
+    const loginError = typeof params.login_error === "string" ? params.login_error : "";
+    return (
+      <main className="shell oauth-shell">
+        <section className="oauth-panel" aria-labelledby="oauth-login-title">
+          <p className="eyebrow">Mock OAuth login</p>
+          <h1 id="oauth-login-title">Sign in for consent</h1>
+          <p className="lede compact">
+            This login belongs to the mock OAuth authorization flow and is separate from the public admin UI.
+          </p>
+          <dl className="oauth-detail-grid" aria-label="Authorization request">
+            <div>
+              <dt>Client</dt>
+              <dd>{context.client.displayName || context.client.clientId}</dd>
+            </div>
+            <div>
+              <dt>Redirect URI</dt>
+              <dd>{context.request.redirectUri}</dd>
+            </div>
+            <div>
+              <dt>Resource</dt>
+              <dd>{context.request.resource}</dd>
+            </div>
+            <div>
+              <dt>Code TTL</dt>
+              <dd>{context.codeTtlSeconds} seconds</dd>
+            </div>
+          </dl>
+          {loginError ? <p className="form-message error">OAuth username or password is invalid.</p> : null}
+          <form action={submitOAuthLogin} className="oauth-form">
+            {hiddenAuthorizeInputs(context)}
+            <label className="field-block">
+              <span>Username</span>
+              <input className="text-input" name="username" autoComplete="username" required />
+            </label>
+            <label className="field-block">
+              <span>Password</span>
+              <input className="text-input" name="password" type="password" autoComplete="current-password" required />
+            </label>
+            <button className="primary-button" type="submit">Continue</button>
+          </form>
+        </section>
+      </main>
+    );
+  } catch (error) {
+    if (error instanceof OAuthAuthorizeRequestError) {
+      return (
+        <main className="shell oauth-shell">
+          <section className="oauth-panel" aria-labelledby="oauth-login-error-title">
+            <p className="eyebrow">Mock OAuth login</p>
+            <h1 id="oauth-login-error-title">Login unavailable</h1>
+            <p className="form-message error">{error.message}</p>
+          </section>
+        </main>
+      );
+    }
+    throw error;
+  }
+}
+
+ succeeded in 0ms:
+import { redirect } from "next/navigation";
+import { authorizationRequestToSearchParams, validateOAuthAuthorizeRequest } from "@/lib/oauth/service";
+import { OAuthAuthorizeRequestError } from "@/lib/oauth/types";
+
+type SearchParams = Promise<Record<string, string | string[] | undefined>>;
+
+function ErrorPanel({ error }: { error: OAuthAuthorizeRequestError }) {
+  return (
+    <main className="shell oauth-shell">
+      <section className="oauth-panel" aria-labelledby="oauth-error-title">
+        <p className="eyebrow">OAuth authorization</p>
+        <h1 id="oauth-error-title">Authorization request failed</h1>
+        <p className="form-message error">{error.message}</p>
+        <dl className="oauth-detail-grid">
+          <div>
+            <dt>Error</dt>
+            <dd>{error.code}</dd>
+          </div>
+          {error.field ? (
+            <div>
+              <dt>Field</dt>
+              <dd>{error.field}</dd>
+            </div>
+          ) : null}
+        </dl>
+      </section>
+    </main>
+  );
+}
+
+export default async function OAuthAuthorizePage({ searchParams }: { searchParams: SearchParams }) {
+  try {
+    const context = await validateOAuthAuthorizeRequest(await searchParams);
+    redirect(`/oauth/login?${authorizationRequestToSearchParams(context.request).toString()}`);
+  } catch (error) {
+    if (error instanceof OAuthAuthorizeRequestError) {
+      return <ErrorPanel error={error} />;
+    }
+    throw error;
+  }
+}
+
+exec
+/bin/zsh -lc "sed -n '1,280p' app/oauth/consent/page.tsx" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import { redirect } from "next/navigation";
+import {
+  authorizationRequestToSearchParams,
+  createOAuthAuthorizationCode,
+  validateOAuthConsentRequest,
+} from "@/lib/oauth/service";
+import { OAuthAuthorizeRequestError, OAuthLoginError } from "@/lib/oauth/types";
+
+type SearchParams = Promise<Record<string, string | string[] | undefined>>;
+
+async function submitOAuthConsent(formData: FormData) {
+  "use server";
+  const authorizeRequest = {
+    response_type: String(formData.get("response_type") ?? ""),
+    client_id: String(formData.get("client_id") ?? ""),
+    redirect_uri: String(formData.get("redirect_uri") ?? ""),
+    resource: String(formData.get("resource") ?? ""),
+    state: String(formData.get("state") ?? ""),
+  };
+  const loginTicket = String(formData.get("login_ticket") ?? "");
+  let target: string;
+  try {
+    const code = await createOAuthAuthorizationCode({
+      authorizeRequest,
+      loginTicket,
+      selectedEndpointIds: formData.getAll("endpoint_id").map(String),
+    });
+    const redirectUrl = new URL(code.redirectUri);
+    redirectUrl.searchParams.set("code", code.code);
+    if (code.state) redirectUrl.searchParams.set("state", code.state);
+    target = redirectUrl.toString();
+  } catch (error) {
+    const params = authorizationRequestToSearchParams({
+      responseType: authorizeRequest.response_type,
+      clientId: authorizeRequest.client_id,
+      redirectUri: authorizeRequest.redirect_uri,
+      resource: authorizeRequest.resource,
+      state: authorizeRequest.state || null,
+    });
+    params.set("login_ticket", loginTicket);
+    params.set(
+      "consent_error",
+      error instanceof OAuthLoginError || error instanceof OAuthAuthorizeRequestError ? error.code : "consent_failed",
+    );
+    target = `/oauth/consent?${params.toString()}`;
+  }
+  redirect(target);
+}
+
+export default async function OAuthConsentPage({ searchParams }: { searchParams: SearchParams }) {
+  const params = await searchParams;
+  const loginTicket = typeof params.login_ticket === "string" ? params.login_ticket : "";
+  try {
+    const context = await validateOAuthConsentRequest({ authorizeRequest: params, loginTicket });
+    const consentError = typeof params.consent_error === "string" ? params.consent_error : "";
+    return (
+      <main className="shell oauth-shell">
+        <section className="oauth-panel" aria-labelledby="oauth-consent-title">
+          <p className="eyebrow">Mock OAuth consent</p>
+          <h1 id="oauth-consent-title">Approve endpoint access</h1>
+          <dl className="oauth-detail-grid" aria-label="Consent details">
+            <div>
+              <dt>Client</dt>
+              <dd>{context.client.displayName || context.client.clientId}</dd>
+            </div>
+            <div>
+              <dt>User</dt>
+              <dd>{context.user.username}</dd>
+            </div>
+            <div>
+              <dt>Redirect URI</dt>
+              <dd>{context.request.redirectUri}</dd>
+            </div>
+            <div>
+              <dt>Resource</dt>
+              <dd>{context.request.resource}</dd>
+            </div>
+            <div>
+              <dt>Authorization code TTL</dt>
+              <dd>{context.codeTtlSeconds} seconds</dd>
+            </div>
+          </dl>
+          {consentError ? <p className="form-message error">Select at least one allowed endpoint permission.</p> : null}
+          <form action={submitOAuthConsent} className="oauth-form">
+            <input type="hidden" name="response_type" value={context.request.responseType} />
+            <input type="hidden" name="client_id" value={context.request.clientId} />
+            <input type="hidden" name="redirect_uri" value={context.request.redirectUri} />
+            <input type="hidden" name="resource" value={context.request.resource} />
+            <input type="hidden" name="login_ticket" value={context.loginTicket} />
+            {context.request.state ? <input type="hidden" name="state" value={context.request.state} /> : null}
+            <fieldset className="oauth-permissions">
+              <legend>Endpoint permissions</legend>
+              {context.client.allowedEndpoints.length ? (
+                context.client.allowedEndpoints.map((endpoint) => (
+                  <label className="compact-check endpoint-check" key={endpoint.id}>
+                    <input type="checkbox" name="endpoint_id" value={endpoint.id} defaultChecked={endpoint.enabled} />
+                    <span>
+                      <strong>{endpoint.name}</strong>
+                      {endpoint.title ? endpoint.title : "Untitled endpoint"}
+                      {!endpoint.enabled ? " (disabled)" : ""}
+                    </span>
+                  </label>
+                ))
+              ) : (
+                <p className="section-note">This client has no allowed endpoints configured.</p>
+              )}
+            </fieldset>
+            <button className="primary-button" type="submit">Approve selected endpoints</button>
+          </form>
+        </section>
+      </main>
+    );
+  } catch (error) {
+    if (error instanceof OAuthAuthorizeRequestError || error instanceof OAuthLoginError) {
+      return (
+        <main className="shell oauth-shell">
+          <section className="oauth-panel" aria-labelledby="oauth-consent-error-title">
+            <p className="eyebrow">Mock OAuth consent</p>
+            <h1 id="oauth-consent-error-title">Consent unavailable</h1>
+            <p className="form-message error">{error.message}</p>
+          </section>
+        </main>
+      );
+    }
+    throw error;
+  }
+}
+
+exec
+/bin/zsh -lc 'rg -n "oauth-|OAuth" app/globals.css' in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+623:.oauth-shell {
+631:.oauth-panel {
+640:.oauth-panel h1 {
+644:.oauth-detail-grid {
+651:.oauth-detail-grid div {
+659:.oauth-detail-grid dt {
+666:.oauth-detail-grid dd {
+673:.oauth-form {
+679:.oauth-form .primary-button {
+683:.oauth-permissions {
+692:.oauth-permissions legend {
+765:  .oauth-detail-grid {
+792:  .oauth-detail-grid {
+
+exec
+/bin/zsh -lc "sed -n '1,180p' tests/unit/oauth-authorize.test.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import assert from "node:assert/strict";
+import { execFile } from "node:child_process";
+import { mkdtemp } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { promisify } from "node:util";
+import test from "node:test";
+import { createPrismaClient } from "@/lib/db/client";
+import { seedAllDefaults } from "@/lib/db/seed";
+import {
+  createOAuthAuthorizationCode,
+  loginOAuthUserForConsent,
+  validateOAuthAuthorizeRequest,
+} from "@/lib/oauth/service";
+import {
+  DEFAULT_OAUTH_CLIENT_REDIRECT_URI,
+  OAuthAuthorizeRequestError,
+  OAuthLoginError,
+} from "@/lib/oauth/types";
+
+const execFileAsync = promisify(execFile);
+
+async function withIsolatedDb(fn: (client: ReturnType<typeof createPrismaClient>) => Promise<void>) {
+  const directory = await mkdtemp(join(tmpdir(), "mcp-mock-oauth-authorize-"));
+  const previousDatabaseUrl = process.env.DATABASE_URL;
+  process.env.DATABASE_URL = `file:${join(directory, "runtime.sqlite")}`;
+
+  await execFileAsync("npx", ["prisma", "migrate", "deploy"], { env: { ...process.env } });
+
+  const client = createPrismaClient();
+  try {
+    await seedAllDefaults(client);
+    await fn(client);
+  } finally {
+    await client.$disconnect();
+    if (previousDatabaseUrl === undefined) {
+      delete process.env.DATABASE_URL;
+    } else {
+      process.env.DATABASE_URL = previousDatabaseUrl;
+    }
+  }
+}
+
+function defaultAuthorizeRequest(overrides: Record<string, string> = {}) {
+  return {
+    response_type: "code",
+    client_id: "default",
+    redirect_uri: DEFAULT_OAUTH_CLIENT_REDIRECT_URI,
+    resource: "https://resource.example/mcp",
+    state: "state-123",
+    ...overrides,
+  };
+}
+
+test("OAuth authorize validates client and exact registered redirect URI", async () => {
+  await withIsolatedDb(async (client) => {
+    const context = await validateOAuthAuthorizeRequest(defaultAuthorizeRequest(), client);
+    assert.equal(context.client.clientId, "default");
+    assert.equal(context.request.redirectUri, DEFAULT_OAUTH_CLIENT_REDIRECT_URI);
+
+    await assert.rejects(
+      () => validateOAuthAuthorizeRequest(defaultAuthorizeRequest({ redirect_uri: "http://localhost:3000/wrong" }), client),
+      (error: unknown) => error instanceof OAuthAuthorizeRequestError && error.code === "invalid_redirect_uri",
+    );
+    await assert.rejects(
+      () => validateOAuthAuthorizeRequest(defaultAuthorizeRequest({ client_id: "missing-client" }), client),
+      (error: unknown) => error instanceof OAuthAuthorizeRequestError && error.code === "invalid_client",
+    );
+  });
+});
+
+test("OAuth consent creates a single-use-ready authorization code with endpoint bindings", async () => {
+  await withIsolatedDb(async (client) => {
+    const login = await loginOAuthUserForConsent(
+      {
+        authorizeRequest: defaultAuthorizeRequest(),
+        username: "default",
+        password: "default",
+      },
+      client,
+    );
+    const endpoint = await client.endpoint.findUniqueOrThrow({ where: { id: "endpoint_default_echo" } });
+    const code = await createOAuthAuthorizationCode(
+      {
+        authorizeRequest: defaultAuthorizeRequest(),
+        loginTicket: login.loginTicket,
+        selectedEndpointIds: [endpoint.id],
+      },
+      client,
+    );
+    const stored = await client.oAuthAuthorizationCode.findUniqueOrThrow({
+      where: { code: code.code },
+      include: { selectedEndpoints: true },
+    });
+
+    assert.match(code.code, /^[a-zA-Z0-9_-]+$/);
+    assert.equal(stored.oauthClientId, login.client.id);
+    assert.equal(stored.oauthUserId, login.user.id);
+    assert.equal(stored.redirectUri, DEFAULT_OAUTH_CLIENT_REDIRECT_URI);
+    assert.equal(stored.resource, "https://resource.example/mcp");
+    assert.equal(stored.state, "state-123");
+    assert.equal(stored.usedAt, null);
+    assert.deepEqual(stored.selectedEndpoints.map((selected) => selected.endpointId), [endpoint.id]);
+    assert.ok(stored.expiresAt.getTime() > Date.now());
+  });
+});
+
+test("OAuth consent rejects invalid users and endpoint selections outside the client allowed set", async () => {
+  await withIsolatedDb(async (client) => {
+    await assert.rejects(
+      () => loginOAuthUserForConsent({ authorizeRequest: defaultAuthorizeRequest(), username: "default", password: "wrong" }, client),
+      OAuthLoginError,
+    );
+
+    const login = await loginOAuthUserForConsent(
+      {
+        authorizeRequest: defaultAuthorizeRequest(),
+        username: "default",
+        password: "default",
+      },
+      client,
+    );
+    await assert.rejects(
+      () =>
+        createOAuthAuthorizationCode(
+          {
+            authorizeRequest: defaultAuthorizeRequest(),
+            loginTicket: login.loginTicket,
+            selectedEndpointIds: ["endpoint-outside-client"],
+          },
+          client,
+        ),
+      (error: unknown) => error instanceof OAuthLoginError && error.code === "invalid_selection",
+    );
+  });
+});
+
+exec
+/bin/zsh -lc "sed -n '1,190p' tests/e2e/oauth-consent.spec.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import { expect, test } from "@playwright/test";
+import { createPrismaClient } from "@/lib/db/client";
+
+test.setTimeout(60_000);
+
+test("OAuth authorization login and consent creates an endpoint-bound code @oauth-consent", async ({
+  page,
+  request,
+}) => {
+  const clientId = `consent-client-${Date.now()}`;
+  const redirectUri = "http://127.0.0.1:3100/oauth/callback";
+  const createResponse = await request.post("/api/oauth-clients", {
+    data: {
+      clientId,
+      displayName: "Consent E2E Client",
+      enabled: true,
+      redirectUris: [redirectUri],
+      clientCredentialsTtlSeconds: 3600,
+      allowedEndpointIds: ["endpoint_default_echo"],
+    },
+  });
+  expect(createResponse.status()).toBe(201);
+  const created = await createResponse.json();
+  const oauthClientId = created.client.id as string;
+
+  const authorizeParams = new URLSearchParams({
+    response_type: "code",
+    client_id: clientId,
+    redirect_uri: redirectUri,
+    resource: "https://resource.example/e2e",
+    state: "state-e2e",
+  });
+
+  await page.goto(`/oauth/authorize?${authorizeParams.toString()}`);
+  await expect(page.getByRole("heading", { name: "Sign in for consent" })).toBeVisible();
+  await expect(page.getByText("Consent E2E Client")).toBeVisible();
+  await expect(page.getByText(redirectUri)).toBeVisible();
+
+  await page.getByLabel("Username").fill("default");
+  await page.getByLabel("Password").fill("default");
+  await page.getByRole("button", { name: "Continue" }).click();
+
+  await expect(page.getByRole("heading", { name: "Approve endpoint access" })).toBeVisible();
+  await expect(page.getByText("default")).toBeVisible();
+  await expect(page.getByText("https://resource.example/e2e")).toBeVisible();
+  await expect(page.getByLabel(/echo/)).toBeChecked();
+  await page.screenshot({ path: "test-results/oauth-consent-desktop.png", fullPage: true });
+
+  await page.setViewportSize({ width: 390, height: 900 });
+  await expect(page.getByRole("heading", { name: "Approve endpoint access" })).toBeVisible();
+  const hasHorizontalOverflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
+  expect(hasHorizontalOverflow).toBeFalsy();
+  await page.screenshot({ path: "test-results/oauth-consent-mobile.png", fullPage: true });
+
+  await page.getByRole("button", { name: "Approve selected endpoints" }).click();
+  await page.waitForURL(/\/oauth\/callback\?code=.*state=state-e2e/);
+  const callbackUrl = new URL(page.url());
+  const code = callbackUrl.searchParams.get("code");
+  expect(code).toBeTruthy();
+
+  const prisma = createPrismaClient();
+  try {
+    const storedCode = await prisma.oAuthAuthorizationCode.findUniqueOrThrow({
+      where: { code: code ?? "" },
+      include: { selectedEndpoints: true },
+    });
+    expect(storedCode.oauthClientId).toBe(oauthClientId);
+    expect(storedCode.redirectUri).toBe(redirectUri);
+    expect(storedCode.resource).toBe("https://resource.example/e2e");
+    expect(storedCode.state).toBe("state-e2e");
+    expect(storedCode.usedAt).toBeNull();
+    expect(storedCode.selectedEndpoints.map((endpoint) => endpoint.endpointId)).toEqual(["endpoint_default_echo"]);
+  } finally {
+    await prisma.$disconnect();
+  }
+
+  const deleteResponse = await request.delete(`/api/oauth-clients/${oauthClientId}`);
+  expect(deleteResponse.status()).toBe(200);
+});
+
+test("OAuth authorize and login invalid paths fail deterministically @oauth-consent", async ({ page }) => {
+  await page.goto(
+    `/oauth/authorize?${new URLSearchParams({
+      response_type: "code",
+      client_id: "missing-client",
+      redirect_uri: "http://127.0.0.1:3100/oauth/callback",
+    }).toString()}`,
+  );
+  await expect(page.getByRole("heading", { name: "Authorization request failed" })).toBeVisible();
+  await expect(page.getByText("invalid_client")).toBeVisible();
+
+  await page.goto(
+    `/oauth/authorize?${new URLSearchParams({
+      response_type: "code",
+      client_id: "default",
+      redirect_uri: "http://127.0.0.1:3100/unregistered",
+    }).toString()}`,
+  );
+  await expect(page.getByRole("heading", { name: "Authorization request failed" })).toBeVisible();
+  await expect(page.getByText("invalid_redirect_uri")).toBeVisible();
+
+  await page.goto(
+    `/oauth/login?${new URLSearchParams({
+      response_type: "code",
+      client_id: "default",
+      redirect_uri: "http://localhost:3000/oauth/callback",
+      resource: "mcp-mock-server",
+    }).toString()}`,
+  );
+  await page.getByLabel("Username").fill("default");
+  await page.getByLabel("Password").fill("wrong");
+  await page.getByRole("button", { name: "Continue" }).click();
+  await expect(page.getByText("OAuth username or password is invalid.")).toBeVisible();
+});
+
+exec
+/bin/zsh -lc "sed -n '620,705p' app/globals.css && sed -n '750,810p' app/globals.css" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+  width: fit-content;
+}
+
+.oauth-shell {
+  min-height: 100vh;
+  display: grid;
+  align-items: center;
+  padding-top: 28px;
+  padding-bottom: 28px;
+}
+
+.oauth-panel {
+  width: 100%;
+  max-width: 820px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 18px;
+  background: var(--panel);
+}
+
+.oauth-panel h1 {
+  font-size: 2rem;
+}
+
+.oauth-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin: 18px 0;
+}
+
+.oauth-detail-grid div {
+  min-width: 0;
+  border: 1px solid #e4e9f0;
+  border-radius: 8px;
+  padding: 10px;
+  background: #fbfcfe;
+}
+
+.oauth-detail-grid dt {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+
+.oauth-detail-grid dd {
+  margin: 5px 0 0;
+  overflow-wrap: anywhere;
+  color: #26313f;
+  font-weight: 750;
+}
+
+.oauth-form {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.oauth-form .primary-button {
+  width: fit-content;
+}
+
+.oauth-permissions {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.oauth-permissions legend {
+  margin-bottom: 8px;
+  color: #26313f;
+  font-size: 0.92rem;
+  font-weight: 850;
+}
+
+.audit-panel {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+
+}
+
+.evidence-panel.compact pre {
+  min-height: 72px;
+}
+
+@media (max-width: 720px) {
+  .shell {
+    width: min(100% - 24px, 560px);
+    padding: 28px 0;
+  }
+
+  .status-grid,
+  .panel ul,
+  .summary-strip,
+  .oauth-detail-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 760px) {
+  .page-header {
+    grid-template-columns: minmax(0, 1fr) 340px;
+    align-items: end;
+  }
+
+  .form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .console-controls,
+  .console-evidence-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .case-grid {
+    grid-template-columns: minmax(0, 1fr) 140px 160px;
+    align-items: end;
+  }
+
+  .checkbox-grid,
+  .secret-callout,
+  .oauth-detail-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .secret-callout {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .parameter-editor {
+    grid-template-columns: minmax(120px, 1fr) 120px 120px minmax(120px, 1fr) auto;
+    align-items: start;
+  }
+
+  .parameter-description {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (min-width: 1080px) {
+
+exec
+/bin/zsh -lc "sed -n '1,120p' lib/db/seed.ts && sed -n '1,160p' lib/reset/service.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import type { PrismaClient } from "@prisma/client";
+import { seedBasicUserDefaults } from "@/lib/basic-auth/service";
+import { seedOAuthClientDefaults, seedOAuthUserDefaults } from "@/lib/oauth/service";
+
+export const DEFAULT_ENDPOINT_ID = "endpoint_default_echo";
+
+type SeedClient = Pick<
+  PrismaClient,
+  | "endpoint"
+  | "endpointParam"
+  | "responseCase"
+  | "basicUser"
+  | "oAuthUser"
+  | "oAuthClient"
+  | "oAuthClientAllowedEndpoint"
+  | "oAuthAuthorizationCode"
+  | "oAuthAuthorizationCodeEndpoint"
+>;
+
+export async function seedEndpointDefaults(client: SeedClient) {
+  await client.endpoint.upsert({
+    where: { id: DEFAULT_ENDPOINT_ID },
+    update: {
+      name: "echo",
+      title: "Echo",
+      description: "Default enabled endpoint for smoke-testing endpoint persistence.",
+      enabled: true,
+      protectedDefault: true,
+      deleteCode: "12345678",
+      defaultResponseJson: JSON.stringify({ ok: true, source: "default" }),
+      failureMode: "none",
+      failureStatusCode: null,
+      failureDelayMs: 0,
+      failureMessage: null,
+      malformedResponseJson: null,
+    },
+    create: {
+      id: DEFAULT_ENDPOINT_ID,
+      name: "echo",
+      title: "Echo",
+      description: "Default enabled endpoint for smoke-testing endpoint persistence.",
+      enabled: true,
+      protectedDefault: true,
+      deleteCode: "12345678",
+      defaultResponseJson: JSON.stringify({ ok: true, source: "default" }),
+      parameters: {
+        create: [
+          {
+            id: `${DEFAULT_ENDPOINT_ID}_param_message`,
+            position: 0,
+            name: "message",
+            label: "Message",
+            description: "Message to echo back in later runtime slices.",
+            type: "string",
+            required: true,
+          },
+        ],
+      },
+      responseCases: {
+        create: [
+          {
+            id: `${DEFAULT_ENDPOINT_ID}_case_default`,
+            name: "default",
+            priority: 0,
+            matchArgsJson: "{}",
+            responseJson: JSON.stringify({ ok: true, source: "default" }),
+            statusCode: 200,
+            delayMs: 0,
+            errorMode: "none",
+            isDefault: true,
+          },
+          {
+            id: `${DEFAULT_ENDPOINT_ID}_case_hello`,
+            name: "hello-world",
+            priority: 10,
+            matchArgsJson: JSON.stringify({ message: "hello" }),
+            responseJson: JSON.stringify({ ok: true, message: "world" }),
+            statusCode: 200,
+            delayMs: 0,
+            errorMode: "none",
+            isDefault: false,
+          },
+        ],
+      },
+    },
+  });
+
+  await client.endpointParam.upsert({
+    where: {
+      endpointId_name: {
+        endpointId: DEFAULT_ENDPOINT_ID,
+        name: "message",
+      },
+    },
+    update: {
+      position: 0,
+      label: "Message",
+      description: "Message to echo back in later runtime slices.",
+      type: "string",
+      required: true,
+      defaultValueJson: null,
+    },
+    create: {
+      id: `${DEFAULT_ENDPOINT_ID}_param_message`,
+      endpointId: DEFAULT_ENDPOINT_ID,
+      position: 0,
+      name: "message",
+      label: "Message",
+      description: "Message to echo back in later runtime slices.",
+      type: "string",
+      required: true,
+    },
+  });
+
+  await client.responseCase.upsert({
+    where: {
+      endpointId_name: {
+        endpointId: DEFAULT_ENDPOINT_ID,
+        name: "default",
+      },
+import type { PrismaClient } from "@prisma/client";
+import { recordAuditEvent } from "@/lib/audit/service";
+import { createPrismaClient } from "@/lib/db/client";
+import { seedAllDefaults } from "@/lib/db/seed";
+import { verifyRootPassword } from "@/lib/security/root-password";
+import { RESET_CONFIRMATION_TEXT, ResetAuthorizationError } from "@/lib/reset/types";
+import type { ResetInput, ResetResult } from "@/lib/reset/types";
+
+function resetReasonFor(input: ResetInput) {
+  const confirmation = input.confirmation?.trim() ?? "";
+  if (!confirmation) {
+    return "missing_confirmation";
+  }
+  if (confirmation !== RESET_CONFIRMATION_TEXT) {
+    return "invalid_confirmation";
+  }
+  if (!verifyRootPassword(input.rootPassword)) {
+    return "invalid_root_password";
+  }
+  return null;
+}
+
+async function recordResetFailure(reason: ResetAuthorizationError["reason"], client: PrismaClient) {
+  await recordAuditEvent(
+    {
+      eventType: "system.reset",
+      subjectType: "system",
+      subjectId: "default-state",
+      subjectName: "reset",
+      outcome: "failure",
+      metadata: { reason },
+    },
+    client,
+  );
+}
+
+export async function resetToDefaults(input: ResetInput, client: PrismaClient = createPrismaClient()): Promise<ResetResult> {
+  const failureReason = resetReasonFor(input);
+  if (failureReason) {
+    await recordResetFailure(failureReason, client);
+    throw new ResetAuthorizationError(failureReason);
+  }
+
+  return client.$transaction(async (tx) => {
+    const deletedOAuthCodes = await tx.oAuthAuthorizationCode.deleteMany({});
+    const deletedOAuthClients = await tx.oAuthClient.deleteMany({});
+    const deletedOAuthUsers = await tx.oAuthUser.deleteMany({});
+    const deletedBasicUsers = await tx.basicUser.deleteMany({});
+    await tx.responseCase.deleteMany({});
+    await tx.endpointParam.deleteMany({});
+    const deletedEndpoints = await tx.endpoint.deleteMany({});
+
+    await seedAllDefaults(tx);
+    const seededEndpoints = await tx.endpoint.count();
+    const seededBasicUsers = await tx.basicUser.count();
+    const seededOAuthUsers = await tx.oAuthUser.count();
+    const seededOAuthClients = await tx.oAuthClient.count();
+
+    await recordAuditEvent(
+      {
+        eventType: "system.reset",
+        subjectType: "system",
+        subjectId: "default-state",
+        subjectName: "reset",
+        outcome: "success",
+        metadata: {
+          method: "root_password",
+          deletedEndpoints: deletedEndpoints.count,
+          deletedBasicUsers: deletedBasicUsers.count,
+          deletedOAuthUsers: deletedOAuthUsers.count,
+          deletedOAuthClients: deletedOAuthClients.count,
+          deletedOAuthCodes: deletedOAuthCodes.count,
+          seededEndpoints,
+          seededBasicUsers,
+          seededOAuthUsers,
+          seededOAuthClients,
+        },
+      },
+      tx,
+    );
+
+    return {
+      deletedEndpoints: deletedEndpoints.count,
+      seededEndpoints,
+      deletedBasicUsers: deletedBasicUsers.count,
+      seededBasicUsers,
+      deletedOAuthUsers: deletedOAuthUsers.count,
+      seededOAuthUsers,
+      deletedOAuthClients: deletedOAuthClients.count,
+      seededOAuthClients,
+    };
+  });
+}
+
+codex
+{"decision":"not_done","recommend_promotion":false,"confidence":0,"summary":"The implementation has the expected OAuth service boundaries, route surfaces, Prisma persistence, and focused tests. I’m checking for narrow promotion blockers now: whether invalid paths are tested enough, whether selected endpoints are truly constrained to the client, and whether anything outside token exchange was pulled in.","satisfied_exit_criteria":[],"missing_requirements":[],"human_review_triggers":[]}
+exec
+/bin/zsh -lc "sed -n '1,240p' lib/oauth/validation.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import {
+  OAuthClientValidationError,
+  OAuthUserValidationError,
+  OAUTH_ACCESS_TOKEN_TTL_PRESETS,
+  OAUTH_CLIENT_CREDENTIALS_TTL_PRESETS,
+} from "@/lib/oauth/types";
+import type { OAuthClientCreateInput, OAuthClientUpdateInput, OAuthUserCreateInput, OAuthUserUpdateInput } from "@/lib/oauth/types";
+
+const USERNAME_PATTERN = /^[a-zA-Z0-9_.-]{1,64}$/;
+const CLIENT_ID_PATTERN = /^[a-zA-Z0-9_.:-]{1,96}$/;
+const ALLOWED_TTL_SECONDS = new Set<number>(OAUTH_ACCESS_TOKEN_TTL_PRESETS.map((preset) => preset.seconds));
+const ALLOWED_CLIENT_TTL_SECONDS = new Set<number>(OAUTH_CLIENT_CREDENTIALS_TTL_PRESETS.map((preset) => preset.seconds));
+
+function validateTtl(value: number | undefined, fieldErrors: Record<string, string>) {
+  if (typeof value !== "number" || !Number.isInteger(value) || !ALLOWED_TTL_SECONDS.has(value)) {
+    fieldErrors.accessTokenTtlSeconds = "Choose one of the MVP token TTL presets.";
+  }
+}
+
+export function validateOAuthUserCreateInput(input: OAuthUserCreateInput): OAuthUserCreateInput {
+  const fieldErrors: Record<string, string> = {};
+  const username = input.username.trim();
+  const password = input.password;
+
+  if (!USERNAME_PATTERN.test(username)) {
+    fieldErrors.username = "Use 1-64 letters, numbers, dots, underscores, or hyphens.";
+  }
+  if (password.length < 1 || password.length > 256) {
+    fieldErrors.password = "Enter a password between 1 and 256 characters.";
+  }
+  validateTtl(input.accessTokenTtlSeconds, fieldErrors);
+
+  if (Object.keys(fieldErrors).length) {
+    throw new OAuthUserValidationError(fieldErrors);
+  }
+
+  return {
+    username,
+    password,
+    enabled: input.enabled,
+    accessTokenTtlSeconds: input.accessTokenTtlSeconds,
+  };
+}
+
+export function validateOAuthUserUpdateInput(input: OAuthUserUpdateInput): OAuthUserUpdateInput {
+  const fieldErrors: Record<string, string> = {};
+  const password = input.password ?? null;
+
+  if (password !== null && (password.length < 1 || password.length > 256)) {
+    fieldErrors.password = "Enter a password between 1 and 256 characters.";
+  }
+  if (input.accessTokenTtlSeconds !== undefined) {
+    validateTtl(input.accessTokenTtlSeconds, fieldErrors);
+  }
+
+  if (Object.keys(fieldErrors).length) {
+    throw new OAuthUserValidationError(fieldErrors);
+  }
+
+  return {
+    password,
+    enabled: input.enabled,
+    accessTokenTtlSeconds: input.accessTokenTtlSeconds,
+  };
+}
+
+function validateClientTtl(value: number | undefined, fieldErrors: Record<string, string>) {
+  if (typeof value !== "number" || !Number.isInteger(value) || !ALLOWED_CLIENT_TTL_SECONDS.has(value)) {
+    fieldErrors.clientCredentialsTtlSeconds = "Choose one of the MVP client credentials TTL presets.";
+  }
+}
+
+function normalizeRedirectUris(value: string[] | undefined, fieldErrors: Record<string, string>) {
+  const redirectUris = Array.isArray(value) ? value.map((uri) => uri.trim()).filter(Boolean) : [];
+  if (redirectUris.length > 10) {
+    fieldErrors.redirectUris = "Use 10 redirect URIs or fewer.";
+  }
+
+  const uniqueRedirectUris = Array.from(new Set(redirectUris));
+  for (const redirectUri of uniqueRedirectUris) {
+    if (redirectUri.length > 500) {
+      fieldErrors.redirectUris = "Each redirect URI must be 500 characters or fewer.";
+      break;
+    }
+    try {
+      const parsed = new URL(redirectUri);
+      if (!["http:", "https:"].includes(parsed.protocol)) {
+        fieldErrors.redirectUris = "Redirect URIs must use http or https.";
+        break;
+      }
+    } catch {
+      fieldErrors.redirectUris = "Enter valid absolute redirect URIs.";
+      break;
+    }
+  }
+
+  return uniqueRedirectUris;
+}
+
+function normalizeAllowedEndpointIds(value: string[] | undefined, fieldErrors: Record<string, string>) {
+  const endpointIds = Array.isArray(value) ? value.map((id) => id.trim()).filter(Boolean) : [];
+  const uniqueEndpointIds = Array.from(new Set(endpointIds));
+  if (uniqueEndpointIds.some((id) => id.length > 128)) {
+    fieldErrors.allowedEndpointIds = "Allowed endpoint IDs are invalid.";
+  }
+  return uniqueEndpointIds;
+}
+
+export function validateOAuthClientCreateInput(input: OAuthClientCreateInput): OAuthClientCreateInput {
+  const fieldErrors: Record<string, string> = {};
+  const clientId = input.clientId.trim();
+  const displayName = input.displayName.trim();
+  const redirectUris = normalizeRedirectUris(input.redirectUris, fieldErrors);
+  const allowedEndpointIds = normalizeAllowedEndpointIds(input.allowedEndpointIds, fieldErrors);
+
+  if (!CLIENT_ID_PATTERN.test(clientId)) {
+    fieldErrors.clientId = "Use 1-96 letters, numbers, dots, underscores, hyphens, or colons.";
+  }
+  if (displayName.length > 120) {
+    fieldErrors.displayName = "Use 120 characters or fewer.";
+  }
+  validateClientTtl(input.clientCredentialsTtlSeconds, fieldErrors);
+
+  if (Object.keys(fieldErrors).length) {
+    throw new OAuthClientValidationError(fieldErrors);
+  }
+
+  return {
+    clientId,
+    displayName,
+    enabled: input.enabled,
+    redirectUris,
+    clientCredentialsTtlSeconds: input.clientCredentialsTtlSeconds,
+    allowedEndpointIds,
+  };
+}
+
+export function validateOAuthClientUpdateInput(input: OAuthClientUpdateInput): OAuthClientUpdateInput {
+  const fieldErrors: Record<string, string> = {};
+  const output: OAuthClientUpdateInput = {};
+
+  if (input.displayName !== undefined) {
+    const displayName = input.displayName.trim();
+    if (displayName.length > 120) {
+      fieldErrors.displayName = "Use 120 characters or fewer.";
+    }
+    output.displayName = displayName;
+  }
+  if (input.redirectUris !== undefined) {
+    output.redirectUris = normalizeRedirectUris(input.redirectUris, fieldErrors);
+  }
+  if (input.allowedEndpointIds !== undefined) {
+    output.allowedEndpointIds = normalizeAllowedEndpointIds(input.allowedEndpointIds, fieldErrors);
+  }
+  if (input.clientCredentialsTtlSeconds !== undefined) {
+    validateClientTtl(input.clientCredentialsTtlSeconds, fieldErrors);
+    output.clientCredentialsTtlSeconds = input.clientCredentialsTtlSeconds;
+  }
+  if (input.enabled !== undefined) {
+    output.enabled = input.enabled;
+  }
+
+  if (Object.keys(fieldErrors).length) {
+    throw new OAuthClientValidationError(fieldErrors);
+  }
+
+  return output;
+}
+
+exec
+/bin/zsh -lc "sed -n '1,260p' state/last-result.txt" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+Implemented `oauth-authorize-login-consent` and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+
+What changed: added OAuth authorization-code schema/persistence, `/oauth/authorize`, `/oauth/login`, `/oauth/consent`, signed short-lived login tickets, endpoint permission consent, code redirect with `state`, focused unit tests, `@oauth-consent` E2E tests, and the required docs/progress updates.
+
+Required checks all passed:
+
+- `npm run test:unit`
+- `npm run test:e2e -- --grep @oauth-consent`
+- `npm run verify`
+
+Exit criteria appear satisfied. Token exchange remains untouched and deferred to the next task.
+exec
+/bin/zsh -lc 'rg -n "oauth/token|client credentials|jwt|bearer|mcp/oauth|access token|revok|jwks|well-known" app lib tests prisma docs/exec-plans/active/015-oauth-authorize-login-consent.md' in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+docs/exec-plans/active/015-oauth-authorize-login-consent.md:9:  "next_task_on_success": "oauth-code-token-jwt",
+docs/exec-plans/active/015-oauth-authorize-login-consent.md:68:- `/oauth/token` exchange.
+docs/exec-plans/active/015-oauth-authorize-login-consent.md:71:- MCP bearer enforcement.
+tests/e2e/endpoint-console.spec.ts:31:  await expect(consoleRegion.getByLabel("OAuth bearer token")).toBeVisible();
+app/page.tsx:34:          Public remote MCP mock server for testing no-auth, Basic Auth, mock OAuth bearer tokens,
+lib/oauth/validation.ts:69:    fieldErrors.clientCredentialsTtlSeconds = "Choose one of the MVP client credentials TTL presets.";
+app/endpoints/endpoint-manager.tsx:740:                  <option value="oauth">OAuth bearer</option>
+app/endpoints/endpoint-manager.tsx:752:                <span>OAuth bearer token</span>
+
+exec
+/bin/zsh -lc "jq '.pass, .commands[] | if type==\"object\" then {command, ok} else . end' state/deterministic-checks.json" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+true
+{
+  "command": "npm run test:unit",
+  "ok": true
+}
+{
+  "command": "npm run test:e2e -- --grep @oauth-consent",
+  "ok": true
+}
+{
+  "command": "npm run verify",
+  "ok": true
+}
+
+codex
+{"decision":"done","recommend_promotion":true,"confidence":0.86,"summary":"Task maps directly to docs/product-specs/oauth-consent-and-token-runtime.md and stays within the authorization/login/consent/code-creation slice. The repository contains OAuth authorize/login/consent routes, signed login tickets, exact client and redirect URI validation, selected endpoint permission persistence on authorization codes, and focused unit plus @oauth-consent E2E coverage. The supplied deterministic gate record shows npm run test:unit, npm run test:e2e -- --grep @oauth-consent, and npm run verify all passing.","satisfied_exit_criteria":["A valid user can complete login and consent for an OAuth client.","Authorization codes store selected endpoint permissions plus client, user, redirect URI, resource, state, expiry, and unused binding data.","Invalid client, redirect URI, and login user paths are covered by tests.","@oauth-consent passes per deterministic check summary.","All required checks pass per deterministic check summary.","Token exchange, client credentials grant, discovery metadata, and bearer enforcement remain out of scope."],"missing_requirements":[],"human_review_triggers":[]}
+tokens used
+58,158
+{"decision":"done","recommend_promotion":true,"confidence":0.86,"summary":"Task maps directly to docs/product-specs/oauth-consent-and-token-runtime.md and stays within the authorization/login/consent/code-creation slice. The repository contains OAuth authorize/login/consent routes, signed login tickets, exact client and redirect URI validation, selected endpoint permission persistence on authorization codes, and focused unit plus @oauth-consent E2E coverage. The supplied deterministic gate record shows npm run test:unit, npm run test:e2e -- --grep @oauth-consent, and npm run verify all passing.","satisfied_exit_criteria":["A valid user can complete login and consent for an OAuth client.","Authorization codes store selected endpoint permissions plus client, user, redirect URI, resource, state, expiry, and unused binding data.","Invalid client, redirect URI, and login user paths are covered by tests.","@oauth-consent passes per deterministic check summary.","All required checks pass per deterministic check summary.","Token exchange, client credentials grant, discovery metadata, and bearer enforcement remain out of scope."],"missing_requirements":[],"human_review_triggers":[]}
+evaluation: done promotion=true

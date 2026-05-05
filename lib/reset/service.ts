@@ -42,6 +42,7 @@ export async function resetToDefaults(input: ResetInput, client: PrismaClient = 
   }
 
   return client.$transaction(async (tx) => {
+    const deletedOAuthCodes = await tx.oAuthAuthorizationCode.deleteMany({});
     const deletedOAuthClients = await tx.oAuthClient.deleteMany({});
     const deletedOAuthUsers = await tx.oAuthUser.deleteMany({});
     const deletedBasicUsers = await tx.basicUser.deleteMany({});
@@ -68,6 +69,7 @@ export async function resetToDefaults(input: ResetInput, client: PrismaClient = 
           deletedBasicUsers: deletedBasicUsers.count,
           deletedOAuthUsers: deletedOAuthUsers.count,
           deletedOAuthClients: deletedOAuthClients.count,
+          deletedOAuthCodes: deletedOAuthCodes.count,
           seededEndpoints,
           seededBasicUsers,
           seededOAuthUsers,

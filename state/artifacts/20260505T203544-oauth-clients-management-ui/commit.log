@@ -1,0 +1,18 @@
+[main 2e59071] ralph: oauth-clients-management-ui 2026-05-05T20:47:42+09:00
+ 49 files changed, 1838 insertions(+), 73 deletions(-)
+ create mode 100644 app/api/oauth-clients/[id]/route.ts
+ create mode 100644 app/api/oauth-clients/[id]/secret/route.ts
+ create mode 100644 app/api/oauth-clients/route.ts
+ create mode 100644 app/oauth-clients/oauth-clients-manager.tsx
+ create mode 100644 app/oauth-clients/page.tsx
+ rename docs/exec-plans/{active => completed}/013-oauth-users-management-ui.md (94%)
+ create mode 100644 prisma/migrations/202605050006_oauth_clients/migration.sql
+ create mode 100644 state/artifacts/20260505T202551-oauth-users-management-ui/backlog.log
+ create mode 100644 state/artifacts/20260505T202551-oauth-users-management-ui/promote.log
+ create mode 100644 state/artifacts/20260505T203544-oauth-clients-management-ui/commit.log
+ create mode 100644 state/artifacts/20260505T203544-oauth-clients-management-ui/evaluator.log
+ create mode 100644 state/artifacts/20260505T203544-oauth-clients-management-ui/task-prompt.log
+ create mode 100644 state/artifacts/20260505T203544-oauth-clients-management-ui/worker.jsonl
+ create mode 100644 tests/e2e/oauth-clients.spec.ts
+ create mode 100644 tests/unit/oauth-clients.test.ts
+commit: created

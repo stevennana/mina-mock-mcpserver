@@ -5,7 +5,7 @@
   "id": "oauth-clients-management-ui",
   "title": "OAuth Clients Management UI and Allowed Endpoints",
   "order": 14,
-  "status": "active",
+  "status": "completed",
   "next_task_on_success": "oauth-authorize-login-consent",
   "prompt_docs": [
     "AGENTS.md",
@@ -26,7 +26,8 @@
     "Required checks do not prove the claimed behavior.",
     "Implementation changes contradict the product spec or security/reliability docs."
   ],
-  "promotion_mode": "deterministic_only"
+  "promotion_mode": "deterministic_only",
+  "completed_at": "2026-05-05T11:47:42.510Z"
 }
 ```
 
@@ -107,3 +108,4 @@ Confirm that this task maps to the primary product spec `oauth-consent-and-token
 - Note when existing partial implementations were found and reused instead of replaced.
 - 2026-05-05T11:35:14.467Z: restored as current task after oauth-users-management-ui promotion.
 - 2026-05-05T12:47:00.000Z: found no existing OAuth client slice; reused OAuth user service/API/UI patterns and added Prisma client persistence, scrypt-hashed generated secrets, redirect URI and allowed-endpoint persistence, built-in client protection, reset/seed coverage, and unit/UI tests.
+- 2026-05-05T11:47:42.510Z: automatically promoted after deterministic checks and evaluator approval.

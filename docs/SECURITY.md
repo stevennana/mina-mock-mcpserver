@@ -23,6 +23,8 @@ Define the security posture for MCP Mock Server's current shipped slice.
 - Basic Auth password verification compares submitted credentials against stored hashes without logging submitted passwords
 - OAuth login-user passwords are stored only as hashes and are not logged by management APIs
 - OAuth client secrets are generated server-side, stored only as hashes, and returned only at creation or regeneration
+- OAuth browser consent uses exact registered redirect URI matching and a short-lived signed login ticket before authorization code creation
+- OAuth authorization codes are stored as single-use-ready records with expiry, client, redirect URI, user, audience/resource, and selected endpoint bindings
 - raw JWT values are shown only at issuance unless a config explicitly permits storage
 - LOG_LEVEL controls verbosity but must not expose secrets even at trace/debug
 

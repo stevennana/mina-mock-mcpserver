@@ -8,6 +8,8 @@ export const DEFAULT_OAUTH_CLIENT_SECRET = "default";
 export const DEFAULT_OAUTH_CLIENT_DISPLAY_NAME = "Default OAuth client";
 export const DEFAULT_OAUTH_CLIENT_REDIRECT_URI = "http://localhost:3000/oauth/callback";
 export const DEFAULT_OAUTH_CLIENT_CREDENTIALS_TTL_SECONDS = 3600;
+export const OAUTH_AUTHORIZATION_CODE_TTL_SECONDS = 300;
+export const OAUTH_LOGIN_TICKET_TTL_SECONDS = 300;
 
 export const OAUTH_ACCESS_TOKEN_TTL_PRESETS = [
   { label: "15 minutes", seconds: 900 },
@@ -139,5 +141,50 @@ export class OAuthClientBuiltInError extends Error {
 export class OAuthClientNotFoundError extends Error {
   constructor() {
     super("OAuth client not found.");
+  }
+}
+
+export type OAuthAuthorizeRequest = {
+  responseType: string;
+  clientId: string;
+  redirectUri: string;
+  state: string | null;
+  resource: string;
+};
+
+export type OAuthAuthorizeContext = {
+  request: OAuthAuthorizeRequest;
+  client: OAuthClientSummary;
+  codeTtlSeconds: number;
+};
+
+export type OAuthConsentContext = OAuthAuthorizeContext & {
+  user: OAuthUserSummary;
+  loginTicket: string;
+};
+
+export type OAuthAuthorizationCodeSummary = {
+  id: string;
+  code: string;
+  oauthClientId: string;
+  oauthUserId: string;
+  redirectUri: string;
+  resource: string;
+  state: string | null;
+  selectedEndpointIds: string[];
+  expiresAt: string;
+  usedAt: string | null;
+  createdAt: string;
+};
+
+export class OAuthAuthorizeRequestError extends Error {
+  constructor(public readonly code: string, message: string, public readonly field?: string) {
+    super(message);
+  }
+}
+
+export class OAuthLoginError extends Error {
+  constructor(public readonly code: "invalid_user" | "invalid_ticket" | "invalid_selection", message: string) {
+    super(message);
   }
 }

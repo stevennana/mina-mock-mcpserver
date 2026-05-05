@@ -1,8 +1,8 @@
 {
-  "task_id": "oauth-clients-management-ui",
-  "started_at": "2026-05-05T20:35:44+09:00",
-  "artifact_dir": "state/artifacts/20260505T203544-oauth-clients-management-ui",
+  "task_id": "oauth-authorize-login-consent",
+  "started_at": "2026-05-05T20:48:12+09:00",
+  "artifact_dir": "state/artifacts/20260505T204812-oauth-authorize-login-consent",
   "phase": "commit",
   "status": "running",
-  "updated_at": "2026-05-05T11:47:42.295Z"
+  "updated_at": "2026-05-05T12:00:21.067Z"
 }

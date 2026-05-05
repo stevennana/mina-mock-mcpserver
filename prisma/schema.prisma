@@ -25,6 +25,7 @@ model Endpoint {
   parameters            EndpointParam[]
   responseCases         ResponseCase[]
   oauthClientAllowances OAuthClientAllowedEndpoint[]
+  oauthCodePermissions  OAuthAuthorizationCodeEndpoint[]
 }
 
 model EndpointParam {
@@ -105,6 +106,7 @@ model OAuthUser {
   accessTokenTtlSeconds Int      @default(3600)
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
+  authorizationCodes    OAuthAuthorizationCode[]
 
   @@index([builtIn, username])
 }
@@ -121,6 +123,7 @@ model OAuthClient {
   createdAt                   DateTime                     @default(now())
   updatedAt                   DateTime                     @updatedAt
   allowedEndpoints            OAuthClientAllowedEndpoint[]
+  authorizationCodes          OAuthAuthorizationCode[]
 
   @@index([builtIn, clientId])
 }
@@ -133,5 +136,36 @@ model OAuthClientAllowedEndpoint {
   endpoint      Endpoint    @relation(fields: [endpointId], references: [id], onDelete: Cascade)
 
   @@id([oauthClientId, endpointId])
+  @@index([endpointId])
+}
+
+model OAuthAuthorizationCode {
+  id                  String                           @id
+  code                String                           @unique
+  oauthClientId       String
+  oauthUserId         String
+  redirectUri         String
+  resource            String
+  state               String?
+  expiresAt           DateTime
+  usedAt              DateTime?
+  createdAt           DateTime                         @default(now())
+  oauthClient         OAuthClient                      @relation(fields: [oauthClientId], references: [id], onDelete: Cascade)
+  oauthUser           OAuthUser                        @relation(fields: [oauthUserId], references: [id], onDelete: Cascade)
+  selectedEndpoints   OAuthAuthorizationCodeEndpoint[]
+
+  @@index([code])
+  @@index([oauthClientId, oauthUserId])
+  @@index([expiresAt])
+}
+
+model OAuthAuthorizationCodeEndpoint {
+  authorizationCodeId String
+  endpointId          String
+  createdAt           DateTime               @default(now())
+  authorizationCode   OAuthAuthorizationCode @relation(fields: [authorizationCodeId], references: [id], onDelete: Cascade)
+  endpoint            Endpoint               @relation(fields: [endpointId], references: [id], onDelete: Cascade)
+
+  @@id([authorizationCodeId, endpointId])
   @@index([endpointId])
 }

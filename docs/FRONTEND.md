@@ -66,6 +66,7 @@ Describe the user-facing structure of MCP Mock Server so an agent can implement 
 - reset confirmation must make clear that currently implemented endpoint data is deleted and seed defaults are recreated
 - copy buttons should exist for MCP URLs, REST URLs, client config, curl examples, client secrets at issuance, and JWTs at issuance
 - OAuth consent should make selected endpoint permissions unambiguous
+- OAuth consent must show client, redirect URI, resource, login user, authorization-code TTL, and the endpoint checklist outside the public admin navigation
 
 ## Frontend Non-Goals for v1
 - no marketing landing page before the usable dashboard

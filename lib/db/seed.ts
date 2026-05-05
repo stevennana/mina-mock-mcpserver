@@ -6,7 +6,15 @@ export const DEFAULT_ENDPOINT_ID = "endpoint_default_echo";
 
 type SeedClient = Pick<
   PrismaClient,
-  "endpoint" | "endpointParam" | "responseCase" | "basicUser" | "oAuthUser" | "oAuthClient" | "oAuthClientAllowedEndpoint"
+  | "endpoint"
+  | "endpointParam"
+  | "responseCase"
+  | "basicUser"
+  | "oAuthUser"
+  | "oAuthClient"
+  | "oAuthClientAllowedEndpoint"
+  | "oAuthAuthorizationCode"
+  | "oAuthAuthorizationCodeEndpoint"
 >;
 
 export async function seedEndpointDefaults(client: SeedClient) {
