@@ -160,6 +160,7 @@ export async function resolveOAuthBearerAuthorizationHeader(
     return { kind: "unauthorized", reason: "invalid_token" };
   }
   if (
+    storedToken.issuer !== claims.iss ||
     storedToken.resource !== claims.resource ||
     storedToken.grantType !== claims.grant_type ||
     storedToken.oauthClient.clientId !== claims.client_id ||

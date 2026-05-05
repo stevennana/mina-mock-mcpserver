@@ -105,3 +105,4 @@ Confirm that this task maps to the primary product spec `oauth-consent-and-token
 - Note when existing partial implementations were found and reused instead of replaced.
 - 2026-05-05T12:49:29.501Z: restored as current task after oauth-mcp-rest-permission-enforcement promotion.
 - 2026-05-05T12:51:21Z: found existing bearer validator already rejects stored `revokedAt`; reused it and added issued-token list/detail/revoke service/API/UI plus focused unit and `@token-revocation` E2E coverage.
+- 2026-05-05T13:23:00Z: addressed evaluator gaps by persisting issued-token `issuer`, reconstructing detail claims from stored issuer metadata, checking stored issuer during bearer validation, and adding deterministic expired-token list/filter unit coverage.

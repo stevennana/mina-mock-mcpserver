@@ -241,7 +241,7 @@ function toIssuedTokenSummary(token: OAuthIssuedTokenRecord, now: Date): OAuthIs
 
 function toIssuedTokenClaims(token: OAuthIssuedTokenRecord): OAuthAccessTokenClaims {
   return {
-    iss: oauthIssuer(),
+    iss: token.issuer,
     aud: token.resource,
     resource: token.resource,
     sub: tokenSubject(token),
@@ -1023,8 +1023,9 @@ export async function exchangeOAuthAuthorizationCode(
     const exp = iat + expiresIn;
     const jti = `oauth_token_${randomUUID()}`;
     const scope = endpointScope(endpointPermissions);
+    const issuer = oauthIssuer(input.issuer);
     const claims: OAuthAccessTokenClaims = {
-      iss: oauthIssuer(input.issuer),
+      iss: issuer,
       aud: code.resource,
       resource: code.resource,
       sub: code.oauthUser.id,
@@ -1049,6 +1050,7 @@ export async function exchangeOAuthAuthorizationCode(
         oauthUserId: code.oauthUserId,
         grantType: "authorization_code",
         scope,
+        issuer,
         resource: code.resource,
         endpointPermissionsJson: JSON.stringify(endpointPermissions),
         issuedAt: new Date(iat * 1000),
@@ -1122,9 +1124,10 @@ export async function issueOAuthClientCredentialsToken(
     const exp = iat + expiresIn;
     const jti = `oauth_token_${randomUUID()}`;
     const scope = endpointScope(endpointPermissions);
-    const resource = input.resource || oauthIssuer(input.issuer);
+    const issuer = oauthIssuer(input.issuer);
+    const resource = input.resource || issuer;
     const claims: OAuthAccessTokenClaims = {
-      iss: oauthIssuer(input.issuer),
+      iss: issuer,
       aud: resource,
       resource,
       sub: `client:${oauthClient.clientId}`,
@@ -1145,6 +1148,7 @@ export async function issueOAuthClientCredentialsToken(
         oauthUserId: null,
         grantType: "client_credentials",
         scope,
+        issuer,
         resource,
         endpointPermissionsJson: JSON.stringify(endpointPermissions),
         issuedAt: new Date(iat * 1000),

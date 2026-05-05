@@ -69,7 +69,8 @@ Required commands for this task:
 - npm run verify
 
 Previous known gaps from the last evaluation:
-- none
+- Persist and expose enough token metadata for claim detail to show accurate reconstructed claims, especially iss matching the token as issued.
+- Add deterministic coverage that expired issued tokens are distinguished by the token list/filter path, ideally in the @token-revocation E2E or focused unit coverage tied to this task.
 
 
 

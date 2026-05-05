@@ -125,6 +125,7 @@ test("authorization_code exchange issues RS256 JWT claims and stores token metad
     assert.equal(storedToken.oauthUserId, login.user.id);
     assert.equal(storedToken.grantType, "authorization_code");
     assert.equal(storedToken.scope, "endpoint:endpoint_default_echo");
+    assert.equal(storedToken.issuer, "https://issuer.example");
     assert.equal(storedToken.resource, "https://resource.example/mcp");
     assert.equal(storedToken.endpointPermissionsJson, JSON.stringify(["endpoint_default_echo"]));
     assert.equal(storedToken.revokedAt, null);
@@ -232,6 +233,8 @@ test("issued token listing, detail, filters, and revoke use stored jti metadata"
     const detail = await getOAuthIssuedTokenDetail(claims.jti, client, new Date("2026-05-05T00:10:00.000Z"));
     assert.equal(detail.status, "active");
     assert.equal(detail.subject, "client:default");
+    assert.equal(detail.claims.iss, claims.iss);
+    assert.equal(detail.claims.iss, "https://issuer.example");
     assert.equal(detail.claims.jti, claims.jti);
     assert.equal(detail.claims.client_id, "default");
     assert.deepEqual(detail.claims.endpoint_permissions, ["endpoint_default_echo"]);
@@ -252,6 +255,25 @@ test("issued token listing, detail, filters, and revoke use stored jti metadata"
     const revokedList = await listOAuthIssuedTokens({ status: "revoked" }, client, new Date("2026-05-05T00:30:00.000Z"));
     assert.equal(revokedList.revoked, 1);
     assert.equal(revokedList.tokens.length, 1);
+
+    const expiringIssued = await issueOAuthClientCredentialsToken(
+      {
+        grantType: "client_credentials",
+        clientId: "default",
+        clientSecret: "default",
+        resource: "https://resource.example/token-ui-expired",
+        issuer: "https://issuer.example",
+        now: new Date("2026-05-05T00:00:00.000Z"),
+        code: "",
+        redirectUri: "",
+      },
+      client,
+    );
+    const expiringClaims = decodeJwt(expiringIssued.access_token).payload;
+    const expiredList = await listOAuthIssuedTokens({ status: "expired" }, client, new Date("2026-05-05T02:00:00.000Z"));
+    assert.equal(expiredList.expired, 1);
+    assert.equal(expiredList.tokens.length, 1);
+    assert.equal(expiredList.tokens[0]?.jti, expiringClaims.jti);
 
     const afterRevoke = await resolveOAuthBearerAuthorizationHeader(
       `Bearer ${issued.access_token}`,

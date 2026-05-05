@@ -1,8 +1,8 @@
 {
   "task_id": "issued-token-ui-revocation",
-  "started_at": "2026-05-05T21:49:59+09:00",
-  "artifact_dir": "state/artifacts/20260505T214959-issued-token-ui-revocation",
+  "started_at": "2026-05-05T22:03:10+09:00",
+  "artifact_dir": "state/artifacts/20260505T220310-issued-token-ui-revocation",
   "phase": "commit",
   "status": "running",
-  "updated_at": "2026-05-05T13:02:39.612Z"
+  "updated_at": "2026-05-05T13:10:29.717Z"
 }

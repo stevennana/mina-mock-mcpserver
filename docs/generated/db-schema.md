@@ -147,3 +147,31 @@ Indexes and constraints:
 
 - `username` is unique
 - `@@index([builtIn, username])`
+
+## OAuthIssuedToken
+
+Stores non-secret access-token metadata by JWT `jti`. Raw access token values are not persisted; token detail reconstructs claims from stored metadata for debugging.
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | `String` | Primary key, assigned by token issuance code. |
+| `jti` | `String` | Unique JWT ID used for runtime revocation lookup. |
+| `oauthClientId` | `String` | Required relation to the issuing OAuth client. |
+| `oauthUserId` | `String?` | OAuth user for authorization-code tokens; `null` for client-credentials tokens. |
+| `grantType` | `String` | Issuing grant, currently `authorization_code` or `client_credentials`. |
+| `scope` | `String` | Space-separated endpoint scope string returned at issuance. |
+| `issuer` | `String` | Issuer used in the JWT `iss` claim when the token was issued. |
+| `resource` | `String` | Audience/resource claim bound to the token. |
+| `endpointPermissionsJson` | `String` | JSON-encoded endpoint ID permissions. |
+| `issuedAt` | `DateTime` | JWT issued-at timestamp. |
+| `expiresAt` | `DateTime` | JWT expiration timestamp. |
+| `revokedAt` | `DateTime?` | Set when revoked; retained for historical inspection. |
+| `createdAt` | `DateTime` | Persistence timestamp. |
+
+Indexes and constraints:
+
+- `jti` is unique
+- `@@index([jti])`
+- `@@index([oauthClientId, oauthUserId])`
+- `@@index([expiresAt])`
+- `@@index([revokedAt])`

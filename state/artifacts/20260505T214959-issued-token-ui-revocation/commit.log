@@ -1,0 +1,16 @@
+[main 7d4cc9b] ralph: issued-token-ui-revocation 2026-05-05T22:02:39+09:00
+ 38 files changed, 5626 insertions(+), 119 deletions(-)
+ create mode 100644 app/api/oauth/tokens/[jti]/revoke/route.ts
+ create mode 100644 app/api/oauth/tokens/[jti]/route.ts
+ create mode 100644 app/api/oauth/tokens/route.ts
+ create mode 100644 app/tokens/page.tsx
+ create mode 100644 app/tokens/tokens-manager.tsx
+ rename docs/exec-plans/{active => completed}/019-oauth-mcp-rest-permission-enforcement.md (94%)
+ create mode 100644 state/artifacts/20260505T213839-oauth-mcp-rest-permission-enforcement/backlog.log
+ create mode 100644 state/artifacts/20260505T213839-oauth-mcp-rest-permission-enforcement/promote.log
+ create mode 100644 state/artifacts/20260505T214959-issued-token-ui-revocation/commit.log
+ create mode 100644 state/artifacts/20260505T214959-issued-token-ui-revocation/evaluator.log
+ create mode 100644 state/artifacts/20260505T214959-issued-token-ui-revocation/task-prompt.log
+ create mode 100644 state/artifacts/20260505T214959-issued-token-ui-revocation/worker.jsonl
+ create mode 100644 tests/e2e/token-revocation.spec.ts
+commit: created

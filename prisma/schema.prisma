@@ -179,6 +179,7 @@ model OAuthIssuedToken {
   oauthUserId             String?
   grantType               String
   scope                   String
+  issuer                  String      @default("http://localhost:3000")
   resource                String
   endpointPermissionsJson String      @default("[]")
   issuedAt                DateTime

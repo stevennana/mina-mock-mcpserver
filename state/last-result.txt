@@ -1,14 +1,14 @@
-Implemented issued-token inspection and revocation for `issued-token-ui-revocation`.
+Implemented the remaining `issued-token-ui-revocation` hardening and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
 
 What changed:
-- Added token list/detail/revoke APIs under `/api/oauth/tokens`.
-- Added `/tokens` UI with status, subject, client, grant filters, claims detail, endpoint permission metadata, and no raw access-token redisplay.
-- Revoke persists `revokedAt`; existing Bearer validation then rejects subsequent OAuth runtime calls with `401`.
-- Added unit coverage and `@token-revocation` E2E coverage.
-- Updated related product/security/spec docs and the active task progress log.
-- Wrote the operator handoff to `state/last-result.txt`.
+- Added persisted `issuer` metadata for issued tokens via Prisma migration.
+- Stored issuer during both OAuth token issuance paths.
+- Reconstructed token detail claims from stored issuer metadata, so `claims.iss` matches the issued JWT.
+- Tightened Bearer validation to compare stored issuer with JWT `iss`.
+- Added deterministic unit coverage for expired-token filtering and issuer reconstruction.
+- Updated DB schema docs and the active task progress log.
 
-Required checks passed:
+Required checks all passed:
 - `npm run test:unit`
 - `npm run test:e2e -- --grep @token-revocation`
 - `npm run verify`
