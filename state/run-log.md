@@ -160,3 +160,18 @@
 - evaluator: started
 - evaluator: status=done promotion=true The task is complete in substance. The inspected implementation adds Prisma/SQLite persistence, migrations, repo-local database configuration, deterministic db preparation, idempotent protected endpoint seed defaults, generated schema documentation, and repeatability coverage. It maps directly to endpoint-tool-management.md and stays within the endpoint persistence foundation scope without adding out-of-scope UI, MCP, REST, auth, or reset behavior. -> state/artifacts/20260505T165839-endpoint-domain-and-schema/evaluator.log
 - next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T165839-endpoint-domain-and-schema/npm-run-verify-next-server.log
+- commit: commit: created
+- promote: failed -> state/artifacts/20260505T165839-endpoint-domain-and-schema/promote.log
+- backlog: rendered current=endpoint-domain-and-schema
+- health: xxxxxxxxxxx
+- cycle: finished
+
+### cycle 2026-05-05T17:03:43+09:00 task=endpoint-domain-and-schema
+- artifacts: state/artifacts/20260505T170343-endpoint-domain-and-schema
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260505T170343-endpoint-domain-and-schema/worker.jsonl
+- worker-summary: Completed `endpoint-domain-and-schema`.
+- evaluator: started
+- evaluator: status=done promotion=true The task is complete in substance. The implementation provides Prisma/SQLite persistence, repo-local DB configuration, migrations, deterministic db preparation, idempotent protected endpoint seed defaults, repeatability coverage, and generated schema documentation that matches the implemented endpoint persistence shape. The work maps directly to endpoint-tool-management.md and does not appear to broaden into UI, MCP, REST, auth, OAuth, or reset behavior. -> state/artifacts/20260505T170343-endpoint-domain-and-schema/evaluator.log
+- next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T170343-endpoint-domain-and-schema/npm-run-verify-next-server.log
