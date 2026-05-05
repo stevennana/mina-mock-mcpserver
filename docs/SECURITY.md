@@ -10,6 +10,7 @@ Define the security posture for MCP Mock Server's current shipped slice.
 - OAuth tokens must verify signature, issuer, audience, expiry, jti revocation, and endpoint permissions
 - built-in identities and clients cannot be disabled or deleted through normal UI/API flows
 - built-in Basic Auth identities also cannot have passwords changed through normal UI/API flows
+- built-in OAuth login identities also cannot have passwords or token TTLs changed through normal UI/API flows
 - root password comparisons must avoid logging and should use constant-time comparison where practical
 
 ## Secrets and Config
@@ -19,6 +20,7 @@ Define the security posture for MCP Mock Server's current shipped slice.
 - reset audit entries store success/failure reason and seed counts, not submitted root passwords
 - passwords are stored only as hashes
 - Basic Auth password verification compares submitted credentials against stored hashes without logging submitted passwords
+- OAuth login-user passwords are stored only as hashes and are not logged by management APIs
 - raw JWT values are shown only at issuance unless a config explicitly permits storage
 - LOG_LEVEL controls verbosity but must not expose secrets even at trace/debug
 

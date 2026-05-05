@@ -31,6 +31,7 @@ test("db:prepare is repeatable and keeps seed rows singular", async () => {
     assert.equal(await prisma.endpointParam.count(), 1);
     assert.equal(await prisma.responseCase.count(), 2);
     assert.equal(await prisma.basicUser.count(), 1);
+    assert.equal(await prisma.oAuthUser.count(), 1);
 
     const endpoint = await prisma.endpoint.findUniqueOrThrow({
       where: { id: "endpoint_default_echo" },
@@ -55,6 +56,13 @@ test("db:prepare is repeatable and keeps seed rows singular", async () => {
     assert.equal(basicUser.enabled, true);
     assert.equal(basicUser.builtIn, true);
     assert.notEqual(basicUser.passwordHash, "default");
+
+    const oauthUser = await prisma.oAuthUser.findUniqueOrThrow({ where: { id: "oauth_user_default" } });
+    assert.equal(oauthUser.username, "default");
+    assert.equal(oauthUser.enabled, true);
+    assert.equal(oauthUser.builtIn, true);
+    assert.equal(oauthUser.accessTokenTtlSeconds, 3600);
+    assert.notEqual(oauthUser.passwordHash, "default");
   } finally {
     await prisma.$disconnect();
     if (previousDatabaseUrl === undefined) {

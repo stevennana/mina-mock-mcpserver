@@ -45,8 +45,8 @@ export function ResetForm() {
       <div>
         <h2>Reset service data</h2>
         <p>
-          This clears currently implemented endpoint data, including user-created endpoint tools, and recreates the
-          deterministic seed defaults. Audit evidence is retained.
+          This clears currently implemented endpoint and test-user data, then recreates the deterministic seed defaults.
+          Audit evidence is retained.
         </p>
       </div>
 

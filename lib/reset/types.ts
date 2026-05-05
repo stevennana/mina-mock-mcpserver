@@ -10,6 +10,8 @@ export type ResetResult = {
   seededEndpoints: number;
   deletedBasicUsers: number;
   seededBasicUsers: number;
+  deletedOAuthUsers: number;
+  seededOAuthUsers: number;
 };
 
 export class ResetAuthorizationError extends Error {

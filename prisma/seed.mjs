@@ -7,6 +7,10 @@ export const DEFAULT_ENDPOINT_ID = "endpoint_default_echo";
 export const DEFAULT_BASIC_USER_ID = "basic_user_default";
 export const DEFAULT_BASIC_USERNAME = "default";
 export const DEFAULT_BASIC_PASSWORD = "default";
+export const DEFAULT_OAUTH_USER_ID = "oauth_user_default";
+export const DEFAULT_OAUTH_USERNAME = "default";
+export const DEFAULT_OAUTH_PASSWORD = "default";
+export const DEFAULT_OAUTH_ACCESS_TOKEN_TTL_SECONDS = 3600;
 
 const scrypt = promisify(scryptCallback);
 
@@ -202,8 +206,31 @@ export async function seedBasicUserDefaults(client = prisma) {
   });
 }
 
+export async function seedOAuthUserDefaults(client = prisma) {
+  const passwordHash = await hashBasicPassword(DEFAULT_OAUTH_PASSWORD);
+  await client.oAuthUser.upsert({
+    where: { id: DEFAULT_OAUTH_USER_ID },
+    update: {
+      username: DEFAULT_OAUTH_USERNAME,
+      passwordHash,
+      enabled: true,
+      builtIn: true,
+      accessTokenTtlSeconds: DEFAULT_OAUTH_ACCESS_TOKEN_TTL_SECONDS,
+    },
+    create: {
+      id: DEFAULT_OAUTH_USER_ID,
+      username: DEFAULT_OAUTH_USERNAME,
+      passwordHash,
+      enabled: true,
+      builtIn: true,
+      accessTokenTtlSeconds: DEFAULT_OAUTH_ACCESS_TOKEN_TTL_SECONDS,
+    },
+  });
+}
+
 if (import.meta.url === `file://${process.argv[1]}`) {
   await seedEndpointDefaults();
   await seedBasicUserDefaults();
+  await seedOAuthUserDefaults();
   await prisma.$disconnect();
 }

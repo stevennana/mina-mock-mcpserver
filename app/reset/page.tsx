@@ -8,6 +8,7 @@ export default function ResetPage() {
         <Link href="/">Dashboard</Link>
         <Link href="/endpoints">Endpoints</Link>
         <Link href="/basic-users">Basic Users</Link>
+        <Link href="/oauth-users">OAuth Users</Link>
         <Link href="/reset" aria-current="page">Reset</Link>
         <Link href="/audit">Audit</Link>
       </nav>

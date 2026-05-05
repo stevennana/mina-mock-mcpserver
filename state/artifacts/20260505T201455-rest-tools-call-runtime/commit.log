@@ -1,0 +1,12 @@
+[main f4742f1] ralph: rest-tools-call-runtime 2026-05-05T20:25:21+09:00
+ 31 files changed, 4721 insertions(+), 133 deletions(-)
+ create mode 100644 app/rest/tools/[name]/call/route.ts
+ rename docs/exec-plans/{active => completed}/011-rest-tools-list-runtime.md (94%)
+ create mode 100644 state/artifacts/20260505T200629-rest-tools-list-runtime/backlog.log
+ create mode 100644 state/artifacts/20260505T200629-rest-tools-list-runtime/promote.log
+ create mode 100644 state/artifacts/20260505T201455-rest-tools-call-runtime/commit.log
+ create mode 100644 state/artifacts/20260505T201455-rest-tools-call-runtime/evaluator.log
+ create mode 100644 state/artifacts/20260505T201455-rest-tools-call-runtime/task-prompt.log
+ create mode 100644 state/artifacts/20260505T201455-rest-tools-call-runtime/worker.jsonl
+ create mode 100644 tests/e2e/rest-tools-call.spec.ts
+commit: created

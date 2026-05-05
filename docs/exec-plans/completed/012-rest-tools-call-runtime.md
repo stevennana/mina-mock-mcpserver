@@ -5,7 +5,7 @@
   "id": "rest-tools-call-runtime",
   "title": "REST Tool Call Runtime and Console Wiring",
   "order": 12,
-  "status": "active",
+  "status": "completed",
   "next_task_on_success": "oauth-users-management-ui",
   "prompt_docs": [
     "AGENTS.md",
@@ -25,7 +25,8 @@
     "Required checks do not prove the claimed behavior.",
     "Implementation changes contradict the product spec or security/reliability docs."
   ],
-  "promotion_mode": "deterministic"
+  "promotion_mode": "deterministic",
+  "completed_at": "2026-05-05T11:25:21.487Z"
 }
 ```
 
@@ -103,3 +104,4 @@ Confirm that this task maps to the primary product spec `rest-mock-api.md` or is
 - Note when existing partial implementations were found and reused instead of replaced.
 - 2026-05-05T11:14:25.340Z: restored as current task after rest-tools-list-runtime promotion.
 - 2026-05-05T11:20:26.300Z: found and reused shared `callEndpointByName` / `executeEndpointDetail` matcher path; added REST call adapter, no-auth/Basic console execution evidence, REST call unit coverage, and `@rest-tools-call` E2E coverage.
+- 2026-05-05T11:25:21.487Z: automatically promoted after deterministic checks and evaluator approval.

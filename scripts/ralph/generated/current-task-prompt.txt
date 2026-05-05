@@ -3,68 +3,70 @@ Read the following repository documents before making changes:
 - ARCHITECTURE.md
 - docs/PRODUCT_SENSE.md
 - docs/FRONTEND.md
-- docs/product-specs/rest-mock-api.md
-- docs/exec-plans/active/012-rest-tools-call-runtime.md
+- docs/SECURITY.md
+- docs/product-specs/oauth-consent-and-token-runtime.md
+- docs/exec-plans/active/013-oauth-users-management-ui.md
 
-Current task id: rest-tools-call-runtime
-Current task title: REST Tool Call Runtime and Console Wiring
+Current task id: oauth-users-management-ui
+Current task title: OAuth Users Management UI and Built-In Protection
 
 Objective:
-Implement `POST /rest/tools/:name/call` and wire endpoint console REST execution for no-auth and Basic modes.
+Implement OAuth login-user persistence, built-in protection, TTL settings, and public management UI.
 
 Clarity notes:
-- This task executes REST calls using the shared endpoint matcher.
-- The endpoint console should now show real REST raw request/response evidence for no-auth and Basic.
-- REST error bodies are contract behavior for client negative-path testing.
-- OAuth REST behavior remains deferred.
+- This is only OAuth users, not clients or tokens.
+- The built-in OAuth `default/default` user must always remain usable for later login flow tasks.
+- Token TTL settings belong to users here because authorization-code tokens later inherit them.
+- The UI is public configuration, not an authenticated admin surface.
 
 Expected result:
-- REST tool call route returns exact-match mock responses.
-- No-match, unknown tool, invalid auth, and forced-error placeholders map to documented REST errors.
-- Endpoint console can run REST no-auth and Basic calls.
-- E2E coverage proves successful call and negative cases.
+- OAuth users can be listed, created, password-edited, TTL-edited, enabled/disabled, and deleted where allowed.
+- Built-in OAuth user is visible as locked and protected from weakening.
+- Passwords are hashed and not logged.
+- `@ui-oauth-users` proves UI behavior and responsive/accessibility quality.
 
 Objections / risks to avoid:
-- Do not fork matching logic from MCP/domain.
-- Do not implement OAuth filtering here.
-- Do not return JSON-RPC envelopes from REST.
-- Do not hide raw request/response evidence in the console.
+- Do not implement OAuth clients in this task.
+- Do not implement login/authorize/token routes yet.
+- Do not allow never-expiring tokens unless root-enabled in a later explicit feature.
+- Do not store plaintext passwords.
 
 Scope:
-- Implement REST tool call route.
-- Map matcher outcomes to REST success/error bodies.
-- Wire endpoint console REST execution for no-auth and Basic.
-- Add unit and E2E tests tagged `@rest-tools-call`.
+- Add OAuth user model/service if not present.
+- Implement TTL presets and validation.
+- Build OAuth users screen/API.
+- Add tests for password hashing, built-in immutability, TTL validation, and UI.
 
 Out of scope:
-- OAuth bearer permissions.
-- Malformed response modes not yet implemented.
-- MCP route changes.
+- OAuth clients.
+- Authorization code flow.
+- Token management UI.
+- MCP bearer enforcement.
 
 Exit criteria:
-1. Configured endpoint can be called via REST.
-2. REST error responses match the product spec for scoped cases.
-3. Console displays raw request, raw response, matched case, auth principal, and elapsed time for REST calls.
-4. `@rest-tools-call` passes.
+1. OAuth user CRUD works for non-built-in users.
+2. Built-in user cannot be deleted, disabled, or password-changed.
+3. TTL validation follows MVP constraints.
+4. `@ui-oauth-users` passes.
 5. All required checks pass.
 
 Required checks:
 - npm run test:unit
-- npm run test:e2e -- --grep @rest-tools-call
+- npm run test:e2e -- --grep @ui-oauth-users
 - npm run verify
 
 Evaluator notes:
 Required commands are mandatory promotion gates, not suggestions.
 Do not promote if any required check fails.
 Do not accept broad feature work outside this task.
-Confirm that this task maps to the primary product spec `rest-mock-api.md` or is explicitly final hardening.
+Confirm that this task maps to the primary product spec `oauth-consent-and-token-runtime.md` or is explicitly final hardening.
 
 Required repository artifacts for this task:
 - none
 
 Required commands for this task:
 - npm run test:unit
-- npm run test:e2e -- --grep @rest-tools-call
+- npm run test:e2e -- --grep @ui-oauth-users
 - npm run verify
 
 Previous known gaps from the last evaluation:

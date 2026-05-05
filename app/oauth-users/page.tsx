@@ -1,35 +1,35 @@
 import Link from "next/link";
-import { BasicUsersManager } from "@/app/basic-users/basic-users-manager";
-import { listBasicUsers } from "@/lib/basic-auth/service";
+import { OAuthUsersManager } from "@/app/oauth-users/oauth-users-manager";
+import { listOAuthUsers } from "@/lib/oauth/service";
 
-export default async function BasicUsersPage() {
-  const userData = await listBasicUsers();
+export default async function OAuthUsersPage() {
+  const userData = await listOAuthUsers();
 
   return (
     <main className="shell app-shell">
       <nav className="top-nav" aria-label="Primary">
         <Link href="/">Dashboard</Link>
         <Link href="/endpoints">Endpoints</Link>
-        <Link href="/basic-users" aria-current="page">Basic Users</Link>
-        <Link href="/oauth-users">OAuth Users</Link>
+        <Link href="/basic-users">Basic Users</Link>
+        <Link href="/oauth-users" aria-current="page">OAuth Users</Link>
         <Link href="/reset">Reset</Link>
         <Link href="/audit">Audit</Link>
       </nav>
       <header className="page-header">
         <div>
-          <p className="eyebrow">Basic Auth test identities</p>
-          <h1>Basic Auth users</h1>
+          <p className="eyebrow">OAuth login identities</p>
+          <h1>OAuth users</h1>
           <p className="lede compact">
-            Manage public test credentials for future Basic-authenticated MCP and REST calls.
+            Manage public login fixtures and token TTL presets for the mock OAuth authorization-code runtime.
           </p>
         </div>
-        <div className="summary-strip" aria-label="Basic user counts">
+        <div className="summary-strip" aria-label="OAuth user counts">
           <span><strong>{userData.total}</strong>Total</span>
           <span><strong>{userData.enabled}</strong>Enabled</span>
           <span><strong>{userData.disabled}</strong>Disabled</span>
         </div>
       </header>
-      <BasicUsersManager initialData={userData} />
+      <OAuthUsersManager initialData={userData} />
     </main>
   );
 }

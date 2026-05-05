@@ -10,6 +10,7 @@ Updated by task `endpoint-protected-delete-audit` for endpoint delete audit evid
 - Default URL: `file:./data/runtime.sqlite`.
 - Preparation command: `npm run db:prepare`.
 - Preparation behavior: creates `data/`, applies Prisma migrations, generates Prisma Client, and runs idempotent endpoint seed defaults.
+- Seed defaults include protected endpoint, Basic user, and OAuth user fixtures.
 - Persistence source of truth: SQLite. `data/bootstrap-state.json` is no longer used by `db:prepare`.
 
 ## Endpoint
@@ -119,3 +120,30 @@ Indexes and constraints:
 - Response cases: `default` at priority `0` and `hello-world` at priority `10`, both with no case-level delay/error configured
 
 The seed uses immutable IDs and unique endpoint-scoped keys, so repeated preparation updates the built-in records without duplicating rows.
+
+`npm run db:prepare` also upserts protected test identities:
+
+| Model | ID | Username | Notes |
+|---|---|---|---|
+| `BasicUser` | `basic_user_default` | `default` | Enabled built-in fixture with hashed `default` password. |
+| `OAuthUser` | `oauth_user_default` | `default` | Enabled built-in fixture with hashed `default` password and 3600-second authorization-code token TTL. |
+
+## OAuthUser
+
+Stores mock OAuth login identities for later browser authorization-code flow tasks.
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | `String` | Primary key, assigned by domain/seed code. |
+| `username` | `String` | Unique login name. |
+| `passwordHash` | `String` | Scrypt password hash; plaintext passwords are never persisted. |
+| `enabled` | `Boolean` | Login eligibility flag. |
+| `builtIn` | `Boolean` | Marks the protected default/default fixture. |
+| `accessTokenTtlSeconds` | `Int` | MVP preset token TTL inherited by later authorization-code tokens. |
+| `createdAt` | `DateTime` | Audit-ready creation timestamp. |
+| `updatedAt` | `DateTime` | Audit-ready update timestamp maintained by Prisma. |
+
+Indexes and constraints:
+
+- `username` is unique
+- `@@index([builtIn, username])`

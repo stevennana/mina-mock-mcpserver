@@ -42,6 +42,7 @@ export async function resetToDefaults(input: ResetInput, client: PrismaClient = 
   }
 
   return client.$transaction(async (tx) => {
+    const deletedOAuthUsers = await tx.oAuthUser.deleteMany({});
     const deletedBasicUsers = await tx.basicUser.deleteMany({});
     await tx.responseCase.deleteMany({});
     await tx.endpointParam.deleteMany({});
@@ -50,6 +51,7 @@ export async function resetToDefaults(input: ResetInput, client: PrismaClient = 
     await seedAllDefaults(tx);
     const seededEndpoints = await tx.endpoint.count();
     const seededBasicUsers = await tx.basicUser.count();
+    const seededOAuthUsers = await tx.oAuthUser.count();
 
     await recordAuditEvent(
       {
@@ -62,8 +64,10 @@ export async function resetToDefaults(input: ResetInput, client: PrismaClient = 
           method: "root_password",
           deletedEndpoints: deletedEndpoints.count,
           deletedBasicUsers: deletedBasicUsers.count,
+          deletedOAuthUsers: deletedOAuthUsers.count,
           seededEndpoints,
           seededBasicUsers,
+          seededOAuthUsers,
         },
       },
       tx,
@@ -74,6 +78,8 @@ export async function resetToDefaults(input: ResetInput, client: PrismaClient = 
       seededEndpoints,
       deletedBasicUsers: deletedBasicUsers.count,
       seededBasicUsers,
+      deletedOAuthUsers: deletedOAuthUsers.count,
+      seededOAuthUsers,
     };
   });
 }
