@@ -85,3 +85,18 @@
 - evaluator: started
 - evaluator: status=done promotion=true The task is complete in substance. The implementation adds Prisma/SQLite wiring, migrations, Prisma client configuration, deterministic db preparation, idempotent protected endpoint seed defaults, generated schema documentation, and repeatability coverage. The inspected changes stay within the endpoint persistence foundation scope and map directly to endpoint-tool-management.md. I could not rerun commands in the read-only evaluator sandbox, but the supplied deterministic check summary reports all mandatory gates passing. -> state/artifacts/20260505T163710-endpoint-domain-and-schema/evaluator.log
 - next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T163710-endpoint-domain-and-schema/npm-run-verify-next-server.log
+- commit: commit: created
+- promote: failed -> state/artifacts/20260505T163710-endpoint-domain-and-schema/promote.log
+- backlog: rendered current=endpoint-domain-and-schema
+- health: xxxxxx
+- cycle: finished
+
+### cycle 2026-05-05T16:41:37+09:00 task=endpoint-domain-and-schema
+- artifacts: state/artifacts/20260505T164137-endpoint-domain-and-schema
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260505T164137-endpoint-domain-and-schema/worker.jsonl
+- worker-summary: Completed `endpoint-domain-and-schema`.
+- evaluator: started
+- evaluator: status=done promotion=true The task is complete in substance. Prisma/SQLite persistence is wired with migrations, repo-local database configuration, an idempotent seed path, generated client setup, and repeatability coverage. The schema covers endpoint/tool names, title/description, enabled state, immutable IDs, ordered parameters, response cases, default response handling, delete code, timestamps, and basic failure config fields. The generated DB schema documentation matches the implemented Prisma shape. The required deterministic gates are reported passing, including repeatable db:prepare and full verify. -> state/artifacts/20260505T164137-endpoint-domain-and-schema/evaluator.log
+- next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T164137-endpoint-domain-and-schema/npm-run-verify-next-server.log
