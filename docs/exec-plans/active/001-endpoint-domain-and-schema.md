@@ -116,3 +116,4 @@ Confirm that this task maps to the primary product spec `endpoint-tool-managemen
 - 2026-05-05T16:34:18+09:00 - Revalidated the persistence foundation without broadening scope; confirmed `npm run db:prepare`, `npm run test:unit`, and `npm run verify` pass, including idempotent seed coverage.
 - 2026-05-05T16:38:41+09:00 - Rechecked the implemented Prisma/SQLite endpoint persistence foundation against the current task contract; `npm run db:prepare`, `npm run test:unit`, and `npm run verify` passed, with no additional scope changes needed.
 - 2026-05-05T16:43:05+09:00 - Re-ran the mandatory promotion gates after reading the task-required docs; `npm run db:prepare`, `npm run test:unit`, and `npm run verify` all passed on the current checkout.
+- 2026-05-05T16:46:56+09:00 - Verified the existing endpoint persistence implementation against the task scope; `npm run db:prepare`, `npm run test:unit`, and `npm run verify` all passed, so no code broadening was needed.
