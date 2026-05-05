@@ -1,4 +1,4 @@
-import { createHmac, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
+import { createHmac, createSign, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
 import type { Prisma, PrismaClient } from "@prisma/client";
 import { recordAuditEvent } from "@/lib/audit/service";
 import { hashBasicPassword, verifyBasicPassword } from "@/lib/basic-auth/passwords";
@@ -11,9 +11,13 @@ import {
   DEFAULT_OAUTH_CLIENT_IDENTIFIER,
   DEFAULT_OAUTH_CLIENT_REDIRECT_URI,
   DEFAULT_OAUTH_CLIENT_SECRET,
+  DEFAULT_OAUTH_ISSUER,
+  DEFAULT_OAUTH_PRIVATE_KEY_PEM,
   DEFAULT_OAUTH_PASSWORD,
   DEFAULT_OAUTH_USER_ID,
   DEFAULT_OAUTH_USERNAME,
+  OAUTH_JWT_ALGORITHM,
+  OAUTH_JWT_KEY_ID,
   OAUTH_AUTHORIZATION_CODE_TTL_SECONDS,
   OAuthClientBuiltInError,
   OAuthClientNotFoundError,
@@ -22,6 +26,7 @@ import {
   OAuthAuthorizeRequestError,
   OAuthLoginError,
   OAUTH_LOGIN_TICKET_TTL_SECONDS,
+  OAuthTokenError,
   OAuthUserBuiltInError,
   OAuthUserNotFoundError,
   OAUTH_ACCESS_TOKEN_TTL_PRESETS,
@@ -43,6 +48,9 @@ import type {
   OAuthClientSecretResult,
   OAuthClientSummary,
   OAuthClientUpdateInput,
+  OAuthAccessTokenClaims,
+  OAuthTokenExchangeInput,
+  OAuthTokenExchangeResult,
   OAuthUserCreateInput,
   OAuthUserListResult,
   OAuthUserSummary,
@@ -65,6 +73,10 @@ type OAuthUserSeedClient = Pick<PrismaClient, "oAuthUser">;
 type OAuthClientSeedClient = Pick<PrismaClient, "oAuthClient" | "oAuthClientAllowedEndpoint" | "endpoint">;
 type OAuthClientEndpointLookupClient = Pick<PrismaClient, "endpoint">;
 type OAuthClientAllowedEndpointWriteClient = Pick<PrismaClient, "oAuthClientAllowedEndpoint">;
+type OAuthTokenExchangeClient = Pick<
+  PrismaClient,
+  "oAuthAuthorizationCode" | "oAuthIssuedToken" | "oAuthClient" | "auditEvent" | "$transaction"
+>;
 
 function toSummary(user: OAuthUserRecord): OAuthUserSummary {
   return {
@@ -153,6 +165,28 @@ function toAuthorizationCodeSummary(code: OAuthAuthorizationCodeRecord): OAuthAu
     usedAt: code.usedAt?.toISOString() ?? null,
     createdAt: code.createdAt.toISOString(),
   };
+}
+
+function base64UrlJson(value: unknown) {
+  return Buffer.from(JSON.stringify(value), "utf8").toString("base64url");
+}
+
+function signJwt(header: Record<string, unknown>, payload: OAuthAccessTokenClaims) {
+  const signingInput = `${base64UrlJson(header)}.${base64UrlJson(payload)}`;
+  const signature = createSign("RSA-SHA256").update(signingInput).end().sign(oauthJwtPrivateKey(), "base64url");
+  return `${signingInput}.${signature}`;
+}
+
+function oauthJwtPrivateKey() {
+  return process.env.OAUTH_JWT_PRIVATE_KEY_PEM || DEFAULT_OAUTH_PRIVATE_KEY_PEM;
+}
+
+function oauthIssuer(inputIssuer?: string) {
+  return inputIssuer || process.env.OAUTH_ISSUER || process.env.APP_BASE_URL || DEFAULT_OAUTH_ISSUER;
+}
+
+function endpointScope(endpointIds: string[]) {
+  return endpointIds.map((endpointId) => `endpoint:${endpointId}`).join(" ");
 }
 
 async function assertAllowedEndpointsExist(endpointIds: string[], client: OAuthClientEndpointLookupClient) {
@@ -746,4 +780,119 @@ export async function createOAuthAuthorizationCode(input: {
   });
 
   return toAuthorizationCodeSummary(code);
+}
+
+export async function exchangeOAuthAuthorizationCode(
+  input: OAuthTokenExchangeInput,
+  client: OAuthTokenExchangeClient = createPrismaClient(),
+): Promise<OAuthTokenExchangeResult> {
+  if (input.grantType !== "authorization_code") {
+    throw new OAuthTokenError("unsupported_grant_type", "Only grant_type=authorization_code is supported.");
+  }
+  if (!input.code || !input.redirectUri || !input.clientId || !input.clientSecret) {
+    throw new OAuthTokenError("invalid_request", "code, redirect_uri, client_id, and client_secret are required.");
+  }
+
+  const now = input.now ?? new Date();
+  const result = await client.$transaction(async (tx) => {
+    const code = await tx.oAuthAuthorizationCode.findUnique({
+      where: { code: input.code },
+      include: {
+        selectedEndpoints: true,
+        oauthClient: true,
+        oauthUser: true,
+      },
+    });
+    if (!code) {
+      throw new OAuthTokenError("invalid_grant", "Authorization code is invalid.");
+    }
+    if (!code.oauthClient.enabled || code.oauthClient.clientId !== input.clientId) {
+      throw new OAuthTokenError("invalid_client", "OAuth client is invalid.");
+    }
+    if (!(await verifyBasicPassword(input.clientSecret, code.oauthClient.secretHash))) {
+      throw new OAuthTokenError("invalid_client", "OAuth client is invalid.");
+    }
+    if (code.redirectUri !== input.redirectUri) {
+      throw new OAuthTokenError("invalid_grant", "redirect_uri does not match the authorization code.");
+    }
+    if (code.usedAt) {
+      throw new OAuthTokenError("invalid_grant", "Authorization code has already been used.");
+    }
+    if (code.expiresAt.getTime() <= now.getTime()) {
+      throw new OAuthTokenError("invalid_grant", "Authorization code is expired.");
+    }
+    if (!code.oauthUser.enabled) {
+      throw new OAuthTokenError("invalid_grant", "OAuth user is disabled.");
+    }
+
+    const endpointPermissions = code.selectedEndpoints.map((endpoint) => endpoint.endpointId).sort();
+    const iat = Math.floor(now.getTime() / 1000);
+    const expiresIn = code.oauthUser.accessTokenTtlSeconds;
+    const exp = iat + expiresIn;
+    const jti = `oauth_token_${randomUUID()}`;
+    const scope = endpointScope(endpointPermissions);
+    const claims: OAuthAccessTokenClaims = {
+      iss: oauthIssuer(input.issuer),
+      aud: code.resource,
+      resource: code.resource,
+      sub: code.oauthUser.id,
+      client_id: code.oauthClient.clientId,
+      grant_type: "authorization_code",
+      iat,
+      exp,
+      jti,
+      scope,
+      endpoint_permissions: endpointPermissions,
+    };
+
+    await tx.oAuthAuthorizationCode.update({
+      where: { id: code.id },
+      data: { usedAt: now },
+    });
+    await tx.oAuthIssuedToken.create({
+      data: {
+        id: `oauth_issued_token_${randomUUID()}`,
+        jti,
+        oauthClientId: code.oauthClientId,
+        oauthUserId: code.oauthUserId,
+        grantType: "authorization_code",
+        scope,
+        resource: code.resource,
+        endpointPermissionsJson: JSON.stringify(endpointPermissions),
+        issuedAt: new Date(iat * 1000),
+        expiresAt: new Date(exp * 1000),
+      },
+    });
+    await recordAuditEvent(
+      {
+        eventType: "oauth_token.issue",
+        subjectType: "oauth_issued_token",
+        subjectId: jti,
+        subjectName: code.oauthClient.clientId,
+        outcome: "success",
+        metadata: {
+          grantType: "authorization_code",
+          oauthClientId: code.oauthClientId,
+          oauthUserId: code.oauthUserId,
+          resource: code.resource,
+          endpointPermissionCount: endpointPermissions.length,
+          expiresAt: new Date(exp * 1000).toISOString(),
+        },
+      },
+      tx,
+    );
+
+    return {
+      accessToken: signJwt({ alg: OAUTH_JWT_ALGORITHM, typ: "JWT", kid: OAUTH_JWT_KEY_ID }, claims),
+      expiresIn,
+      scope,
+    };
+  });
+
+  return {
+    access_token: result.accessToken,
+    token_type: "Bearer",
+    expires_in: result.expiresIn,
+    scope: result.scope,
+  };
 }

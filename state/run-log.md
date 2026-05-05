@@ -676,3 +676,18 @@
 - evaluator: started
 - evaluator: status=done promotion=true Task maps directly to docs/product-specs/oauth-consent-and-token-runtime.md and stays within the authorization/login/consent/code-creation slice. The repository contains OAuth authorize/login/consent routes, signed login tickets, exact client and redirect URI validation, selected endpoint permission persistence on authorization codes, and focused unit plus @oauth-consent E2E coverage. The supplied deterministic gate record shows npm run test:unit, npm run test:e2e -- --grep @oauth-consent, and npm run verify all passing. -> state/artifacts/20260505T204812-oauth-authorize-login-consent/evaluator.log
 - next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T204812-oauth-authorize-login-consent/npm-run-test-e2e-grep-oauth-consent-next-server.log
+- commit: commit: created
+- promote: Promoted oauth-authorize-login-consent -> oauth-code-token-jwt
+- backlog: rendered current=oauth-code-token-jwt
+- health: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxoooooooooooooo
+- cycle: finished
+
+### cycle 2026-05-05T21:00:51+09:00 task=oauth-code-token-jwt
+- artifacts: state/artifacts/20260505T210051-oauth-code-token-jwt
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260505T210051-oauth-code-token-jwt/worker.jsonl
+- worker-summary: Implemented `oauth-code-token-jwt` and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+- evaluator: started
+- evaluator: status=done promotion=true Repository inspection supports promotion. The task maps directly to docs/product-specs/oauth-consent-and-token-runtime.md, implements the scoped authorization_code token exchange without client_credentials, signs RS256 JWTs with the required claims, persists issued-token metadata by jti with revocation-ready fields, and has passing required deterministic gates in state/deterministic-checks.json. -> state/artifacts/20260505T210051-oauth-code-token-jwt/evaluator.log
+- next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T210051-oauth-code-token-jwt/npm-run-test-e2e-grep-oauth-code-token-next-server.log

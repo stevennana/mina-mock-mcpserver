@@ -25,6 +25,8 @@ Define the security posture for MCP Mock Server's current shipped slice.
 - OAuth client secrets are generated server-side, stored only as hashes, and returned only at creation or regeneration
 - OAuth browser consent uses exact registered redirect URI matching and a short-lived signed login ticket before authorization code creation
 - OAuth authorization codes are stored as single-use-ready records with expiry, client, redirect URI, user, audience/resource, and selected endpoint bindings
+- `/oauth/token` authorization-code exchange requires the same client, client secret, and redirect URI; consumed, expired, mismatched, or unknown codes fail with OAuth-style errors
+- Access tokens are RS256 JWTs signed with `OAUTH_JWT_PRIVATE_KEY_PEM` when configured, otherwise a documented development key; issued token metadata is stored by `jti`, and raw token values are not persisted
 - raw JWT values are shown only at issuance unless a config explicitly permits storage
 - LOG_LEVEL controls verbosity but must not expose secrets even at trace/debug
 
@@ -36,7 +38,7 @@ Define the security posture for MCP Mock Server's current shipped slice.
 - health and public config endpoints
 
 ## Verification
-- unit tests for password hashing, auth precedence, root checks, built-in immutability, JWT validation, and permission denial
+- unit tests for password hashing, auth precedence, root checks, built-in immutability, JWT signing/claims, code exchange failure cases, and permission denial
 - E2E tests for Basic 401/success and OAuth 401/403/revocation
 - reset tests prove endpoint defaults are recreated after root-password and confirmation checks
 - audit tests prove failed delete attempts and reset events are recorded

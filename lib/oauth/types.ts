@@ -10,6 +10,36 @@ export const DEFAULT_OAUTH_CLIENT_REDIRECT_URI = "http://localhost:3000/oauth/ca
 export const DEFAULT_OAUTH_CLIENT_CREDENTIALS_TTL_SECONDS = 3600;
 export const OAUTH_AUTHORIZATION_CODE_TTL_SECONDS = 300;
 export const OAUTH_LOGIN_TICKET_TTL_SECONDS = 300;
+export const OAUTH_JWT_ALGORITHM = "RS256";
+export const OAUTH_JWT_KEY_ID = "mcp-mock-dev-rs256-1";
+export const DEFAULT_OAUTH_ISSUER = "http://localhost:3000";
+export const DEFAULT_OAUTH_PRIVATE_KEY_PEM = `-----BEGIN RSA PRIVATE KEY-----
+MIIEpAIBAAKCAQEAxAIjGddtMHg0fsCV/+yvH8rg73MhhgGIB9pO+HJAZBMeurqK
+w9jan83Zlc1JcBU5l0o0WMR6kZcakRB35qb1qE2bbck0UVdFutT99X8GQhqi66xO
+4AZ6r8z4i0nPZko0Xt4IrP/Kw+hOJCFqEW6i/n14xbC1yO/KtzSnEq+Q9qOutJtW
+QLPm5VepcaEZMI6bu29YvMpqsQF4g6GhMe6rQGs6BKfHo6aGzz4GCFPK7HZrTP5s
+H3EgwFZ2ckei4X6/hCFACOpamTxAnqEscGU4pikJ0bQEP7V0xkmpidT9KrKr0a/X
+de+onF65v7Kr8q2NKK0mh+Q4VFbCNa2dG0X6TwIDAQABAoIBAQCeVUudeFQPr0pY
+iaGh1sOwXuZNByexZFNKZKMeNsylCnzsQfwOMIKKTHLTe70y+TJIb/zRKAYKzZD8
+Vd1FSOFwTyCbEslcW69MOPnc8ftQMswgrFQay6EXme+8NKeA7bhYWeuQNCDLGEDn
+FsbjxgeMpDaHGzP9WRbb34CGq6PiVvPo4IVFhs1deUmyVUFTnsIfofu40vodmiNY
+NqEquhzOOKPL37eH0ps8nHL9JWAhlYlUSIU7ekgjweL/5BESlL3vX+Oo+uPHotIq
+HG0AhcXxX2HXp7h9LGNYbsx1lHcmUmVzKqJOkXYJrp+4QppcIS1Y8XJ70EN5ozx+
+xJ+zlv7hAoGBAPAMbtZdjw6Rr3GylYps4vL5j1HgQd/PQWSkaeyFohRubVDlIN60
+v7ufH1xOP/JxrTm8665EqX/978MO7KNuNzh8bFIyOsaLxwxcRvtPQYj8kZG3/3up
+fLzICUOd0eohuL1MuVhaf+Dom8nVl/uW95zgGVwQqbQ5elfIVl77ArdTAoGBANEI
+hHqYylibHYjy1JtaJ+1kkM1rZ4yP1TvhacIDTlAaGCEoBVEnVUOefY9a6O/8aYyo
+aqp+HItHeAS3Igxlp0VmYVW0Vx7muKSslscC1dvYYAlyHOfiO+Nuy8vbGiCUrkih
+FjEmhWb5RpiHnpzKI+AGgjYQFIzC4KQ2mH4rI72VAoGBAMKbocPiR5ctHsoTWM7H
+ZdpL3hgnseALO12nOUSKNhNQTwl1KIfEi2hFIXyI56ja5e/YLE201qGwMg+16ry4
+HsaJgJvGowXRzgZETTtyTpQLBszXGaWci0bU+UW7DbI9snKtX9m0TNX+XkZsBnHu
+O0IQIB8WVy6IJppCDVulLdeHAoGASp9jy/BnrCIT9SPbSmpw/op8Nxk0qjVexjW+
+b4iGmIn4Oz3yR/pmsfEOmfK2XZYaiCBHk/3Zas9kxSoreYmAoYHfFZ1/zIRJPmBu
+ozUb65PfFQAr2YwmHRccofXh6eeqIDuBlKJP1WcAEMu5j/eJvxwTuAEdlPKtB3KG
+FeSIqdECgYA4HkiNFs0mPkv5F2nGv42wQkznw9Vh7kazqWKIDDil12ubj6KyXdd/
+V2RkTFFdlxnMBU+AsKJumfaWO3QGe9p2KdispGMsEOR1Moy1vKHuH6RvwsCJFF7i
+Jcffckhd4R6kO9uS7d3wr+fCqIbqRibWZjgXNt+Ib3PwNedjQoU+TA==
+-----END RSA PRIVATE KEY-----`;
 
 export const OAUTH_ACCESS_TOKEN_TTL_PRESETS = [
   { label: "15 minutes", seconds: 900 },
@@ -185,6 +215,47 @@ export class OAuthAuthorizeRequestError extends Error {
 
 export class OAuthLoginError extends Error {
   constructor(public readonly code: "invalid_user" | "invalid_ticket" | "invalid_selection", message: string) {
+    super(message);
+  }
+}
+
+export type OAuthTokenExchangeInput = {
+  grantType: string;
+  code: string;
+  redirectUri: string;
+  clientId: string;
+  clientSecret: string;
+  issuer?: string;
+  now?: Date;
+};
+
+export type OAuthAccessTokenClaims = {
+  iss: string;
+  aud: string;
+  resource: string;
+  sub: string;
+  client_id: string;
+  grant_type: "authorization_code";
+  iat: number;
+  exp: number;
+  jti: string;
+  scope: string;
+  endpoint_permissions: string[];
+};
+
+export type OAuthTokenExchangeResult = {
+  access_token: string;
+  token_type: "Bearer";
+  expires_in: number;
+  scope: string;
+};
+
+export class OAuthTokenError extends Error {
+  constructor(
+    public readonly code: "invalid_request" | "invalid_client" | "invalid_grant" | "unsupported_grant_type",
+    message: string,
+    public readonly status = code === "invalid_client" ? 401 : 400,
+  ) {
     super(message);
   }
 }

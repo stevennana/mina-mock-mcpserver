@@ -2,58 +2,56 @@ Read the following repository documents before making changes:
 - AGENTS.md
 - ARCHITECTURE.md
 - docs/PRODUCT_SENSE.md
-- docs/FRONTEND.md
 - docs/SECURITY.md
 - docs/product-specs/oauth-consent-and-token-runtime.md
-- docs/exec-plans/active/015-oauth-authorize-login-consent.md
+- docs/exec-plans/active/016-oauth-code-token-jwt.md
 
-Current task id: oauth-authorize-login-consent
-Current task title: OAuth Authorize, Login, and Consent UI
+Current task id: oauth-code-token-jwt
+Current task title: Authorization Code Token Exchange and JWT Claims
 
 Objective:
-Implement the browser authorization entry, mock login, consent screen, endpoint selection, and authorization code creation.
+Implement `/oauth/token` authorization_code exchange and signed JWT access tokens with endpoint permission claims.
 
 Clarity notes:
-- This task stops at issuing an authorization code; token exchange is next.
-- Consent must show endpoint permissions clearly because later tokens enforce them.
-- Authorization code records must be single-use-ready and bound to client, redirect URI, user, selected endpoints, and resource/audience.
-- The OAuth login UI is separate from the public admin navigation.
+- This task consumes codes created by the previous task.
+- Tokens must include claims required by later permission enforcement.
+- Code exchange must be single-use and bound to the same client and redirect URI.
+- RS256 is preferred; if HS256 is used temporarily, the fallback must be explicit and tested.
 
 Expected result:
-- Valid `/oauth/authorize` requests reach login and consent.
-- Consent displays client, redirect URI, resource, user, TTL, and endpoint checklist.
-- Submitting consent redirects to the registered redirect URI with `code` and `state`.
-- Invalid client/redirect/user cases fail deterministically.
+- Valid code exchange returns access_token, token_type, expires_in, and scope.
+- JWT claims include issuer, audience/resource, subject, client_id, grant_type, iat, exp, jti, scope, and endpoint_permissions.
+- Expired, reused, mismatched, or invalid codes are rejected.
+- Issued token metadata is stored by `jti` for later revocation.
 
 Objections / risks to avoid:
-- Do not exchange codes for tokens in this task.
-- Do not skip consent by issuing codes directly from admin UI.
-- Do not accept unregistered redirect URIs.
-- Do not allow endpoint selections outside the client allowed set.
+- Do not implement client_credentials in this task.
+- Do not ignore redirect_uri or client binding during exchange.
+- Do not omit endpoint_permissions from the token.
+- Do not log full token values.
 
 Scope:
-- Validate authorization request parameters.
-- Build login and consent screens.
-- Persist authorization codes with expiry and selected endpoint IDs.
-- Redirect with code/state or appropriate errors.
-- Add E2E tests tagged `@oauth-consent`.
+- Implement token endpoint authorization_code branch.
+- Implement JWT signing and claim creation.
+- Persist issued token metadata.
+- Add unit and E2E tests tagged `@oauth-code-token`.
 
 Out of scope:
-- `/oauth/token` exchange.
 - Client credentials grant.
-- Discovery metadata.
+- Token management UI/revocation controls.
 - MCP bearer enforcement.
+- Discovery/JWKS unless needed minimally for signing key exposure later.
 
 Exit criteria:
-1. A valid user can complete login and consent for an OAuth client.
-2. Authorization codes store the selected endpoint permissions and binding data.
-3. Invalid redirect/client/user paths are tested.
-4. `@oauth-consent` passes.
+1. Authorization codes exchange exactly once.
+2. JWT claims match the PRD contract.
+3. Invalid exchange cases return deterministic OAuth-style errors.
+4. Issued token records are ready for revocation enforcement later.
 5. All required checks pass.
 
 Required checks:
 - npm run test:unit
-- npm run test:e2e -- --grep @oauth-consent
+- npm run test:e2e -- --grep @oauth-code-token
 - npm run verify
 
 Evaluator notes:
@@ -67,7 +65,7 @@ Required repository artifacts for this task:
 
 Required commands for this task:
 - npm run test:unit
-- npm run test:e2e -- --grep @oauth-consent
+- npm run test:e2e -- --grep @oauth-code-token
 - npm run verify
 
 Previous known gaps from the last evaluation:

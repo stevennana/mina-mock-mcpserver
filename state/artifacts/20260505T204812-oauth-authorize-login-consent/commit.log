@@ -1,0 +1,16 @@
+[main ae8f855] ralph: oauth-authorize-login-consent 2026-05-05T21:00:21+09:00
+ 37 files changed, 4365 insertions(+), 107 deletions(-)
+ create mode 100644 app/oauth/authorize/page.tsx
+ create mode 100644 app/oauth/consent/page.tsx
+ create mode 100644 app/oauth/login/page.tsx
+ rename docs/exec-plans/{active => completed}/014-oauth-clients-management-ui.md (94%)
+ create mode 100644 prisma/migrations/202605050007_oauth_authorization_codes/migration.sql
+ create mode 100644 state/artifacts/20260505T203544-oauth-clients-management-ui/backlog.log
+ create mode 100644 state/artifacts/20260505T203544-oauth-clients-management-ui/promote.log
+ create mode 100644 state/artifacts/20260505T204812-oauth-authorize-login-consent/commit.log
+ create mode 100644 state/artifacts/20260505T204812-oauth-authorize-login-consent/evaluator.log
+ create mode 100644 state/artifacts/20260505T204812-oauth-authorize-login-consent/task-prompt.log
+ create mode 100644 state/artifacts/20260505T204812-oauth-authorize-login-consent/worker.jsonl
+ create mode 100644 tests/e2e/oauth-consent.spec.ts
+ create mode 100644 tests/unit/oauth-authorize.test.ts
+commit: created

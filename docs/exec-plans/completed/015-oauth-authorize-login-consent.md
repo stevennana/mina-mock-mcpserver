@@ -5,7 +5,7 @@
   "id": "oauth-authorize-login-consent",
   "title": "OAuth Authorize, Login, and Consent UI",
   "order": 15,
-  "status": "active",
+  "status": "completed",
   "next_task_on_success": "oauth-code-token-jwt",
   "prompt_docs": [
     "AGENTS.md",
@@ -26,7 +26,8 @@
     "Required checks do not prove the claimed behavior.",
     "Implementation changes contradict the product spec or security/reliability docs."
   ],
-  "promotion_mode": "deterministic"
+  "promotion_mode": "deterministic",
+  "completed_at": "2026-05-05T12:00:21.257Z"
 }
 ```
 
@@ -108,3 +109,4 @@ Confirm that this task maps to the primary product spec `oauth-consent-and-token
 - 2026-05-05T11:47:42.510Z: restored as current task after oauth-clients-management-ui promotion.
 - 2026-05-05T13:34:00.000Z: found existing OAuth user/client services and reused them for authorize validation, login verification, client allowed-endpoint consent constraints, and tests.
 - 2026-05-05T13:50:00.000Z: added authorization-code Prisma persistence with selected endpoint bindings, signed login ticket flow, `/oauth/authorize`, `/oauth/login`, `/oauth/consent`, focused unit tests, and `@oauth-consent` E2E coverage.
+- 2026-05-05T12:00:21.257Z: automatically promoted after deterministic checks and evaluator approval.

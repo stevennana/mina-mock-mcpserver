@@ -1,1 +1,1 @@
-oauth-authorize-login-consent
+oauth-code-token-jwt

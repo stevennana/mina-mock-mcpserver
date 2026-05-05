@@ -15,6 +15,7 @@ type SeedClient = Pick<
   | "oAuthClientAllowedEndpoint"
   | "oAuthAuthorizationCode"
   | "oAuthAuthorizationCodeEndpoint"
+  | "oAuthIssuedToken"
 >;
 
 export async function seedEndpointDefaults(client: SeedClient) {

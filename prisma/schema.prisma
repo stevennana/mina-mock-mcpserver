@@ -107,6 +107,7 @@ model OAuthUser {
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
   authorizationCodes    OAuthAuthorizationCode[]
+  issuedTokens          OAuthIssuedToken[]
 
   @@index([builtIn, username])
 }
@@ -124,6 +125,7 @@ model OAuthClient {
   updatedAt                   DateTime                     @updatedAt
   allowedEndpoints            OAuthClientAllowedEndpoint[]
   authorizationCodes          OAuthAuthorizationCode[]
+  issuedTokens                OAuthIssuedToken[]
 
   @@index([builtIn, clientId])
 }
@@ -168,4 +170,26 @@ model OAuthAuthorizationCodeEndpoint {
 
   @@id([authorizationCodeId, endpointId])
   @@index([endpointId])
+}
+
+model OAuthIssuedToken {
+  id                      String      @id
+  jti                     String      @unique
+  oauthClientId           String
+  oauthUserId             String
+  grantType               String
+  scope                   String
+  resource                String
+  endpointPermissionsJson String      @default("[]")
+  issuedAt                DateTime
+  expiresAt               DateTime
+  revokedAt               DateTime?
+  createdAt               DateTime    @default(now())
+  oauthClient             OAuthClient @relation(fields: [oauthClientId], references: [id], onDelete: Cascade)
+  oauthUser               OAuthUser   @relation(fields: [oauthUserId], references: [id], onDelete: Cascade)
+
+  @@index([jti])
+  @@index([oauthClientId, oauthUserId])
+  @@index([expiresAt])
+  @@index([revokedAt])
 }

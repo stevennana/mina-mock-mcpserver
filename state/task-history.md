@@ -15,3 +15,4 @@
 - 2026-05-05T11:25:21.487Z: promoted rest-tools-call-runtime -> oauth-users-management-ui
 - 2026-05-05T11:35:14.467Z: promoted oauth-users-management-ui -> oauth-clients-management-ui
 - 2026-05-05T11:47:42.510Z: promoted oauth-clients-management-ui -> oauth-authorize-login-consent
+- 2026-05-05T12:00:21.257Z: promoted oauth-authorize-login-consent -> oauth-code-token-jwt

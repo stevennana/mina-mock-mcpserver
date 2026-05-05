@@ -5,7 +5,7 @@
   "id": "oauth-code-token-jwt",
   "title": "Authorization Code Token Exchange and JWT Claims",
   "order": 16,
-  "status": "queued",
+  "status": "active",
   "next_task_on_success": "oauth-client-credentials-grant",
   "prompt_docs": [
     "AGENTS.md",
@@ -102,3 +102,6 @@ Confirm that this task maps to the primary product spec `oauth-consent-and-token
 
 - Start here. Append timestamped progress notes as work lands.
 - Note when existing partial implementations were found and reused instead of replaced.
+- 2026-05-05T12:00:21.257Z: restored as current task after oauth-authorize-login-consent promotion.
+- 2026-05-05T21:23:00+09:00: found existing authorization-code creation path with client, redirect URI, user, resource, and selected endpoint bindings; reused it for token exchange instead of duplicating consent state.
+- 2026-05-05T21:23:00+09:00: added `OAuthIssuedToken` persistence, RS256 JWT claim creation, `/oauth/token` authorization_code handling, and focused unit/E2E coverage for single-use exchange and invalid cases.

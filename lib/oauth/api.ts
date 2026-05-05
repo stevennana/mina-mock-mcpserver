@@ -6,11 +6,18 @@ import {
   OAuthClientBuiltInError,
   OAuthClientNotFoundError,
   OAuthClientValidationError,
+  OAuthTokenError,
   OAuthUserBuiltInError,
   OAuthUserNotFoundError,
   OAuthUserValidationError,
 } from "@/lib/oauth/types";
-import type { OAuthClientCreateInput, OAuthClientUpdateInput, OAuthUserCreateInput, OAuthUserUpdateInput } from "@/lib/oauth/types";
+import type {
+  OAuthClientCreateInput,
+  OAuthClientUpdateInput,
+  OAuthTokenExchangeInput,
+  OAuthUserCreateInput,
+  OAuthUserUpdateInput,
+} from "@/lib/oauth/types";
 
 function asRecord(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : {};
@@ -140,4 +147,30 @@ export function oauthClientErrorResponse(error: unknown) {
 
   console.error(error);
   return NextResponse.json({ error: "internal_error" }, { status: 500 });
+}
+
+export function oauthTokenInputFromFormData(formData: FormData, issuer?: string): OAuthTokenExchangeInput {
+  return {
+    grantType: String(formData.get("grant_type") ?? "").trim(),
+    code: String(formData.get("code") ?? "").trim(),
+    redirectUri: String(formData.get("redirect_uri") ?? "").trim(),
+    clientId: String(formData.get("client_id") ?? "").trim(),
+    clientSecret: String(formData.get("client_secret") ?? ""),
+    issuer,
+  };
+}
+
+export function oauthTokenErrorResponse(error: unknown) {
+  if (error instanceof OAuthTokenError) {
+    return NextResponse.json(
+      { error: error.code, error_description: error.message },
+      {
+        status: error.status,
+        headers: error.code === "invalid_client" ? { "WWW-Authenticate": 'Basic realm="oauth-token"' } : undefined,
+      },
+    );
+  }
+
+  console.error(error);
+  return NextResponse.json({ error: "server_error" }, { status: 500 });
 }

@@ -1,11 +1,11 @@
-Implemented `oauth-authorize-login-consent` and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+Implemented `oauth-code-token-jwt` and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
 
-What changed: added OAuth authorization-code schema/persistence, `/oauth/authorize`, `/oauth/login`, `/oauth/consent`, signed short-lived login tickets, endpoint permission consent, code redirect with `state`, focused unit tests, `@oauth-consent` E2E tests, and the required docs/progress updates.
+What changed: added issued-token persistence/migration, `/oauth/token` authorization-code exchange, RS256 JWT signing with endpoint permission claims, single-use code consumption, token metadata storage by `jti`, OAuth-style token errors, unit/E2E coverage, and scoped docs/progress updates.
 
-Required checks all passed:
+Required checks passed:
 
 - `npm run test:unit`
-- `npm run test:e2e -- --grep @oauth-consent`
+- `npm run test:e2e -- --grep @oauth-code-token`
 - `npm run verify`
 
-Exit criteria appear satisfied. Token exchange remains untouched and deferred to the next task.
+Exit criteria appear satisfied. Remaining OAuth work is deferred to later tasks: client credentials, token UI/revocation, bearer enforcement, and discovery/JWKS.
