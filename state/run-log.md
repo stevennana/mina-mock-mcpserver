@@ -445,3 +445,18 @@
 - evaluator: started
 - evaluator: status=done promotion=true The current implementation satisfies the endpoint-domain-and-schema task in substance. Prisma/SQLite persistence is wired, migrations define endpoint/parameter/response-case tables with required fields, db:prepare applies migrations, generates the client, and runs idempotent seed defaults. The generated DB schema doc matches the implemented shape, and the provided mandatory gate results all passed. -> state/artifacts/20260505T182905-endpoint-domain-and-schema/evaluator.log
 - next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T182905-endpoint-domain-and-schema/npm-run-verify-next-server.log
+- commit: commit: created
+- promote: failed -> state/artifacts/20260505T182905-endpoint-domain-and-schema/promote.log
+- backlog: rendered current=endpoint-domain-and-schema
+- health: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+- cycle: finished
+
+### cycle 2026-05-05T18:34:44+09:00 task=endpoint-domain-and-schema
+- artifacts: state/artifacts/20260505T183444-endpoint-domain-and-schema
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260505T183444-endpoint-domain-and-schema/worker.jsonl
+- worker-summary: Completed `endpoint-domain-and-schema`.
+- evaluator: started
+- evaluator: status=done promotion=true The task is complete in substance. The repository now has Prisma/SQLite persistence for endpoint/tool data, a deterministic db:prepare path, idempotent seed defaults for a protected enabled echo endpoint, repeatability unit coverage, and generated schema documentation matching the implemented Prisma models. The provided required-command summary shows npm run db:prepare, npm run test:unit, and npm run verify all passing. -> state/artifacts/20260505T183444-endpoint-domain-and-schema/evaluator.log
+- next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T183444-endpoint-domain-and-schema/npm-run-verify-next-server.log
