@@ -265,3 +265,18 @@
 - evaluator: started
 - evaluator: status=done promotion=true The task is complete in substance. The repository has Prisma/SQLite dependencies, schema, migrations, client setup, deterministic db:prepare, idempotent endpoint seed defaults, generated schema documentation matching the implementation, and repeatability unit coverage. The provided deterministic gate summary shows all required commands passed. -> state/artifacts/20260505T173402-endpoint-domain-and-schema/evaluator.log
 - next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T173402-endpoint-domain-and-schema/npm-run-verify-next-server.log
+- commit: commit: created
+- promote: failed -> state/artifacts/20260505T173402-endpoint-domain-and-schema/promote.log
+- backlog: rendered current=endpoint-domain-and-schema
+- health: xxxxxxxxxxxxxxxxxx
+- cycle: finished
+
+### cycle 2026-05-05T17:38:36+09:00 task=endpoint-domain-and-schema
+- artifacts: state/artifacts/20260505T173836-endpoint-domain-and-schema
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260505T173836-endpoint-domain-and-schema/worker.jsonl
+- worker-summary: Completed the `endpoint-domain-and-schema` pass.
+- evaluator: started
+- evaluator: status=done promotion=true The task is complete in substance. The implementation adds Prisma/SQLite endpoint persistence with migrations, repo-local database configuration, deterministic db preparation, idempotent seed defaults, matching generated schema documentation, and repeatability unit coverage. The supplied mandatory gate results show npm run db:prepare, npm run test:unit, and npm run verify all passed. -> state/artifacts/20260505T173836-endpoint-domain-and-schema/evaluator.log
+- next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T173836-endpoint-domain-and-schema/npm-run-verify-next-server.log
