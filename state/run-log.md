@@ -325,3 +325,18 @@
 - evaluator: started
 - evaluator: status=done promotion=true The task is complete in substance. The repository has Prisma/SQLite wired through package dependencies, prisma.config.ts, migrations, a generated-client setup path, and scripts/db-prepare.mjs applying migrations, generating the client, and running idempotent seed defaults. The schema covers endpoints, immutable IDs, names, titles/descriptions, enabled/protected state, delete codes, ordered parameters, response cases, default responses, timestamps, and basic endpoint/case failure config fields. The seed creates one protected enabled echo endpoint with one parameter and two response cases, and the unit test exercises db:prepare twice against an isolated SQLite file. docs/generated/db-schema.md matches the implemented Prisma shape. The provided deterministic check summary shows npm run db:prepare, npm run test:unit, and npm run verify passing. -> state/artifacts/20260505T175212-endpoint-domain-and-schema/evaluator.log
 - next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T175212-endpoint-domain-and-schema/npm-run-verify-next-server.log
+- commit: commit: created
+- promote: failed -> state/artifacts/20260505T175212-endpoint-domain-and-schema/promote.log
+- backlog: rendered current=endpoint-domain-and-schema
+- health: xxxxxxxxxxxxxxxxxxxxxx
+- cycle: finished
+
+### cycle 2026-05-05T17:56:51+09:00 task=endpoint-domain-and-schema
+- artifacts: state/artifacts/20260505T175651-endpoint-domain-and-schema
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260505T175651-endpoint-domain-and-schema/worker.jsonl
+- worker-summary: Completed `endpoint-domain-and-schema`.
+- evaluator: started
+- evaluator: status=done promotion=true The task is complete in substance. The repository has Prisma/SQLite dependencies, repo-local database configuration, migrations, generated client setup, deterministic db preparation, idempotent protected endpoint seed defaults, generated schema documentation, and repeatability coverage. The implementation maps directly to endpoint-tool-management.md and stays within the persistence foundation scope without adding out-of-scope UI, MCP, REST, auth, or reset behavior. I did not rerun write-producing required commands because this evaluator sandbox is read-only, but the supplied deterministic check summary reports all mandatory gates passing. -> state/artifacts/20260505T175651-endpoint-domain-and-schema/evaluator.log
+- next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T175651-endpoint-domain-and-schema/npm-run-verify-next-server.log
