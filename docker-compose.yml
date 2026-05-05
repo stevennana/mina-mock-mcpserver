@@ -1,0 +1,28 @@
+services:
+  mcp-mock-server:
+    build:
+      context: .
+    image: mina-mock-mcpserver:local
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      HOST: "0.0.0.0"
+      LOG_LEVEL: info
+      APP_BASE_URL: http://localhost:3000
+      ROOT_PASSWORD: change-me-before-public-use
+    volumes:
+      - mcp-mock-data:/app/data
+      - mcp-mock-logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  mcp-mock-data:
+  mcp-mock-logs:

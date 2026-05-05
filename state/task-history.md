@@ -23,3 +23,4 @@
 - 2026-05-05T13:10:29.907Z: promoted issued-token-ui-revocation -> failure-delay-forced-error-runtime
 - 2026-05-05T13:29:38.585Z: promoted failure-delay-forced-error-runtime -> malformed-response-console-audit
 - 2026-05-05T13:40:45.211Z: promoted malformed-response-console-audit -> operator-config-health-logs
+- 2026-05-05T14:10:35.380Z: promoted operator-config-health-logs -> docker-nginx-final-hardening

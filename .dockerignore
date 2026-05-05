@@ -1,0 +1,10 @@
+.git
+.next
+node_modules
+logs
+test-results
+state/artifacts
+data/*.sqlite
+data/*.sqlite-*
+.DS_Store
+npm-debug.log*

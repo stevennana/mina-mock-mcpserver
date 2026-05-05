@@ -8,7 +8,7 @@ Source: `PRD/mcp_mock_server_prd.md`
 - The UI is intentionally public; destructive operations use an 8-digit endpoint delete code or root password where specified.
 - OAuth is a mock authorization server, not a production identity service.
 - SQLite persistence is required across restarts.
-- Deployment should work directly and behind Nginx, with TLS termination at the proxy.
+- Deployment should work directly, through Docker Compose on port `3000` with a SQLite data volume, and behind Nginx with TLS termination at the proxy.
 
 ## Distinct Feature Fronts
 
@@ -18,7 +18,7 @@ Source: `PRD/mcp_mock_server_prd.md`
 - Basic Auth user management and strict Basic route behavior.
 - OAuth user/client management, browser consent, client credentials, JWT issuance, discovery metadata, token UI, and revocation.
 - Failure simulation for delays, forced errors, timeouts, malformed responses, and audit evidence.
-- Operator configuration for base URL, root reset, health, logs, Docker/Nginx guidance, and startup proof.
+- Operator configuration for base URL, root reset, health, logs, Docker/Nginx guidance, Ralph loop handoff, and startup proof.
 
 ## Verification Implications
 

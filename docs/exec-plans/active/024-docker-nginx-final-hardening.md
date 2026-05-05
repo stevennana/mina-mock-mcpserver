@@ -5,7 +5,7 @@
   "id": "docker-nginx-final-hardening",
   "title": "Docker, Nginx, Final Docs, and Queue Completion Hardening",
   "order": 24,
-  "status": "queued",
+  "status": "active",
   "next_task_on_success": null,
   "prompt_docs": [
     "AGENTS.md",
@@ -117,3 +117,5 @@ Confirm that this task maps to the primary product spec `operator-configuration.
 
 - Start here. Append timestamped progress notes as work lands.
 - Note when existing partial implementations were found and reused instead of replaced.
+- 2026-05-05T14:10:35.380Z: restored as current task after operator-config-health-logs promotion.
+- 2026-05-05T14:13:08Z: found no existing Docker/Nginx artifacts; added Dockerfile, docker-compose, Nginx example, operator handoff doc, and reconciled quality/reliability/security/schema/debt docs without adding new product features.

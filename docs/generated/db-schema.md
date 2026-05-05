@@ -3,6 +3,7 @@
 Generated for task `endpoint-domain-and-schema`.
 
 Updated by task `endpoint-protected-delete-audit` for endpoint delete audit evidence.
+Updated by task `docker-nginx-final-hardening` to reflect the completed MVP schema surface.
 
 ## Runtime Database
 
@@ -10,12 +11,12 @@ Updated by task `endpoint-protected-delete-audit` for endpoint delete audit evid
 - Default URL: `file:./data/runtime.sqlite`.
 - Preparation command: `npm run db:prepare`.
 - Preparation behavior: creates `data/`, applies Prisma migrations, generates Prisma Client, and runs idempotent endpoint seed defaults.
-- Seed defaults include protected endpoint, Basic user, and OAuth user fixtures.
+- Seed defaults include protected endpoint, Basic user, OAuth user, and OAuth client fixtures.
 - Persistence source of truth: SQLite. `data/bootstrap-state.json` is no longer used by `db:prepare`.
 
 ## Endpoint
 
-Stores durable mock tool records. `id` is the immutable internal identifier used by later permission and runtime slices; `name` is the externally visible tool label and may change without changing `id`.
+Stores durable mock tool records. `id` is the immutable internal identifier used by permission and runtime slices; `name` is the externally visible tool label and may change without changing `id`.
 
 | Field | Type | Notes |
 |---|---|---|
@@ -37,7 +38,7 @@ Stores durable mock tool records. `id` is the immutable internal identifier used
 
 ## EndpointParam
 
-Stores ordered parameter definitions for each endpoint. The schema supports the MVP limit of up to three parameters by position; domain validation in the next slice owns the user-facing limit enforcement.
+Stores ordered parameter definitions for each endpoint. The schema supports the MVP limit of up to three parameters by position; domain validation owns the user-facing limit enforcement.
 
 | Field | Type | Notes |
 |---|---|---|
@@ -61,7 +62,7 @@ Indexes and constraints:
 
 ## ResponseCase
 
-Stores exact-match response cases and a default case marker. Matching semantics are intentionally deferred to the endpoint validation and matching task.
+Stores exact-match response cases and a default case marker used by MCP, REST, console, and failure-simulation runtime paths.
 
 | Field | Type | Notes |
 |---|---|---|
@@ -127,10 +128,77 @@ The seed uses immutable IDs and unique endpoint-scoped keys, so repeated prepara
 |---|---|---|---|
 | `BasicUser` | `basic_user_default` | `default` | Enabled built-in fixture with hashed `default` password. |
 | `OAuthUser` | `oauth_user_default` | `default` | Enabled built-in fixture with hashed `default` password and 3600-second authorization-code token TTL. |
+| `OAuthClient` | `oauth_client_default` | `default` | Enabled built-in fixture with hashed `default` secret, localhost redirect URI, 3600-second client-credentials TTL, and default enabled endpoint allowance. |
+
+## ServerSetting
+
+Stores root-protected operator settings.
+
+| Field | Type | Notes |
+|---|---|---|
+| `key` | `String` | Primary key. Current setting: `baseUrl`. |
+| `value` | `String` | Normalized setting value. |
+| `updatedAt` | `DateTime` | Maintained by Prisma. |
+
+## BasicUser
+
+Stores Basic Auth test users for strict Basic MCP and REST calls.
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | `String` | Primary key, assigned by domain/seed code. |
+| `username` | `String` | Unique Basic Auth username. |
+| `passwordHash` | `String` | Scrypt password hash; plaintext passwords are never persisted. |
+| `enabled` | `Boolean` | Basic Auth eligibility flag. |
+| `builtIn` | `Boolean` | Marks the protected default/default fixture. |
+| `createdAt` | `DateTime` | Creation timestamp. |
+| `updatedAt` | `DateTime` | Maintained by Prisma. |
+
+Indexes and constraints:
+
+- `username` is unique
+- `@@index([builtIn, username])`
+
+## OAuthClient
+
+Stores mock OAuth clients for authorization-code and client-credentials grants.
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | `String` | Primary key, assigned by domain/seed code. |
+| `clientId` | `String` | Unique public client identifier. |
+| `displayName` | `String` | Operator-facing client label. |
+| `secretHash` | `String` | Scrypt secret hash; plaintext secrets are shown only at creation/regeneration. |
+| `enabled` | `Boolean` | Token issuance eligibility flag. |
+| `builtIn` | `Boolean` | Marks the protected default/default fixture. |
+| `redirectUrisJson` | `String` | JSON array of exact-match redirect URIs. |
+| `clientCredentialsTtlSeconds` | `Int` | Token TTL for client-credentials grants. |
+| `createdAt` | `DateTime` | Creation timestamp. |
+| `updatedAt` | `DateTime` | Maintained by Prisma. |
+
+Indexes and constraints:
+
+- `clientId` is unique
+- `@@index([builtIn, clientId])`
+
+## OAuthClientAllowedEndpoint
+
+Stores endpoint permissions available to an OAuth client.
+
+| Field | Type | Notes |
+|---|---|---|
+| `oauthClientId` | `String` | OAuth client relation, cascades on client delete. |
+| `endpointId` | `String` | Endpoint relation, cascades on endpoint delete. |
+| `createdAt` | `DateTime` | Permission creation timestamp. |
+
+Indexes and constraints:
+
+- `@@id([oauthClientId, endpointId])`
+- `@@index([endpointId])`
 
 ## OAuthUser
 
-Stores mock OAuth login identities for later browser authorization-code flow tasks.
+Stores mock OAuth login identities for browser authorization-code flow tasks.
 
 | Field | Type | Notes |
 |---|---|---|
@@ -147,6 +215,45 @@ Indexes and constraints:
 
 - `username` is unique
 - `@@index([builtIn, username])`
+
+## OAuthAuthorizationCode
+
+Stores short-lived, single-use authorization codes.
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | `String` | Primary key. |
+| `code` | `String` | Unique opaque authorization code. |
+| `oauthClientId` | `String` | Client bound to the code. |
+| `oauthUserId` | `String` | Login user bound to the code. |
+| `redirectUri` | `String` | Exact redirect URI required at token exchange. |
+| `resource` | `String` | Audience/resource for issued token claims. |
+| `state` | `String?` | Optional OAuth state echoed by the browser flow. |
+| `expiresAt` | `DateTime` | Expiry timestamp. |
+| `usedAt` | `DateTime?` | Set after successful exchange. |
+| `createdAt` | `DateTime` | Creation timestamp. |
+
+Indexes and constraints:
+
+- `code` is unique
+- `@@index([code])`
+- `@@index([oauthClientId, oauthUserId])`
+- `@@index([expiresAt])`
+
+## OAuthAuthorizationCodeEndpoint
+
+Stores endpoint permissions selected during browser consent.
+
+| Field | Type | Notes |
+|---|---|---|
+| `authorizationCodeId` | `String` | Authorization code relation, cascades on code delete. |
+| `endpointId` | `String` | Endpoint relation, cascades on endpoint delete. |
+| `createdAt` | `DateTime` | Permission creation timestamp. |
+
+Indexes and constraints:
+
+- `@@id([authorizationCodeId, endpointId])`
+- `@@index([endpointId])`
 
 ## OAuthIssuedToken
 

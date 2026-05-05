@@ -19,6 +19,7 @@ Define the reliability expectations and failure-handling rules for MCP Mock Serv
 - E2E checks cover OAuth permission denial, revocation, and reset recovery
 - audit tests prove mutation evidence is written
 - Ralph status verifies current-task state and active queue consistency
+- Docker Compose runs the production server on port `3000` and persists SQLite under `/app/data`; local Playwright and smoke checks continue to use port `3100` unless `PORT` is overridden.
 
 ## Runtime Startup Contract
 If the app depends on persistent runtime state, document how runtime preparation happens and how a production-style startup smoke proves the `start` path actually works.
@@ -33,6 +34,7 @@ If the app depends on persistent runtime state, document how runtime preparation
 `npm run start:logged` starts Next.js and writes operator-visible server output into timestamped files under `logs/`.
 `LOG_LEVEL` controls app log verbosity and supports `trace`, `debug`, `info`, `warn`, and `error`; invalid values fall back to `info`.
 Generated server code exposes those levels through the operator logger and redacts secret-looking metadata keys, including passwords, secrets, tokens, authorization headers, JWTs, and codes.
+For container operation, mount `/app/data` for SQLite persistence and `/app/logs` if `start:logged` or equivalent log capture is used.
 
 ## Base URL Resolution
 Runtime URL examples and OAuth issuer metadata use a shared base URL resolver.
@@ -51,6 +53,7 @@ UI tasks that fully prove quality through those deterministic checks may use `ta
 - SQLite backup/rotation policy is not yet defined
 - SSE streaming and MCP sessions are Phase 2
 - privacy policy for storing IP or IP hash in audit logs must be decided before public deployment
+- Docker image size is not optimized; the current Dockerfile keeps the toolchain available so `db:prepare` can run Prisma migrate/generate deterministically at container startup.
 
 ## Environment-Specific Verification Blockers
 If the direct operator path passes but the current sandboxed or wrapped runner still fails, record that separately from normal product bugs and escalate it explicitly instead of hiding it inside generic “not done” wording.

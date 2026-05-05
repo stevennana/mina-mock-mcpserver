@@ -17,6 +17,7 @@ Define the security posture for MCP Mock Server's current shipped slice.
 
 ## Secrets and Config
 - ROOT_PASSWORD gates reset, delete override, base URL override, and optional historical token deletion
+- Docker Compose includes a placeholder `ROOT_PASSWORD`; operators must replace it before public use.
 - Base URL override changes require ROOT_PASSWORD and write non-secret audit evidence for success and failure
 - client secrets and passwords are never logged
 - endpoint delete audit entries store method/reason metadata, not submitted delete codes or root passwords
@@ -44,6 +45,11 @@ Define the security posture for MCP Mock Server's current shipped slice.
 - REST mock routes /rest/tools and /rest/tools/:name/call
 - OAuth browser, token, revocation, discovery, and JWKS routes
 - health and public config endpoints
+
+## Deployment Notes
+- Run behind TLS when exposing the mock server publicly; the provided Nginx example is a reverse-proxy starting point, not a complete TLS or rate-limit policy.
+- Set `APP_BASE_URL` to the public `https://` origin in deployed environments, or rely on trusted `X-Forwarded-Host` and `X-Forwarded-Proto` headers from the reverse proxy.
+- Do not store sensitive customer data in SQLite; the admin UI is intentionally public for the MVP.
 
 ## Verification
 - unit tests for password hashing, auth precedence, root checks, built-in immutability, JWT signing/claims, code exchange failure cases, and permission denial

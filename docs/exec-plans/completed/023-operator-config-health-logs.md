@@ -5,7 +5,7 @@
   "id": "operator-config-health-logs",
   "title": "Operator Config, Health, Connection Guide, and Logs",
   "order": 23,
-  "status": "active",
+  "status": "completed",
   "next_task_on_success": "docker-nginx-final-hardening",
   "prompt_docs": [
     "AGENTS.md",
@@ -31,7 +31,8 @@
     "Required checks do not prove the claimed behavior.",
     "Implementation changes contradict the product spec or security/reliability docs."
   ],
-  "promotion_mode": "deterministic"
+  "promotion_mode": "deterministic",
+  "completed_at": "2026-05-05T14:10:35.380Z"
 }
 ```
 
@@ -118,3 +119,4 @@ Confirm that this task maps to the primary product spec `operator-configuration.
 - 2026-05-05T13:40:45.211Z: restored as current task after malformed-response-console-audit promotion.
 - 2026-05-05T14:25:00.000Z: found partial `/config`, `/api/health`, and `start:logged` implementations; reused them while adding shared operator config/base URL/logging services, persisted base URL override, public config API, expanded connection guide, and `@operator-config` coverage.
 - 2026-05-05T14:02:58Z: tightened the base URL override service so validation failures after a valid root password write non-secret audit evidence, and added unit/E2E assertions for that evaluator gap.
+- 2026-05-05T14:10:35.380Z: automatically promoted after deterministic checks and evaluator approval.
