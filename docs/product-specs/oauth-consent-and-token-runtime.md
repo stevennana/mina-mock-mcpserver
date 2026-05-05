@@ -27,6 +27,9 @@ OAuth users and clients management
 - access tokens are RS256 JWTs with issuer, audience/resource, subject, client ID, grant type, issued/expiry times, `jti`, scope, and `endpoint_permissions`
 - expired, reused, unknown, redirect-mismatched, client-mismatched, or client-secret-invalid authorization-code exchanges fail with deterministic OAuth-style errors
 - Token list/detail/revoke
+- `/tokens` and `/api/oauth/tokens` list issued token metadata by stored `jti`, with filters for active, expired, revoked, subject, client, and grant type
+- token detail shows reconstructed JWT claims and `endpoint_permissions` endpoint metadata from stored records, but does not redisplay raw access token values after issuance
+- revoking an issued token sets `revokedAt` on the historical token record and subsequent Bearer runtime validation treats the token as invalid, returning `401`
 - Discovery metadata
 - `/.well-known/oauth-protected-resource`, `/.well-known/oauth-authorization-server`, `/.well-known/openid-configuration`, and `/oauth/jwks` expose the mock server's implemented OAuth capabilities only
 - Discovery advertises authorization code and client credentials grants, `code` response type, `client_secret_post` token authentication, endpoint scope format, token endpoint, authorization endpoint, and JWKS URI
@@ -46,4 +49,5 @@ OAuth users and clients management
 - Permission filtering
 - Revocation lookup
 - 401 versus 403 mapping
+- Issued-token management must distinguish active, expired, and revoked rows while retaining historical metadata for debugging
 - Authorization-code browser flow selects endpoint permissions, exchanges code for token, calls /mcp/oauth successfully for allowed endpoint, receives 403 for denied endpoint, revokes token and receives 401

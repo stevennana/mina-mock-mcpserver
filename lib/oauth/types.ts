@@ -252,6 +252,59 @@ export type OAuthTokenExchangeResult = {
   scope: string;
 };
 
+export type OAuthIssuedTokenStatus = "active" | "expired" | "revoked";
+
+export type OAuthIssuedTokenEndpointPermission = {
+  id: string;
+  name: string | null;
+  title: string | null;
+  enabled: boolean | null;
+};
+
+export type OAuthIssuedTokenSummary = {
+  id: string;
+  jti: string;
+  status: OAuthIssuedTokenStatus;
+  subject: string;
+  clientId: string;
+  oauthClientId: string;
+  oauthUserId: string | null;
+  username: string | null;
+  grantType: OAuthAccessTokenClaims["grant_type"];
+  scope: string;
+  resource: string;
+  issuedAt: string;
+  expiresAt: string;
+  revokedAt: string | null;
+  endpointPermissionCount: number;
+};
+
+export type OAuthIssuedTokenDetail = OAuthIssuedTokenSummary & {
+  claims: OAuthAccessTokenClaims;
+  endpoint_permissions: OAuthIssuedTokenEndpointPermission[];
+};
+
+export type OAuthIssuedTokenListFilters = {
+  status?: OAuthIssuedTokenStatus | "all";
+  subject?: string;
+  client?: string;
+  grantType?: OAuthAccessTokenClaims["grant_type"] | "all";
+};
+
+export type OAuthIssuedTokenListResult = {
+  total: number;
+  active: number;
+  expired: number;
+  revoked: number;
+  tokens: OAuthIssuedTokenSummary[];
+};
+
+export class OAuthIssuedTokenNotFoundError extends Error {
+  constructor() {
+    super("OAuth issued token not found.");
+  }
+}
+
 export class OAuthTokenError extends Error {
   constructor(
     public readonly code: "invalid_request" | "invalid_client" | "invalid_grant" | "unsupported_grant_type",

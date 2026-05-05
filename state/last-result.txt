@@ -1,15 +1,16 @@
-Implemented OAuth Bearer enforcement for MCP and REST.
+Implemented issued-token inspection and revocation for `issued-token-ui-revocation`.
 
 What changed:
-- Added Bearer JWT parsing/validation in `lib/auth/oauth.ts`.
-- Added `/mcp/oauth`, Bearer precedence on `/mcp`, and Bearer-filtered MCP/REST tool lists.
-- Denied permitted-token calls now return `403`; invalid/expired/revoked Bearer tokens return `401`.
-- Added unit coverage and `@oauth-permissions` E2E coverage.
-- Updated specs, security/product docs, active task progress log, and `state/last-result.txt`.
+- Added token list/detail/revoke APIs under `/api/oauth/tokens`.
+- Added `/tokens` UI with status, subject, client, grant filters, claims detail, endpoint permission metadata, and no raw access-token redisplay.
+- Revoke persists `revokedAt`; existing Bearer validation then rejects subsequent OAuth runtime calls with `401`.
+- Added unit coverage and `@token-revocation` E2E coverage.
+- Updated related product/security/spec docs and the active task progress log.
+- Wrote the operator handoff to `state/last-result.txt`.
 
 Required checks passed:
 - `npm run test:unit`
-- `npm run test:e2e -- --grep @oauth-permissions`
+- `npm run test:e2e -- --grep @token-revocation`
 - `npm run verify`
 
 Exit criteria appear satisfied. Nothing remains for this task.

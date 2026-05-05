@@ -29,6 +29,8 @@ Define the security posture for MCP Mock Server's current shipped slice.
 - `/oauth/token` authorization-code exchange requires the same client, client secret, and redirect URI; consumed, expired, mismatched, or unknown codes fail with OAuth-style errors
 - `/oauth/token` client-credentials exchange requires a valid enabled client and secret, does not require user login, and intersects requested endpoint scopes with the client's allowed endpoint set
 - Access tokens are RS256 JWTs signed with `OAUTH_JWT_PRIVATE_KEY_PEM` when configured, otherwise a documented development key; issued token metadata is stored by `jti`, and raw token values are not persisted
+- Issued token inspection APIs and UI expose stored claim metadata and endpoint permissions only; they must not return raw access token values after issuance
+- Token revocation preserves historical issued-token records, sets `revokedAt`, and makes subsequent Bearer validation fail as invalid token authentication with `401`
 - `/oauth/jwks` publishes only the public RS256 verification key with the active token `kid`; private key parameters must never be present in the JWKS response
 - OAuth discovery metadata must describe implemented mock capabilities only and must not advertise refresh tokens, PKCE, external providers, or unimplemented revocation behavior
 - raw JWT values are shown only at issuance unless a config explicitly permits storage

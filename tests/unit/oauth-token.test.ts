@@ -14,8 +14,11 @@ import {
   createOAuthClient,
   exchangeOAuthAuthorizationCode,
   exchangeOAuthToken,
+  getOAuthIssuedTokenDetail,
   issueOAuthClientCredentialsToken,
+  listOAuthIssuedTokens,
   loginOAuthUserForConsent,
+  revokeOAuthIssuedToken,
 } from "@/lib/oauth/service";
 import { DEFAULT_OAUTH_CLIENT_REDIRECT_URI, DEFAULT_OAUTH_PRIVATE_KEY_PEM, OAuthTokenError } from "@/lib/oauth/types";
 
@@ -196,6 +199,67 @@ test("Bearer token resolver verifies signature, issuer, audience, expiry, revoca
       ).kind,
       "unauthorized",
     );
+  });
+});
+
+test("issued token listing, detail, filters, and revoke use stored jti metadata", async () => {
+  await withIsolatedDb(async (client) => {
+    const issued = await issueOAuthClientCredentialsToken(
+      {
+        grantType: "client_credentials",
+        clientId: "default",
+        clientSecret: "default",
+        resource: "https://resource.example/token-ui",
+        issuer: "https://issuer.example",
+        now: new Date("2026-05-05T00:00:00.000Z"),
+        code: "",
+        redirectUri: "",
+      },
+      client,
+    );
+    const claims = decodeJwt(issued.access_token).payload;
+
+    const activeList = await listOAuthIssuedTokens(
+      { status: "active", subject: "client:default", client: "default", grantType: "client_credentials" },
+      client,
+      new Date("2026-05-05T00:10:00.000Z"),
+    );
+    assert.equal(activeList.active, 1);
+    assert.equal(activeList.tokens.length, 1);
+    assert.equal(activeList.tokens[0]?.jti, claims.jti);
+    assert.equal(activeList.tokens[0]?.endpointPermissionCount, 1);
+
+    const detail = await getOAuthIssuedTokenDetail(claims.jti, client, new Date("2026-05-05T00:10:00.000Z"));
+    assert.equal(detail.status, "active");
+    assert.equal(detail.subject, "client:default");
+    assert.equal(detail.claims.jti, claims.jti);
+    assert.equal(detail.claims.client_id, "default");
+    assert.deepEqual(detail.claims.endpoint_permissions, ["endpoint_default_echo"]);
+    assert.deepEqual(
+      detail.endpoint_permissions.map((endpoint) => endpoint.id),
+      ["endpoint_default_echo"],
+    );
+    assert.equal(JSON.stringify(detail).includes(issued.access_token), false);
+
+    const revoked = await revokeOAuthIssuedToken(
+      claims.jti,
+      client,
+      new Date("2026-05-05T00:20:00.000Z"),
+    );
+    assert.equal(revoked.status, "revoked");
+    assert.equal(revoked.revokedAt, "2026-05-05T00:20:00.000Z");
+
+    const revokedList = await listOAuthIssuedTokens({ status: "revoked" }, client, new Date("2026-05-05T00:30:00.000Z"));
+    assert.equal(revokedList.revoked, 1);
+    assert.equal(revokedList.tokens.length, 1);
+
+    const afterRevoke = await resolveOAuthBearerAuthorizationHeader(
+      `Bearer ${issued.access_token}`,
+      "https://issuer.example/mcp/oauth",
+      client,
+      new Date("2026-05-05T00:30:00.000Z"),
+    );
+    assert.equal(afterRevoke.kind, "unauthorized");
   });
 });
 

@@ -1,8 +1,8 @@
 {
-  "task_id": "oauth-mcp-rest-permission-enforcement",
-  "started_at": "2026-05-05T21:38:39+09:00",
-  "artifact_dir": "state/artifacts/20260505T213839-oauth-mcp-rest-permission-enforcement",
+  "task_id": "issued-token-ui-revocation",
+  "started_at": "2026-05-05T21:49:59+09:00",
+  "artifact_dir": "state/artifacts/20260505T214959-issued-token-ui-revocation",
   "phase": "commit",
   "status": "running",
-  "updated_at": "2026-05-05T12:49:29.315Z"
+  "updated_at": "2026-05-05T13:02:39.612Z"
 }

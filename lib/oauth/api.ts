@@ -6,6 +6,7 @@ import {
   OAuthClientBuiltInError,
   OAuthClientNotFoundError,
   OAuthClientValidationError,
+  OAuthIssuedTokenNotFoundError,
   OAuthTokenError,
   OAuthUserBuiltInError,
   OAuthUserNotFoundError,
@@ -14,6 +15,7 @@ import {
 import type {
   OAuthClientCreateInput,
   OAuthClientUpdateInput,
+  OAuthIssuedTokenListFilters,
   OAuthTokenExchangeInput,
   OAuthUserCreateInput,
   OAuthUserUpdateInput,
@@ -175,4 +177,26 @@ export function oauthTokenErrorResponse(error: unknown) {
 
   console.error(error);
   return NextResponse.json({ error: "server_error" }, { status: 500 });
+}
+
+export function oauthIssuedTokenFiltersFromUrl(url: string): OAuthIssuedTokenListFilters {
+  const searchParams = new URL(url).searchParams;
+  const status = searchParams.get("status") ?? "all";
+  const grantType = searchParams.get("grantType") ?? "all";
+  return {
+    status: status === "active" || status === "expired" || status === "revoked" ? status : "all",
+    grantType:
+      grantType === "authorization_code" || grantType === "client_credentials" ? grantType : "all",
+    subject: searchParams.get("subject") ?? "",
+    client: searchParams.get("client") ?? "",
+  };
+}
+
+export function oauthIssuedTokenErrorResponse(error: unknown) {
+  if (error instanceof OAuthIssuedTokenNotFoundError) {
+    return NextResponse.json({ error: "not_found" }, { status: 404 });
+  }
+
+  console.error(error);
+  return NextResponse.json({ error: "internal_error" }, { status: 500 });
 }

@@ -1,0 +1,13 @@
+[main 33d4075] ralph: oauth-mcp-rest-permission-enforcement 2026-05-05T21:49:29+09:00
+ 37 files changed, 6013 insertions(+), 113 deletions(-)
+ create mode 100644 app/mcp/oauth/route.ts
+ rename docs/exec-plans/{active => completed}/018-oauth-discovery-metadata.md (95%)
+ create mode 100644 lib/auth/oauth.ts
+ create mode 100644 state/artifacts/20260505T213127-oauth-discovery-metadata/backlog.log
+ create mode 100644 state/artifacts/20260505T213127-oauth-discovery-metadata/promote.log
+ create mode 100644 state/artifacts/20260505T213839-oauth-mcp-rest-permission-enforcement/commit.log
+ create mode 100644 state/artifacts/20260505T213839-oauth-mcp-rest-permission-enforcement/evaluator.log
+ create mode 100644 state/artifacts/20260505T213839-oauth-mcp-rest-permission-enforcement/task-prompt.log
+ create mode 100644 state/artifacts/20260505T213839-oauth-mcp-rest-permission-enforcement/worker.jsonl
+ create mode 100644 tests/e2e/oauth-permissions.spec.ts
+commit: created

@@ -5,7 +5,7 @@
   "id": "issued-token-ui-revocation",
   "title": "Issued Token UI and Revocation",
   "order": 20,
-  "status": "queued",
+  "status": "active",
   "next_task_on_success": "failure-delay-forced-error-runtime",
   "prompt_docs": [
     "AGENTS.md",
@@ -103,3 +103,5 @@ Confirm that this task maps to the primary product spec `oauth-consent-and-token
 
 - Start here. Append timestamped progress notes as work lands.
 - Note when existing partial implementations were found and reused instead of replaced.
+- 2026-05-05T12:49:29.501Z: restored as current task after oauth-mcp-rest-permission-enforcement promotion.
+- 2026-05-05T12:51:21Z: found existing bearer validator already rejects stored `revokedAt`; reused it and added issued-token list/detail/revoke service/API/UI plus focused unit and `@token-revocation` E2E coverage.

@@ -2,58 +2,56 @@ Read the following repository documents before making changes:
 - AGENTS.md
 - ARCHITECTURE.md
 - docs/PRODUCT_SENSE.md
+- docs/FRONTEND.md
 - docs/SECURITY.md
-- docs/product-specs/mcp-json-rpc-runtime.md
-- docs/product-specs/rest-mock-api.md
 - docs/product-specs/oauth-consent-and-token-runtime.md
-- docs/exec-plans/active/019-oauth-mcp-rest-permission-enforcement.md
+- docs/exec-plans/active/020-issued-token-ui-revocation.md
 
-Current task id: oauth-mcp-rest-permission-enforcement
-Current task title: OAuth Bearer Enforcement for MCP and REST
+Current task id: issued-token-ui-revocation
+Current task title: Issued Token UI and Revocation
 
 Objective:
-Validate Bearer tokens and enforce endpoint permissions on MCP and REST routes, with correct 401 versus 403 behavior.
+Build issued-token inspection/filtering UI and token revocation behavior that affects subsequent OAuth runtime calls.
 
 Clarity notes:
-- This task connects issued tokens to runtime authorization but does not build the token management UI.
-- OAuth permissions apply only to Bearer mode, never no-auth or Basic.
-- 401 means token auth failed; 403 means token is valid but lacks endpoint permission.
-- Both MCP and REST should use the same permission resolver.
+- This task is token operations and evidence, after bearer enforcement exists.
+- Raw access token values should not be redisplayed after issuance by default.
+- Revocation changes runtime authorization via stored `jti` state.
+- Token detail should help developers debug claims and endpoint permissions.
 
 Expected result:
-- `/mcp/oauth` requires valid Bearer tokens.
-- `/mcp` uses Bearer precedence for Bearer headers and rejects invalid Bearer tokens.
-- MCP and REST list routes filter to permitted endpoints.
-- Allowed calls succeed; denied endpoint calls return 403 with useful MCP/REST error data.
+- Issued tokens can be listed, filtered, and inspected by status, subject, client, grant type, expiry, and endpoint count.
+- Token detail shows claims and endpoint_permissions metadata.
+- Revoking a token marks it revoked and subsequent OAuth calls fail with 401.
+- E2E tests prove UI revocation affects runtime behavior.
 
 Objections / risks to avoid:
-- Do not confuse 401 and 403.
-- Do not apply OAuth permissions to no-auth or Basic callers.
-- Do not require token UI to exist for enforcement.
-- Do not skip E2E proof of allowed and denied external-client behavior.
+- Do not store or redisplay raw token values unless explicit config exists.
+- Do not delete historical token records by default.
+- Do not implement new OAuth grants.
+- Do not let revocation return 403; revoked tokens are invalid and should return 401.
 
 Scope:
-- Implement Bearer token parser and validator.
-- Check signature, issuer, audience/resource, expiry, jti revocation state, and endpoint permissions.
-- Apply OAuth filtering and call authorization to MCP and REST routes.
-- Add unit and E2E tests tagged `@oauth-permissions`.
+- Build token list/detail/filter UI.
+- Implement revoke action/API and optional `/oauth/revoke` if aligned with docs.
+- Wire revocation state into existing bearer validator.
+- Add unit and E2E tests tagged `@token-revocation`.
 
 Out of scope:
-- Issued token UI.
-- Manual token revocation UI/API except read-only revocation lookup needed for validation.
-- New OAuth grants.
-- SSE list_changed push.
+- Historical token deletion with root password unless separately trivial and tested.
+- OAuth grant behavior already implemented.
+- Discovery metadata.
 
 Exit criteria:
-1. Valid tokens expose only permitted endpoints.
-2. Denied endpoint calls return 403 and invalid/expired/revoked tokens return 401.
-3. No-auth and Basic behavior remains unchanged.
-4. `@oauth-permissions` proves allowed and denied MCP/REST flows.
+1. Token UI exposes claims/permissions without raw-token leakage.
+2. Revocation is persistent and affects runtime calls.
+3. Filters distinguish active, expired, and revoked tokens.
+4. `@token-revocation` passes.
 5. All required checks pass.
 
 Required checks:
 - npm run test:unit
-- npm run test:e2e -- --grep @oauth-permissions
+- npm run test:e2e -- --grep @token-revocation
 - npm run verify
 
 Evaluator notes:
@@ -67,7 +65,7 @@ Required repository artifacts for this task:
 
 Required commands for this task:
 - npm run test:unit
-- npm run test:e2e -- --grep @oauth-permissions
+- npm run test:e2e -- --grep @token-revocation
 - npm run verify
 
 Previous known gaps from the last evaluation:

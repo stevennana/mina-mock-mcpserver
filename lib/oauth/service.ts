@@ -26,6 +26,7 @@ import {
   OAuthAuthorizeRequestError,
   OAuthLoginError,
   OAUTH_LOGIN_TICKET_TTL_SECONDS,
+  OAuthIssuedTokenNotFoundError,
   OAuthTokenError,
   OAuthUserBuiltInError,
   OAuthUserNotFoundError,
@@ -49,6 +50,12 @@ import type {
   OAuthClientSummary,
   OAuthClientUpdateInput,
   OAuthAccessTokenClaims,
+  OAuthIssuedTokenDetail,
+  OAuthIssuedTokenEndpointPermission,
+  OAuthIssuedTokenListFilters,
+  OAuthIssuedTokenListResult,
+  OAuthIssuedTokenStatus,
+  OAuthIssuedTokenSummary,
   OAuthTokenExchangeInput,
   OAuthTokenExchangeResult,
   OAuthUserCreateInput,
@@ -68,6 +75,9 @@ type OAuthUserRecord = Prisma.OAuthUserGetPayload<object>;
 type OAuthClientRecord = Prisma.OAuthClientGetPayload<{ include: typeof oauthClientInclude }>;
 type OAuthAuthorizationCodeRecord = Prisma.OAuthAuthorizationCodeGetPayload<{
   include: { selectedEndpoints: true };
+}>;
+type OAuthIssuedTokenRecord = Prisma.OAuthIssuedTokenGetPayload<{
+  include: { oauthClient: true; oauthUser: true };
 }>;
 type OAuthUserSeedClient = Pick<PrismaClient, "oAuthUser">;
 type OAuthClientSeedClient = Pick<PrismaClient, "oAuthClient" | "oAuthClientAllowedEndpoint" | "endpoint">;
@@ -134,6 +144,15 @@ function parseRedirectUris(value: string) {
   }
 }
 
+function parseEndpointPermissions(value: string) {
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed.filter((item): item is string => typeof item === "string") : [];
+  } catch {
+    return [];
+  }
+}
+
 function toClientSummary(client: OAuthClientRecord): OAuthClientSummary {
   const allowedEndpoints = client.allowedEndpoints.map((allowedEndpoint) => endpointToOption(allowedEndpoint.endpoint));
   return {
@@ -187,6 +206,53 @@ function oauthIssuer(inputIssuer?: string) {
 
 function endpointScope(endpointIds: string[]) {
   return endpointIds.map((endpointId) => `endpoint:${endpointId}`).join(" ");
+}
+
+function tokenStatus(token: { expiresAt: Date; revokedAt: Date | null }, now: Date): OAuthIssuedTokenStatus {
+  if (token.revokedAt) return "revoked";
+  if (token.expiresAt.getTime() <= now.getTime()) return "expired";
+  return "active";
+}
+
+function tokenSubject(token: OAuthIssuedTokenRecord) {
+  return token.oauthUser ? token.oauthUser.id : `client:${token.oauthClient.clientId}`;
+}
+
+function toIssuedTokenSummary(token: OAuthIssuedTokenRecord, now: Date): OAuthIssuedTokenSummary {
+  const endpointPermissions = parseEndpointPermissions(token.endpointPermissionsJson);
+  return {
+    id: token.id,
+    jti: token.jti,
+    status: tokenStatus(token, now),
+    subject: tokenSubject(token),
+    clientId: token.oauthClient.clientId,
+    oauthClientId: token.oauthClientId,
+    oauthUserId: token.oauthUserId,
+    username: token.oauthUser?.username ?? null,
+    grantType: token.grantType as OAuthAccessTokenClaims["grant_type"],
+    scope: token.scope,
+    resource: token.resource,
+    issuedAt: token.issuedAt.toISOString(),
+    expiresAt: token.expiresAt.toISOString(),
+    revokedAt: token.revokedAt?.toISOString() ?? null,
+    endpointPermissionCount: endpointPermissions.length,
+  };
+}
+
+function toIssuedTokenClaims(token: OAuthIssuedTokenRecord): OAuthAccessTokenClaims {
+  return {
+    iss: oauthIssuer(),
+    aud: token.resource,
+    resource: token.resource,
+    sub: tokenSubject(token),
+    client_id: token.oauthClient.clientId,
+    grant_type: token.grantType as OAuthAccessTokenClaims["grant_type"],
+    iat: Math.floor(token.issuedAt.getTime() / 1000),
+    exp: Math.floor(token.expiresAt.getTime() / 1000),
+    jti: token.jti,
+    scope: token.scope,
+    endpoint_permissions: parseEndpointPermissions(token.endpointPermissionsJson),
+  };
 }
 
 function endpointPermissionsFromRequestedScope(scope: string, allowedEndpointIds: string[]) {
@@ -306,6 +372,117 @@ export async function listOAuthClients(client: PrismaClient = createPrismaClient
     endpointOptions: endpoints.map(endpointToOption),
     ttlPresets: OAUTH_CLIENT_CREDENTIALS_TTL_PRESETS,
   };
+}
+
+export async function listOAuthIssuedTokens(
+  filters: OAuthIssuedTokenListFilters = {},
+  client: PrismaClient = createPrismaClient(),
+  now: Date = new Date(),
+): Promise<OAuthIssuedTokenListResult> {
+  const tokens = await client.oAuthIssuedToken.findMany({
+    include: { oauthClient: true, oauthUser: true },
+    orderBy: [{ issuedAt: "desc" }],
+  });
+  const summaries = tokens.map((token) => toIssuedTokenSummary(token, now));
+  const normalizedSubject = filters.subject?.trim().toLowerCase() ?? "";
+  const normalizedClient = filters.client?.trim().toLowerCase() ?? "";
+  const filtered = summaries.filter((token) => {
+    if (filters.status && filters.status !== "all" && token.status !== filters.status) return false;
+    if (filters.grantType && filters.grantType !== "all" && token.grantType !== filters.grantType) return false;
+    if (
+      normalizedSubject &&
+      !token.subject.toLowerCase().includes(normalizedSubject) &&
+      !(token.username ?? "").toLowerCase().includes(normalizedSubject)
+    ) {
+      return false;
+    }
+    if (normalizedClient && !token.clientId.toLowerCase().includes(normalizedClient)) return false;
+    return true;
+  });
+
+  return {
+    total: summaries.length,
+    active: summaries.filter((token) => token.status === "active").length,
+    expired: summaries.filter((token) => token.status === "expired").length,
+    revoked: summaries.filter((token) => token.status === "revoked").length,
+    tokens: filtered,
+  };
+}
+
+export async function getOAuthIssuedTokenDetail(
+  jti: string,
+  client: PrismaClient = createPrismaClient(),
+  now: Date = new Date(),
+): Promise<OAuthIssuedTokenDetail> {
+  const token = await client.oAuthIssuedToken.findUnique({
+    where: { jti },
+    include: { oauthClient: true, oauthUser: true },
+  });
+  if (!token) {
+    throw new OAuthIssuedTokenNotFoundError();
+  }
+
+  const endpointIds = parseEndpointPermissions(token.endpointPermissionsJson);
+  const endpointRecords = endpointIds.length
+    ? await client.endpoint.findMany({
+        where: { id: { in: endpointIds } },
+        select: { id: true, name: true, title: true, enabled: true },
+      })
+    : [];
+  const endpointLookup = new Map(endpointRecords.map((endpoint) => [endpoint.id, endpoint]));
+  const endpointPermissions: OAuthIssuedTokenEndpointPermission[] = endpointIds.map((endpointId) => {
+    const endpoint = endpointLookup.get(endpointId);
+    return {
+      id: endpointId,
+      name: endpoint?.name ?? null,
+      title: endpoint?.title ?? null,
+      enabled: endpoint?.enabled ?? null,
+    };
+  });
+
+  return {
+    ...toIssuedTokenSummary(token, now),
+    claims: toIssuedTokenClaims(token),
+    endpoint_permissions: endpointPermissions,
+  };
+}
+
+export async function revokeOAuthIssuedToken(
+  jti: string,
+  client: PrismaClient = createPrismaClient(),
+  now: Date = new Date(),
+): Promise<OAuthIssuedTokenDetail> {
+  const existing = await client.oAuthIssuedToken.findUnique({
+    where: { jti },
+    include: { oauthClient: true, oauthUser: true },
+  });
+  if (!existing) {
+    throw new OAuthIssuedTokenNotFoundError();
+  }
+
+  await client.$transaction(async (tx) => {
+    if (!existing.revokedAt) {
+      await tx.oAuthIssuedToken.update({ where: { jti }, data: { revokedAt: now } });
+    }
+    await recordAuditEvent(
+      {
+        eventType: "oauth_token.revoke",
+        subjectType: "oauth_issued_token",
+        subjectId: jti,
+        subjectName: existing.oauthClient.clientId,
+        outcome: "success",
+        metadata: {
+          grantType: existing.grantType,
+          oauthClientId: existing.oauthClientId,
+          oauthUserId: existing.oauthUserId,
+          alreadyRevoked: Boolean(existing.revokedAt),
+        },
+      },
+      tx,
+    );
+  });
+
+  return getOAuthIssuedTokenDetail(jti, client, now);
 }
 
 export async function createOAuthUser(input: OAuthUserCreateInput, client: PrismaClient = createPrismaClient()) {

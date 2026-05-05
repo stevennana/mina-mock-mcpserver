@@ -51,7 +51,7 @@ Remote MCP adoption is moving auth, transport, and permission bugs into client i
 - OAuth consent can select endpoints, exchange a single-use code for a JWT with endpoint permission claims, allow selected tools, deny unselected tools with 403, and return 401 after revocation
 - OAuth Bearer runtime enforcement applies the same endpoint permission resolver to MCP and REST calls while leaving no-auth and Basic callers unrestricted by OAuth permissions
 - OAuth client credentials can issue a JWT without browser login, using the client's TTL and only the endpoint-scope intersection allowed for that client
-- token and audit screens show enough evidence to debug a client test, including endpoint delete success/failure without stored secrets
+- token and audit screens show enough evidence to debug a client test, including token status, claims, endpoint permissions, revocation, and endpoint delete success/failure without stored secrets
 - SQLite state survives restart and root reset restores currently implemented built-in endpoint and Basic user defaults
 - npm run verify and npm run start:smoke pass before task promotion
 

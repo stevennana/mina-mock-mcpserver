@@ -751,3 +751,18 @@
 - evaluator: started
 - evaluator: status=done promotion=true OAuth Bearer enforcement is complete in substance. The implementation adds Bearer parsing and JWT validation, verifies issuer/resource/expiry/stored jti revocation and stored endpoint permissions, applies permission filtering to MCP and REST list routes, maps valid-token permission denials to 403, maps invalid/missing/expired/revoked Bearer auth to 401, and keeps no-auth/Basic behavior covered by existing flows. The task maps directly to oauth-consent-and-token-runtime.md, and the required deterministic gates are recorded as passing. -> state/artifacts/20260505T213839-oauth-mcp-rest-permission-enforcement/evaluator.log
 - next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T213839-oauth-mcp-rest-permission-enforcement/npm-run-test-e2e-grep-oauth-permissions-next-server.log
+- commit: commit: created
+- promote: Promoted oauth-mcp-rest-permission-enforcement -> issued-token-ui-revocation
+- backlog: rendered current=issued-token-ui-revocation
+- health: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxooooooooooooooooxoo
+- cycle: finished
+
+### cycle 2026-05-05T21:49:59+09:00 task=issued-token-ui-revocation
+- artifacts: state/artifacts/20260505T214959-issued-token-ui-revocation
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260505T214959-issued-token-ui-revocation/worker.jsonl
+- worker-summary: Implemented issued-token inspection and revocation for `issued-token-ui-revocation`.
+- evaluator: started
+- evaluator: status=not_done promotion=false The implementation covers the main token list/detail/revoke flow and the required deterministic commands reportedly pass, but I found substantive gaps against the spec/exit criteria. Token detail reconstructs claims with the current/default issuer instead of the issuer used when the token was issued, because issuer is not persisted on OAuthIssuedToken. That can make the claims UI inaccurate for tokens issued from request-origin/base-URL contexts. Also, the @token-revocation coverage proves active and revoked filtering, but does not prove expired-token filtering despite that being an explicit exit criterion. -> state/artifacts/20260505T214959-issued-token-ui-revocation/evaluator.log
+- next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T214959-issued-token-ui-revocation/npm-run-test-e2e-grep-token-revocation-next-server.log
