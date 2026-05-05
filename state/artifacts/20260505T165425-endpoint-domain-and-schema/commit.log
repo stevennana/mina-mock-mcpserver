@@ -1,0 +1,9 @@
+[main b1bfad6] ralph: endpoint-domain-and-schema 2026-05-05T16:58:09+09:00
+ 15 files changed, 1819 insertions(+), 31 deletions(-)
+ create mode 100644 state/artifacts/20260505T164948-endpoint-domain-and-schema/backlog.log
+ create mode 100644 state/artifacts/20260505T164948-endpoint-domain-and-schema/promote.log
+ create mode 100644 state/artifacts/20260505T165425-endpoint-domain-and-schema/commit.log
+ create mode 100644 state/artifacts/20260505T165425-endpoint-domain-and-schema/evaluator.log
+ create mode 100644 state/artifacts/20260505T165425-endpoint-domain-and-schema/task-prompt.log
+ create mode 100644 state/artifacts/20260505T165425-endpoint-domain-and-schema/worker.jsonl
+commit: created
