@@ -175,3 +175,18 @@
 - evaluator: started
 - evaluator: status=done promotion=true The task is complete in substance. The implementation provides Prisma/SQLite persistence, repo-local DB configuration, migrations, deterministic db preparation, idempotent protected endpoint seed defaults, repeatability coverage, and generated schema documentation that matches the implemented endpoint persistence shape. The work maps directly to endpoint-tool-management.md and does not appear to broaden into UI, MCP, REST, auth, OAuth, or reset behavior. -> state/artifacts/20260505T170343-endpoint-domain-and-schema/evaluator.log
 - next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T170343-endpoint-domain-and-schema/npm-run-verify-next-server.log
+- commit: commit: created
+- promote: failed -> state/artifacts/20260505T170343-endpoint-domain-and-schema/promote.log
+- backlog: rendered current=endpoint-domain-and-schema
+- health: xxxxxxxxxxxx
+- cycle: finished
+
+### cycle 2026-05-05T17:08:17+09:00 task=endpoint-domain-and-schema
+- artifacts: state/artifacts/20260505T170817-endpoint-domain-and-schema
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260505T170817-endpoint-domain-and-schema/worker.jsonl
+- worker-summary: Completed `endpoint-domain-and-schema`.
+- evaluator: started
+- evaluator: status=done promotion=true The task is complete in substance. The repository has Prisma/SQLite dependencies, repo-local Prisma configuration, migrations, generated-client setup, and an idempotent seed path for a protected enabled echo endpoint. The schema covers endpoint identity/name/title/description/enabled state, ordered parameters, response cases, default responses, delete codes, timestamps, and basic endpoint/case failure config placeholders. The seed data is singular after repeat preparation, and docs/generated/db-schema.md matches the implemented schema. The provided mandatory gates all passed; I did not rerun write-heavy gates because this evaluator environment is read-only, but I verified the current SQLite contents and implementation shape directly. -> state/artifacts/20260505T170817-endpoint-domain-and-schema/evaluator.log
+- next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T170817-endpoint-domain-and-schema/npm-run-verify-next-server.log
