@@ -4,35 +4,35 @@ Read these documents before deciding:
 - AGENTS.md
 - ARCHITECTURE.md
 - docs/PRODUCT_SENSE.md
-- docs/DESIGN.md
-- docs/references/prd-analysis.md
+- docs/FRONTEND.md
+- docs/SECURITY.md
 - docs/product-specs/endpoint-tool-management.md
-- docs/exec-plans/active/001-endpoint-domain-and-schema.md
+- docs/exec-plans/active/005-endpoint-protected-delete-audit.md
 
-Current task id: endpoint-domain-and-schema
-Current task title: Endpoint Persistence Schema and Seed Defaults
+Current task id: endpoint-protected-delete-audit
+Current task title: Endpoint Protected Delete and Audit Evidence
 
 Objective:
-Replace the bootstrap runtime placeholder with durable SQLite/Prisma persistence for endpoint/tool data and deterministic seed defaults.
+Implement endpoint deletion guarded by delete code or root password, with audit evidence for successful and failed delete attempts.
 
 Scope:
-- Add Prisma/SQLite dependencies, schema, migration or sync path, generated client setup, and repo-local DB configuration.
-- Define endpoint, parameter, response case, and timestamp fields required by the PRD for MVP endpoint management.
-- Implement idempotent seed preparation for at least one representative enabled endpoint and any protected defaults needed by endpoint flows.
-- Update `scripts/db-prepare.mjs` to prepare SQLite state deterministically.
-- Add unit coverage or command-level assertions that `db:prepare` can run repeatedly.
+- Add delete confirmation UI/API.
+- Validate endpoint delete code and root password override.
+- Clean up endpoint-dependent mappings safely where already present.
+- Create audit event storage/use for endpoint delete and failed delete attempts.
+- Add E2E coverage for success, failure, and audit evidence.
 
 Out of scope:
-- Endpoint validators and exact-match response selection beyond simple schema constraints.
-- Endpoint management UI.
-- MCP, REST, Basic Auth, or OAuth runtime behavior.
-- Root reset behavior; that has its own task.
+- Full reset-to-default behavior.
+- Basic/OAuth audit events beyond endpoint delete.
+- Historical token deletion.
+- Rate limiting or abuse controls.
 
 Exit criteria:
-1. `npm run db:prepare` creates or updates the SQLite runtime state successfully from a clean checkout.
-2. Running `npm run db:prepare` twice is safe and does not duplicate seed data.
-3. The schema can represent endpoint names, descriptions, enabled state, up to three parameters, response cases, default responses, delete codes, and basic failure config fields.
-4. `docs/generated/db-schema.md` matches the implemented persistence shape.
+1. Deleting with correct endpoint code succeeds.
+2. Deleting with wrong code fails and writes audit evidence.
+3. Root password override succeeds without logging the secret.
+4. Deleted endpoints are no longer exposed in endpoint list data.
 5. All required checks pass.
 
 Evaluator notes:
@@ -43,30 +43,37 @@ Confirm that this task maps to the primary product spec `endpoint-tool-managemen
 
 Deterministic check summary:
 {
-  "checked_at": "2026-05-05T09:43:06.989Z",
-  "task_id": "endpoint-domain-and-schema",
+  "checked_at": "2026-05-05T10:18:41.676Z",
+  "task_id": "endpoint-protected-delete-audit",
   "commands": [
-    {
-      "command": "npm run db:prepare",
-      "ok": true,
-      "output": "\n> mina-mock-mcpserver@1.0.0 db:prepare\n> node scripts/db-prepare.mjs\n\nDatasource \"db\": SQLite database \"runtime.sqlite\" at \"file:./data/runtime.sqlite\"\n\n2 migrations found in prisma/migrations\n\n\nNo pending migrations to apply.\n\n✔ Generated Prisma Client (v7.8.0) to ./node_modules/@prisma/client in 50ms\n\nStart by importing your Prisma Client (See: https://pris.ly/d/importing-client)\n\n\nPrepared SQLite runtime state with Prisma migrations and endpoint seed defaults.\n"
-    },
     {
       "command": "npm run test:unit",
       "ok": true,
-      "output": "\n> mina-mock-mcpserver@1.0.0 test:unit\n> node --import tsx --test \"tests/unit/**/*.test.ts\"\n\n✔ normalizeLogLevel accepts supported operator log levels (0.364667ms)\n✔ normalizeLogLevel defaults invalid input to info (0.057ms)\n✔ getBootstrapStatus reports prepared foundation state (0.05875ms)\n✔ db:prepare is repeatable and keeps endpoint seed rows singular (2890.6035ms)\nℹ tests 4\nℹ suites 0\nℹ pass 4\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 3023.260208\n"
+      "output": "\n> mina-mock-mcpserver@1.0.0 test:unit\n> node --import tsx --test \"tests/unit/**/*.test.ts\"\n\n✔ normalizeLogLevel accepts supported operator log levels (0.369834ms)\n✔ normalizeLogLevel defaults invalid input to info (0.058833ms)\n✔ getBootstrapStatus reports prepared foundation state (0.05425ms)\n✔ db:prepare is repeatable and keeps endpoint seed rows singular (2923.7625ms)\n✔ endpoint validation accepts the MVP editor field set (0.620666ms)\n✔ endpoint validation returns field-level errors for UI rendering (0.356375ms)\n✔ MCP input schema generation reflects endpoint parameters (0.397625ms)\n✔ Ralph promotion resolves ordered successor filenames by taskmeta id (36.254875ms)\nℹ tests 8\nℹ suites 0\nℹ pass 8\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 3067.364209\n"
     },
     {
-      "command": "npm run verify",
+      "command": "npm run test:e2e -- --grep @endpoint-delete-audit",
       "ok": true,
-      "output": "\n> mina-mock-mcpserver@1.0.0 verify\n> npm run lint && npm run typecheck && npm run build && npm run test:unit && npm run test:e2e && npm run start:smoke\n\n\n> mina-mock-mcpserver@1.0.0 lint\n> eslint .\n\n\n> mina-mock-mcpserver@1.0.0 typecheck\n> tsc --noEmit\n\n\n> mina-mock-mcpserver@1.0.0 build\n> next build\n\n   ▲ Next.js 15.5.15\n\n   Creating an optimized production build ...\n ✓ Compiled successfully in 684ms\n   Linting and checking validity of types ...\n   Collecting page data ...\n   Generating static pages (0/5) ...\n   Generating static pages (1/5) \r\n   Generating static pages (2/5) \r\n   Generating static pages (3/5) \r\n ✓ Generating static pages (5/5)\n   Finalizing page optimization ...\n   Collecting build traces ...\n\nRoute (app)                                 Size  First Load JS\n┌ ○ /                                      124 B         102 kB\n├ ○ /_not-found                            999 B         103 kB\n└ ƒ /api/health                            124 B         102 kB\n+ First Load JS shared by all             102 kB\n  ├ chunks/255-4f212684648fcab9.js         46 kB\n  ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB\n  └ other shared chunks (total)          1.89 kB\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n\n\n> mina-mock-mcpserver@1.0.0 test:unit\n> node --import tsx --test \"tests/unit/**/*.test.ts\"\n\n✔ normalizeLogLevel accepts supported operator log levels (0.356875ms)\n✔ normalizeLogLevel defaults invalid input to info (0.064291ms)\n✔ getBootstrapStatus reports prepared foundation state (0.0515ms)\n✔ db:prepare is repeatable and keeps endpoint seed rows singular (2875.725333ms)\nℹ tests 4\nℹ suites 0\nℹ pass 4\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 2995.475416\n\n> mina-mock-mcpserver@1.0.0 test:e2e\n> playwright test\n\n\nRunning 2 tests using 1 worker\n\n  ✓  1 [chromium] › tests/e2e/bootstrap.spec.ts:3:5 › foundation dashboard renders planned MCP mock server surfaces (515ms)\n  ✓  2 [chromium] › tests/e2e/bootstrap.spec.ts:11:5 › health endpoint reports ok status (238ms)\n\n  2 passed (3.3s)\n\n> mina-mock-mcpserver@1.0.0 start:smoke\n> node scripts/start-smoke.mjs\n\n\n> mina-mock-mcpserver@1.0.0 db:prepare\n> node scripts/db-prepare.mjs\n\nDatasource \"db\": SQLite database \"runtime.sqlite\" at \"file:./data/runtime.sqlite\"\n\n2 migrations found in prisma/migrations\n\n\nNo pending migrations to apply.\n\n✔ Generated Prisma Client (v7.8.0) to ./node_modules/@prisma/client in 36ms\n\nStart by importing your Prisma Client (See: https://pris.ly/d/importing-client)\n\n\nPrepared SQLite runtime state with Prisma migrations and endpoint seed defaults.\n\n> mina-mock-mcpserver@1.0.0 build\n> next build\n\n   ▲ Next.js 15.5.15\n\n   Creating an optimized production build ...\n ✓ Compiled successfully in 677ms\n   Linting and checking validity of types ...\n   Collecting page data ...\n   Generating static pages (0/5) ...\n   Generating static pages (1/5) \r\n   Generating static pages (2/5) \r\n   Generating static pages (3/5) \r\n ✓ Generating static pages (5/5)\n   Finalizing page optimization ...\n   Collecting build traces ...\n\nRoute (app)                                 Size  First Load JS\n┌ ○ /                                      124 B         102 kB\n├ ○ /_not-found                            999 B         103 kB\n└ ƒ /api/health                            124 B         102 kB\n+ First Load JS shared by all             102 kB\n  ├ chunks/255-4f212684648fcab9.js         46 kB\n  ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB\n  └ other shared chunks (total)          1.89 kB\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n\n   ▲ Next.js 15.5.15\n   - Local:        http://localhost:3100\n   - Network:      http://192.168.100.125:3100\n\n ✓ Starting...\n ✓ Ready in 257ms\nProduction-style startup smoke passed at http://127.0.0.1:3100/api/health\n",
+      "output": "\n> mina-mock-mcpserver@1.0.0 test:e2e\n> playwright test --grep @endpoint-delete-audit\n\n\nRunning 1 test using 1 worker\n\n  ✓  1 [chromium] › tests/e2e/endpoint-delete-audit.spec.ts:17:5 › endpoint delete requires confirmation and writes non-secret audit evidence @endpoint-delete-audit (3.6s)\n\n  1 passed (7.8s)\n",
       "preflight": {
         "command": "ensure-e2e-port-free.sh 3100",
         "error": "",
         "ok": true,
         "output": "port-cleanup: 127.0.0.1:3100 already free\n"
       },
-      "next_server_log_path": "/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T183939-endpoint-domain-and-schema/npm-run-verify-next-server.log"
+      "next_server_log_path": "/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T191001-endpoint-protected-delete-audit/npm-run-test-e2e-grep-endpoint-delete-audit-next-server.log"
+    },
+    {
+      "command": "npm run verify",
+      "ok": true,
+      "output": "\n> mina-mock-mcpserver@1.0.0 verify\n> npm run lint && npm run typecheck && npm run build && npm run test:unit && npm run test:e2e && npm run start:smoke\n\n\n> mina-mock-mcpserver@1.0.0 lint\n> eslint .\n\n\n> mina-mock-mcpserver@1.0.0 typecheck\n> tsc --noEmit\n\n\n> mina-mock-mcpserver@1.0.0 build\n> next build\n\n   ▲ Next.js 15.5.15\n\n   Creating an optimized production build ...\n ✓ Compiled successfully in 813ms\n   Linting and checking validity of types ...\n   Collecting page data ...\n   Generating static pages (0/9) ...\n   Generating static pages (2/9) \r\n   Generating static pages (4/9) \r\n   Generating static pages (6/9) \r\n ✓ Generating static pages (9/9)\n   Finalizing page optimization ...\n   Collecting build traces ...\n\nRoute (app)                                 Size  First Load JS\n┌ ○ /                                      164 B         106 kB\n├ ○ /_not-found                            999 B         103 kB\n├ ƒ /api/audit                             129 B         102 kB\n├ ƒ /api/endpoints                         129 B         102 kB\n├ ƒ /api/endpoints/[id]                    129 B         102 kB\n├ ƒ /api/health                            129 B         102 kB\n├ ○ /audit                                 164 B         106 kB\n└ ○ /endpoints                           4.97 kB         110 kB\n+ First Load JS shared by all             102 kB\n  ├ chunks/255-4f212684648fcab9.js         46 kB\n  ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB\n  └ other shared chunks (total)          1.89 kB\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n\n\n> mina-mock-mcpserver@1.0.0 test:unit\n> node --import tsx --test \"tests/unit/**/*.test.ts\"\n\n✔ normalizeLogLevel accepts supported operator log levels (0.355625ms)\n✔ normalizeLogLevel defaults invalid input to info (0.059333ms)\n✔ getBootstrapStatus reports prepared foundation state (0.057209ms)\n✔ db:prepare is repeatable and keeps endpoint seed rows singular (2795.263875ms)\n✔ endpoint validation accepts the MVP editor field set (0.839ms)\n✔ endpoint validation returns field-level errors for UI rendering (0.376ms)\n✔ MCP input schema generation reflects endpoint parameters (0.408708ms)\n✔ Ralph promotion resolves ordered successor filenames by taskmeta id (34.633875ms)\nℹ tests 8\nℹ suites 0\nℹ pass 8\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 2935.932417\n\n> mina-mock-mcpserver@1.0.0 test:e2e\n> playwright test\n\n\nRunning 5 tests using 4 workers\n\n  ✓  4 [chromium] › tests/e2e/bootstrap.spec.ts:3:5 › foundation dashboard renders planned MCP mock server surfaces (1.4s)\n  ✓  5 [chromium] › tests/e2e/bootstrap.spec.ts:11:5 › health endpoint reports ok status (423ms)\n  ✓  1 [chromium] › tests/e2e/endpoint-console.spec.ts:5:5 › endpoint schema preview and console shell stay stable on desktop and mobile @ui-endpoint-console (1.9s)\n  ✓  3 [chromium] › tests/e2e/endpoint-editor.spec.ts:5:5 › endpoint editor supports persisted create, edit, search, screenshots, and responsive checks @ui-endpoint-editor (3.2s)\n  ✓  2 [chromium] › tests/e2e/endpoint-delete-audit.spec.ts:17:5 › endpoint delete requires confirmation and writes non-secret audit evidence @endpoint-delete-audit (4.2s)\n\n  5 passed (8.3s)\n\n> mina-mock-mcpserver@1.0.0 start:smoke\n> node scripts/start-smoke.mjs\n\n\n> mina-mock-mcpserver@1.0.0 db:prepare\n> node scripts/db-prepare.mjs\n\nDatasource \"db\": SQLite database \"runtime.sqlite\" at \"file:./data/runtime.sqlite\"\n\n3 migrations found in prisma/migrations\n\n\nNo pending migrations to apply.\n\n✔ Generated Prisma Client (v7.8.0) to ./node_modules/@prisma/client in 38ms\n\nStart by importing your Prisma Client (See: https://pris.ly/d/importing-client)\n\n\nPrepared SQLite runtime state with Prisma migrations and endpoint seed defaults.\n\n> mina-mock-mcpserver@1.0.0 build\n> next build\n\n   ▲ Next.js 15.5.15\n\n   Creating an optimized production build ...\n ✓ Compiled successfully in 784ms\n   Linting and checking validity of types ...\n   Collecting page data ...\n   Generating static pages (0/9) ...\n   Generating static pages (2/9) \r\n   Generating static pages (4/9) \r\n   Generating static pages (6/9) \r\n ✓ Generating static pages (9/9)\n   Finalizing page optimization ...\n   Collecting build traces ...\n\nRoute (app)                                 Size  First Load JS\n┌ ○ /                                      164 B         106 kB\n├ ○ /_not-found                            999 B         103 kB\n├ ƒ /api/audit                             129 B         102 kB\n├ ƒ /api/endpoints                         129 B         102 kB\n├ ƒ /api/endpoints/[id]                    129 B         102 kB\n├ ƒ /api/health                            129 B         102 kB\n├ ○ /audit                                 164 B         106 kB\n└ ○ /endpoints                           4.97 kB         110 kB\n+ First Load JS shared by all             102 kB\n  ├ chunks/255-4f212684648fcab9.js         46 kB\n  ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB\n  └ other shared chunks (total)          1.89 kB\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n\n   ▲ Next.js 15.5.15\n   - Local:        http://localhost:3100\n   - Network:      http://192.168.100.125:3100\n\n ✓ Starting...\n ✓ Ready in 256ms\nProduction-style startup smoke passed at http://127.0.0.1:3100/api/health\n",
+      "preflight": {
+        "command": "ensure-e2e-port-free.sh 3100",
+        "error": "",
+        "ok": true,
+        "output": "port-cleanup: 127.0.0.1:3100 already free\n"
+      },
+      "next_server_log_path": "/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T191001-endpoint-protected-delete-audit/npm-run-verify-next-server.log"
     }
   ],
   "missing_files": [],
@@ -74,16 +81,22 @@ Deterministic check summary:
 }
 
 Worker handoff summary from the last run:
-Completed `endpoint-domain-and-schema`.
+Implemented `endpoint-protected-delete-audit`.
 
-The existing Prisma/SQLite persistence foundation already satisfied the task, so I made no product-code changes. I updated the active task progress log and wrote the requested operator handoff to `state/last-result.txt`.
+Key changes:
+- Added Prisma `AuditEvent` storage and audit service.
+- Added guarded endpoint deletion in [lib/endpoints/service.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/lib/endpoints/service.ts:206).
+- Added delete confirmation UI with delete code/root password fields in [endpoint-manager.tsx](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/app/endpoints/endpoint-manager.tsx:551).
+- Added `/audit` UI/API evidence surface.
+- Added `@endpoint-delete-audit` E2E coverage in [endpoint-delete-audit.spec.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/tests/e2e/endpoint-delete-audit.spec.ts:17).
+- Updated docs and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
 
 Required checks passed:
-- `npm run db:prepare`
 - `npm run test:unit`
+- `npm run test:e2e -- --grep @endpoint-delete-audit`
 - `npm run verify`
 
-Exit criteria appear satisfied. Nothing remains for this task. Pre-existing Ralph `state/` worktree changes were left untouched.
+Exit criteria appear satisfied; nothing remains for this task.
 
 Your job:
 - inspect the repository and current implementation

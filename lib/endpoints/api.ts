@@ -1,7 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
-import { EndpointValidationError } from "@/lib/endpoints/types";
-import type { EndpointInput } from "@/lib/endpoints/types";
+import { EndpointDeleteAuthorizationError, EndpointNotFoundError, EndpointValidationError } from "@/lib/endpoints/types";
+import type { EndpointDeleteInput, EndpointInput } from "@/lib/endpoints/types";
 
 function asRecord(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : {};
@@ -68,9 +68,34 @@ export function endpointInputFromBody(body: unknown): EndpointInput {
   };
 }
 
+export function endpointDeleteInputFromBody(body: unknown): EndpointDeleteInput {
+  const record = asRecord(body);
+  return {
+    deleteCode: nullableString(record.deleteCode),
+    rootPassword: nullableString(record.rootPassword),
+  };
+}
+
 export function endpointErrorResponse(error: unknown) {
   if (error instanceof EndpointValidationError) {
     return NextResponse.json({ error: "validation_failed", fieldErrors: error.fieldErrors }, { status: 400 });
+  }
+
+  if (error instanceof EndpointDeleteAuthorizationError) {
+    if (error.reason === "protected_default") {
+      return NextResponse.json(
+        { error: "protected_default", message: "Built-in endpoint defaults cannot be deleted through this action." },
+        { status: 409 },
+      );
+    }
+    return NextResponse.json(
+      { error: "delete_confirmation_failed", message: "Enter the endpoint delete code or root password to delete." },
+      { status: 403 },
+    );
+  }
+
+  if (error instanceof EndpointNotFoundError) {
+    return NextResponse.json({ error: "not_found" }, { status: 404 });
   }
 
   if (error instanceof Prisma.PrismaClientKnownRequestError) {

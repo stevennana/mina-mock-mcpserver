@@ -5,7 +5,7 @@
   "id": "endpoint-console-schema-preview-ui",
   "title": "Endpoint Schema Preview and Test Console Shell",
   "order": 4,
-  "status": "active",
+  "status": "completed",
   "next_task_on_success": "endpoint-protected-delete-audit",
   "prompt_docs": [
     "AGENTS.md",
@@ -26,7 +26,8 @@
     "Required checks do not prove the claimed behavior.",
     "Implementation changes contradict the product spec or security/reliability docs."
   ],
-  "promotion_mode": "deterministic_only"
+  "promotion_mode": "deterministic_only",
+  "completed_at": "2026-05-05T10:09:30.850Z"
 }
 ```
 
@@ -107,3 +108,4 @@ Confirm that this task maps to the primary product spec `endpoint-tool-managemen
 - Note when existing partial implementations were found and reused instead of replaced.
 - 2026-05-05T10:03:54.900Z: restored as current task after endpoint-management-list-editor-ui promotion.
 - 2026-05-05T19:21:00+09:00 - Found existing endpoint editor/persistence UI but no reusable schema helper in `lib/endpoints`; added a shared MCP inputSchema generator, live editor preview, disabled console shell evidence panels, and `@ui-endpoint-console` coverage.
+- 2026-05-05T10:09:30.850Z: automatically promoted after deterministic checks and evaluator approval.

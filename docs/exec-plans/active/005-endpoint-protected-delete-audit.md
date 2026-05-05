@@ -5,7 +5,7 @@
   "id": "endpoint-protected-delete-audit",
   "title": "Endpoint Protected Delete and Audit Evidence",
   "order": 5,
-  "status": "queued",
+  "status": "active",
   "next_task_on_success": "root-reset-defaults",
   "prompt_docs": [
     "AGENTS.md",
@@ -106,3 +106,7 @@ Confirm that this task maps to the primary product spec `endpoint-tool-managemen
 
 - Start here. Append timestamped progress notes as work lands.
 - Note when existing partial implementations were found and reused instead of replaced.
+- 2026-05-05T10:09:30.850Z: restored as current task after endpoint-console-schema-preview-ui promotion.
+- 2026-05-05T20:21:00+09:00 - Found existing endpoint delete-code persistence and no existing delete/audit implementation; reused endpoint service/API/UI patterns and added guarded delete plus audit storage instead of broadening into reset/auth tasks.
+- 2026-05-05T20:24:00+09:00 - Added endpoint delete confirmation UI/API, root-password override validation, non-secret audit evidence, `/audit` read surface, and `@endpoint-delete-audit` E2E coverage for failed code, successful code, and root override paths.
+- 2026-05-05T20:32:00+09:00 - Required gates passed: `npm run test:unit`, `npm run test:e2e -- --grep @endpoint-delete-audit`, and `npm run verify`.

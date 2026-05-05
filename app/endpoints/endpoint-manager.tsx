@@ -13,6 +13,11 @@ type SaveState = {
   fieldErrors: Record<string, string>;
 };
 
+type DeleteState = {
+  status: "idle" | "confirming" | "deleting" | "error" | "success";
+  message: string;
+};
+
 type AuthMode = "none" | "basic" | "oauth";
 
 const blankEndpoint: EndpointFormState = {
@@ -95,6 +100,9 @@ export function EndpointManager({ initialData }: { initialData: EndpointListResu
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [loadingEndpoint, setLoadingEndpoint] = useState(false);
   const [saveState, setSaveState] = useState<SaveState>({ status: "idle", message: "", fieldErrors: {} });
+  const [deleteState, setDeleteState] = useState<DeleteState>({ status: "idle", message: "" });
+  const [deleteCodeConfirm, setDeleteCodeConfirm] = useState("");
+  const [rootPasswordConfirm, setRootPasswordConfirm] = useState("");
   const [authMode, setAuthMode] = useState<AuthMode>("none");
   const [basicUsername, setBasicUsername] = useState("");
   const [basicPassword, setBasicPassword] = useState("");
@@ -122,6 +130,9 @@ export function EndpointManager({ initialData }: { initialData: EndpointListResu
   async function selectEndpoint(endpoint: EndpointSummary) {
     setLoadingEndpoint(true);
     setSaveState({ status: "idle", message: "", fieldErrors: {} });
+    setDeleteState({ status: "idle", message: "" });
+    setDeleteCodeConfirm("");
+    setRootPasswordConfirm("");
     try {
       const response = await fetch(`/api/endpoints/${endpoint.id}`);
       if (!response.ok) throw new Error("Unable to load endpoint.");
@@ -139,6 +150,9 @@ export function EndpointManager({ initialData }: { initialData: EndpointListResu
     setForm(blankEndpoint);
     setSelectedId(null);
     setSaveState({ status: "idle", message: "", fieldErrors: {} });
+    setDeleteState({ status: "idle", message: "" });
+    setDeleteCodeConfirm("");
+    setRootPasswordConfirm("");
   }
 
   async function saveEndpoint() {
@@ -170,6 +184,42 @@ export function EndpointManager({ initialData }: { initialData: EndpointListResu
       setSaveState({ status: "success", message: "Endpoint saved.", fieldErrors: {} });
     } catch (error) {
       setSaveState({ status: "error", message: error instanceof Error ? error.message : "Save failed.", fieldErrors: {} });
+    }
+  }
+
+  async function deleteSelectedEndpoint() {
+    if (!selectedId) return;
+
+    setDeleteState({ status: "deleting", message: "Deleting endpoint." });
+    try {
+      const response = await fetch(`/api/endpoints/${selectedId}`, {
+        method: "DELETE",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          deleteCode: deleteCodeConfirm,
+          rootPassword: rootPasswordConfirm,
+        }),
+      });
+      const payload = await response.json();
+      setDeleteCodeConfirm("");
+      setRootPasswordConfirm("");
+
+      if (!response.ok) {
+        setDeleteState({
+          status: "error",
+          message: typeof payload.message === "string" ? payload.message : "Endpoint delete failed.",
+        });
+        return;
+      }
+
+      setForm(blankEndpoint);
+      setSelectedId(null);
+      await refreshList();
+      router.refresh();
+      setSaveState({ status: "success", message: "Endpoint deleted.", fieldErrors: {} });
+      setDeleteState({ status: "success", message: "Endpoint deleted." });
+    } catch (error) {
+      setDeleteState({ status: "error", message: error instanceof Error ? error.message : "Endpoint delete failed." });
     }
   }
 
@@ -496,6 +546,51 @@ export function EndpointManager({ initialData }: { initialData: EndpointListResu
             </label>
           </div>
         </EditorSection>
+
+        {selectedId ? (
+          <EditorSection title="Delete endpoint">
+            <p className="section-note">Enter this endpoint's 8-digit delete code or the root password override. Secrets are not written to audit events.</p>
+            {deleteState.message ? (
+              <p className={`form-message ${deleteState.status}`}>{deleteState.message}</p>
+            ) : null}
+            {["confirming", "deleting", "error"].includes(deleteState.status) ? (
+              <div className="delete-confirmation">
+                <label className="field-block">
+                  <span>Delete code</span>
+                  <input
+                    className="text-input"
+                    inputMode="numeric"
+                    value={deleteCodeConfirm}
+                    onChange={(event) => setDeleteCodeConfirm(event.target.value)}
+                    autoComplete="off"
+                  />
+                </label>
+                <label className="field-block">
+                  <span>Root password override</span>
+                  <input
+                    className="text-input"
+                    type="password"
+                    value={rootPasswordConfirm}
+                    onChange={(event) => setRootPasswordConfirm(event.target.value)}
+                    autoComplete="current-password"
+                  />
+                </label>
+                <div className="console-actions">
+                  <button className="danger-button" type="button" onClick={() => void deleteSelectedEndpoint()} disabled={deleteState.status === "deleting"}>
+                    {deleteState.status === "deleting" ? "Deleting" : "Confirm delete"}
+                  </button>
+                  <button className="secondary-button" type="button" onClick={() => setDeleteState({ status: "idle", message: "" })}>
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button className="danger-button" type="button" onClick={() => setDeleteState({ status: "confirming", message: "" })}>
+                Delete endpoint
+              </button>
+            )}
+          </EditorSection>
+        ) : null}
 
         <EditorSection title="Endpoint test console">
           <div className="console-shell">

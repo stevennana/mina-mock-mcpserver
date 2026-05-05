@@ -90,8 +90,25 @@ export type EndpointListResult = {
   endpoints: EndpointSummary[];
 };
 
+export type EndpointDeleteInput = {
+  deleteCode?: string | null;
+  rootPassword?: string | null;
+};
+
 export class EndpointValidationError extends Error {
   constructor(public readonly fieldErrors: Record<string, string>) {
     super("Endpoint validation failed");
+  }
+}
+
+export class EndpointDeleteAuthorizationError extends Error {
+  constructor(public readonly reason: "missing_confirmation" | "invalid_confirmation" | "protected_default") {
+    super("Endpoint delete authorization failed");
+  }
+}
+
+export class EndpointNotFoundError extends Error {
+  constructor() {
+    super("Endpoint not found");
   }
 }

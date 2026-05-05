@@ -1,15 +1,16 @@
-Completed `endpoint-console-schema-preview-ui`.
+Implemented `endpoint-protected-delete-audit`.
 
-Changed:
-- Added shared MCP `inputSchema` generation in `lib/endpoints/schema.ts`.
-- Rendered live schema preview in the endpoint editor.
-- Added the disabled endpoint console shell with auth controls, arguments JSON validation, raw evidence panels, matched case/principal/elapsed placeholders.
-- Added `@ui-endpoint-console` E2E coverage with desktop/mobile screenshots and overflow/accessibility checks.
-- Updated related docs and `state/last-result.txt`.
+Key changes:
+- Added Prisma `AuditEvent` storage and audit service.
+- Added guarded endpoint deletion in [lib/endpoints/service.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/lib/endpoints/service.ts:206).
+- Added delete confirmation UI with delete code/root password fields in [endpoint-manager.tsx](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/app/endpoints/endpoint-manager.tsx:551).
+- Added `/audit` UI/API evidence surface.
+- Added `@endpoint-delete-audit` E2E coverage in [endpoint-delete-audit.spec.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/tests/e2e/endpoint-delete-audit.spec.ts:17).
+- Updated docs and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
 
 Required checks passed:
 - `npm run test:unit`
-- `npm run test:e2e -- --grep @ui-endpoint-console`
+- `npm run test:e2e -- --grep @endpoint-delete-audit`
 - `npm run verify`
 
-Note: the repo already had unrelated Ralph/state changes before this task; I left them intact.
+Exit criteria appear satisfied; nothing remains for this task.

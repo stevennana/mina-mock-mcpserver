@@ -10,6 +10,7 @@ export default async function EndpointsPage() {
       <nav className="top-nav" aria-label="Primary">
         <Link href="/">Dashboard</Link>
         <Link href="/endpoints" aria-current="page">Endpoints</Link>
+        <Link href="/audit">Audit</Link>
       </nav>
       <header className="page-header">
         <div>

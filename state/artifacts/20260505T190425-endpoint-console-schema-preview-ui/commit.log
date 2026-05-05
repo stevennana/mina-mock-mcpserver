@@ -1,0 +1,12 @@
+[main c753f1c] ralph: endpoint-console-schema-preview-ui 2026-05-05T19:09:30+09:00
+ 29 files changed, 618 insertions(+), 75 deletions(-)
+ rename docs/exec-plans/{active => completed}/003-endpoint-management-list-editor-ui.md (94%)
+ create mode 100644 lib/endpoints/schema.ts
+ create mode 100644 state/artifacts/20260505T185748-endpoint-management-list-editor-ui/backlog.log
+ create mode 100644 state/artifacts/20260505T185748-endpoint-management-list-editor-ui/promote.log
+ create mode 100644 state/artifacts/20260505T190425-endpoint-console-schema-preview-ui/commit.log
+ create mode 100644 state/artifacts/20260505T190425-endpoint-console-schema-preview-ui/evaluator.log
+ create mode 100644 state/artifacts/20260505T190425-endpoint-console-schema-preview-ui/task-prompt.log
+ create mode 100644 state/artifacts/20260505T190425-endpoint-console-schema-preview-ui/worker.jsonl
+ create mode 100644 tests/e2e/endpoint-console.spec.ts
+commit: created

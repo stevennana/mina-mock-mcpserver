@@ -2,6 +2,8 @@
 
 Generated for task `endpoint-domain-and-schema`.
 
+Updated by task `endpoint-protected-delete-audit` for endpoint delete audit evidence.
+
 ## Runtime Database
 
 - Provider: SQLite through Prisma.
@@ -83,6 +85,27 @@ Indexes and constraints:
 - `@@unique([endpointId, name])`
 - `@@index([endpointId, priority])`
 - `@@index([endpointId])`
+
+## AuditEvent
+
+Stores non-secret mutation evidence for protected operations such as endpoint deletion.
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | `String` | Primary key, assigned by audit service code. |
+| `eventType` | `String` | Event name such as `endpoint.delete`. |
+| `subjectType` | `String` | Subject category, currently `endpoint` for delete audit events. |
+| `subjectId` | `String?` | Immutable subject identifier when known. |
+| `subjectName` | `String?` | User-visible subject label for operator review. |
+| `outcome` | `String` | `success` or `failure`. |
+| `actorType` | `String` | Actor category, currently public admin surface. |
+| `metadataJson` | `String` | JSON metadata with method or reason codes only; submitted secrets are not stored. |
+| `createdAt` | `DateTime` | Event timestamp. |
+
+Indexes and constraints:
+
+- `@@index([eventType, createdAt])`
+- `@@index([subjectType, subjectId])`
 
 ## Seed Defaults
 

@@ -12,6 +12,9 @@ export default defineConfig({
   },
   webServer: {
     command: "npm run db:prepare && npm run dev",
+    env: {
+      ROOT_PASSWORD: "e2e-root-password",
+    },
     url: "http://127.0.0.1:3100",
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

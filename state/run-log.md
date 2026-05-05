@@ -511,3 +511,18 @@
 - evaluator: started
 - evaluator: status=done promotion=true Deterministic checks passed; task is eligible for automatic promotion. -> state/artifacts/20260505T190425-endpoint-console-schema-preview-ui/evaluator.log
 - next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T190425-endpoint-console-schema-preview-ui/npm-run-test-e2e-grep-ui-endpoint-console-next-server.log
+- commit: commit: created
+- promote: Promoted endpoint-console-schema-preview-ui -> endpoint-protected-delete-audit
+- backlog: rendered current=endpoint-protected-delete-audit
+- health: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxooo
+- cycle: finished
+
+### cycle 2026-05-05T19:10:01+09:00 task=endpoint-protected-delete-audit
+- artifacts: state/artifacts/20260505T191001-endpoint-protected-delete-audit
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260505T191001-endpoint-protected-delete-audit/worker.jsonl
+- worker-summary: Implemented `endpoint-protected-delete-audit`.
+- evaluator: started
+- evaluator: status=done promotion=true The implementation maps to the endpoint-tool-management spec and satisfies the active task. Guarded deletion is implemented in the endpoint service/API/UI, audit events are persisted without submitted delete codes or root passwords, endpoint-dependent Prisma child records cascade safely, deleted endpoints are removed from list data, docs were updated, and the required deterministic checks are recorded as passing. -> state/artifacts/20260505T191001-endpoint-protected-delete-audit/evaluator.log
+- next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T191001-endpoint-protected-delete-audit/npm-run-test-e2e-grep-endpoint-delete-audit-next-server.log

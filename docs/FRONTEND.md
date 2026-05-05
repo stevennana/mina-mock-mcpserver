@@ -20,7 +20,7 @@ Describe the user-facing structure of MCP Mock Server so an agent can implement 
 | /tokens | Issued tokens | Claims, permissions, revoke, filters |
 | /config | Server config | Base URL, MCP/REST/OAuth examples, Nginx guide |
 | /reset | Reset | Root-password protected reset |
-| /audit | Audit log | Public mutation and token evidence |
+| /audit | Audit log | Public mutation, protected delete, and token evidence |
 | /oauth/login | OAuth login | Separate from admin UI |
 | /oauth/consent | OAuth consent | Endpoint permission checklist |
 | /api/* | Admin/API | Health, CRUD, config, reset, audit |
@@ -41,12 +41,13 @@ Describe the user-facing structure of MCP Mock Server so an agent can implement 
 | Issued tokens | Inspect claims, permissions, expiration, and revoke tokens |
 | Config/guide | Show base URL, MCP/REST/OAuth URLs, sample client config, curl, Nginx |
 | Reset | Root-protected full reset to seed defaults |
-| Audit | Review mutation and security-relevant event history |
+| Audit | Review mutation and security-relevant event history without exposing submitted secrets |
 
 ## UI Rules
 - favor quiet, dense, operational layouts over marketing composition
 - use icons for copy, edit, delete, revoke, reset, refresh, and external-link actions where available
 - every destructive action has a confirmation path and explains whether delete code or root password is accepted
+- endpoint deletion keeps confirmation inputs separate from the endpoint editor values and clears submitted secrets after attempts
 - show protocol/auth warnings inline on malformed-response and public-admin controls
 - tables must support search/filter states without layout shift
 - endpoint editor forms must surface API/domain validation errors next to the affected fields

@@ -12,6 +12,7 @@ Dashboard endpoint counts
 - Endpoint create/edit/delete forms
 - Generated MCP schema preview
 - Delete code or root password protected deletion
+- Successful and failed endpoint delete attempts appear in audit evidence without submitted secrets
 - Reset to defaults
 
 ## Validation
@@ -19,4 +20,5 @@ Dashboard endpoint counts
 - Input schema generation
 - Exact-match response selection
 - Protected deletion and reset invariants
+- Audit evidence for endpoint delete success, failed confirmation, and root-password override
 - Create endpoint, test via UI console, edit enabled state, delete with code, and verify list updates

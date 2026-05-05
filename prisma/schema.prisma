@@ -67,3 +67,18 @@ model ResponseCase {
   @@index([endpointId, priority])
   @@index([endpointId])
 }
+
+model AuditEvent {
+  id             String   @id
+  eventType      String
+  subjectType    String
+  subjectId      String?
+  subjectName    String?
+  outcome        String
+  actorType      String   @default("public")
+  metadataJson   String   @default("{}")
+  createdAt      DateTime @default(now())
+
+  @@index([eventType, createdAt])
+  @@index([subjectType, subjectId])
+}

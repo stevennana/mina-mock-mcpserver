@@ -231,7 +231,8 @@ h1 {
 }
 
 .primary-button,
-.secondary-button {
+.secondary-button,
+.danger-button {
   min-height: 44px;
   border: 1px solid transparent;
   border-radius: 8px;
@@ -251,8 +252,14 @@ h1 {
   color: #26313f;
 }
 
+.danger-button {
+  background: #b42318;
+  color: #ffffff;
+}
+
 .primary-button:disabled,
-.secondary-button:disabled {
+.secondary-button:disabled,
+.danger-button:disabled {
   cursor: not-allowed;
   opacity: 0.55;
 }
@@ -335,6 +342,7 @@ h1 {
 }
 
 .form-message.saving,
+.form-message.deleting,
 .form-message.idle {
   border: 1px solid var(--line);
   background: #f8fafc;
@@ -431,6 +439,12 @@ h1 {
   color: #136337;
 }
 
+.status-pill.danger {
+  border-color: #f3b6af;
+  background: #fff4f2;
+  color: #9f1f14;
+}
+
 .empty-cell {
   height: 160px;
   color: var(--muted);
@@ -519,6 +533,46 @@ h1 {
 .console-actions .secondary-button {
   white-space: normal;
   text-align: left;
+}
+
+.delete-confirmation {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  max-width: 560px;
+}
+
+.audit-panel {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+
+.audit-table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.audit-table th,
+.audit-table td {
+  border-bottom: 1px solid var(--line);
+  padding: 12px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.audit-table th {
+  color: var(--muted);
+  font-size: 0.76rem;
+  text-transform: uppercase;
+}
+
+.audit-table code {
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .evidence-panel {

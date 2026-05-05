@@ -1,0 +1,2315 @@
+/Users/stevenna/WebstormProjects/mina-mock-mcpserver/scripts/ralph/generated/current-evaluator-prompt.txt
+OpenAI Codex v0.128.0 (research preview)
+--------
+workdir: /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 019df7a5-a724-71c3-a52d-b30d57ce4da5
+--------
+user
+You are the promotion evaluator for a repository-local Ralph loop.
+
+Read these documents before deciding:
+- AGENTS.md
+- ARCHITECTURE.md
+- docs/PRODUCT_SENSE.md
+- docs/FRONTEND.md
+- docs/SECURITY.md
+- docs/product-specs/endpoint-tool-management.md
+- docs/exec-plans/active/005-endpoint-protected-delete-audit.md
+
+Current task id: endpoint-protected-delete-audit
+Current task title: Endpoint Protected Delete and Audit Evidence
+
+Objective:
+Implement endpoint deletion guarded by delete code or root password, with audit evidence for successful and failed delete attempts.
+
+Scope:
+- Add delete confirmation UI/API.
+- Validate endpoint delete code and root password override.
+- Clean up endpoint-dependent mappings safely where already present.
+- Create audit event storage/use for endpoint delete and failed delete attempts.
+- Add E2E coverage for success, failure, and audit evidence.
+
+Out of scope:
+- Full reset-to-default behavior.
+- Basic/OAuth audit events beyond endpoint delete.
+- Historical token deletion.
+- Rate limiting or abuse controls.
+
+Exit criteria:
+1. Deleting with correct endpoint code succeeds.
+2. Deleting with wrong code fails and writes audit evidence.
+3. Root password override succeeds without logging the secret.
+4. Deleted endpoints are no longer exposed in endpoint list data.
+5. All required checks pass.
+
+Evaluator notes:
+Required commands are mandatory promotion gates, not suggestions.
+Do not promote if any required check fails.
+Do not accept broad feature work outside this task.
+Confirm that this task maps to the primary product spec `endpoint-tool-management.md` or is explicitly final hardening.
+
+Deterministic check summary:
+{
+  "checked_at": "2026-05-05T10:18:41.676Z",
+  "task_id": "endpoint-protected-delete-audit",
+  "commands": [
+    {
+      "command": "npm run test:unit",
+      "ok": true,
+      "output": "\n> mina-mock-mcpserver@1.0.0 test:unit\n> node --import tsx --test \"tests/unit/**/*.test.ts\"\n\n✔ normalizeLogLevel accepts supported operator log levels (0.369834ms)\n✔ normalizeLogLevel defaults invalid input to info (0.058833ms)\n✔ getBootstrapStatus reports prepared foundation state (0.05425ms)\n✔ db:prepare is repeatable and keeps endpoint seed rows singular (2923.7625ms)\n✔ endpoint validation accepts the MVP editor field set (0.620666ms)\n✔ endpoint validation returns field-level errors for UI rendering (0.356375ms)\n✔ MCP input schema generation reflects endpoint parameters (0.397625ms)\n✔ Ralph promotion resolves ordered successor filenames by taskmeta id (36.254875ms)\nℹ tests 8\nℹ suites 0\nℹ pass 8\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 3067.364209\n"
+    },
+    {
+      "command": "npm run test:e2e -- --grep @endpoint-delete-audit",
+      "ok": true,
+      "output": "\n> mina-mock-mcpserver@1.0.0 test:e2e\n> playwright test --grep @endpoint-delete-audit\n\n\nRunning 1 test using 1 worker\n\n  ✓  1 [chromium] › tests/e2e/endpoint-delete-audit.spec.ts:17:5 › endpoint delete requires confirmation and writes non-secret audit evidence @endpoint-delete-audit (3.6s)\n\n  1 passed (7.8s)\n",
+      "preflight": {
+        "command": "ensure-e2e-port-free.sh 3100",
+        "error": "",
+        "ok": true,
+        "output": "port-cleanup: 127.0.0.1:3100 already free\n"
+      },
+      "next_server_log_path": "/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T191001-endpoint-protected-delete-audit/npm-run-test-e2e-grep-endpoint-delete-audit-next-server.log"
+    },
+    {
+      "command": "npm run verify",
+      "ok": true,
+      "output": "\n> mina-mock-mcpserver@1.0.0 verify\n> npm run lint && npm run typecheck && npm run build && npm run test:unit && npm run test:e2e && npm run start:smoke\n\n\n> mina-mock-mcpserver@1.0.0 lint\n> eslint .\n\n\n> mina-mock-mcpserver@1.0.0 typecheck\n> tsc --noEmit\n\n\n> mina-mock-mcpserver@1.0.0 build\n> next build\n\n   ▲ Next.js 15.5.15\n\n   Creating an optimized production build ...\n ✓ Compiled successfully in 813ms\n   Linting and checking validity of types ...\n   Collecting page data ...\n   Generating static pages (0/9) ...\n   Generating static pages (2/9) \r\n   Generating static pages (4/9) \r\n   Generating static pages (6/9) \r\n ✓ Generating static pages (9/9)\n   Finalizing page optimization ...\n   Collecting build traces ...\n\nRoute (app)                                 Size  First Load JS\n┌ ○ /                                      164 B         106 kB\n├ ○ /_not-found                            999 B         103 kB\n├ ƒ /api/audit                             129 B         102 kB\n├ ƒ /api/endpoints                         129 B         102 kB\n├ ƒ /api/endpoints/[id]                    129 B         102 kB\n├ ƒ /api/health                            129 B         102 kB\n├ ○ /audit                                 164 B         106 kB\n└ ○ /endpoints                           4.97 kB         110 kB\n+ First Load JS shared by all             102 kB\n  ├ chunks/255-4f212684648fcab9.js         46 kB\n  ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB\n  └ other shared chunks (total)          1.89 kB\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n\n\n> mina-mock-mcpserver@1.0.0 test:unit\n> node --import tsx --test \"tests/unit/**/*.test.ts\"\n\n✔ normalizeLogLevel accepts supported operator log levels (0.355625ms)\n✔ normalizeLogLevel defaults invalid input to info (0.059333ms)\n✔ getBootstrapStatus reports prepared foundation state (0.057209ms)\n✔ db:prepare is repeatable and keeps endpoint seed rows singular (2795.263875ms)\n✔ endpoint validation accepts the MVP editor field set (0.839ms)\n✔ endpoint validation returns field-level errors for UI rendering (0.376ms)\n✔ MCP input schema generation reflects endpoint parameters (0.408708ms)\n✔ Ralph promotion resolves ordered successor filenames by taskmeta id (34.633875ms)\nℹ tests 8\nℹ suites 0\nℹ pass 8\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 2935.932417\n\n> mina-mock-mcpserver@1.0.0 test:e2e\n> playwright test\n\n\nRunning 5 tests using 4 workers\n\n  ✓  4 [chromium] › tests/e2e/bootstrap.spec.ts:3:5 › foundation dashboard renders planned MCP mock server surfaces (1.4s)\n  ✓  5 [chromium] › tests/e2e/bootstrap.spec.ts:11:5 › health endpoint reports ok status (423ms)\n  ✓  1 [chromium] › tests/e2e/endpoint-console.spec.ts:5:5 › endpoint schema preview and console shell stay stable on desktop and mobile @ui-endpoint-console (1.9s)\n  ✓  3 [chromium] › tests/e2e/endpoint-editor.spec.ts:5:5 › endpoint editor supports persisted create, edit, search, screenshots, and responsive checks @ui-endpoint-editor (3.2s)\n  ✓  2 [chromium] › tests/e2e/endpoint-delete-audit.spec.ts:17:5 › endpoint delete requires confirmation and writes non-secret audit evidence @endpoint-delete-audit (4.2s)\n\n  5 passed (8.3s)\n\n> mina-mock-mcpserver@1.0.0 start:smoke\n> node scripts/start-smoke.mjs\n\n\n> mina-mock-mcpserver@1.0.0 db:prepare\n> node scripts/db-prepare.mjs\n\nDatasource \"db\": SQLite database \"runtime.sqlite\" at \"file:./data/runtime.sqlite\"\n\n3 migrations found in prisma/migrations\n\n\nNo pending migrations to apply.\n\n✔ Generated Prisma Client (v7.8.0) to ./node_modules/@prisma/client in 38ms\n\nStart by importing your Prisma Client (See: https://pris.ly/d/importing-client)\n\n\nPrepared SQLite runtime state with Prisma migrations and endpoint seed defaults.\n\n> mina-mock-mcpserver@1.0.0 build\n> next build\n\n   ▲ Next.js 15.5.15\n\n   Creating an optimized production build ...\n ✓ Compiled successfully in 784ms\n   Linting and checking validity of types ...\n   Collecting page data ...\n   Generating static pages (0/9) ...\n   Generating static pages (2/9) \r\n   Generating static pages (4/9) \r\n   Generating static pages (6/9) \r\n ✓ Generating static pages (9/9)\n   Finalizing page optimization ...\n   Collecting build traces ...\n\nRoute (app)                                 Size  First Load JS\n┌ ○ /                                      164 B         106 kB\n├ ○ /_not-found                            999 B         103 kB\n├ ƒ /api/audit                             129 B         102 kB\n├ ƒ /api/endpoints                         129 B         102 kB\n├ ƒ /api/endpoints/[id]                    129 B         102 kB\n├ ƒ /api/health                            129 B         102 kB\n├ ○ /audit                                 164 B         106 kB\n└ ○ /endpoints                           4.97 kB         110 kB\n+ First Load JS shared by all             102 kB\n  ├ chunks/255-4f212684648fcab9.js         46 kB\n  ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB\n  └ other shared chunks (total)          1.89 kB\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n\n   ▲ Next.js 15.5.15\n   - Local:        http://localhost:3100\n   - Network:      http://192.168.100.125:3100\n\n ✓ Starting...\n ✓ Ready in 256ms\nProduction-style startup smoke passed at http://127.0.0.1:3100/api/health\n",
+      "preflight": {
+        "command": "ensure-e2e-port-free.sh 3100",
+        "error": "",
+        "ok": true,
+        "output": "port-cleanup: 127.0.0.1:3100 already free\n"
+      },
+      "next_server_log_path": "/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T191001-endpoint-protected-delete-audit/npm-run-verify-next-server.log"
+    }
+  ],
+  "missing_files": [],
+  "pass": true
+}
+
+Worker handoff summary from the last run:
+Implemented `endpoint-protected-delete-audit`.
+
+Key changes:
+- Added Prisma `AuditEvent` storage and audit service.
+- Added guarded endpoint deletion in [lib/endpoints/service.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/lib/endpoints/service.ts:206).
+- Added delete confirmation UI with delete code/root password fields in [endpoint-manager.tsx](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/app/endpoints/endpoint-manager.tsx:551).
+- Added `/audit` UI/API evidence surface.
+- Added `@endpoint-delete-audit` E2E coverage in [endpoint-delete-audit.spec.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/tests/e2e/endpoint-delete-audit.spec.ts:17).
+- Updated docs and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+
+Required checks passed:
+- `npm run test:unit`
+- `npm run test:e2e -- --grep @endpoint-delete-audit`
+- `npm run verify`
+
+Exit criteria appear satisfied; nothing remains for this task.
+
+Your job:
+- inspect the repository and current implementation
+- determine whether the current task is actually complete
+- mark `done` only if the exit criteria are satisfied in substance, not just approximately
+- prefer conservative decisions
+- recommend promotion only if the task is truly ready
+
+Return JSON only using the provided schema.
+
+codex
+{"decision":"not_done","recommend_promotion":false,"confidence":0,"summary":"Starting evaluation by reading the required repository docs and then checking the implementation against the task contract.","satisfied_exit_criteria":[],"missing_requirements":[],"human_review_triggers":[]}
+exec
+/bin/zsh -lc "sed -n '1,260p' ARCHITECTURE.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+exec
+/bin/zsh -lc "sed -n '1,220p' AGENTS.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# ARCHITECTURE.md
+
+## Goal
+Build MCP Mock Server as an agent-legible codebase with strong boundaries, a short instruction surface, and enough extension seams to support future change without overbuilding v1.
+
+## System Overview
+MCP Mock Server is a web application with:
+- a public Next.js UI served on port 3000
+- server-side route handlers for admin APIs, MCP, REST, OAuth, and discovery metadata
+- SQLite persistence prepared by npm run db:prepare
+- operator logs under logs/ with LOG_LEVEL selection
+- Ralph scripts under scripts/ralph/ driving active task promotion
+
+## Architectural Priorities
+- isolate MCP protocol formatting from endpoint matching and auth decisions
+- keep auth mode resolution explicit and fail closed for invalid Basic/Bearer headers
+- store immutable endpoint IDs and treat names as external labels
+- make seeded built-in users/clients impossible to delete or disable through normal flows
+- prove persistence and production-style startup with deterministic commands
+
+## Layered Domain Model
+Use a strict forward-only dependency shape inside each domain:
+
+`Types -> Config -> Repo -> Service -> Runtime -> UI`
+
+### Why this matters
+The repository is intended to work well with long-running agent loops. Strict boundaries reduce accidental coupling and make failure analysis easier.
+
+## Primary Domains
+| Domain | Responsibility |
+|---|---|
+| Endpoint catalog | Endpoint CRUD, parameters, response cases, delete code, enabled state |
+| Matcher/runtime | Argument normalization, exact match, default/no-match, delay/error/malformed behavior |
+| MCP protocol | JSON-RPC request handling, initialize, tools/list, tools/call, MCP errors |
+| REST API | Tool list/call responses and REST error mapping |
+| Basic auth | Basic users, password hashing, built-in default protection, 401 behavior |
+| OAuth | Users, clients, codes, JWTs, permissions, revocation, discovery metadata |
+| Admin UI | Dashboards, editors, console, config, reset, audit screens |
+| Operations | SQLite prep, seed defaults, base URL, Docker/Nginx docs, logs, health |
+
+## Frontend / Backend Shape
+### Frontend
+- App Router screens should be dense, operational, and optimized for repeated testing
+- UI routes read and mutate through server-backed APIs, not local-only state
+- route-level loading and error states are required for public mutation surfaces
+- test console shows raw request, raw response, principal, matched case, and elapsed time
+- OAuth login and consent UI is separate from the admin navigation
+
+### Server
+- Next.js route handlers own HTTP surfaces for MVP
+- domain services own validation, matching, auth, token, and reset logic
+- repositories isolate Prisma access
+- protocol adapters convert domain outcomes into MCP JSON-RPC or REST responses
+- startup code prepares runtime state before production-style serving
+
+## Persistence Strategy
+- SQLite is the source of truth for endpoints, parameters, cases, users, clients, codes, tokens, audit events, and settings
+- Prisma migrations define the schema and db:prepare applies migrations plus idempotent seed defaults
+- built-in default/default Basic user, OAuth user, and OAuth client are recreated and protected
+- issued token records store jti and metadata; raw tokens are shown only at issuance unless explicitly configured
+- tests use isolated temporary databases or resettable seed state
+
+## Verification Shape
+- unit tests cover validators, matching, auth precedence, JWT claims, permissions, reset, and protocol formatting
+- Playwright proves browser-visible workflows and external-client-like OAuth/MCP/REST flows
+- start:smoke builds, prepares runtime state, starts the production server, probes health, and shuts down
+- verify runs lint, typecheck, build, unit, E2E, and startup smoke
+- failing required checks block Ralph promotion
+
+## Long-Running Agent Readiness
+- docs are the system of record
+- plans are executable, not aspirational
+- domain boundaries are explicit
+- repeated issues should be upgraded into tests or static checks
+
+ succeeded in 0ms:
+# AGENTS.md
+
+## Purpose
+MCP Mock Server is a public remote MCP mock server and web UI for testing no-auth, Basic Auth, and mock OAuth bearer tool calls.
+
+This repository is optimized for agent-legible development and a Ralph-style task-promotion loop.
+
+## Read Order
+Before changing code or plans, read these files in order:
+
+1. `ARCHITECTURE.md`
+2. `docs/PRODUCT_SENSE.md`
+3. `docs/design-docs/core-beliefs.md`
+4. `docs/product-specs/index.md`
+5. `docs/FRONTEND.md`
+6. `docs/PLANS.md`
+7. active plans in `docs/exec-plans/active/`
+
+## Scope Guardrails
+### In scope for v1
+- Next.js App Router web gateway and route handlers
+- TypeScript domain/services with Prisma SQLite persistence
+- endpoint/tool management with up to three parameters and exact-match response cases
+- no-auth, Basic, and OAuth bearer MCP/REST runtime paths
+- OAuth user/client/token administration, authorization code flow, client credentials flow, discovery metadata, and JWKS
+- failure simulation, audit log, server config, reset, logging, Docker/Nginx guidance, and Ralph harness
+
+### Explicitly out of scope for v1
+- production-grade identity management
+- external OAuth provider integration
+- true multi-tenant isolation
+- enterprise RBAC for the public admin UI
+- handling sensitive customer data
+- full MCP resources, prompts, sampling, elicitation, or task-augmented execution in MVP
+- replacing a real authorization server
+
+## Product Shape
+- public admin UI for mock endpoint, auth, token, config, reset, and audit management
+- MCP Streamable HTTP-style JSON-RPC endpoints at /mcp and strict auth aliases
+- REST tool list/call API for curl and Postman style testing
+- mock OAuth authorization server with login, consent, token, revocation, and discovery metadata
+- SQLite-backed persistence with deterministic seed defaults
+
+## Technical Shape
+- Next.js App Router and TypeScript with npm scripts
+- Prisma plus SQLite for migrations, seed defaults, and persistent runtime state
+- layered domain shape: types, config, repo, service, runtime, UI
+- Playwright for E2E and UI verification, node --import tsx --test for unit tests
+- logs/ plus LOG_LEVEL and start:logged for operator-visible server flow
+
+## Validation Strategy
+Use layered checks:
+- unit tests for domain rules
+- integration tests for repository/runtime boundaries where needed
+- small E2E coverage for the required user journeys only
+
+Promotion is blocked when required checks fail. Required test commands in active task contracts are hard gates, not suggestions.
+While iterating, prefer the smallest targeted check for the code you just changed. Use the full required command set before considering the task done.
+If a feature depends on an outside resource such as AI chat or another remote service, keep it in the required E2E flows before allowing promotion.
+If a task is mainly UI or UX work, require a dedicated `@ui-*` Playwright command with screenshot, responsive, and accessibility checks before allowing promotion.
+If `taskmeta.promotion_mode` is `deterministic_only`, passing the required commands is sufficient for promotion without human review.
+For manual server inspection, prefer `npm run start:logged` and set `LOG_LEVEL` intentionally instead of relying only on ephemeral terminal output.
+
+### Required E2E flows
+- endpoint create/edit/delete and console call flow
+- MCP initialize, tools/list, and tools/call in no-auth mode
+- Basic user creation and strict /mcp/basic success/failure
+- REST tools list/call across auth modes
+- OAuth browser consent, token exchange, allowed tool call, denied tool call, and revocation
+- failure simulation and audit evidence
+- config/health/reset/startup smoke
+
+## Documentation Discipline
+- If behavior changes, update the related spec or design doc in the same cycle.
+- Prefer small, executable plans over vague TODOs.
+- When a repeated mistake appears, first document it; if it keeps recurring, promote it into tests or lint rules.
+- Keep the documented test strategy current; do not leave promotion gates implied.
+- When adding or editing tests, explain what behavior the test protects if that intent would otherwise be easy to lose.
+
+## Search Discipline
+- Search the codebase before concluding that a thing is unimplemented.
+- Prefer multiple targeted searches over one broad assumption.
+- If you find a partial implementation, adapt or complete it instead of duplicating it blindly.
+
+## Optional Companion Skills
+- If the customer allows them and they are installed, consider relevant companion skills before planning or implementation.
+- Good candidates include database, Next.js pattern, UI design, responsive UI, and clean-architecture skills.
+
+## Done Definition
+A task is done only when its scoped behavior works in substance, docs and tests match the implementation, required deterministic commands pass, and promotion rules in taskmeta are satisfied.
+
+exec
+/bin/zsh -lc "sed -n '1,240p' docs/PRODUCT_SENSE.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# PRODUCT_SENSE.md
+
+## One-Line Product Definition
+MCP Mock Server is a public remote MCP mock server and web UI for testing no-auth, Basic Auth, and mock OAuth bearer tool calls.
+
+## Who It Is For
+### Primary user
+MCP client developers, AI agent developers, demo/QA users, and the server operator.
+
+## User Problem
+MCP client and AI-agent developers need a configurable remote server that behaves enough like a real MCP server to prove connection, auth, token, permission, and tool-call behavior before integrating with production systems.
+
+## Why This Product Exists
+Remote MCP adoption is moving auth, transport, and permission bugs into client integration work. A public mock server gives teams a repeatable target for manual testing, automated E2E checks, demos, and negative-path validation.
+
+## Product Principles
+- realistic MCP and OAuth behavior over decorative admin features
+- public-by-design administration with light destructive-operation protection
+- destructive endpoint deletion requires a delete code or root-password override and leaves non-secret audit evidence
+- deterministic mocks: exact-match cases, explicit defaults, and observable failures
+- endpoint permissions are visible, selectable, and enforced
+- operator recovery paths must be simple and root-password protected
+
+## Core Value in v1
+- create a mock endpoint once and exercise it through MCP and REST
+- inspect the generated MCP input schema and planned console evidence before runtime calls are wired
+- prove no-auth, Basic, and OAuth bearer client behavior against strict routes
+- issue mock OAuth tokens with endpoint-level permissions through browser consent or client credentials
+- simulate failure cases that clients often mishandle
+- persist configuration and provide reset/recovery for a public test service
+
+## Non-Goals for v1
+- production-grade identity management
+- external OAuth provider integration
+- true multi-tenant isolation
+- enterprise RBAC for the public admin UI
+- handling sensitive customer data
+- full MCP resources, prompts, sampling, elicitation, or task-augmented execution in MVP
+- replacing a real authorization server
+
+## v1 Success Signals
+- a new endpoint can be created and edited through the public endpoint UI, then listed through tools/list, called through tools/call, and called through REST
+- Basic default/default and additional users work on strict Basic routes while invalid credentials return 401
+- OAuth consent can select endpoints, exchange a code for a JWT, allow selected tools, deny unselected tools with 403, and return 401 after revocation
+- token and audit screens show enough evidence to debug a client test, including endpoint delete success/failure without stored secrets
+- SQLite state survives restart and root reset restores built-in defaults
+- npm run verify and npm run start:smoke pass before task promotion
+
+## Product Risks
+- public UI can be abused or reset if root/delete-code handling is weak
+- OAuth semantics can drift into unrealistic behavior unless routes and E2E checks pin 401/403/token claims
+- MCP spec details may change, so the implementation must isolate protocol formatting
+- failure simulation can intentionally violate protocol behavior and needs visible warnings
+- persistent SQLite state can make tests flaky unless seeded and isolated deterministically
+
+codex
+{"decision":"not_done","recommend_promotion":false,"confidence":0,"summary":"The top-level docs confirm the task is in the product’s core behavior: endpoint deletion must require a delete code or root override and leave non-secret audit evidence. I’m reading the feature spec and active plan next, then I’ll inspect the service/API/UI/test paths for gaps.","satisfied_exit_criteria":[],"missing_requirements":[],"human_review_triggers":[]}
+exec
+/bin/zsh -lc "sed -n '1,260p' docs/FRONTEND.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# FRONTEND.md
+
+## Goal
+Describe the user-facing structure of MCP Mock Server so an agent can implement the UI without guessing the product model.
+
+## Tech Direction
+- Next.js application
+- TypeScript
+- App Router
+- server-backed data flows where appropriate
+
+## Route Map
+| Route | Surface | Notes |
+|---|---|---|
+| / | Dashboard | Counts, URL examples, public UI warning |
+| /endpoints | Endpoint tools | List/search/create/edit/delete/test |
+| /basic-users | Basic Auth users | Built-in default locked |
+| /oauth-users | OAuth users | Built-in default locked |
+| /oauth-clients | OAuth clients | Redirect URIs and allowed endpoints |
+| /tokens | Issued tokens | Claims, permissions, revoke, filters |
+| /config | Server config | Base URL, MCP/REST/OAuth examples, Nginx guide |
+| /reset | Reset | Root-password protected reset |
+| /audit | Audit log | Public mutation, protected delete, and token evidence |
+| /oauth/login | OAuth login | Separate from admin UI |
+| /oauth/consent | OAuth consent | Endpoint permission checklist |
+| /api/* | Admin/API | Health, CRUD, config, reset, audit |
+| /mcp, /mcp/none, /mcp/basic, /mcp/oauth | MCP JSON-RPC | Unified plus strict auth routes |
+| /rest/tools, /rest/tools/:name/call | REST mock API | Same tool catalog through REST |
+| /.well-known/*, /oauth/jwks, /oauth/token, /oauth/revoke | OAuth metadata/runtime | Discovery, token, revocation |
+
+## Primary Screens
+| Screen | Primary jobs |
+|---|---|
+| Dashboard | Summarize service state and show connection examples |
+| Endpoints | List, search, create, and edit mock tools, response cases, failure simulation, and delete protection |
+| Endpoint console | Preview MCP/REST call shape with selected auth mode, then run calls once runtime tasks wire execution |
+| Basic Auth users | Manage Basic test identities and built-in lock state |
+| OAuth users | Manage login identities and token TTLs |
+| OAuth clients | Manage client secrets, redirect URIs, and allowed endpoint set |
+| OAuth login/consent | Complete authorization-code flow and select endpoint permissions |
+| Issued tokens | Inspect claims, permissions, expiration, and revoke tokens |
+| Config/guide | Show base URL, MCP/REST/OAuth URLs, sample client config, curl, Nginx |
+| Reset | Root-protected full reset to seed defaults |
+| Audit | Review mutation and security-relevant event history without exposing submitted secrets |
+
+## UI Rules
+- favor quiet, dense, operational layouts over marketing composition
+- use icons for copy, edit, delete, revoke, reset, refresh, and external-link actions where available
+- every destructive action has a confirmation path and explains whether delete code or root password is accepted
+- endpoint deletion keeps confirmation inputs separate from the endpoint editor values and clears submitted secrets after attempts
+- show protocol/auth warnings inline on malformed-response and public-admin controls
+- tables must support search/filter states without layout shift
+- endpoint editor forms must surface API/domain validation errors next to the affected fields
+- endpoint editor forms must show generated MCP `inputSchema` from the shared endpoint domain schema helper
+- console outputs must preserve raw JSON formatting and elapsed/auth/match metadata
+- console shell states must clearly mark unavailable runtime actions instead of faking calls
+- UI-focused tasks must include desktop and mobile screenshots plus accessibility checks
+
+## Search / Share / Admin Notes
+- the admin UI is intentionally public, so copy must avoid implying enterprise security
+- root-password fields are used only for protected actions and must not be logged
+- copy buttons should exist for MCP URLs, REST URLs, client config, curl examples, client secrets at issuance, and JWTs at issuance
+- OAuth consent should make selected endpoint permissions unambiguous
+
+## Frontend Non-Goals for v1
+- no marketing landing page before the usable dashboard
+- no enterprise account settings or RBAC screens
+- no hidden destructive operations without confirmation
+- no decorative UI that obscures raw request/response evidence
+
+exec
+/bin/zsh -lc "sed -n '1,260p' docs/SECURITY.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# SECURITY.md
+
+## Purpose
+Define the security posture for MCP Mock Server's current shipped slice.
+
+## Core Security Rules
+- validate Origin for Streamable HTTP-style MCP routes where browser-origin risk applies
+- unsupported Authorization schemes return 401
+- invalid Basic/Bearer credentials never downgrade to no-auth
+- OAuth tokens must verify signature, issuer, audience, expiry, jti revocation, and endpoint permissions
+- built-in identities and clients cannot be disabled or deleted through normal UI/API flows
+- root password comparisons must avoid logging and should use constant-time comparison where practical
+
+## Secrets and Config
+- ROOT_PASSWORD gates reset, delete override, base URL override, and optional historical token deletion
+- client secrets and passwords are never logged
+- endpoint delete audit entries store method/reason metadata, not submitted delete codes or root passwords
+- passwords are stored only as hashes
+- raw JWT values are shown only at issuance unless a config explicitly permits storage
+- LOG_LEVEL controls verbosity but must not expose secrets even at trace/debug
+
+## Public Surfaces
+- public admin UI routes and /api/* mutation endpoints
+- MCP routes /mcp, /mcp/none, /mcp/basic, /mcp/oauth
+- REST mock routes /rest/tools and /rest/tools/:name/call
+- OAuth browser, token, revocation, discovery, and JWKS routes
+- health and public config endpoints
+
+## Verification
+- unit tests for auth precedence, root checks, built-in immutability, JWT validation, and permission denial
+- E2E tests for Basic 401/success and OAuth 401/403/revocation
+- reset tests prove built-in defaults are recreated
+- audit tests prove failed delete attempts and reset events are recorded
+
+exec
+/bin/zsh -lc "sed -n '1,300p' docs/product-specs/endpoint-tool-management.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# Endpoint and Tool Management
+
+## Goal
+Public users create, edit, test, enable, disable, and delete mock endpoints that become MCP tools and REST call targets.
+
+## Trigger / Entry
+Dashboard endpoint counts
+
+## User-Visible Behavior
+- Dashboard endpoint counts
+- Endpoint list/search
+- Endpoint create/edit/delete forms
+- Generated MCP schema preview
+- Delete code or root password protected deletion
+- Successful and failed endpoint delete attempts appear in audit evidence without submitted secrets
+- Reset to defaults
+
+## Validation
+- Tool name, parameter, delete-code, JSON response, and default-case validation
+- Input schema generation
+- Exact-match response selection
+- Protected deletion and reset invariants
+- Audit evidence for endpoint delete success, failed confirmation, and root-password override
+- Create endpoint, test via UI console, edit enabled state, delete with code, and verify list updates
+
+exec
+/bin/zsh -lc "sed -n '1,320p' docs/exec-plans/active/005-endpoint-protected-delete-audit.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# Endpoint Protected Delete and Audit Evidence
+
+```json taskmeta
+{
+  "id": "endpoint-protected-delete-audit",
+  "title": "Endpoint Protected Delete and Audit Evidence",
+  "order": 5,
+  "status": "active",
+  "next_task_on_success": "root-reset-defaults",
+  "prompt_docs": [
+    "AGENTS.md",
+    "ARCHITECTURE.md",
+    "docs/PRODUCT_SENSE.md",
+    "docs/FRONTEND.md",
+    "docs/SECURITY.md",
+    "docs/product-specs/endpoint-tool-management.md"
+  ],
+  "required_commands": [
+    "npm run test:unit",
+    "npm run test:e2e -- --grep @endpoint-delete-audit",
+    "npm run verify"
+  ],
+  "required_files": [],
+  "human_review_triggers": [
+    "The task broadens into unrelated feature fronts.",
+    "Required checks do not prove the claimed behavior.",
+    "Implementation changes contradict the product spec or security/reliability docs."
+  ],
+  "promotion_mode": "deterministic"
+}
+```
+
+## Objective
+
+Implement endpoint deletion guarded by delete code or root password, with audit evidence for successful and failed delete attempts.
+
+## Clarity notes
+
+- This task protects destructive endpoint deletion only; full reset is a separate task.
+- The public UI can remain public, but destructive delete needs a deliberate confirmation path.
+- Audit entries are product evidence and must avoid secret leakage.
+- Root password is an override for protected actions, not an admin login/session feature.
+
+## Expected result
+
+- Endpoint delete prompts for an 8-digit delete code or root password override.
+- Correct code or root password deletes the endpoint; incorrect values fail clearly.
+- Audit log records successful endpoint deletion and failed delete attempts without storing secrets.
+- E2E proof exists under `@endpoint-delete-audit`.
+
+## Objections / risks to avoid
+
+- Do not implement root reset in this task.
+- Do not log delete codes or root password values.
+- Do not make deletion possible without confirmation.
+- Do not delete token history or OAuth mappings beyond safe cleanup documented for endpoint deletion.
+
+## Scope
+
+- Add delete confirmation UI/API.
+- Validate endpoint delete code and root password override.
+- Clean up endpoint-dependent mappings safely where already present.
+- Create audit event storage/use for endpoint delete and failed delete attempts.
+- Add E2E coverage for success, failure, and audit evidence.
+
+## Out of scope
+
+- Full reset-to-default behavior.
+- Basic/OAuth audit events beyond endpoint delete.
+- Historical token deletion.
+- Rate limiting or abuse controls.
+
+## Exit criteria
+
+1. Deleting with correct endpoint code succeeds.
+2. Deleting with wrong code fails and writes audit evidence.
+3. Root password override succeeds without logging the secret.
+4. Deleted endpoints are no longer exposed in endpoint list data.
+5. All required checks pass.
+
+## Required checks
+
+- npm run test:unit
+- npm run test:e2e -- --grep @endpoint-delete-audit
+- npm run verify
+
+## Implementation notes
+
+- Use constant-time root password comparison where practical.
+- Keep audit event shape extensible for later auth/token events.
+
+## Docs to update
+
+- docs/PRODUCT_SENSE.md
+- docs/FRONTEND.md
+- docs/SECURITY.md
+
+## Evaluator notes
+
+Required commands are mandatory promotion gates, not suggestions.
+Do not promote if any required check fails.
+Do not accept broad feature work outside this task.
+Confirm that this task maps to the primary product spec `endpoint-tool-management.md` or is explicitly final hardening.
+
+## Progress log
+
+- Start here. Append timestamped progress notes as work lands.
+- Note when existing partial implementations were found and reused instead of replaced.
+- 2026-05-05T10:09:30.850Z: restored as current task after endpoint-console-schema-preview-ui promotion.
+- 2026-05-05T20:21:00+09:00 - Found existing endpoint delete-code persistence and no existing delete/audit implementation; reused endpoint service/API/UI patterns and added guarded delete plus audit storage instead of broadening into reset/auth tasks.
+- 2026-05-05T20:24:00+09:00 - Added endpoint delete confirmation UI/API, root-password override validation, non-secret audit evidence, `/audit` read surface, and `@endpoint-delete-audit` E2E coverage for failed code, successful code, and root override paths.
+- 2026-05-05T20:32:00+09:00 - Required gates passed: `npm run test:unit`, `npm run test:e2e -- --grep @endpoint-delete-audit`, and `npm run verify`.
+
+exec
+/bin/zsh -lc "find prisma/migrations -maxdepth 2 -type f -name '*.sql' -print" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+prisma/migrations/202605050001_endpoint_persistence/migration.sql
+prisma/migrations/202605050002_endpoint_title_response_case_config/migration.sql
+prisma/migrations/202605050003_audit_events/migration.sql
+
+exec
+/bin/zsh -lc 'git status --short' in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+git: warning: confstr() failed with code 5: couldn't get path of DARWIN_USER_TEMP_DIR; using /tmp instead
+git: error: couldn't create cache file '/tmp/xcrun_db-4HmWD9rf' (errno=Operation not permitted)
+git: warning: confstr() failed with code 5: couldn't get path of DARWIN_USER_TEMP_DIR; using /tmp instead
+git: error: couldn't create cache file '/tmp/xcrun_db-ighdPq6o' (errno=Operation not permitted)
+ M app/api/endpoints/[id]/route.ts
+ M app/endpoints/endpoint-manager.tsx
+ M app/endpoints/page.tsx
+ M app/globals.css
+ M app/page.tsx
+ M docs/FRONTEND.md
+ M docs/PRODUCT_SENSE.md
+ M docs/SECURITY.md
+ D docs/exec-plans/active/004-endpoint-console-schema-preview-ui.md
+ M docs/exec-plans/active/005-endpoint-protected-delete-audit.md
+ M docs/generated/db-schema.md
+ M docs/product-specs/endpoint-tool-management.md
+ M lib/endpoints/api.ts
+ M lib/endpoints/service.ts
+ M lib/endpoints/types.ts
+ M playwright.config.ts
+ M prisma/schema.prisma
+ M scripts/ralph/generated/current-evaluator-prompt.txt
+ M scripts/ralph/generated/current-task-prompt.txt
+ M state/artifacts/20260505T190425-endpoint-console-schema-preview-ui/commit.log
+ M state/backlog.md
+ M state/blocker-tracker.json
+ M state/current-cycle.json
+ M state/current-task.txt
+ M state/deterministic-checks.json
+ M state/last-result.txt
+ M state/run-log.md
+ M state/task-history.md
+?? app/api/audit/
+?? app/audit/
+?? docs/exec-plans/completed/004-endpoint-console-schema-preview-ui.md
+?? lib/audit/
+?? lib/security/
+?? prisma/migrations/202605050003_audit_events/
+?? state/artifacts/20260505T190425-endpoint-console-schema-preview-ui/backlog.log
+?? state/artifacts/20260505T190425-endpoint-console-schema-preview-ui/promote.log
+?? state/artifacts/20260505T191001-endpoint-protected-delete-audit/
+?? tests/e2e/endpoint-delete-audit.spec.ts
+
+exec
+/bin/zsh -lc 'rg -n "deleteEndpoint|delete endpoint|AuditEvent|audit|rootPassword|deleteCode|DELETE" app lib prisma tests docs -S' in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+docs/SECURITY.md:17:- endpoint delete audit entries store method/reason metadata, not submitted delete codes or root passwords
+docs/SECURITY.md:33:- audit tests prove failed delete attempts and reset events are recorded
+prisma/schema.prisma:16:  deleteCode            String?
+prisma/schema.prisma:71:model AuditEvent {
+app/globals.css:545:.audit-panel {
+app/globals.css:552:.audit-table {
+app/globals.css:559:.audit-table th,
+app/globals.css:560:.audit-table td {
+app/globals.css:567:.audit-table th {
+app/globals.css:573:.audit-table code {
+tests/e2e/endpoint-delete-audit.spec.ts:5:async function createEndpoint(page: Page, name: string, deleteCode: string) {
+tests/e2e/endpoint-delete-audit.spec.ts:10:  await page.getByRole("textbox", { name: /^Description/ }).fill(`Endpoint delete audit coverage for ${name}.`);
+tests/e2e/endpoint-delete-audit.spec.ts:11:  await page.getByRole("textbox", { name: /^Delete code/ }).fill(deleteCode);
+tests/e2e/endpoint-delete-audit.spec.ts:17:test("endpoint delete requires confirmation and writes non-secret audit evidence @endpoint-delete-audit", async ({ page }) => {
+tests/e2e/endpoint-delete-audit.spec.ts:28:  await page.goto("/audit");
+tests/e2e/endpoint-delete-audit.spec.ts:51:  await page.goto("/audit");
+app/page.tsx:11:  "Failure simulation and audit",
+app/page.tsx:24:        <Link href="/audit">Audit</Link>
+lib/audit/service.ts:5:type AuditClient = Pick<PrismaClient, "auditEvent">;
+lib/audit/service.ts:9:export type AuditEventInput = {
+lib/audit/service.ts:19:export type AuditEventSummary = {
+lib/audit/service.ts:40:export async function recordAuditEvent(input: AuditEventInput, client: AuditClient = createPrismaClient()) {
+lib/audit/service.ts:41:  return client.auditEvent.create({
+lib/audit/service.ts:43:      id: `audit_${randomUUID()}`,
+lib/audit/service.ts:55:export async function listAuditEvents(client: PrismaClient = createPrismaClient()): Promise<AuditEventSummary[]> {
+lib/audit/service.ts:56:  const events = await client.auditEvent.findMany({
+prisma/migrations/202605050003_audit_events/migration.sql:1:CREATE TABLE "AuditEvent" (
+prisma/migrations/202605050003_audit_events/migration.sql:13:CREATE INDEX "AuditEvent_eventType_createdAt_idx" ON "AuditEvent"("eventType", "createdAt");
+prisma/migrations/202605050003_audit_events/migration.sql:14:CREATE INDEX "AuditEvent_subjectType_subjectId_idx" ON "AuditEvent"("subjectType", "subjectId");
+docs/DESIGN.md:11:- recoverable public service: root reset and audit evidence are first-class operator tools
+app/api/audit/route.ts:2:import { listAuditEvents } from "@/lib/audit/service";
+app/api/audit/route.ts:7:    return NextResponse.json({ events: await listAuditEvents() });
+docs/FRONTEND.md:23:| /audit | Audit log | Public mutation, protected delete, and token evidence |
+docs/FRONTEND.md:26:| /api/* | Admin/API | Health, CRUD, config, reset, audit |
+tests/unit/endpoint-validation.test.ts:14:    deleteCode: "12345678",
+tests/unit/endpoint-validation.test.ts:81:          deleteCode: "abc",
+tests/unit/endpoint-validation.test.ts:96:      assert.match(fieldErrors.deleteCode, /8 digits/);
+lib/endpoints/service.ts:3:import { recordAuditEvent } from "@/lib/audit/service";
+lib/endpoints/service.ts:52:    deleteCode: endpoint.deleteCode,
+lib/endpoints/service.ts:110:      deleteCode: validInput.deleteCode,
+lib/endpoints/service.ts:160:        deleteCode: validInput.deleteCode,
+lib/endpoints/service.ts:194:  const deleteCode = input.deleteCode?.trim() ?? "";
+lib/endpoints/service.ts:195:  const rootPassword = input.rootPassword ?? "";
+lib/endpoints/service.ts:197:  if (deleteCode && endpoint.deleteCode && deleteCode === endpoint.deleteCode) {
+lib/endpoints/service.ts:200:  if (verifyRootPassword(rootPassword)) {
+lib/endpoints/service.ts:206:export async function deleteEndpoint(
+lib/endpoints/service.ts:217:    await recordAuditEvent(
+lib/endpoints/service.ts:233:    await recordAuditEvent(
+lib/endpoints/service.ts:244:    throw new EndpointDeleteAuthorizationError(input.deleteCode || input.rootPassword ? "invalid_confirmation" : "missing_confirmation");
+lib/endpoints/service.ts:249:    await recordAuditEvent(
+prisma/migrations/202605050001_endpoint_persistence/migration.sql:8:  "deleteCode" TEXT,
+prisma/migrations/202605050001_endpoint_persistence/migration.sql:31:  CONSTRAINT "EndpointParam_endpointId_fkey" FOREIGN KEY ("endpointId") REFERENCES "Endpoint" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+prisma/migrations/202605050001_endpoint_persistence/migration.sql:44:  CONSTRAINT "ResponseCase_endpointId_fkey" FOREIGN KEY ("endpointId") REFERENCES "Endpoint" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+docs/product-specs/endpoint-tool-management.md:15:- Successful and failed endpoint delete attempts appear in audit evidence without submitted secrets
+prisma/seed.mjs:19:      deleteCode: "12345678",
+prisma/seed.mjs:34:      deleteCode: "12345678",
+app/api/endpoints/[id]/route.ts:3:import { deleteEndpoint, getEndpoint, updateEndpoint } from "@/lib/endpoints/service";
+app/api/endpoints/[id]/route.ts:32:export async function DELETE(request: Request, context: RouteContext) {
+app/api/endpoints/[id]/route.ts:35:    const deletedEndpoint = await deleteEndpoint(id, endpointDeleteInputFromBody(await request.json()));
+lib/endpoints/types.ts:50:  deleteCode?: string | null;
+lib/endpoints/types.ts:74:  deleteCode: string | null;
+lib/endpoints/types.ts:94:  deleteCode?: string | null;
+lib/endpoints/types.ts:95:  rootPassword?: string | null;
+docs/PRODUCT_SENSE.md:19:- destructive endpoint deletion requires a delete code or root-password override and leaves non-secret audit evidence
+docs/PRODUCT_SENSE.md:45:- token and audit screens show enough evidence to debug a client test, including endpoint delete success/failure without stored secrets
+lib/endpoints/validation.ts:52:    deleteCode: input.deleteCode?.trim() ? input.deleteCode.trim() : null,
+lib/endpoints/validation.ts:86:  if (input.deleteCode && !/^\d{8}$/.test(input.deleteCode)) {
+lib/endpoints/validation.ts:87:    addError(errors, "deleteCode", "Use exactly 8 digits.");
+docs/product-specs/index.md:15:| `failure-simulation-and-audit.md` | confirmed | Failure Simulation and Audit |
+lib/endpoints/api.ts:40:    deleteCode: nullableString(record.deleteCode),
+lib/endpoints/api.ts:74:    deleteCode: nullableString(record.deleteCode),
+lib/endpoints/api.ts:75:    rootPassword: nullableString(record.rootPassword),
+app/audit/page.tsx:2:import { listAuditEvents } from "@/lib/audit/service";
+app/audit/page.tsx:5:  const events = await listAuditEvents();
+app/audit/page.tsx:12:        <Link href="/audit" aria-current="page">Audit</Link>
+app/audit/page.tsx:24:      <section className="audit-panel" aria-label="Audit events">
+app/audit/page.tsx:25:        <table className="audit-table">
+app/audit/page.tsx:53:                <td colSpan={5} className="empty-cell">No audit events recorded yet.</td>
+app/endpoints/page.tsx:13:        <Link href="/audit">Audit</Link>
+docs/product-specs/failure-simulation-and-audit.md:4:Users configure delays, forced errors, malformed responses, and review audit evidence for public mutations and token events.
+docs/product-specs/failure-simulation-and-audit.md:20:- Configure forced error/delay/malformed response and observe UI console plus audit events
+app/endpoints/endpoint-manager.tsx:28:  deleteCode: "",
+app/endpoints/endpoint-manager.tsx:60:    deleteCode: endpoint.deleteCode ?? "",
+app/endpoints/endpoint-manager.tsx:104:  const [deleteCodeConfirm, setDeleteCodeConfirm] = useState("");
+app/endpoints/endpoint-manager.tsx:105:  const [rootPasswordConfirm, setRootPasswordConfirm] = useState("");
+app/endpoints/endpoint-manager.tsx:196:        method: "DELETE",
+app/endpoints/endpoint-manager.tsx:199:          deleteCode: deleteCodeConfirm,
+app/endpoints/endpoint-manager.tsx:200:          rootPassword: rootPasswordConfirm,
+app/endpoints/endpoint-manager.tsx:394:            <input className="text-input" value={form.deleteCode ?? ""} onChange={(event) => updateForm("deleteCode", event.target.value)} />
+app/endpoints/endpoint-manager.tsx:395:            {errorFor(fieldErrors, "deleteCode")}
+app/endpoints/endpoint-manager.tsx:552:            <p className="section-note">Enter this endpoint's 8-digit delete code or the root password override. Secrets are not written to audit events.</p>
+app/endpoints/endpoint-manager.tsx:563:                    value={deleteCodeConfirm}
+app/endpoints/endpoint-manager.tsx:573:                    value={rootPasswordConfirm}
+docs/exec-plans/active/005-endpoint-protected-delete-audit.md:5:  "id": "endpoint-protected-delete-audit",
+docs/exec-plans/active/005-endpoint-protected-delete-audit.md:20:    "npm run test:e2e -- --grep @endpoint-delete-audit",
+docs/exec-plans/active/005-endpoint-protected-delete-audit.md:35:Implement endpoint deletion guarded by delete code or root password, with audit evidence for successful and failed delete attempts.
+docs/exec-plans/active/005-endpoint-protected-delete-audit.md:49:- E2E proof exists under `@endpoint-delete-audit`.
+docs/exec-plans/active/005-endpoint-protected-delete-audit.md:63:- Create audit event storage/use for endpoint delete and failed delete attempts.
+docs/exec-plans/active/005-endpoint-protected-delete-audit.md:64:- Add E2E coverage for success, failure, and audit evidence.
+docs/exec-plans/active/005-endpoint-protected-delete-audit.md:69:- Basic/OAuth audit events beyond endpoint delete.
+docs/exec-plans/active/005-endpoint-protected-delete-audit.md:76:2. Deleting with wrong code fails and writes audit evidence.
+docs/exec-plans/active/005-endpoint-protected-delete-audit.md:84:- npm run test:e2e -- --grep @endpoint-delete-audit
+docs/exec-plans/active/005-endpoint-protected-delete-audit.md:90:- Keep audit event shape extensible for later auth/token events.
+docs/exec-plans/active/005-endpoint-protected-delete-audit.md:110:- 2026-05-05T20:21:00+09:00 - Found existing endpoint delete-code persistence and no existing delete/audit implementation; reused endpoint service/API/UI patterns and added guarded delete plus audit storage instead of broadening into reset/auth tasks.
+docs/exec-plans/active/005-endpoint-protected-delete-audit.md:111:- 2026-05-05T20:24:00+09:00 - Added endpoint delete confirmation UI/API, root-password override validation, non-secret audit evidence, `/audit` read surface, and `@endpoint-delete-audit` E2E coverage for failed code, successful code, and root override paths.
+docs/exec-plans/active/005-endpoint-protected-delete-audit.md:112:- 2026-05-05T20:32:00+09:00 - Required gates passed: `npm run test:unit`, `npm run test:e2e -- --grep @endpoint-delete-audit`, and `npm run verify`.
+docs/exec-plans/active/021-failure-delay-forced-error-runtime.md:9:  "next_task_on_success": "malformed-response-console-audit",
+docs/exec-plans/active/021-failure-delay-forced-error-runtime.md:16:    "docs/product-specs/failure-simulation-and-audit.md"
+docs/exec-plans/active/021-failure-delay-forced-error-runtime.md:101:Confirm that this task maps to the primary product spec `failure-simulation-and-audit.md` or is explicitly final hardening.
+docs/exec-plans/active/index.md:12:5. `005-endpoint-protected-delete-audit.md` -> `endpoint-protected-delete-audit` -> Implement endpoint deletion guarded by delete code or root password, with audit evidence for successful and failed delete attempts.
+docs/exec-plans/active/index.md:29:22. `022-malformed-response-console-audit.md` -> `malformed-response-console-audit` -> Implement intentionally malformed response modes with visible warnings, console evidence, and audit logging for failure-simulation changes.
+docs/exec-plans/active/006-root-reset-defaults.md:65:- Write audit events for reset success/failure.
+docs/exec-plans/active/007-mcp-initialize-and-tools-list.md:48:- GET/DELETE unsupported behavior is deterministic if SSE/session support is absent.
+docs/RELIABILITY.md:17:- audit tests prove mutation evidence is written
+docs/RELIABILITY.md:38:- privacy policy for storing IP or IP hash in audit logs must be decided before public deployment
+docs/exec-plans/active/022-malformed-response-console-audit.md:5:  "id": "malformed-response-console-audit",
+docs/exec-plans/active/022-malformed-response-console-audit.md:16:    "docs/product-specs/failure-simulation-and-audit.md"
+docs/exec-plans/active/022-malformed-response-console-audit.md:20:    "npm run test:e2e -- --grep @malformed-audit",
+docs/exec-plans/active/022-malformed-response-console-audit.md:35:Implement intentionally malformed response modes with visible warnings, console evidence, and audit logging for failure-simulation changes.
+docs/exec-plans/active/022-malformed-response-console-audit.md:56:- Do not log secrets or raw tokens in audit evidence.
+docs/exec-plans/active/022-malformed-response-console-audit.md:62:- Expand audit events for failure-simulation configuration changes.
+docs/exec-plans/active/022-malformed-response-console-audit.md:63:- Add unit and E2E tests tagged `@malformed-audit`.
+docs/exec-plans/active/022-malformed-response-console-audit.md:83:- npm run test:e2e -- --grep @malformed-audit
+docs/exec-plans/active/022-malformed-response-console-audit.md:101:Confirm that this task maps to the primary product spec `failure-simulation-and-audit.md` or is explicitly final hardening.
+docs/QUALITY_SCORE.md:18:| User workflows | Strong | Playwright E2E for endpoint, auth, OAuth, REST, reset, audit |
+docs/QUALITY_SCORE.md:20:| Public admin safety | Medium-high | Delete code, root password, audit log, non-goals documented |
+docs/design-docs/system-shape.md:8:- API route handlers provide admin CRUD, MCP, REST, OAuth, discovery, health, reset, and audit surfaces
+docs/references/prd-analysis.md:20:- Failure simulation for delays, forced errors, timeouts, malformed responses, and audit evidence.
+docs/exec-plans/completed/004-endpoint-console-schema-preview-ui.md:9:  "next_task_on_success": "endpoint-protected-delete-audit",
+docs/generated/db-schema.md:5:Updated by task `endpoint-protected-delete-audit` for endpoint delete audit evidence.
+docs/generated/db-schema.md:27:| `deleteCode` | `String?` | Endpoint delete-code storage for later protected delete flows. |
+docs/generated/db-schema.md:89:## AuditEvent
+docs/generated/db-schema.md:95:| `id` | `String` | Primary key, assigned by audit service code. |
+docs/generated/db-schema.md:97:| `subjectType` | `String` | Subject category, currently `endpoint` for delete audit events. |
+docs/exec-plans/completed/003-endpoint-management-list-editor-ui.md:54:- Do not implement endpoint deletion, reset, or audit here.
+docs/exec-plans/completed/003-endpoint-management-list-editor-ui.md:70:- Delete/reset/audit behavior.
+docs/exec-plans/completed/001-endpoint-domain-and-schema.md:48:- Tables or models exist for endpoints, parameters, response cases, audit-ready timestamps, and enough seed defaults for later slices.
+
+exec
+/bin/zsh -lc "sed -n '1,340p' lib/endpoints/service.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+exec
+/bin/zsh -lc "sed -n '1,140p' app/api/endpoints/[id]/route.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ exited 1 in 0ms:
+zsh:1: no matches found: app/api/endpoints/[id]/route.ts
+
+ succeeded in 0ms:
+import { randomUUID } from "node:crypto";
+import type { Prisma, PrismaClient } from "@prisma/client";
+import { recordAuditEvent } from "@/lib/audit/service";
+import { createPrismaClient } from "@/lib/db/client";
+import { generateMcpInputSchema } from "@/lib/endpoints/schema";
+import { EndpointDeleteAuthorizationError, EndpointNotFoundError } from "@/lib/endpoints/types";
+import { validateEndpointInput } from "@/lib/endpoints/validation";
+import { verifyRootPassword } from "@/lib/security/root-password";
+import type {
+  EndpointDeleteInput,
+  EndpointDetail,
+  EndpointInput,
+  EndpointListResult,
+  EndpointSummary,
+} from "@/lib/endpoints/types";
+
+const endpointInclude = {
+  parameters: { orderBy: { position: "asc" } },
+  responseCases: { orderBy: [{ isDefault: "desc" }, { priority: "asc" }, { name: "asc" }] },
+} satisfies Prisma.EndpointInclude;
+
+type EndpointRecord = Prisma.EndpointGetPayload<{ include: typeof endpointInclude }>;
+
+function toSummary(endpoint: EndpointRecord): EndpointSummary {
+  return {
+    id: endpoint.id,
+    name: endpoint.name,
+    title: endpoint.title,
+    description: endpoint.description,
+    enabled: endpoint.enabled,
+    protectedDefault: endpoint.protectedDefault,
+    parameterCount: endpoint.parameters.length,
+    responseCaseCount: endpoint.responseCases.length,
+    updatedAt: endpoint.updatedAt.toISOString(),
+  };
+}
+
+function toDetail(endpoint: EndpointRecord): EndpointDetail {
+  const parameters = endpoint.parameters.map((parameter) => ({
+    id: parameter.id,
+    position: parameter.position,
+    name: parameter.name,
+    label: parameter.label ?? "",
+    description: parameter.description,
+    type: parameter.type as EndpointDetail["parameters"][number]["type"],
+    required: parameter.required,
+    defaultValueJson: parameter.defaultValueJson,
+  }));
+
+  return {
+    ...toSummary(endpoint),
+    deleteCode: endpoint.deleteCode,
+    defaultResponseJson: endpoint.defaultResponseJson,
+    inputSchema: generateMcpInputSchema({ parameters }),
+    failureMode: endpoint.failureMode as EndpointDetail["failureMode"],
+    failureStatusCode: endpoint.failureStatusCode,
+    failureDelayMs: endpoint.failureDelayMs,
+    failureMessage: endpoint.failureMessage,
+    malformedResponseJson: endpoint.malformedResponseJson,
+    parameters,
+    responseCases: endpoint.responseCases.map((responseCase) => ({
+      id: responseCase.id,
+      name: responseCase.name,
+      priority: responseCase.priority,
+      matchArgsJson: responseCase.matchArgsJson,
+      responseJson: responseCase.responseJson,
+      statusCode: responseCase.statusCode,
+      delayMs: responseCase.delayMs,
+      errorMode: responseCase.errorMode as EndpointDetail["responseCases"][number]["errorMode"],
+      errorStatusCode: responseCase.errorStatusCode,
+      errorMessage: responseCase.errorMessage,
+      errorBodyJson: responseCase.errorBodyJson,
+      isDefault: responseCase.isDefault,
+    })),
+  };
+}
+
+export async function listEndpoints(client: PrismaClient = createPrismaClient()): Promise<EndpointListResult> {
+  const endpoints = await client.endpoint.findMany({
+    include: endpointInclude,
+    orderBy: [{ protectedDefault: "desc" }, { updatedAt: "desc" }, { name: "asc" }],
+  });
+
+  const summaries = endpoints.map(toSummary);
+  return {
+    total: summaries.length,
+    enabled: summaries.filter((endpoint) => endpoint.enabled).length,
+    disabled: summaries.filter((endpoint) => !endpoint.enabled).length,
+    endpoints: summaries,
+  };
+}
+
+export async function getEndpoint(id: string, client: PrismaClient = createPrismaClient()) {
+  const endpoint = await client.endpoint.findUnique({ where: { id }, include: endpointInclude });
+  return endpoint ? toDetail(endpoint) : null;
+}
+
+export async function createEndpoint(input: EndpointInput, client: PrismaClient = createPrismaClient()) {
+  const validInput = validateEndpointInput(input);
+  const id = `endpoint_${randomUUID()}`;
+
+  const endpoint = await client.endpoint.create({
+    data: {
+      id,
+      name: validInput.name,
+      title: validInput.title ?? "",
+      description: validInput.description ?? "",
+      enabled: validInput.enabled,
+      protectedDefault: false,
+      deleteCode: validInput.deleteCode,
+      defaultResponseJson: validInput.defaultResponseJson,
+      failureMode: validInput.failureMode,
+      failureStatusCode: validInput.failureStatusCode,
+      failureDelayMs: validInput.failureDelayMs,
+      failureMessage: validInput.failureMessage,
+      malformedResponseJson: validInput.malformedResponseJson,
+      parameters: {
+        create: validInput.parameters.map((parameter, position) => ({
+          id: `${id}_param_${position}_${randomUUID()}`,
+          position,
+          name: parameter.name,
+          label: parameter.label || null,
+          description: parameter.description ?? "",
+          type: parameter.type,
+          required: parameter.required,
+          defaultValueJson: parameter.defaultValueJson,
+        })),
+      },
+      responseCases: {
+        create: validInput.responseCases.map((responseCase) => ({
+          id: `${id}_case_${randomUUID()}`,
+          ...responseCase,
+        })),
+      },
+    },
+    include: endpointInclude,
+  });
+
+  return toDetail(endpoint);
+}
+
+export async function updateEndpoint(
+  id: string,
+  input: EndpointInput,
+  client: PrismaClient = createPrismaClient(),
+) {
+  const validInput = validateEndpointInput(input);
+
+  const endpoint = await client.$transaction(async (tx) => {
+    await tx.endpointParam.deleteMany({ where: { endpointId: id } });
+    await tx.responseCase.deleteMany({ where: { endpointId: id } });
+
+    return tx.endpoint.update({
+      where: { id },
+      data: {
+        name: validInput.name,
+        title: validInput.title ?? "",
+        description: validInput.description ?? "",
+        enabled: validInput.enabled,
+        deleteCode: validInput.deleteCode,
+        defaultResponseJson: validInput.defaultResponseJson,
+        failureMode: validInput.failureMode,
+        failureStatusCode: validInput.failureStatusCode,
+        failureDelayMs: validInput.failureDelayMs,
+        failureMessage: validInput.failureMessage,
+        malformedResponseJson: validInput.malformedResponseJson,
+        parameters: {
+          create: validInput.parameters.map((parameter, position) => ({
+            id: `${id}_param_${position}_${randomUUID()}`,
+            position,
+            name: parameter.name,
+            label: parameter.label || null,
+            description: parameter.description ?? "",
+            type: parameter.type,
+            required: parameter.required,
+            defaultValueJson: parameter.defaultValueJson,
+          })),
+        },
+        responseCases: {
+          create: validInput.responseCases.map((responseCase) => ({
+            id: `${id}_case_${randomUUID()}`,
+            ...responseCase,
+          })),
+        },
+      },
+      include: endpointInclude,
+    });
+  });
+
+  return toDetail(endpoint);
+}
+
+function deleteMethodFor(endpoint: EndpointRecord, input: EndpointDeleteInput) {
+  const deleteCode = input.deleteCode?.trim() ?? "";
+  const rootPassword = input.rootPassword ?? "";
+
+  if (deleteCode && endpoint.deleteCode && deleteCode === endpoint.deleteCode) {
+    return "delete_code";
+  }
+  if (verifyRootPassword(rootPassword)) {
+    return "root_password";
+  }
+  return null;
+}
+
+export async function deleteEndpoint(
+  id: string,
+  input: EndpointDeleteInput,
+  client: PrismaClient = createPrismaClient(),
+) {
+  const endpoint = await client.endpoint.findUnique({ where: { id }, include: endpointInclude });
+  if (!endpoint) {
+    throw new EndpointNotFoundError();
+  }
+
+  if (endpoint.protectedDefault) {
+    await recordAuditEvent(
+      {
+        eventType: "endpoint.delete",
+        subjectType: "endpoint",
+        subjectId: endpoint.id,
+        subjectName: endpoint.name,
+        outcome: "failure",
+        metadata: { reason: "protected_default" },
+      },
+      client,
+    );
+    throw new EndpointDeleteAuthorizationError("protected_default");
+  }
+
+  const method = deleteMethodFor(endpoint, input);
+  if (!method) {
+    await recordAuditEvent(
+      {
+        eventType: "endpoint.delete",
+        subjectType: "endpoint",
+        subjectId: endpoint.id,
+        subjectName: endpoint.name,
+        outcome: "failure",
+        metadata: { reason: "invalid_confirmation" },
+      },
+      client,
+    );
+    throw new EndpointDeleteAuthorizationError(input.deleteCode || input.rootPassword ? "invalid_confirmation" : "missing_confirmation");
+  }
+
+  await client.$transaction(async (tx) => {
+    await tx.endpoint.delete({ where: { id: endpoint.id } });
+    await recordAuditEvent(
+      {
+        eventType: "endpoint.delete",
+        subjectType: "endpoint",
+        subjectId: endpoint.id,
+        subjectName: endpoint.name,
+        outcome: "success",
+        metadata: { method },
+      },
+      tx,
+    );
+  });
+
+  return toSummary(endpoint);
+}
+
+exec
+/bin/zsh -lc "sed -n '1,130p' lib/endpoints/api.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import { Prisma } from "@prisma/client";
+import { NextResponse } from "next/server";
+import { EndpointDeleteAuthorizationError, EndpointNotFoundError, EndpointValidationError } from "@/lib/endpoints/types";
+import type { EndpointDeleteInput, EndpointInput } from "@/lib/endpoints/types";
+
+function asRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : {};
+}
+
+function asString(value: unknown, fallback = "") {
+  return typeof value === "string" ? value : fallback;
+}
+
+function asBoolean(value: unknown, fallback = false) {
+  return typeof value === "boolean" ? value : fallback;
+}
+
+function asNumber(value: unknown, fallback = 0) {
+  return typeof value === "number" && Number.isFinite(value) ? value : fallback;
+}
+
+function nullableNumber(value: unknown) {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function nullableString(value: unknown) {
+  return typeof value === "string" && value.trim() ? value : null;
+}
+
+export function endpointInputFromBody(body: unknown): EndpointInput {
+  const record = asRecord(body);
+  const parameters = Array.isArray(record.parameters) ? record.parameters.map(asRecord) : [];
+  const responseCases = Array.isArray(record.responseCases) ? record.responseCases.map(asRecord) : [];
+
+  return {
+    name: asString(record.name),
+    title: asString(record.title),
+    description: asString(record.description),
+    enabled: asBoolean(record.enabled, true),
+    deleteCode: nullableString(record.deleteCode),
+    defaultResponseJson: asString(record.defaultResponseJson, "{}"),
+    failureMode: asString(record.failureMode, "none") as EndpointInput["failureMode"],
+    failureStatusCode: nullableNumber(record.failureStatusCode),
+    failureDelayMs: asNumber(record.failureDelayMs),
+    failureMessage: nullableString(record.failureMessage),
+    malformedResponseJson: nullableString(record.malformedResponseJson),
+    parameters: parameters.map((parameter) => ({
+      name: asString(parameter.name),
+      label: asString(parameter.label),
+      description: asString(parameter.description),
+      type: asString(parameter.type, "string") as EndpointInput["parameters"][number]["type"],
+      required: asBoolean(parameter.required),
+      defaultValueJson: nullableString(parameter.defaultValueJson),
+    })),
+    responseCases: responseCases.map((responseCase) => ({
+      name: asString(responseCase.name),
+      priority: asNumber(responseCase.priority),
+      matchArgsJson: asString(responseCase.matchArgsJson, "{}"),
+      responseJson: asString(responseCase.responseJson, "{}"),
+      statusCode: asNumber(responseCase.statusCode, 200),
+      delayMs: asNumber(responseCase.delayMs),
+      errorMode: asString(responseCase.errorMode, "none") as EndpointInput["responseCases"][number]["errorMode"],
+      errorStatusCode: nullableNumber(responseCase.errorStatusCode),
+      errorMessage: nullableString(responseCase.errorMessage),
+      errorBodyJson: nullableString(responseCase.errorBodyJson),
+      isDefault: asBoolean(responseCase.isDefault),
+    })),
+  };
+}
+
+export function endpointDeleteInputFromBody(body: unknown): EndpointDeleteInput {
+  const record = asRecord(body);
+  return {
+    deleteCode: nullableString(record.deleteCode),
+    rootPassword: nullableString(record.rootPassword),
+  };
+}
+
+export function endpointErrorResponse(error: unknown) {
+  if (error instanceof EndpointValidationError) {
+    return NextResponse.json({ error: "validation_failed", fieldErrors: error.fieldErrors }, { status: 400 });
+  }
+
+  if (error instanceof EndpointDeleteAuthorizationError) {
+    if (error.reason === "protected_default") {
+      return NextResponse.json(
+        { error: "protected_default", message: "Built-in endpoint defaults cannot be deleted through this action." },
+        { status: 409 },
+      );
+    }
+    return NextResponse.json(
+      { error: "delete_confirmation_failed", message: "Enter the endpoint delete code or root password to delete." },
+      { status: 403 },
+    );
+  }
+
+  if (error instanceof EndpointNotFoundError) {
+    return NextResponse.json({ error: "not_found" }, { status: 404 });
+  }
+
+  if (error instanceof Prisma.PrismaClientKnownRequestError) {
+    if (error.code === "P2002") {
+      return NextResponse.json(
+        { error: "validation_failed", fieldErrors: { name: "Endpoint name must be unique." } },
+        { status: 409 },
+      );
+    }
+    if (error.code === "P2025") {
+      return NextResponse.json({ error: "not_found" }, { status: 404 });
+    }
+  }
+
+  console.error(error);
+  return NextResponse.json({ error: "internal_error" }, { status: 500 });
+}
+
+exec
+/bin/zsh -lc "sed -n '1,130p' lib/endpoints/types.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+export type EndpointParamType = "string" | "number" | "boolean";
+export type FailureMode = "none" | "delay" | "error" | "malformed";
+export type CaseErrorMode = "none" | "error";
+export type JsonPrimitive = string | number | boolean | null;
+export type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
+
+export type McpInputSchema = {
+  type: "object";
+  properties: Record<
+    string,
+    {
+      type: EndpointParamType;
+      title?: string;
+      description?: string;
+      default?: JsonValue;
+    }
+  >;
+  required: string[];
+  additionalProperties: false;
+};
+
+export type EndpointParamInput = {
+  name: string;
+  label?: string;
+  description?: string;
+  type: EndpointParamType;
+  required: boolean;
+  defaultValueJson?: string | null;
+};
+
+export type ResponseCaseInput = {
+  name: string;
+  priority: number;
+  matchArgsJson: string;
+  responseJson: string;
+  statusCode: number;
+  delayMs: number;
+  errorMode: CaseErrorMode;
+  errorStatusCode?: number | null;
+  errorMessage?: string | null;
+  errorBodyJson?: string | null;
+  isDefault: boolean;
+};
+
+export type EndpointInput = {
+  name: string;
+  title?: string;
+  description?: string;
+  enabled: boolean;
+  deleteCode?: string | null;
+  defaultResponseJson: string;
+  failureMode: FailureMode;
+  failureStatusCode?: number | null;
+  failureDelayMs: number;
+  failureMessage?: string | null;
+  malformedResponseJson?: string | null;
+  parameters: EndpointParamInput[];
+  responseCases: ResponseCaseInput[];
+};
+
+export type EndpointSummary = {
+  id: string;
+  name: string;
+  title: string;
+  description: string;
+  enabled: boolean;
+  protectedDefault: boolean;
+  parameterCount: number;
+  responseCaseCount: number;
+  updatedAt: string;
+};
+
+export type EndpointDetail = EndpointSummary & {
+  deleteCode: string | null;
+  defaultResponseJson: string;
+  inputSchema: McpInputSchema;
+  failureMode: FailureMode;
+  failureStatusCode: number | null;
+  failureDelayMs: number;
+  failureMessage: string | null;
+  malformedResponseJson: string | null;
+  parameters: Array<EndpointParamInput & { id: string; position: number }>;
+  responseCases: Array<ResponseCaseInput & { id: string }>;
+};
+
+export type EndpointListResult = {
+  total: number;
+  enabled: number;
+  disabled: number;
+  endpoints: EndpointSummary[];
+};
+
+export type EndpointDeleteInput = {
+  deleteCode?: string | null;
+  rootPassword?: string | null;
+};
+
+export class EndpointValidationError extends Error {
+  constructor(public readonly fieldErrors: Record<string, string>) {
+    super("Endpoint validation failed");
+  }
+}
+
+export class EndpointDeleteAuthorizationError extends Error {
+  constructor(public readonly reason: "missing_confirmation" | "invalid_confirmation" | "protected_default") {
+    super("Endpoint delete authorization failed");
+  }
+}
+
+export class EndpointNotFoundError extends Error {
+  constructor() {
+    super("Endpoint not found");
+  }
+}
+
+codex
+{"decision":"not_done","recommend_promotion":false,"confidence":0.1,"summary":"The domain path has a real guarded delete implementation: it checks endpoint delete code first, then root password, records failure/success audit events, and deletes inside a transaction. One shell read hit zsh globbing on the dynamic route path, so I’m reopening that route with quoting and checking the audit service/schema plus E2E assertions.","satisfied_exit_criteria":[],"missing_requirements":[],"human_review_triggers":[]}
+exec
+/bin/zsh -lc "sed -n '1,180p' lib/audit/service.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import { randomUUID } from "node:crypto";
+import type { PrismaClient } from "@prisma/client";
+import { createPrismaClient } from "@/lib/db/client";
+
+type AuditClient = Pick<PrismaClient, "auditEvent">;
+
+export type AuditOutcome = "success" | "failure";
+
+export type AuditEventInput = {
+  eventType: string;
+  subjectType: string;
+  subjectId?: string | null;
+  subjectName?: string | null;
+  outcome: AuditOutcome;
+  actorType?: string;
+  metadata?: Record<string, string | number | boolean | null>;
+};
+
+export type AuditEventSummary = {
+  id: string;
+  eventType: string;
+  subjectType: string;
+  subjectId: string | null;
+  subjectName: string | null;
+  outcome: string;
+  actorType: string;
+  metadata: Record<string, unknown>;
+  createdAt: string;
+};
+
+function parseMetadata(value: string): Record<string, unknown> {
+  try {
+    const parsed = JSON.parse(value);
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? (parsed as Record<string, unknown>) : {};
+  } catch {
+    return {};
+  }
+}
+
+export async function recordAuditEvent(input: AuditEventInput, client: AuditClient = createPrismaClient()) {
+  return client.auditEvent.create({
+    data: {
+      id: `audit_${randomUUID()}`,
+      eventType: input.eventType,
+      subjectType: input.subjectType,
+      subjectId: input.subjectId ?? null,
+      subjectName: input.subjectName ?? null,
+      outcome: input.outcome,
+      actorType: input.actorType ?? "public",
+      metadataJson: JSON.stringify(input.metadata ?? {}),
+    },
+  });
+}
+
+export async function listAuditEvents(client: PrismaClient = createPrismaClient()): Promise<AuditEventSummary[]> {
+  const events = await client.auditEvent.findMany({
+    orderBy: { createdAt: "desc" },
+    take: 100,
+  });
+
+  return events.map((event) => ({
+    id: event.id,
+    eventType: event.eventType,
+    subjectType: event.subjectType,
+    subjectId: event.subjectId,
+    subjectName: event.subjectName,
+    outcome: event.outcome,
+    actorType: event.actorType,
+    metadata: parseMetadata(event.metadataJson),
+    createdAt: event.createdAt.toISOString(),
+  }));
+}
+
+exec
+/bin/zsh -lc "sed -n '1,140p' 'app/api/endpoints/[id]/route.ts'" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import { NextResponse } from "next/server";
+import { endpointDeleteInputFromBody, endpointErrorResponse, endpointInputFromBody } from "@/lib/endpoints/api";
+import { deleteEndpoint, getEndpoint, updateEndpoint } from "@/lib/endpoints/service";
+
+type RouteContext = {
+  params: Promise<{ id: string }>;
+};
+
+export async function GET(_request: Request, context: RouteContext) {
+  try {
+    const { id } = await context.params;
+    const endpoint = await getEndpoint(id);
+    if (!endpoint) {
+      return NextResponse.json({ error: "not_found" }, { status: 404 });
+    }
+    return NextResponse.json({ endpoint });
+  } catch (error) {
+    return endpointErrorResponse(error);
+  }
+}
+
+export async function PATCH(request: Request, context: RouteContext) {
+  try {
+    const { id } = await context.params;
+    const endpoint = await updateEndpoint(id, endpointInputFromBody(await request.json()));
+    return NextResponse.json({ endpoint });
+  } catch (error) {
+    return endpointErrorResponse(error);
+  }
+}
+
+export async function DELETE(request: Request, context: RouteContext) {
+  try {
+    const { id } = await context.params;
+    const deletedEndpoint = await deleteEndpoint(id, endpointDeleteInputFromBody(await request.json()));
+    return NextResponse.json({ endpoint: deletedEndpoint });
+  } catch (error) {
+    return endpointErrorResponse(error);
+  }
+}
+
+exec
+/bin/zsh -lc "sed -n '1,120p' app/api/audit/route.ts && sed -n '1,140p' app/audit/page.tsx" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import { NextResponse } from "next/server";
+import { listAuditEvents } from "@/lib/audit/service";
+import { endpointErrorResponse } from "@/lib/endpoints/api";
+
+export async function GET() {
+  try {
+    return NextResponse.json({ events: await listAuditEvents() });
+  } catch (error) {
+    return endpointErrorResponse(error);
+  }
+}
+import Link from "next/link";
+import { listAuditEvents } from "@/lib/audit/service";
+
+export default async function AuditPage() {
+  const events = await listAuditEvents();
+
+  return (
+    <main className="shell app-shell">
+      <nav className="top-nav" aria-label="Primary">
+        <Link href="/">Dashboard</Link>
+        <Link href="/endpoints">Endpoints</Link>
+        <Link href="/audit" aria-current="page">Audit</Link>
+      </nav>
+      <header className="page-header">
+        <div>
+          <p className="eyebrow">Mutation evidence</p>
+          <h1>Audit log</h1>
+          <p className="lede compact">
+            Public destructive endpoint actions are recorded with outcome and reason metadata only.
+          </p>
+        </div>
+      </header>
+
+      <section className="audit-panel" aria-label="Audit events">
+        <table className="audit-table">
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Event</th>
+              <th>Subject</th>
+              <th>Outcome</th>
+              <th>Evidence</th>
+            </tr>
+          </thead>
+          <tbody>
+            {events.map((event) => (
+              <tr key={event.id}>
+                <td>{new Date(event.createdAt).toLocaleString()}</td>
+                <td>{event.eventType}</td>
+                <td>{event.subjectName ?? event.subjectId ?? "unknown"}</td>
+                <td>
+                  <span className={event.outcome === "success" ? "status-pill enabled" : "status-pill danger"}>
+                    {event.outcome}
+                  </span>
+                </td>
+                <td>
+                  <code>{JSON.stringify(event.metadata)}</code>
+                </td>
+              </tr>
+            ))}
+            {events.length === 0 ? (
+              <tr>
+                <td colSpan={5} className="empty-cell">No audit events recorded yet.</td>
+              </tr>
+            ) : null}
+          </tbody>
+        </table>
+      </section>
+    </main>
+  );
+}
+
+exec
+/bin/zsh -lc "sed -n '1,130p' lib/security/root-password.ts && sed -n '1,130p' prisma/schema.prisma && sed -n '1,80p' prisma/migrations/202605050003_audit_events/migration.sql" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import { timingSafeEqual } from "node:crypto";
+
+function safeEqual(left: string, right: string) {
+  const leftBuffer = Buffer.from(left);
+  const rightBuffer = Buffer.from(right);
+  if (leftBuffer.length !== rightBuffer.length) {
+    timingSafeEqual(leftBuffer, leftBuffer);
+    return false;
+  }
+  return timingSafeEqual(leftBuffer, rightBuffer);
+}
+
+export function verifyRootPassword(candidate: string | null | undefined) {
+  const configured = process.env.ROOT_PASSWORD;
+  if (!configured || !candidate) {
+    return false;
+  }
+  return safeEqual(candidate, configured);
+}
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Endpoint {
+  id                    String          @id
+  name                  String          @unique
+  title                 String          @default("")
+  description           String          @default("")
+  enabled               Boolean         @default(true)
+  protectedDefault      Boolean         @default(false)
+  deleteCode            String?
+  defaultResponseJson   String          @default("{}")
+  failureMode           String          @default("none")
+  failureStatusCode     Int?
+  failureDelayMs        Int             @default(0)
+  failureMessage        String?
+  malformedResponseJson String?
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+  parameters            EndpointParam[]
+  responseCases         ResponseCase[]
+}
+
+model EndpointParam {
+  id               String   @id
+  endpointId       String
+  position         Int
+  name             String
+  label            String?
+  description      String   @default("")
+  type             String   @default("string")
+  required         Boolean  @default(false)
+  defaultValueJson String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  endpoint         Endpoint @relation(fields: [endpointId], references: [id], onDelete: Cascade)
+
+  @@unique([endpointId, position])
+  @@unique([endpointId, name])
+  @@index([endpointId])
+}
+
+model ResponseCase {
+  id              String   @id
+  endpointId      String
+  name            String
+  priority        Int      @default(0)
+  matchArgsJson   String   @default("{}")
+  responseJson    String
+  statusCode      Int      @default(200)
+  delayMs         Int      @default(0)
+  errorMode       String   @default("none")
+  errorStatusCode Int?
+  errorMessage    String?
+  errorBodyJson   String?
+  isDefault       Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  endpoint        Endpoint @relation(fields: [endpointId], references: [id], onDelete: Cascade)
+
+  @@unique([endpointId, name])
+  @@index([endpointId, priority])
+  @@index([endpointId])
+}
+
+model AuditEvent {
+  id             String   @id
+  eventType      String
+  subjectType    String
+  subjectId      String?
+  subjectName    String?
+  outcome        String
+  actorType      String   @default("public")
+  metadataJson   String   @default("{}")
+  createdAt      DateTime @default(now())
+
+  @@index([eventType, createdAt])
+  @@index([subjectType, subjectId])
+}
+CREATE TABLE "AuditEvent" (
+  "id" TEXT NOT NULL PRIMARY KEY,
+  "eventType" TEXT NOT NULL,
+  "subjectType" TEXT NOT NULL,
+  "subjectId" TEXT,
+  "subjectName" TEXT,
+  "outcome" TEXT NOT NULL,
+  "actorType" TEXT NOT NULL DEFAULT 'public',
+  "metadataJson" TEXT NOT NULL DEFAULT '{}',
+  "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX "AuditEvent_eventType_createdAt_idx" ON "AuditEvent"("eventType", "createdAt");
+CREATE INDEX "AuditEvent_subjectType_subjectId_idx" ON "AuditEvent"("subjectType", "subjectId");
+
+exec
+/bin/zsh -lc "sed -n '1,130p' tests/e2e/endpoint-delete-audit.spec.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+exec
+/bin/zsh -lc "sed -n '160,240p' app/endpoints/endpoint-manager.tsx && sed -n '520,610p' app/endpoints/endpoint-manager.tsx" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import { expect, test, type Page } from "@playwright/test";
+
+test.setTimeout(60_000);
+
+async function createEndpoint(page: Page, name: string, deleteCode: string) {
+  await page.goto("/endpoints");
+  await page.getByRole("button", { name: "New endpoint" }).click();
+  await page.getByRole("textbox", { name: /^Name/ }).fill(name);
+  await page.getByRole("textbox", { name: /^Title/ }).fill(name);
+  await page.getByRole("textbox", { name: /^Description/ }).fill(`Endpoint delete audit coverage for ${name}.`);
+  await page.getByRole("textbox", { name: /^Delete code/ }).fill(deleteCode);
+  await page.getByRole("button", { name: "Save" }).click();
+  await expect(page.getByText("Endpoint saved.")).toBeVisible();
+  await expect(page.getByRole("button", { name })).toBeVisible();
+}
+
+test("endpoint delete requires confirmation and writes non-secret audit evidence @endpoint-delete-audit", async ({ page }) => {
+  const codeDeletedName = `delete_code_${Date.now()}`;
+  const rootDeletedName = `root_delete_${Date.now()}`;
+
+  await createEndpoint(page, codeDeletedName, "87654321");
+  await page.getByRole("button", { name: "Delete endpoint" }).click();
+  await page.getByLabel("Delete code").last().fill("11111111");
+  await page.getByRole("button", { name: "Confirm delete" }).click();
+  await expect(page.getByText("Enter the endpoint delete code or root password to delete.")).toBeVisible();
+  await expect(page.getByRole("button", { name: codeDeletedName })).toBeVisible();
+
+  await page.goto("/audit");
+  const failedDeleteRow = page.getByRole("row").filter({ hasText: codeDeletedName }).first();
+  await expect(failedDeleteRow).toBeVisible();
+  await expect(failedDeleteRow).toContainText("invalid_confirmation");
+  await expect(page.getByText("11111111")).toHaveCount(0);
+
+  await page.goto("/endpoints");
+  await page.getByRole("button", { name: codeDeletedName }).click();
+  await page.getByRole("button", { name: "Delete endpoint" }).click();
+  await page.getByLabel("Delete code").last().fill("87654321");
+  await page.getByRole("button", { name: "Confirm delete" }).click();
+  await expect(page.getByText("Endpoint deleted.")).toBeVisible();
+  await page.getByLabel("Search").fill(codeDeletedName);
+  await expect(page.getByText("No endpoints match this search.")).toBeVisible();
+
+  await createEndpoint(page, rootDeletedName, "22222222");
+  await page.getByRole("button", { name: "Delete endpoint" }).click();
+  await page.getByLabel("Root password override").fill("e2e-root-password");
+  await page.getByRole("button", { name: "Confirm delete" }).click();
+  await expect(page.getByText("Endpoint deleted.")).toBeVisible();
+  await page.getByLabel("Search").fill(rootDeletedName);
+  await expect(page.getByText("No endpoints match this search.")).toBeVisible();
+
+  await page.goto("/audit");
+  const codeSuccessRow = page.getByRole("row").filter({ hasText: codeDeletedName }).filter({ hasText: "delete_code" }).first();
+  const rootSuccessRow = page.getByRole("row").filter({ hasText: rootDeletedName }).filter({ hasText: "root_password" }).first();
+  await expect(codeSuccessRow).toBeVisible();
+  await expect(rootSuccessRow).toBeVisible();
+  await expect(page.getByText("87654321")).toHaveCount(0);
+  await expect(page.getByText("e2e-root-password")).toHaveCount(0);
+});
+
+ succeeded in 0ms:
+    const target = selectedId ? `/api/endpoints/${selectedId}` : "/api/endpoints";
+    const method = selectedId ? "PATCH" : "POST";
+
+    try {
+      const response = await fetch(target, {
+        method,
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      const payload = await response.json();
+      if (!response.ok) {
+        setSaveState({
+          status: "error",
+          message: "Fix the highlighted fields and save again.",
+          fieldErrors: payload.fieldErrors ?? {},
+        });
+        return;
+      }
+
+      const endpoint = payload.endpoint as EndpointDetail;
+      setForm(detailToForm(endpoint));
+      setSelectedId(endpoint.id);
+      await refreshList();
+      router.refresh();
+      setSaveState({ status: "success", message: "Endpoint saved.", fieldErrors: {} });
+    } catch (error) {
+      setSaveState({ status: "error", message: error instanceof Error ? error.message : "Save failed.", fieldErrors: {} });
+    }
+  }
+
+  async function deleteSelectedEndpoint() {
+    if (!selectedId) return;
+
+    setDeleteState({ status: "deleting", message: "Deleting endpoint." });
+    try {
+      const response = await fetch(`/api/endpoints/${selectedId}`, {
+        method: "DELETE",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          deleteCode: deleteCodeConfirm,
+          rootPassword: rootPasswordConfirm,
+        }),
+      });
+      const payload = await response.json();
+      setDeleteCodeConfirm("");
+      setRootPasswordConfirm("");
+
+      if (!response.ok) {
+        setDeleteState({
+          status: "error",
+          message: typeof payload.message === "string" ? payload.message : "Endpoint delete failed.",
+        });
+        return;
+      }
+
+      setForm(blankEndpoint);
+      setSelectedId(null);
+      await refreshList();
+      router.refresh();
+      setSaveState({ status: "success", message: "Endpoint deleted.", fieldErrors: {} });
+      setDeleteState({ status: "success", message: "Endpoint deleted." });
+    } catch (error) {
+      setDeleteState({ status: "error", message: error instanceof Error ? error.message : "Endpoint delete failed." });
+    }
+  }
+
+  function updateForm<K extends keyof EndpointFormState>(key: K, value: EndpointFormState[K]) {
+    setForm((current) => ({ ...current, [key]: value }));
+  }
+
+  function updateParameter(index: number, patch: Partial<EndpointFormState["parameters"][number]>) {
+    setForm((current) => ({
+      ...current,
+      parameters: current.parameters.map((parameter, parameterIndex) =>
+        parameterIndex === index ? { ...parameter, ...patch } : parameter,
+      ),
+    }));
+  }
+
+  function updateResponseCase(index: number, patch: Partial<EndpointFormState["responseCases"][number]>) {
+    setForm((current) => ({
+              <select aria-label="Failure mode" className="text-input" value={form.failureMode} onChange={(event) => updateForm("failureMode", event.target.value as EndpointInput["failureMode"])}>
+                <option value="none">none</option>
+                <option value="delay">delay</option>
+                <option value="error">error</option>
+                <option value="malformed">malformed</option>
+              </select>
+              {errorFor(fieldErrors, "failureMode")}
+            </label>
+            <label className="field-block">
+              <span>Failure status</span>
+              <input aria-label="Failure status" className="text-input" type="number" value={form.failureStatusCode ?? ""} onChange={(event) => updateForm("failureStatusCode", event.target.value ? Number(event.target.value) : null)} />
+              {errorFor(fieldErrors, "failureStatusCode")}
+            </label>
+            <label className="field-block">
+              <span>Failure delay ms</span>
+              <input aria-label="Failure delay ms" className="text-input" type="number" value={form.failureDelayMs} onChange={(event) => updateForm("failureDelayMs", Number(event.target.value))} />
+              {errorFor(fieldErrors, "failureDelayMs")}
+            </label>
+            <label className="field-block wide">
+              <span>Failure message</span>
+              <input aria-label="Failure message" className="text-input" value={form.failureMessage ?? ""} onChange={(event) => updateForm("failureMessage", event.target.value)} />
+            </label>
+            <label className="field-block wide">
+              <span>Malformed response JSON</span>
+              <textarea className="text-area short" value={form.malformedResponseJson ?? ""} onChange={(event) => updateForm("malformedResponseJson", event.target.value)} />
+              {errorFor(fieldErrors, "malformedResponseJson")}
+            </label>
+          </div>
+        </EditorSection>
+
+        {selectedId ? (
+          <EditorSection title="Delete endpoint">
+            <p className="section-note">Enter this endpoint's 8-digit delete code or the root password override. Secrets are not written to audit events.</p>
+            {deleteState.message ? (
+              <p className={`form-message ${deleteState.status}`}>{deleteState.message}</p>
+            ) : null}
+            {["confirming", "deleting", "error"].includes(deleteState.status) ? (
+              <div className="delete-confirmation">
+                <label className="field-block">
+                  <span>Delete code</span>
+                  <input
+                    className="text-input"
+                    inputMode="numeric"
+                    value={deleteCodeConfirm}
+                    onChange={(event) => setDeleteCodeConfirm(event.target.value)}
+                    autoComplete="off"
+                  />
+                </label>
+                <label className="field-block">
+                  <span>Root password override</span>
+                  <input
+                    className="text-input"
+                    type="password"
+                    value={rootPasswordConfirm}
+                    onChange={(event) => setRootPasswordConfirm(event.target.value)}
+                    autoComplete="current-password"
+                  />
+                </label>
+                <div className="console-actions">
+                  <button className="danger-button" type="button" onClick={() => void deleteSelectedEndpoint()} disabled={deleteState.status === "deleting"}>
+                    {deleteState.status === "deleting" ? "Deleting" : "Confirm delete"}
+                  </button>
+                  <button className="secondary-button" type="button" onClick={() => setDeleteState({ status: "idle", message: "" })}>
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button className="danger-button" type="button" onClick={() => setDeleteState({ status: "confirming", message: "" })}>
+                Delete endpoint
+              </button>
+            )}
+          </EditorSection>
+        ) : null}
+
+        <EditorSection title="Endpoint test console">
+          <div className="console-shell">
+            <div className="console-controls" aria-label="Console controls">
+              <label className="field-block">
+                <span>Auth mode</span>
+                <select className="text-input" value={authMode} onChange={(event) => setAuthMode(event.target.value as AuthMode)}>
+                  <option value="none">No auth</option>
+                  <option value="basic">Basic</option>
+                  <option value="oauth">OAuth bearer</option>
+                </select>
+              </label>
+              <label className="field-block">
+                <span>Basic username</span>
+                <input className="text-input" value={basicUsername} onChange={(event) => setBasicUsername(event.target.value)} placeholder="default" autoComplete="username" />
+              </label>
+              <label className="field-block">
+
+exec
+/bin/zsh -lc 'rg -n "model .*Endpoint|endpointId|allowedEndpoint|Endpoint" prisma/schema.prisma lib app tests -S' in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+prisma/schema.prisma:9:model Endpoint {
+prisma/schema.prisma:25:  parameters            EndpointParam[]
+prisma/schema.prisma:29:model EndpointParam {
+prisma/schema.prisma:31:  endpointId       String
+prisma/schema.prisma:41:  endpoint         Endpoint @relation(fields: [endpointId], references: [id], onDelete: Cascade)
+prisma/schema.prisma:43:  @@unique([endpointId, position])
+prisma/schema.prisma:44:  @@unique([endpointId, name])
+prisma/schema.prisma:45:  @@index([endpointId])
+prisma/schema.prisma:50:  endpointId      String
+prisma/schema.prisma:64:  endpoint        Endpoint @relation(fields: [endpointId], references: [id], onDelete: Cascade)
+prisma/schema.prisma:66:  @@unique([endpointId, name])
+prisma/schema.prisma:67:  @@index([endpointId, priority])
+prisma/schema.prisma:68:  @@index([endpointId])
+app/page.tsx:2:import { listEndpoints } from "@/lib/endpoints/service";
+app/page.tsx:6:  "Endpoint and tool management",
+app/page.tsx:17:  const endpointData = await listEndpoints();
+app/page.tsx:23:        <Link href="/endpoints">Endpoints</Link>
+tests/e2e/endpoint-console.spec.ts:11:  await page.getByRole("textbox", { name: /^Title/ }).fill("Console Endpoint");
+tests/e2e/endpoint-console.spec.ts:27:  const consoleRegion = page.getByRole("region", { name: "Endpoint test console" });
+tests/e2e/endpoint-console.spec.ts:52:  await expect(page.getByRole("heading", { name: "Endpoint management" })).toBeVisible();
+tests/e2e/endpoint-editor.spec.ts:9:  await expect(page.getByRole("heading", { name: "Endpoint management" })).toBeVisible();
+tests/e2e/endpoint-editor.spec.ts:24:  await page.getByRole("textbox", { name: /^Title/ }).fill("UI Endpoint");
+tests/e2e/endpoint-editor.spec.ts:39:  await expect(page.getByText("Endpoint saved.")).toBeVisible();
+tests/e2e/endpoint-editor.spec.ts:49:  await page.getByRole("textbox", { name: /^Title/ }).fill("UI Endpoint Edited");
+tests/e2e/endpoint-editor.spec.ts:54:  await expect(page.getByText("Endpoint saved.")).toBeVisible();
+tests/e2e/endpoint-editor.spec.ts:57:  await expect(page.getByRole("heading", { name: "Endpoint management" })).toBeVisible();
+tests/e2e/endpoint-delete-audit.spec.ts:5:async function createEndpoint(page: Page, name: string, deleteCode: string) {
+tests/e2e/endpoint-delete-audit.spec.ts:10:  await page.getByRole("textbox", { name: /^Description/ }).fill(`Endpoint delete audit coverage for ${name}.`);
+tests/e2e/endpoint-delete-audit.spec.ts:13:  await expect(page.getByText("Endpoint saved.")).toBeVisible();
+tests/e2e/endpoint-delete-audit.spec.ts:21:  await createEndpoint(page, codeDeletedName, "87654321");
+tests/e2e/endpoint-delete-audit.spec.ts:39:  await expect(page.getByText("Endpoint deleted.")).toBeVisible();
+tests/e2e/endpoint-delete-audit.spec.ts:43:  await createEndpoint(page, rootDeletedName, "22222222");
+tests/e2e/endpoint-delete-audit.spec.ts:47:  await expect(page.getByText("Endpoint deleted.")).toBeVisible();
+tests/unit/endpoint-validation.test.ts:3:import { EndpointValidationError } from "@/lib/endpoints/types";
+tests/unit/endpoint-validation.test.ts:4:import type { EndpointInput } from "@/lib/endpoints/types";
+tests/unit/endpoint-validation.test.ts:6:import { validateEndpointInput } from "@/lib/endpoints/validation";
+tests/unit/endpoint-validation.test.ts:8:function validEndpoint(overrides: Partial<EndpointInput> = {}): EndpointInput {
+tests/unit/endpoint-validation.test.ts:51:  const input = validEndpoint({
+tests/unit/endpoint-validation.test.ts:55:      ...validEndpoint().responseCases,
+tests/unit/endpoint-validation.test.ts:72:  assert.equal(validateEndpointInput(input).name, "weather_lookup");
+tests/unit/endpoint-validation.test.ts:78:      validateEndpointInput(
+tests/unit/endpoint-validation.test.ts:79:        validEndpoint({
+tests/unit/endpoint-validation.test.ts:89:          responseCases: [{ ...validEndpoint().responseCases[0], isDefault: false }],
+tests/unit/endpoint-validation.test.ts:93:      assert.equal(error instanceof EndpointValidationError, true);
+tests/unit/endpoint-validation.test.ts:94:      const fieldErrors = (error as EndpointValidationError).fieldErrors;
+app/audit/page.tsx:11:        <Link href="/endpoints">Endpoints</Link>
+lib/endpoints/service.ts:6:import { EndpointDeleteAuthorizationError, EndpointNotFoundError } from "@/lib/endpoints/types";
+lib/endpoints/service.ts:7:import { validateEndpointInput } from "@/lib/endpoints/validation";
+lib/endpoints/service.ts:10:  EndpointDeleteInput,
+lib/endpoints/service.ts:11:  EndpointDetail,
+lib/endpoints/service.ts:12:  EndpointInput,
+lib/endpoints/service.ts:13:  EndpointListResult,
+lib/endpoints/service.ts:14:  EndpointSummary,
+lib/endpoints/service.ts:20:} satisfies Prisma.EndpointInclude;
+lib/endpoints/service.ts:22:type EndpointRecord = Prisma.EndpointGetPayload<{ include: typeof endpointInclude }>;
+lib/endpoints/service.ts:24:function toSummary(endpoint: EndpointRecord): EndpointSummary {
+lib/endpoints/service.ts:38:function toDetail(endpoint: EndpointRecord): EndpointDetail {
+lib/endpoints/service.ts:45:    type: parameter.type as EndpointDetail["parameters"][number]["type"],
+lib/endpoints/service.ts:55:    failureMode: endpoint.failureMode as EndpointDetail["failureMode"],
+lib/endpoints/service.ts:69:      errorMode: responseCase.errorMode as EndpointDetail["responseCases"][number]["errorMode"],
+lib/endpoints/service.ts:78:export async function listEndpoints(client: PrismaClient = createPrismaClient()): Promise<EndpointListResult> {
+lib/endpoints/service.ts:93:export async function getEndpoint(id: string, client: PrismaClient = createPrismaClient()) {
+lib/endpoints/service.ts:98:export async function createEndpoint(input: EndpointInput, client: PrismaClient = createPrismaClient()) {
+lib/endpoints/service.ts:99:  const validInput = validateEndpointInput(input);
+lib/endpoints/service.ts:142:export async function updateEndpoint(
+lib/endpoints/service.ts:144:  input: EndpointInput,
+lib/endpoints/service.ts:147:  const validInput = validateEndpointInput(input);
+lib/endpoints/service.ts:150:    await tx.endpointParam.deleteMany({ where: { endpointId: id } });
+lib/endpoints/service.ts:151:    await tx.responseCase.deleteMany({ where: { endpointId: id } });
+lib/endpoints/service.ts:193:function deleteMethodFor(endpoint: EndpointRecord, input: EndpointDeleteInput) {
+lib/endpoints/service.ts:206:export async function deleteEndpoint(
+lib/endpoints/service.ts:208:  input: EndpointDeleteInput,
+lib/endpoints/service.ts:213:    throw new EndpointNotFoundError();
+lib/endpoints/service.ts:228:    throw new EndpointDeleteAuthorizationError("protected_default");
+lib/endpoints/service.ts:244:    throw new EndpointDeleteAuthorizationError(input.deleteCode || input.rootPassword ? "invalid_confirmation" : "missing_confirmation");
+lib/endpoints/validation.ts:3:  EndpointInput,
+lib/endpoints/validation.ts:4:  EndpointParamType,
+lib/endpoints/validation.ts:8:import { EndpointValidationError } from "@/lib/endpoints/types";
+lib/endpoints/validation.ts:12:const paramTypes = new Set<EndpointParamType>(["string", "number", "boolean"]);
+lib/endpoints/validation.ts:46:export function normalizeEndpointInput(input: EndpointInput): EndpointInput {
+lib/endpoints/validation.ts:73:export function validateEndpointInput(rawInput: EndpointInput): EndpointInput {
+lib/endpoints/validation.ts:74:  const input = normalizeEndpointInput(rawInput);
+lib/endpoints/validation.ts:112:    throw new EndpointValidationError(errors);
+lib/endpoints/validation.ts:118:function validateParameters(errors: Record<string, string>, input: EndpointInput) {
+app/endpoints/page.tsx:2:import { EndpointManager } from "@/app/endpoints/endpoint-manager";
+app/endpoints/page.tsx:3:import { listEndpoints } from "@/lib/endpoints/service";
+app/endpoints/page.tsx:5:export default async function EndpointsPage() {
+app/endpoints/page.tsx:6:  const endpointData = await listEndpoints();
+app/endpoints/page.tsx:12:        <Link href="/endpoints" aria-current="page">Endpoints</Link>
+app/endpoints/page.tsx:18:          <h1>Endpoint management</h1>
+app/endpoints/page.tsx:23:        <div className="summary-strip" aria-label="Endpoint counts">
+app/endpoints/page.tsx:29:      <EndpointManager initialData={endpointData} />
+lib/endpoints/types.ts:1:export type EndpointParamType = "string" | "number" | "boolean";
+lib/endpoints/types.ts:12:      type: EndpointParamType;
+lib/endpoints/types.ts:22:export type EndpointParamInput = {
+lib/endpoints/types.ts:26:  type: EndpointParamType;
+lib/endpoints/types.ts:45:export type EndpointInput = {
+lib/endpoints/types.ts:57:  parameters: EndpointParamInput[];
+lib/endpoints/types.ts:61:export type EndpointSummary = {
+lib/endpoints/types.ts:73:export type EndpointDetail = EndpointSummary & {
+lib/endpoints/types.ts:82:  parameters: Array<EndpointParamInput & { id: string; position: number }>;
+lib/endpoints/types.ts:86:export type EndpointListResult = {
+lib/endpoints/types.ts:90:  endpoints: EndpointSummary[];
+lib/endpoints/types.ts:93:export type EndpointDeleteInput = {
+lib/endpoints/types.ts:98:export class EndpointValidationError extends Error {
+lib/endpoints/types.ts:100:    super("Endpoint validation failed");
+lib/endpoints/types.ts:104:export class EndpointDeleteAuthorizationError extends Error {
+lib/endpoints/types.ts:106:    super("Endpoint delete authorization failed");
+lib/endpoints/types.ts:110:export class EndpointNotFoundError extends Error {
+lib/endpoints/types.ts:112:    super("Endpoint not found");
+app/api/endpoints/[id]/route.ts:3:import { deleteEndpoint, getEndpoint, updateEndpoint } from "@/lib/endpoints/service";
+app/api/endpoints/[id]/route.ts:12:    const endpoint = await getEndpoint(id);
+app/api/endpoints/[id]/route.ts:25:    const endpoint = await updateEndpoint(id, endpointInputFromBody(await request.json()));
+app/api/endpoints/[id]/route.ts:35:    const deletedEndpoint = await deleteEndpoint(id, endpointDeleteInputFromBody(await request.json()));
+app/api/endpoints/[id]/route.ts:36:    return NextResponse.json({ endpoint: deletedEndpoint });
+lib/endpoints/schema.ts:1:import type { EndpointInput, EndpointParamInput, JsonValue, McpInputSchema } from "@/lib/endpoints/types";
+lib/endpoints/schema.ts:8:export function generateMcpInputSchema(endpoint: Pick<EndpointInput, "parameters">): McpInputSchema {
+lib/endpoints/schema.ts:12:  endpoint.parameters.forEach((parameter: EndpointParamInput) => {
+app/endpoints/endpoint-manager.tsx:6:import type { EndpointDetail, EndpointInput, EndpointListResult, EndpointSummary } from "@/lib/endpoints/types";
+app/endpoints/endpoint-manager.tsx:8:type EndpointFormState = EndpointInput & { id?: string };
+app/endpoints/endpoint-manager.tsx:23:const blankEndpoint: EndpointFormState = {
+app/endpoints/endpoint-manager.tsx:53:function detailToForm(endpoint: EndpointDetail): EndpointFormState {
+app/endpoints/endpoint-manager.tsx:95:export function EndpointManager({ initialData }: { initialData: EndpointListResult }) {
+app/endpoints/endpoint-manager.tsx:99:  const [form, setForm] = useState<EndpointFormState>(blankEndpoint);
+app/endpoints/endpoint-manager.tsx:101:  const [loadingEndpoint, setLoadingEndpoint] = useState(false);
+app/endpoints/endpoint-manager.tsx:112:  const filteredEndpoints = useMemo(() => {
+app/endpoints/endpoint-manager.tsx:130:  async function selectEndpoint(endpoint: EndpointSummary) {
+app/endpoints/endpoint-manager.tsx:131:    setLoadingEndpoint(true);
+app/endpoints/endpoint-manager.tsx:139:      const payload = (await response.json()) as { endpoint: EndpointDetail };
+app/endpoints/endpoint-manager.tsx:145:      setLoadingEndpoint(false);
+app/endpoints/endpoint-manager.tsx:150:    setForm(blankEndpoint);
+app/endpoints/endpoint-manager.tsx:158:  async function saveEndpoint() {
+app/endpoints/endpoint-manager.tsx:179:      const endpoint = payload.endpoint as EndpointDetail;
+app/endpoints/endpoint-manager.tsx:184:      setSaveState({ status: "success", message: "Endpoint saved.", fieldErrors: {} });
+app/endpoints/endpoint-manager.tsx:190:  async function deleteSelectedEndpoint() {
+app/endpoints/endpoint-manager.tsx:210:          message: typeof payload.message === "string" ? payload.message : "Endpoint delete failed.",
+app/endpoints/endpoint-manager.tsx:215:      setForm(blankEndpoint);
+app/endpoints/endpoint-manager.tsx:219:      setSaveState({ status: "success", message: "Endpoint deleted.", fieldErrors: {} });
+app/endpoints/endpoint-manager.tsx:220:      setDeleteState({ status: "success", message: "Endpoint deleted." });
+app/endpoints/endpoint-manager.tsx:222:      setDeleteState({ status: "error", message: error instanceof Error ? error.message : "Endpoint delete failed." });
+app/endpoints/endpoint-manager.tsx:226:  function updateForm<K extends keyof EndpointFormState>(key: K, value: EndpointFormState[K]) {
+app/endpoints/endpoint-manager.tsx:230:  function updateParameter(index: number, patch: Partial<EndpointFormState["parameters"][number]>) {
+app/endpoints/endpoint-manager.tsx:239:  function updateResponseCase(index: number, patch: Partial<EndpointFormState["responseCases"][number]>) {
+app/endpoints/endpoint-manager.tsx:304:            <h2 id="endpoint-list-title">Endpoint catalog</h2>
+app/endpoints/endpoint-manager.tsx:332:              {filteredEndpoints.map((endpoint) => (
+app/endpoints/endpoint-manager.tsx:335:                    <button className="table-link" type="button" onClick={() => void selectEndpoint(endpoint)}>
+app/endpoints/endpoint-manager.tsx:347:              {filteredEndpoints.length === 0 ? (
+app/endpoints/endpoint-manager.tsx:361:            <p>{loadingEndpoint ? "Loading selected endpoint." : "Persisted through the endpoint API."}</p>
+app/endpoints/endpoint-manager.tsx:363:          <button className="primary-button" type="button" onClick={() => void saveEndpoint()} disabled={saveState.status === "saving"}>
+app/endpoints/endpoint-manager.tsx:405:                <select aria-label={`Parameter ${index + 1} type`} className="text-input" value={parameter.type} onChange={(event) => updateParameter(index, { type: event.target.value as EndpointInput["parameters"][number]["type"] })}>
+app/endpoints/endpoint-manager.tsx:485:                    <select className="text-input" value={responseCase.errorMode} onChange={(event) => updateResponseCase(index, { errorMode: event.target.value as EndpointInput["responseCases"][number]["errorMode"] })}>
+app/endpoints/endpoint-manager.tsx:520:              <select aria-label="Failure mode" className="text-input" value={form.failureMode} onChange={(event) => updateForm("failureMode", event.target.value as EndpointInput["failureMode"])}>
+app/endpoints/endpoint-manager.tsx:579:                  <button className="danger-button" type="button" onClick={() => void deleteSelectedEndpoint()} disabled={deleteState.status === "deleting"}>
+app/endpoints/endpoint-manager.tsx:595:        <EditorSection title="Endpoint test console">
+lib/endpoints/api.ts:3:import { EndpointDeleteAuthorizationError, EndpointNotFoundError, EndpointValidationError } from "@/lib/endpoints/types";
+lib/endpoints/api.ts:4:import type { EndpointDeleteInput, EndpointInput } from "@/lib/endpoints/types";
+lib/endpoints/api.ts:30:export function endpointInputFromBody(body: unknown): EndpointInput {
+lib/endpoints/api.ts:42:    failureMode: asString(record.failureMode, "none") as EndpointInput["failureMode"],
+lib/endpoints/api.ts:51:      type: asString(parameter.type, "string") as EndpointInput["parameters"][number]["type"],
+lib/endpoints/api.ts:62:      errorMode: asString(responseCase.errorMode, "none") as EndpointInput["responseCases"][number]["errorMode"],
+lib/endpoints/api.ts:71:export function endpointDeleteInputFromBody(body: unknown): EndpointDeleteInput {
+lib/endpoints/api.ts:80:  if (error instanceof EndpointValidationError) {
+lib/endpoints/api.ts:84:  if (error instanceof EndpointDeleteAuthorizationError) {
+lib/endpoints/api.ts:97:  if (error instanceof EndpointNotFoundError) {
+lib/endpoints/api.ts:104:        { error: "validation_failed", fieldErrors: { name: "Endpoint name must be unique." } },
+app/api/endpoints/route.ts:3:import { createEndpoint, listEndpoints } from "@/lib/endpoints/service";
+app/api/endpoints/route.ts:7:    return NextResponse.json(await listEndpoints());
+app/api/endpoints/route.ts:15:    const endpoint = await createEndpoint(endpointInputFromBody(await request.json()));
+
+exec
+/bin/zsh -lc "sed -n '1,160p' playwright.config.ts && sed -n '1,120p' scripts/start-smoke.mjs" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import { defineConfig, devices } from "@playwright/test";
+
+export default defineConfig({
+  testDir: "./tests/e2e",
+  timeout: 30_000,
+  expect: {
+    timeout: 5_000,
+  },
+  use: {
+    baseURL: "http://127.0.0.1:3100",
+    trace: "on-first-retry",
+  },
+  webServer: {
+    command: "npm run db:prepare && npm run dev",
+    env: {
+      ROOT_PASSWORD: "e2e-root-password",
+    },
+    url: "http://127.0.0.1:3100",
+    reuseExistingServer: !process.env.CI,
+    timeout: 120_000,
+  },
+  projects: [
+    {
+      name: "chromium",
+      use: { ...devices["Desktop Chrome"] },
+    },
+  ],
+});
+import { spawn } from "node:child_process";
+import { existsSync } from "node:fs";
+
+const port = process.env.PORT || "3100";
+const healthUrl = `http://127.0.0.1:${port}/api/health`;
+
+function run(command, args, options = {}) {
+  return new Promise((resolve, reject) => {
+    const child = spawn(command, args, { stdio: "inherit", shell: false, ...options });
+    child.on("exit", (code) => {
+      if (code === 0) {
+        resolve();
+      } else {
+        reject(new Error(`${command} ${args.join(" ")} exited with ${code}`));
+      }
+    });
+  });
+}
+
+async function waitForHealth(timeoutMs = 30000) {
+  const deadline = Date.now() + timeoutMs;
+  let lastError;
+
+  while (Date.now() < deadline) {
+    try {
+      const response = await fetch(healthUrl);
+      if (response.ok) {
+        const body = await response.json();
+        if (body.status === "ok") {
+          return;
+        }
+      }
+    } catch (error) {
+      lastError = error;
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+
+  throw lastError ?? new Error(`Timed out waiting for ${healthUrl}`);
+}
+
+await run("npm", ["run", "db:prepare"]);
+
+if (!existsSync(".next/BUILD_ID")) {
+  await run("npm", ["run", "build"]);
+}
+
+const server = spawn("npx", ["next", "start", "--port", port], {
+  stdio: ["ignore", "pipe", "pipe"],
+  env: { ...process.env, LOG_LEVEL: process.env.LOG_LEVEL || "info" },
+});
+
+server.stdout.on("data", (chunk) => process.stdout.write(chunk));
+server.stderr.on("data", (chunk) => process.stderr.write(chunk));
+
+try {
+  await waitForHealth();
+  console.log(`Production-style startup smoke passed at ${healthUrl}`);
+} finally {
+  server.kill("SIGTERM");
+}
+
+exec
+/bin/zsh -lc "sed -n '1,220p' state/deterministic-checks.json" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+{
+  "checked_at": "2026-05-05T10:18:41.676Z",
+  "task_id": "endpoint-protected-delete-audit",
+  "commands": [
+    {
+      "command": "npm run test:unit",
+      "ok": true,
+      "output": "\n> mina-mock-mcpserver@1.0.0 test:unit\n> node --import tsx --test \"tests/unit/**/*.test.ts\"\n\n✔ normalizeLogLevel accepts supported operator log levels (0.369834ms)\n✔ normalizeLogLevel defaults invalid input to info (0.058833ms)\n✔ getBootstrapStatus reports prepared foundation state (0.05425ms)\n✔ db:prepare is repeatable and keeps endpoint seed rows singular (2923.7625ms)\n✔ endpoint validation accepts the MVP editor field set (0.620666ms)\n✔ endpoint validation returns field-level errors for UI rendering (0.356375ms)\n✔ MCP input schema generation reflects endpoint parameters (0.397625ms)\n✔ Ralph promotion resolves ordered successor filenames by taskmeta id (36.254875ms)\nℹ tests 8\nℹ suites 0\nℹ pass 8\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 3067.364209\n"
+    },
+    {
+      "command": "npm run test:e2e -- --grep @endpoint-delete-audit",
+      "ok": true,
+      "output": "\n> mina-mock-mcpserver@1.0.0 test:e2e\n> playwright test --grep @endpoint-delete-audit\n\n\nRunning 1 test using 1 worker\n\n  ✓  1 [chromium] › tests/e2e/endpoint-delete-audit.spec.ts:17:5 › endpoint delete requires confirmation and writes non-secret audit evidence @endpoint-delete-audit (3.6s)\n\n  1 passed (7.8s)\n",
+      "preflight": {
+        "command": "ensure-e2e-port-free.sh 3100",
+        "error": "",
+        "ok": true,
+        "output": "port-cleanup: 127.0.0.1:3100 already free\n"
+      },
+      "next_server_log_path": "/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T191001-endpoint-protected-delete-audit/npm-run-test-e2e-grep-endpoint-delete-audit-next-server.log"
+    },
+    {
+      "command": "npm run verify",
+      "ok": true,
+      "output": "\n> mina-mock-mcpserver@1.0.0 verify\n> npm run lint && npm run typecheck && npm run build && npm run test:unit && npm run test:e2e && npm run start:smoke\n\n\n> mina-mock-mcpserver@1.0.0 lint\n> eslint .\n\n\n> mina-mock-mcpserver@1.0.0 typecheck\n> tsc --noEmit\n\n\n> mina-mock-mcpserver@1.0.0 build\n> next build\n\n   ▲ Next.js 15.5.15\n\n   Creating an optimized production build ...\n ✓ Compiled successfully in 813ms\n   Linting and checking validity of types ...\n   Collecting page data ...\n   Generating static pages (0/9) ...\n   Generating static pages (2/9) \r\n   Generating static pages (4/9) \r\n   Generating static pages (6/9) \r\n ✓ Generating static pages (9/9)\n   Finalizing page optimization ...\n   Collecting build traces ...\n\nRoute (app)                                 Size  First Load JS\n┌ ○ /                                      164 B         106 kB\n├ ○ /_not-found                            999 B         103 kB\n├ ƒ /api/audit                             129 B         102 kB\n├ ƒ /api/endpoints                         129 B         102 kB\n├ ƒ /api/endpoints/[id]                    129 B         102 kB\n├ ƒ /api/health                            129 B         102 kB\n├ ○ /audit                                 164 B         106 kB\n└ ○ /endpoints                           4.97 kB         110 kB\n+ First Load JS shared by all             102 kB\n  ├ chunks/255-4f212684648fcab9.js         46 kB\n  ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB\n  └ other shared chunks (total)          1.89 kB\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n\n\n> mina-mock-mcpserver@1.0.0 test:unit\n> node --import tsx --test \"tests/unit/**/*.test.ts\"\n\n✔ normalizeLogLevel accepts supported operator log levels (0.355625ms)\n✔ normalizeLogLevel defaults invalid input to info (0.059333ms)\n✔ getBootstrapStatus reports prepared foundation state (0.057209ms)\n✔ db:prepare is repeatable and keeps endpoint seed rows singular (2795.263875ms)\n✔ endpoint validation accepts the MVP editor field set (0.839ms)\n✔ endpoint validation returns field-level errors for UI rendering (0.376ms)\n✔ MCP input schema generation reflects endpoint parameters (0.408708ms)\n✔ Ralph promotion resolves ordered successor filenames by taskmeta id (34.633875ms)\nℹ tests 8\nℹ suites 0\nℹ pass 8\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 2935.932417\n\n> mina-mock-mcpserver@1.0.0 test:e2e\n> playwright test\n\n\nRunning 5 tests using 4 workers\n\n  ✓  4 [chromium] › tests/e2e/bootstrap.spec.ts:3:5 › foundation dashboard renders planned MCP mock server surfaces (1.4s)\n  ✓  5 [chromium] › tests/e2e/bootstrap.spec.ts:11:5 › health endpoint reports ok status (423ms)\n  ✓  1 [chromium] › tests/e2e/endpoint-console.spec.ts:5:5 › endpoint schema preview and console shell stay stable on desktop and mobile @ui-endpoint-console (1.9s)\n  ✓  3 [chromium] › tests/e2e/endpoint-editor.spec.ts:5:5 › endpoint editor supports persisted create, edit, search, screenshots, and responsive checks @ui-endpoint-editor (3.2s)\n  ✓  2 [chromium] › tests/e2e/endpoint-delete-audit.spec.ts:17:5 › endpoint delete requires confirmation and writes non-secret audit evidence @endpoint-delete-audit (4.2s)\n\n  5 passed (8.3s)\n\n> mina-mock-mcpserver@1.0.0 start:smoke\n> node scripts/start-smoke.mjs\n\n\n> mina-mock-mcpserver@1.0.0 db:prepare\n> node scripts/db-prepare.mjs\n\nDatasource \"db\": SQLite database \"runtime.sqlite\" at \"file:./data/runtime.sqlite\"\n\n3 migrations found in prisma/migrations\n\n\nNo pending migrations to apply.\n\n✔ Generated Prisma Client (v7.8.0) to ./node_modules/@prisma/client in 38ms\n\nStart by importing your Prisma Client (See: https://pris.ly/d/importing-client)\n\n\nPrepared SQLite runtime state with Prisma migrations and endpoint seed defaults.\n\n> mina-mock-mcpserver@1.0.0 build\n> next build\n\n   ▲ Next.js 15.5.15\n\n   Creating an optimized production build ...\n ✓ Compiled successfully in 784ms\n   Linting and checking validity of types ...\n   Collecting page data ...\n   Generating static pages (0/9) ...\n   Generating static pages (2/9) \r\n   Generating static pages (4/9) \r\n   Generating static pages (6/9) \r\n ✓ Generating static pages (9/9)\n   Finalizing page optimization ...\n   Collecting build traces ...\n\nRoute (app)                                 Size  First Load JS\n┌ ○ /                                      164 B         106 kB\n├ ○ /_not-found                            999 B         103 kB\n├ ƒ /api/audit                             129 B         102 kB\n├ ƒ /api/endpoints                         129 B         102 kB\n├ ƒ /api/endpoints/[id]                    129 B         102 kB\n├ ƒ /api/health                            129 B         102 kB\n├ ○ /audit                                 164 B         106 kB\n└ ○ /endpoints                           4.97 kB         110 kB\n+ First Load JS shared by all             102 kB\n  ├ chunks/255-4f212684648fcab9.js         46 kB\n  ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB\n  └ other shared chunks (total)          1.89 kB\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n\n   ▲ Next.js 15.5.15\n   - Local:        http://localhost:3100\n   - Network:      http://192.168.100.125:3100\n\n ✓ Starting...\n ✓ Ready in 256ms\nProduction-style startup smoke passed at http://127.0.0.1:3100/api/health\n",
+      "preflight": {
+        "command": "ensure-e2e-port-free.sh 3100",
+        "error": "",
+        "ok": true,
+        "output": "port-cleanup: 127.0.0.1:3100 already free\n"
+      },
+      "next_server_log_path": "/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T191001-endpoint-protected-delete-audit/npm-run-verify-next-server.log"
+    }
+  ],
+  "missing_files": [],
+  "pass": true
+}
+exec
+/bin/zsh -lc "sed -n '1,220p' state/last-result.txt" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+Implemented `endpoint-protected-delete-audit`.
+
+Key changes:
+- Added Prisma `AuditEvent` storage and audit service.
+- Added guarded endpoint deletion in [lib/endpoints/service.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/lib/endpoints/service.ts:206).
+- Added delete confirmation UI with delete code/root password fields in [endpoint-manager.tsx](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/app/endpoints/endpoint-manager.tsx:551).
+- Added `/audit` UI/API evidence surface.
+- Added `@endpoint-delete-audit` E2E coverage in [endpoint-delete-audit.spec.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/tests/e2e/endpoint-delete-audit.spec.ts:17).
+- Updated docs and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+
+Required checks passed:
+- `npm run test:unit`
+- `npm run test:e2e -- --grep @endpoint-delete-audit`
+- `npm run verify`
+
+Exit criteria appear satisfied; nothing remains for this task.
+exec
+/bin/zsh -lc "sed -n '1,110p' prisma/seed.mjs" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import { PrismaClient } from "@prisma/client";
+import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+
+export const DEFAULT_ENDPOINT_ID = "endpoint_default_echo";
+
+const databaseUrl = process.env.DATABASE_URL ?? "file:./data/runtime.sqlite";
+const adapter = new PrismaBetterSqlite3({ url: databaseUrl });
+const prisma = new PrismaClient({ adapter });
+
+export async function seedEndpointDefaults(client = prisma) {
+  await client.endpoint.upsert({
+    where: { id: DEFAULT_ENDPOINT_ID },
+    update: {
+      name: "echo",
+      title: "Echo",
+      description: "Default enabled endpoint for smoke-testing endpoint persistence.",
+      enabled: true,
+      protectedDefault: true,
+      deleteCode: "12345678",
+      defaultResponseJson: JSON.stringify({ ok: true, source: "default" }),
+      failureMode: "none",
+      failureStatusCode: null,
+      failureDelayMs: 0,
+      failureMessage: null,
+      malformedResponseJson: null,
+    },
+    create: {
+      id: DEFAULT_ENDPOINT_ID,
+      name: "echo",
+      title: "Echo",
+      description: "Default enabled endpoint for smoke-testing endpoint persistence.",
+      enabled: true,
+      protectedDefault: true,
+      deleteCode: "12345678",
+      defaultResponseJson: JSON.stringify({ ok: true, source: "default" }),
+      parameters: {
+        create: [
+          {
+            id: `${DEFAULT_ENDPOINT_ID}_param_message`,
+            position: 0,
+            name: "message",
+            label: "Message",
+            description: "Message to echo back in later runtime slices.",
+            type: "string",
+            required: true,
+          },
+        ],
+      },
+      responseCases: {
+        create: [
+          {
+            id: `${DEFAULT_ENDPOINT_ID}_case_default`,
+            name: "default",
+            priority: 0,
+            matchArgsJson: "{}",
+            responseJson: JSON.stringify({ ok: true, source: "default" }),
+            statusCode: 200,
+            delayMs: 0,
+            errorMode: "none",
+            isDefault: true,
+          },
+          {
+            id: `${DEFAULT_ENDPOINT_ID}_case_hello`,
+            name: "hello-world",
+            priority: 10,
+            matchArgsJson: JSON.stringify({ message: "hello" }),
+            responseJson: JSON.stringify({ ok: true, message: "world" }),
+            statusCode: 200,
+            delayMs: 0,
+            errorMode: "none",
+            isDefault: false,
+          },
+        ],
+      },
+    },
+  });
+
+  await client.endpointParam.upsert({
+    where: {
+      endpointId_name: {
+        endpointId: DEFAULT_ENDPOINT_ID,
+        name: "message",
+      },
+    },
+    update: {
+      position: 0,
+      label: "Message",
+      description: "Message to echo back in later runtime slices.",
+      type: "string",
+      required: true,
+      defaultValueJson: null,
+    },
+    create: {
+      id: `${DEFAULT_ENDPOINT_ID}_param_message`,
+      endpointId: DEFAULT_ENDPOINT_ID,
+      position: 0,
+      name: "message",
+      label: "Message",
+      description: "Message to echo back in later runtime slices.",
+      type: "string",
+      required: true,
+    },
+  });
+
+  await client.responseCase.upsert({
+    where: {
+      endpointId_name: {
+        endpointId: DEFAULT_ENDPOINT_ID,
+        name: "default",
+      },
+
+codex
+{"decision":"done","recommend_promotion":true,"confidence":0.91,"summary":"The implementation maps to the endpoint-tool-management spec and satisfies the active task. Guarded deletion is implemented in the endpoint service/API/UI, audit events are persisted without submitted delete codes or root passwords, endpoint-dependent Prisma child records cascade safely, deleted endpoints are removed from list data, docs were updated, and the required deterministic checks are recorded as passing.","satisfied_exit_criteria":["Deleting with the correct endpoint delete code succeeds.","Deleting with a wrong delete code fails and writes audit evidence with non-secret metadata.","Root password override succeeds and audit metadata records only method root_password, not the secret.","Deleted endpoints are no longer returned by endpoint list/search data after refresh.","Required commands passed: npm run test:unit, npm run test:e2e -- --grep @endpoint-delete-audit, and npm run verify."],"missing_requirements":[],"human_review_triggers":[]}
+tokens used
+102,748
+{"decision":"done","recommend_promotion":true,"confidence":0.91,"summary":"The implementation maps to the endpoint-tool-management spec and satisfies the active task. Guarded deletion is implemented in the endpoint service/API/UI, audit events are persisted without submitted delete codes or root passwords, endpoint-dependent Prisma child records cascade safely, deleted endpoints are removed from list data, docs were updated, and the required deterministic checks are recorded as passing.","satisfied_exit_criteria":["Deleting with the correct endpoint delete code succeeds.","Deleting with a wrong delete code fails and writes audit evidence with non-secret metadata.","Root password override succeeds and audit metadata records only method root_password, not the secret.","Deleted endpoints are no longer returned by endpoint list/search data after refresh.","Required commands passed: npm run test:unit, npm run test:e2e -- --grep @endpoint-delete-audit, and npm run verify."],"missing_requirements":[],"human_review_triggers":[]}
+evaluation: done promotion=true

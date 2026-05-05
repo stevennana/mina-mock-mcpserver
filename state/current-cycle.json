@@ -1,8 +1,8 @@
 {
-  "task_id": "endpoint-console-schema-preview-ui",
-  "started_at": "2026-05-05T19:04:25+09:00",
-  "artifact_dir": "state/artifacts/20260505T190425-endpoint-console-schema-preview-ui",
+  "task_id": "endpoint-protected-delete-audit",
+  "started_at": "2026-05-05T19:10:01+09:00",
+  "artifact_dir": "state/artifacts/20260505T191001-endpoint-protected-delete-audit",
   "phase": "commit",
   "status": "running",
-  "updated_at": "2026-05-05T10:09:30.664Z"
+  "updated_at": "2026-05-05T10:19:51.323Z"
 }
