@@ -400,3 +400,18 @@
 - evaluator: started
 - evaluator: status=done promotion=true The task is complete in substance. The inspected implementation adds Prisma/SQLite dependencies, repo-local Prisma config, migrations, generated client setup, deterministic db preparation, idempotent protected endpoint seed defaults, schema documentation, and repeatability coverage. It maps directly to endpoint-tool-management.md and remains scoped to endpoint persistence without broad UI, MCP, REST, auth, or reset work. -> state/artifacts/20260505T181554-endpoint-domain-and-schema/evaluator.log
 - next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T181554-endpoint-domain-and-schema/npm-run-verify-next-server.log
+- commit: commit: created
+- promote: failed -> state/artifacts/20260505T181554-endpoint-domain-and-schema/promote.log
+- backlog: rendered current=endpoint-domain-and-schema
+- health: xxxxxxxxxxxxxxxxxxxxxxxxxxx
+- cycle: finished
+
+### cycle 2026-05-05T18:20:25+09:00 task=endpoint-domain-and-schema
+- artifacts: state/artifacts/20260505T182025-endpoint-domain-and-schema
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260505T182025-endpoint-domain-and-schema/worker.jsonl
+- worker-summary: Completed `endpoint-domain-and-schema`.
+- evaluator: started
+- evaluator: status=done promotion=true The endpoint-domain-and-schema task is complete in substance. Prisma/SQLite dependencies, config, schema, migrations, generated client setup, deterministic db:prepare, idempotent seed defaults, repeatability unit coverage, and generated schema documentation are present and scoped to endpoint persistence. The provided mandatory gate summary shows npm run db:prepare, npm run test:unit, and npm run verify all passing. -> state/artifacts/20260505T182025-endpoint-domain-and-schema/evaluator.log
+- next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T182025-endpoint-domain-and-schema/npm-run-verify-next-server.log
