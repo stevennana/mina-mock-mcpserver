@@ -1,0 +1,12 @@
+[main 0669f4d] ralph: endpoint-domain-and-schema 2026-05-05T16:26:57+09:00
+ 23 files changed, 3103 insertions(+), 56 deletions(-)
+ create mode 100644 prisma/migrations/202605050002_endpoint_title_response_case_config/migration.sql
+ create mode 100644 state/artifacts/20260505T161636-endpoint-domain-and-schema/backlog.log
+ create mode 100644 state/artifacts/20260505T161636-endpoint-domain-and-schema/blocker-evaluation.json
+ create mode 100644 state/artifacts/20260505T161636-endpoint-domain-and-schema/blocker-evaluation.json.log
+ create mode 100644 state/artifacts/20260505T161636-endpoint-domain-and-schema/promote.log
+ create mode 100644 state/artifacts/20260505T162122-endpoint-domain-and-schema/commit.log
+ create mode 100644 state/artifacts/20260505T162122-endpoint-domain-and-schema/evaluator.log
+ create mode 100644 state/artifacts/20260505T162122-endpoint-domain-and-schema/task-prompt.log
+ create mode 100644 state/artifacts/20260505T162122-endpoint-domain-and-schema/worker.jsonl
+commit: created

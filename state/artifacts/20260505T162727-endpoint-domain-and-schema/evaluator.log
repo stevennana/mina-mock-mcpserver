@@ -1,0 +1,2154 @@
+/Users/stevenna/WebstormProjects/mina-mock-mcpserver/scripts/ralph/generated/current-evaluator-prompt.txt
+OpenAI Codex v0.125.0 (research preview)
+--------
+workdir: /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 019df70b-918a-78d0-b0d6-9660d2a060fb
+--------
+user
+You are the promotion evaluator for a repository-local Ralph loop.
+
+Read these documents before deciding:
+- AGENTS.md
+- ARCHITECTURE.md
+- docs/PRODUCT_SENSE.md
+- docs/DESIGN.md
+- docs/references/prd-analysis.md
+- docs/product-specs/endpoint-tool-management.md
+- docs/exec-plans/active/001-endpoint-domain-and-schema.md
+
+Current task id: endpoint-domain-and-schema
+Current task title: Endpoint Persistence Schema and Seed Defaults
+
+Objective:
+Replace the bootstrap runtime placeholder with durable SQLite/Prisma persistence for endpoint/tool data and deterministic seed defaults.
+
+Scope:
+- Add Prisma/SQLite dependencies, schema, migration or sync path, generated client setup, and repo-local DB configuration.
+- Define endpoint, parameter, response case, and timestamp fields required by the PRD for MVP endpoint management.
+- Implement idempotent seed preparation for at least one representative enabled endpoint and any protected defaults needed by endpoint flows.
+- Update `scripts/db-prepare.mjs` to prepare SQLite state deterministically.
+- Add unit coverage or command-level assertions that `db:prepare` can run repeatedly.
+
+Out of scope:
+- Endpoint validators and exact-match response selection beyond simple schema constraints.
+- Endpoint management UI.
+- MCP, REST, Basic Auth, or OAuth runtime behavior.
+- Root reset behavior; that has its own task.
+
+Exit criteria:
+1. `npm run db:prepare` creates or updates the SQLite runtime state successfully from a clean checkout.
+2. Running `npm run db:prepare` twice is safe and does not duplicate seed data.
+3. The schema can represent endpoint names, descriptions, enabled state, up to three parameters, response cases, default responses, delete codes, and basic failure config fields.
+4. `docs/generated/db-schema.md` matches the implemented persistence shape.
+5. All required checks pass.
+
+Evaluator notes:
+Required commands are mandatory promotion gates, not suggestions.
+Do not promote if any required check fails.
+Do not accept broad feature work outside this task.
+Confirm that this task maps to the primary product spec `endpoint-tool-management.md` or is explicitly final hardening.
+
+Deterministic check summary:
+{
+  "checked_at": "2026-05-05T07:30:23.613Z",
+  "task_id": "endpoint-domain-and-schema",
+  "commands": [
+    {
+      "command": "npm run db:prepare",
+      "ok": true,
+      "output": "\n> mina-mock-mcpserver@1.0.0 db:prepare\n> node scripts/db-prepare.mjs\n\nDatasource \"db\": SQLite database \"runtime.sqlite\" at \"file:./data/runtime.sqlite\"\n\n2 migrations found in prisma/migrations\n\n\nNo pending migrations to apply.\n\n✔ Generated Prisma Client (v7.8.0) to ./node_modules/@prisma/client in 43ms\n\nStart by importing your Prisma Client (See: https://pris.ly/d/importing-client)\n\n\nPrepared SQLite runtime state with Prisma migrations and endpoint seed defaults.\n"
+    },
+    {
+      "command": "npm run test:unit",
+      "ok": true,
+      "output": "\n> mina-mock-mcpserver@1.0.0 test:unit\n> node --import tsx --test \"tests/unit/**/*.test.ts\"\n\n✔ normalizeLogLevel accepts supported operator log levels (0.343208ms)\n✔ normalizeLogLevel defaults invalid input to info (0.057125ms)\n✔ getBootstrapStatus reports prepared foundation state (0.051708ms)\n✔ db:prepare is repeatable and keeps endpoint seed rows singular (2827.446709ms)\nℹ tests 4\nℹ suites 0\nℹ pass 4\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 2951.502083\n"
+    },
+    {
+      "command": "npm run verify",
+      "ok": true,
+      "output": "\n> mina-mock-mcpserver@1.0.0 verify\n> npm run lint && npm run typecheck && npm run build && npm run test:unit && npm run test:e2e && npm run start:smoke\n\n\n> mina-mock-mcpserver@1.0.0 lint\n> eslint .\n\n\n> mina-mock-mcpserver@1.0.0 typecheck\n> tsc --noEmit\n\n\n> mina-mock-mcpserver@1.0.0 build\n> next build\n\n   ▲ Next.js 15.5.15\n\n   Creating an optimized production build ...\n ✓ Compiled successfully in 540ms\n   Linting and checking validity of types ...\n   Collecting page data ...\n   Generating static pages (0/5) ...\n   Generating static pages (1/5) \r\n   Generating static pages (2/5) \r\n   Generating static pages (3/5) \r\n ✓ Generating static pages (5/5)\n   Finalizing page optimization ...\n   Collecting build traces ...\n\nRoute (app)                                 Size  First Load JS\n┌ ○ /                                      124 B         102 kB\n├ ○ /_not-found                            999 B         103 kB\n└ ƒ /api/health                            124 B         102 kB\n+ First Load JS shared by all             102 kB\n  ├ chunks/255-4f212684648fcab9.js         46 kB\n  ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB\n  └ other shared chunks (total)          1.89 kB\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n\n\n> mina-mock-mcpserver@1.0.0 test:unit\n> node --import tsx --test \"tests/unit/**/*.test.ts\"\n\n✔ normalizeLogLevel accepts supported operator log levels (0.312667ms)\n✔ normalizeLogLevel defaults invalid input to info (0.053917ms)\n✔ getBootstrapStatus reports prepared foundation state (0.051708ms)\n✔ db:prepare is repeatable and keeps endpoint seed rows singular (2809.51225ms)\nℹ tests 4\nℹ suites 0\nℹ pass 4\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 2924.30925\n\n> mina-mock-mcpserver@1.0.0 test:e2e\n> playwright test\n\n\nRunning 2 tests using 1 worker\n\n  ✓  1 [chromium] › tests/e2e/bootstrap.spec.ts:3:5 › foundation dashboard renders planned MCP mock server surfaces (447ms)\n  ✓  2 [chromium] › tests/e2e/bootstrap.spec.ts:11:5 › health endpoint reports ok status (231ms)\n\n  2 passed (3.1s)\n\n> mina-mock-mcpserver@1.0.0 start:smoke\n> node scripts/start-smoke.mjs\n\n\n> mina-mock-mcpserver@1.0.0 db:prepare\n> node scripts/db-prepare.mjs\n\nDatasource \"db\": SQLite database \"runtime.sqlite\" at \"file:./data/runtime.sqlite\"\n\n2 migrations found in prisma/migrations\n\n\nNo pending migrations to apply.\n\n✔ Generated Prisma Client (v7.8.0) to ./node_modules/@prisma/client in 36ms\n\nStart by importing your Prisma Client (See: https://pris.ly/d/importing-client)\n\n\nPrepared SQLite runtime state with Prisma migrations and endpoint seed defaults.\n\n> mina-mock-mcpserver@1.0.0 build\n> next build\n\n   ▲ Next.js 15.5.15\n\n   Creating an optimized production build ...\n ✓ Compiled successfully in 522ms\n   Linting and checking validity of types ...\n   Collecting page data ...\n   Generating static pages (0/5) ...\n   Generating static pages (1/5) \r\n   Generating static pages (2/5) \r\n   Generating static pages (3/5) \r\n ✓ Generating static pages (5/5)\n   Finalizing page optimization ...\n   Collecting build traces ...\n\nRoute (app)                                 Size  First Load JS\n┌ ○ /                                      124 B         102 kB\n├ ○ /_not-found                            999 B         103 kB\n└ ƒ /api/health                            124 B         102 kB\n+ First Load JS shared by all             102 kB\n  ├ chunks/255-4f212684648fcab9.js         46 kB\n  ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB\n  └ other shared chunks (total)          1.89 kB\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n\n   ▲ Next.js 15.5.15\n   - Local:        http://localhost:3100\n   - Network:      http://192.168.100.125:3100\n\n ✓ Starting...\n ✓ Ready in 253ms\nProduction-style startup smoke passed at http://127.0.0.1:3100/api/health\n",
+      "preflight": {
+        "command": "ensure-e2e-port-free.sh 3100",
+        "error": "",
+        "ok": true,
+        "output": "port-cleanup: 127.0.0.1:3100 already free\n"
+      },
+      "next_server_log_path": "/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T162727-endpoint-domain-and-schema/npm-run-verify-next-server.log"
+    }
+  ],
+  "missing_files": [],
+  "pass": true
+}
+
+Worker handoff summary from the last run:
+Verified `endpoint-domain-and-schema` against the required docs and gates.
+
+`state/last-result.txt` now contains the operator handoff summary. I also appended a concrete verification note to [001-endpoint-domain-and-schema.md](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/docs/exec-plans/active/001-endpoint-domain-and-schema.md).
+
+Required commands passed:
+- `npm run db:prepare`
+- `npm run test:unit`
+- `npm run verify`
+
+Exit criteria appear satisfied. No known remaining work for this task.
+
+Your job:
+- inspect the repository and current implementation
+- determine whether the current task is actually complete
+- mark `done` only if the exit criteria are satisfied in substance, not just approximately
+- prefer conservative decisions
+- recommend promotion only if the task is truly ready
+
+Return JSON only using the provided schema.
+
+codex
+{"decision":"not_done","recommend_promotion":false,"confidence":0.1,"summary":"Starting repository inspection against the task contract and required docs before deciding promotion.","satisfied_exit_criteria":[],"missing_requirements":["Repository inspection not yet performed"],"human_review_triggers":[]}
+exec
+/bin/zsh -lc "sed -n '1,220p' ARCHITECTURE.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+exec
+/bin/zsh -lc "sed -n '1,220p' AGENTS.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# AGENTS.md
+
+## Purpose
+MCP Mock Server is a public remote MCP mock server and web UI for testing no-auth, Basic Auth, and mock OAuth bearer tool calls.
+
+This repository is optimized for agent-legible development and a Ralph-style task-promotion loop.
+
+## Read Order
+Before changing code or plans, read these files in order:
+
+1. `ARCHITECTURE.md`
+2. `docs/PRODUCT_SENSE.md`
+3. `docs/design-docs/core-beliefs.md`
+4. `docs/product-specs/index.md`
+5. `docs/FRONTEND.md`
+6. `docs/PLANS.md`
+7. active plans in `docs/exec-plans/active/`
+
+## Scope Guardrails
+### In scope for v1
+- Next.js App Router web gateway and route handlers
+- TypeScript domain/services with Prisma SQLite persistence
+- endpoint/tool management with up to three parameters and exact-match response cases
+- no-auth, Basic, and OAuth bearer MCP/REST runtime paths
+- OAuth user/client/token administration, authorization code flow, client credentials flow, discovery metadata, and JWKS
+- failure simulation, audit log, server config, reset, logging, Docker/Nginx guidance, and Ralph harness
+
+### Explicitly out of scope for v1
+- production-grade identity management
+- external OAuth provider integration
+- true multi-tenant isolation
+- enterprise RBAC for the public admin UI
+- handling sensitive customer data
+- full MCP resources, prompts, sampling, elicitation, or task-augmented execution in MVP
+- replacing a real authorization server
+
+## Product Shape
+- public admin UI for mock endpoint, auth, token, config, reset, and audit management
+- MCP Streamable HTTP-style JSON-RPC endpoints at /mcp and strict auth aliases
+- REST tool list/call API for curl and Postman style testing
+- mock OAuth authorization server with login, consent, token, revocation, and discovery metadata
+- SQLite-backed persistence with deterministic seed defaults
+
+## Technical Shape
+- Next.js App Router and TypeScript with npm scripts
+- Prisma plus SQLite for migrations, seed defaults, and persistent runtime state
+- layered domain shape: types, config, repo, service, runtime, UI
+- Playwright for E2E and UI verification, node --import tsx --test for unit tests
+- logs/ plus LOG_LEVEL and start:logged for operator-visible server flow
+
+## Validation Strategy
+Use layered checks:
+- unit tests for domain rules
+- integration tests for repository/runtime boundaries where needed
+- small E2E coverage for the required user journeys only
+
+Promotion is blocked when required checks fail. Required test commands in active task contracts are hard gates, not suggestions.
+While iterating, prefer the smallest targeted check for the code you just changed. Use the full required command set before considering the task done.
+If a feature depends on an outside resource such as AI chat or another remote service, keep it in the required E2E flows before allowing promotion.
+If a task is mainly UI or UX work, require a dedicated `@ui-*` Playwright command with screenshot, responsive, and accessibility checks before allowing promotion.
+If `taskmeta.promotion_mode` is `deterministic_only`, passing the required commands is sufficient for promotion without human review.
+For manual server inspection, prefer `npm run start:logged` and set `LOG_LEVEL` intentionally instead of relying only on ephemeral terminal output.
+
+### Required E2E flows
+- endpoint create/edit/delete and console call flow
+- MCP initialize, tools/list, and tools/call in no-auth mode
+- Basic user creation and strict /mcp/basic success/failure
+- REST tools list/call across auth modes
+- OAuth browser consent, token exchange, allowed tool call, denied tool call, and revocation
+- failure simulation and audit evidence
+- config/health/reset/startup smoke
+
+## Documentation Discipline
+- If behavior changes, update the related spec or design doc in the same cycle.
+- Prefer small, executable plans over vague TODOs.
+- When a repeated mistake appears, first document it; if it keeps recurring, promote it into tests or lint rules.
+- Keep the documented test strategy current; do not leave promotion gates implied.
+- When adding or editing tests, explain what behavior the test protects if that intent would otherwise be easy to lose.
+
+## Search Discipline
+- Search the codebase before concluding that a thing is unimplemented.
+- Prefer multiple targeted searches over one broad assumption.
+- If you find a partial implementation, adapt or complete it instead of duplicating it blindly.
+
+## Optional Companion Skills
+- If the customer allows them and they are installed, consider relevant companion skills before planning or implementation.
+- Good candidates include database, Next.js pattern, UI design, responsive UI, and clean-architecture skills.
+
+## Done Definition
+A task is done only when its scoped behavior works in substance, docs and tests match the implementation, required deterministic commands pass, and promotion rules in taskmeta are satisfied.
+
+ succeeded in 0ms:
+# ARCHITECTURE.md
+
+## Goal
+Build MCP Mock Server as an agent-legible codebase with strong boundaries, a short instruction surface, and enough extension seams to support future change without overbuilding v1.
+
+## System Overview
+MCP Mock Server is a web application with:
+- a public Next.js UI served on port 3000
+- server-side route handlers for admin APIs, MCP, REST, OAuth, and discovery metadata
+- SQLite persistence prepared by npm run db:prepare
+- operator logs under logs/ with LOG_LEVEL selection
+- Ralph scripts under scripts/ralph/ driving active task promotion
+
+## Architectural Priorities
+- isolate MCP protocol formatting from endpoint matching and auth decisions
+- keep auth mode resolution explicit and fail closed for invalid Basic/Bearer headers
+- store immutable endpoint IDs and treat names as external labels
+- make seeded built-in users/clients impossible to delete or disable through normal flows
+- prove persistence and production-style startup with deterministic commands
+
+## Layered Domain Model
+Use a strict forward-only dependency shape inside each domain:
+
+`Types -> Config -> Repo -> Service -> Runtime -> UI`
+
+### Why this matters
+The repository is intended to work well with long-running agent loops. Strict boundaries reduce accidental coupling and make failure analysis easier.
+
+## Primary Domains
+| Domain | Responsibility |
+|---|---|
+| Endpoint catalog | Endpoint CRUD, parameters, response cases, delete code, enabled state |
+| Matcher/runtime | Argument normalization, exact match, default/no-match, delay/error/malformed behavior |
+| MCP protocol | JSON-RPC request handling, initialize, tools/list, tools/call, MCP errors |
+| REST API | Tool list/call responses and REST error mapping |
+| Basic auth | Basic users, password hashing, built-in default protection, 401 behavior |
+| OAuth | Users, clients, codes, JWTs, permissions, revocation, discovery metadata |
+| Admin UI | Dashboards, editors, console, config, reset, audit screens |
+| Operations | SQLite prep, seed defaults, base URL, Docker/Nginx docs, logs, health |
+
+## Frontend / Backend Shape
+### Frontend
+- App Router screens should be dense, operational, and optimized for repeated testing
+- UI routes read and mutate through server-backed APIs, not local-only state
+- route-level loading and error states are required for public mutation surfaces
+- test console shows raw request, raw response, principal, matched case, and elapsed time
+- OAuth login and consent UI is separate from the admin navigation
+
+### Server
+- Next.js route handlers own HTTP surfaces for MVP
+- domain services own validation, matching, auth, token, and reset logic
+- repositories isolate Prisma access
+- protocol adapters convert domain outcomes into MCP JSON-RPC or REST responses
+- startup code prepares runtime state before production-style serving
+
+## Persistence Strategy
+- SQLite is the source of truth for endpoints, parameters, cases, users, clients, codes, tokens, audit events, and settings
+- Prisma migrations define the schema and db:prepare applies migrations plus idempotent seed defaults
+- built-in default/default Basic user, OAuth user, and OAuth client are recreated and protected
+- issued token records store jti and metadata; raw tokens are shown only at issuance unless explicitly configured
+- tests use isolated temporary databases or resettable seed state
+
+## Verification Shape
+- unit tests cover validators, matching, auth precedence, JWT claims, permissions, reset, and protocol formatting
+- Playwright proves browser-visible workflows and external-client-like OAuth/MCP/REST flows
+- start:smoke builds, prepares runtime state, starts the production server, probes health, and shuts down
+- verify runs lint, typecheck, build, unit, E2E, and startup smoke
+- failing required checks block Ralph promotion
+
+## Long-Running Agent Readiness
+- docs are the system of record
+- plans are executable, not aspirational
+- domain boundaries are explicit
+- repeated issues should be upgraded into tests or static checks
+
+exec
+/bin/zsh -lc "sed -n '1,220p' docs/PRODUCT_SENSE.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# PRODUCT_SENSE.md
+
+## One-Line Product Definition
+MCP Mock Server is a public remote MCP mock server and web UI for testing no-auth, Basic Auth, and mock OAuth bearer tool calls.
+
+## Who It Is For
+### Primary user
+MCP client developers, AI agent developers, demo/QA users, and the server operator.
+
+## User Problem
+MCP client and AI-agent developers need a configurable remote server that behaves enough like a real MCP server to prove connection, auth, token, permission, and tool-call behavior before integrating with production systems.
+
+## Why This Product Exists
+Remote MCP adoption is moving auth, transport, and permission bugs into client integration work. A public mock server gives teams a repeatable target for manual testing, automated E2E checks, demos, and negative-path validation.
+
+## Product Principles
+- realistic MCP and OAuth behavior over decorative admin features
+- public-by-design administration with light destructive-operation protection
+- deterministic mocks: exact-match cases, explicit defaults, and observable failures
+- endpoint permissions are visible, selectable, and enforced
+- operator recovery paths must be simple and root-password protected
+
+## Core Value in v1
+- create a mock endpoint once and exercise it through MCP and REST
+- prove no-auth, Basic, and OAuth bearer client behavior against strict routes
+- issue mock OAuth tokens with endpoint-level permissions through browser consent or client credentials
+- simulate failure cases that clients often mishandle
+- persist configuration and provide reset/recovery for a public test service
+
+## Non-Goals for v1
+- production-grade identity management
+- external OAuth provider integration
+- true multi-tenant isolation
+- enterprise RBAC for the public admin UI
+- handling sensitive customer data
+- full MCP resources, prompts, sampling, elicitation, or task-augmented execution in MVP
+- replacing a real authorization server
+
+## v1 Success Signals
+- a new endpoint can be created, listed through tools/list, called through tools/call, and called through REST
+- Basic default/default and additional users work on strict Basic routes while invalid credentials return 401
+- OAuth consent can select endpoints, exchange a code for a JWT, allow selected tools, deny unselected tools with 403, and return 401 after revocation
+- token and audit screens show enough evidence to debug a client test
+- SQLite state survives restart and root reset restores built-in defaults
+- npm run verify and npm run start:smoke pass before task promotion
+
+## Product Risks
+- public UI can be abused or reset if root/delete-code handling is weak
+- OAuth semantics can drift into unrealistic behavior unless routes and E2E checks pin 401/403/token claims
+- MCP spec details may change, so the implementation must isolate protocol formatting
+- failure simulation can intentionally violate protocol behavior and needs visible warnings
+- persistent SQLite state can make tests flaky unless seeded and isolated deterministically
+
+codex
+{"decision":"not_done","recommend_promotion":false,"confidence":0.15,"summary":"Read the top-level instructions and architecture/product documents. Next I am checking the task-specific product spec, PRD analysis, active plan, and implemented Prisma/db files for schema substance and idempotency evidence.","satisfied_exit_criteria":[],"missing_requirements":["Task-specific implementation not yet inspected"],"human_review_triggers":[]}
+exec
+/bin/zsh -lc "sed -n '1,260p' docs/references/prd-analysis.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# PRD Analysis
+
+Source: `PRD/mcp_mock_server_prd.md`
+
+## Product Commitments
+
+- Public remote MCP mock server with a web UI, MCP JSON-RPC routes, REST mock routes, Basic Auth, and mock OAuth bearer auth.
+- The UI is intentionally public; destructive operations use an 8-digit endpoint delete code or root password where specified.
+- OAuth is a mock authorization server, not a production identity service.
+- SQLite persistence is required across restarts.
+- Deployment should work directly and behind Nginx, with TLS termination at the proxy.
+
+## Distinct Feature Fronts
+
+- Endpoint/tool management with parameters, response cases, delete protection, reset, and generated MCP schema.
+- MCP JSON-RPC runtime for `initialize`, `notifications/initialized`, `tools/list`, and `tools/call`.
+- REST tool list and call routes sharing the same endpoint catalog.
+- Basic Auth user management and strict Basic route behavior.
+- OAuth user/client management, browser consent, client credentials, JWT issuance, discovery metadata, token UI, and revocation.
+- Failure simulation for delays, forced errors, timeouts, malformed responses, and audit evidence.
+- Operator configuration for base URL, root reset, health, logs, Docker/Nginx guidance, and startup proof.
+
+## Verification Implications
+
+- Auth precedence must be unit-tested: invalid Basic or Bearer headers cannot downgrade to no-auth.
+- OAuth permission behavior needs E2E proof before promotion: allowed endpoint succeeds, denied endpoint returns `403`, revoked/expired/invalid token returns `401`.
+- MCP JSON-RPC response formatting should be contract-tested separately from endpoint matching.
+- UI-heavy endpoint, OAuth, token, and config surfaces need Playwright screenshot, responsive, and accessibility proof.
+- Runtime state makes `npm run start:smoke` mandatory; `build` alone is not enough evidence.
+
+exec
+/bin/zsh -lc "sed -n '1,240p' docs/DESIGN.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# DESIGN.md
+
+## Purpose
+Capture the top-level design direction for MCP Mock Server and point to the deeper design docs that define the real constraints.
+
+## Current Design Themes
+- public test bench: make the current auth mode, endpoint, and response evidence visible at all times
+- protocol clarity: separate MCP JSON-RPC, REST, and OAuth surfaces while keeping shared endpoint concepts consistent
+- fail-closed auth: invalid Basic/Bearer headers never silently downgrade to no-auth
+- recoverable public service: root reset and audit evidence are first-class operator tools
+- extensible mock behavior: exact matching, failure simulation, and future parameter types should fit the same model
+
+## Source of Truth
+Detailed rules belong in:
+- `ARCHITECTURE.md`
+- `docs/design-docs/`
+- `docs/product-specs/`
+- `docs/exec-plans/`
+
+exec
+/bin/zsh -lc "sed -n '1,260p' docs/product-specs/endpoint-tool-management.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# Endpoint and Tool Management
+
+## Goal
+Public users create, edit, test, enable, disable, and delete mock endpoints that become MCP tools and REST call targets.
+
+## Trigger / Entry
+Dashboard endpoint counts
+
+## User-Visible Behavior
+- Dashboard endpoint counts
+- Endpoint list/search
+- Endpoint create/edit/delete forms
+- Generated MCP schema preview
+- Delete code or root password protected deletion
+- Reset to defaults
+
+## Validation
+- Tool name, parameter, delete-code, JSON response, and default-case validation
+- Input schema generation
+- Exact-match response selection
+- Protected deletion and reset invariants
+- Create endpoint, test via UI console, edit enabled state, delete with code, and verify list updates
+
+exec
+/bin/zsh -lc "sed -n '1,260p' docs/exec-plans/active/001-endpoint-domain-and-schema.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# Endpoint Persistence Schema and Seed Defaults
+
+```json taskmeta
+{
+  "id": "endpoint-domain-and-schema",
+  "title": "Endpoint Persistence Schema and Seed Defaults",
+  "order": 1,
+  "status": "active",
+  "next_task_on_success": "endpoint-validation-and-matching",
+  "prompt_docs": [
+    "AGENTS.md",
+    "ARCHITECTURE.md",
+    "docs/PRODUCT_SENSE.md",
+    "docs/DESIGN.md",
+    "docs/references/prd-analysis.md",
+    "docs/product-specs/endpoint-tool-management.md"
+  ],
+  "required_commands": [
+    "npm run db:prepare",
+    "npm run test:unit",
+    "npm run verify"
+  ],
+  "required_files": [],
+  "human_review_triggers": [
+    "The task broadens into unrelated feature fronts.",
+    "Required checks do not prove the claimed behavior.",
+    "Implementation changes contradict the product spec or security/reliability docs."
+  ],
+  "promotion_mode": "deterministic"
+}
+```
+
+## Objective
+
+Replace the bootstrap runtime placeholder with durable SQLite/Prisma persistence for endpoint/tool data and deterministic seed defaults.
+
+## Clarity notes
+
+- This task is only the persistence foundation for endpoints; it should not implement forms, MCP routes, REST routes, or auth behavior.
+- The schema must use immutable endpoint IDs internally because later OAuth permissions should not drift when a tool name changes.
+- `npm run db:prepare` is the deterministic runtime-prep command used by Ralph and startup smoke, so keep the command name stable.
+- Seed behavior should be idempotent and safe to run before every test or startup smoke.
+
+## Expected result
+
+- Prisma and SQLite are wired into the repo with migrations/schema files and deterministic runtime preparation.
+- Tables or models exist for endpoints, parameters, response cases, audit-ready timestamps, and enough seed defaults for later slices.
+- Seed data can be recreated without duplicating rows or weakening protected/default invariants.
+- `docs/generated/db-schema.md` records the schema shape and persistence assumptions.
+
+## Objections / risks to avoid
+
+- Do not keep using `data/bootstrap-state.json` as the real persistence mechanism after this task.
+- Do not make endpoint names the only durable identifier.
+- Do not add UI screens or external protocol routes in this persistence task.
+- Do not leave migrations or seed commands dependent on local manual steps.
+
+## Scope
+
+- Add Prisma/SQLite dependencies, schema, migration or sync path, generated client setup, and repo-local DB configuration.
+- Define endpoint, parameter, response case, and timestamp fields required by the PRD for MVP endpoint management.
+- Implement idempotent seed preparation for at least one representative enabled endpoint and any protected defaults needed by endpoint flows.
+- Update `scripts/db-prepare.mjs` to prepare SQLite state deterministically.
+- Add unit coverage or command-level assertions that `db:prepare` can run repeatedly.
+
+## Out of scope
+
+- Endpoint validators and exact-match response selection beyond simple schema constraints.
+- Endpoint management UI.
+- MCP, REST, Basic Auth, or OAuth runtime behavior.
+- Root reset behavior; that has its own task.
+
+## Exit criteria
+
+1. `npm run db:prepare` creates or updates the SQLite runtime state successfully from a clean checkout.
+2. Running `npm run db:prepare` twice is safe and does not duplicate seed data.
+3. The schema can represent endpoint names, descriptions, enabled state, up to three parameters, response cases, default responses, delete codes, and basic failure config fields.
+4. `docs/generated/db-schema.md` matches the implemented persistence shape.
+5. All required checks pass.
+
+## Required checks
+
+- npm run db:prepare
+- npm run test:unit
+- npm run verify
+
+## Implementation notes
+
+- Use the installed `prisma-cli` skill guidance if Prisma command details are needed.
+- Keep repositories thin and prepare for domain services in the next task.
+
+## Docs to update
+
+- docs/PRODUCT_SENSE.md
+- docs/DESIGN.md
+- docs/references/prd-analysis.md
+
+## Evaluator notes
+
+Required commands are mandatory promotion gates, not suggestions.
+Do not promote if any required check fails.
+Do not accept broad feature work outside this task.
+Confirm that this task maps to the primary product spec `endpoint-tool-management.md` or is explicitly final hardening.
+
+## Progress log
+
+- Start here. Append timestamped progress notes as work lands.
+- Note when existing partial implementations were found and reused instead of replaced.
+- 2026-05-05T17:05:00+09:00 - Found only the bootstrap placeholder (`scripts/db-prepare.mjs` writing `data/bootstrap-state.json`) and reused the existing `db:prepare` command name while replacing its implementation with Prisma migration/client/seed preparation.
+- 2026-05-05T17:10:00+09:00 - Added Prisma SQLite schema and initial migration for endpoints, ordered parameters, response cases, timestamps, delete-code/default/failure fields, and immutable endpoint IDs.
+- 2026-05-05T17:15:00+09:00 - Added idempotent default seed for protected enabled `endpoint_default_echo` plus a repeatability unit test that runs `db:prepare` twice against an isolated SQLite file.
+- 2026-05-05T17:18:00+09:00 - Documented implemented persistence assumptions in `docs/generated/db-schema.md`.
+- 2026-05-05T16:18:17+09:00 - Re-verified the current checkout for this handoff; `npm run db:prepare`, `npm run test:unit`, and `npm run verify` all passed.
+- 2026-05-05T16:23:00+09:00 - Closed evaluator gaps by adding endpoint `title` plus response-case `priority`, `delayMs`, and case-level error config fields to Prisma schema, migration, seed defaults, generated schema docs, and the repeatability test.
+- 2026-05-05T16:29:16+09:00 - Re-read the required repository docs and re-ran the required gates for this task; `npm run db:prepare`, `npm run test:unit`, and `npm run verify` all passed on the current checkout.
+
+exec
+/bin/zsh -lc "sed -n '1,260p' prisma/schema.prisma" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Endpoint {
+  id                    String          @id
+  name                  String          @unique
+  title                 String          @default("")
+  description           String          @default("")
+  enabled               Boolean         @default(true)
+  protectedDefault      Boolean         @default(false)
+  deleteCode            String?
+  defaultResponseJson   String          @default("{}")
+  failureMode           String          @default("none")
+  failureStatusCode     Int?
+  failureDelayMs        Int             @default(0)
+  failureMessage        String?
+  malformedResponseJson String?
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+  parameters            EndpointParam[]
+  responseCases         ResponseCase[]
+}
+
+model EndpointParam {
+  id               String   @id
+  endpointId       String
+  position         Int
+  name             String
+  label            String?
+  description      String   @default("")
+  type             String   @default("string")
+  required         Boolean  @default(false)
+  defaultValueJson String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  endpoint         Endpoint @relation(fields: [endpointId], references: [id], onDelete: Cascade)
+
+  @@unique([endpointId, position])
+  @@unique([endpointId, name])
+  @@index([endpointId])
+}
+
+model ResponseCase {
+  id              String   @id
+  endpointId      String
+  name            String
+  priority        Int      @default(0)
+  matchArgsJson   String   @default("{}")
+  responseJson    String
+  statusCode      Int      @default(200)
+  delayMs         Int      @default(0)
+  errorMode       String   @default("none")
+  errorStatusCode Int?
+  errorMessage    String?
+  errorBodyJson   String?
+  isDefault       Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  endpoint        Endpoint @relation(fields: [endpointId], references: [id], onDelete: Cascade)
+
+  @@unique([endpointId, name])
+  @@index([endpointId, priority])
+  @@index([endpointId])
+}
+
+exec
+/bin/zsh -lc "sed -n '1,260p' scripts/db-prepare.mjs" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import { mkdir } from "node:fs/promises";
+import { spawn } from "node:child_process";
+
+function run(command, args) {
+  return new Promise((resolve, reject) => {
+    const child = spawn(command, args, {
+      stdio: "inherit",
+      shell: false,
+      env: { ...process.env },
+    });
+
+    child.on("exit", (code) => {
+      if (code === 0) {
+        resolve();
+      } else {
+        reject(new Error(`${command} ${args.join(" ")} exited with ${code}`));
+      }
+    });
+  });
+}
+
+await mkdir("data", { recursive: true });
+await run("npx", ["prisma", "migrate", "deploy"]);
+await run("npx", ["prisma", "generate"]);
+await run("node", ["prisma/seed.mjs"]);
+
+console.log("Prepared SQLite runtime state with Prisma migrations and endpoint seed defaults.");
+
+exec
+/bin/zsh -lc "sed -n '1,260p' docs/generated/db-schema.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# Generated DB Schema
+
+Generated for task `endpoint-domain-and-schema`.
+
+## Runtime Database
+
+- Provider: SQLite through Prisma.
+- Default URL: `file:./data/runtime.sqlite`.
+- Preparation command: `npm run db:prepare`.
+- Preparation behavior: creates `data/`, applies Prisma migrations, generates Prisma Client, and runs idempotent endpoint seed defaults.
+- Persistence source of truth: SQLite. `data/bootstrap-state.json` is no longer used by `db:prepare`.
+
+## Endpoint
+
+Stores durable mock tool records. `id` is the immutable internal identifier used by later permission and runtime slices; `name` is the externally visible tool label and may change without changing `id`.
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | `String` | Primary key, assigned by domain/seed code. |
+| `name` | `String` | Unique tool name. |
+| `title` | `String` | User-facing display title from the endpoint create/edit model. |
+| `description` | `String` | Human-readable endpoint description. |
+| `enabled` | `Boolean` | Runtime visibility toggle. |
+| `protectedDefault` | `Boolean` | Marks built-in defaults that normal flows should protect. |
+| `deleteCode` | `String?` | Endpoint delete-code storage for later protected delete flows. |
+| `defaultResponseJson` | `String` | JSON-encoded default response body. |
+| `failureMode` | `String` | Basic failure simulation mode placeholder, seeded as `none`. |
+| `failureStatusCode` | `Int?` | Optional forced-error status. |
+| `failureDelayMs` | `Int` | Optional delay duration, seeded as `0`. |
+| `failureMessage` | `String?` | Optional forced-error message. |
+| `malformedResponseJson` | `String?` | Optional malformed response payload for later runtime slices. |
+| `createdAt` | `DateTime` | Audit-ready creation timestamp. |
+| `updatedAt` | `DateTime` | Audit-ready update timestamp maintained by Prisma. |
+
+## EndpointParam
+
+Stores ordered parameter definitions for each endpoint. The schema supports the MVP limit of up to three parameters by position; domain validation in the next slice owns the user-facing limit enforcement.
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | `String` | Primary key, assigned by domain/seed code. |
+| `endpointId` | `String` | Required relation to `Endpoint`, cascades on endpoint delete. |
+| `position` | `Int` | Parameter order. Unique per endpoint. |
+| `name` | `String` | Parameter key. Unique per endpoint. |
+| `label` | `String?` | Optional UI label. |
+| `description` | `String` | Parameter help text. |
+| `type` | `String` | Parameter type placeholder, seeded as `string`. |
+| `required` | `Boolean` | Required argument flag. |
+| `defaultValueJson` | `String?` | Optional JSON-encoded default value. |
+| `createdAt` | `DateTime` | Audit-ready creation timestamp. |
+| `updatedAt` | `DateTime` | Audit-ready update timestamp maintained by Prisma. |
+
+Indexes and constraints:
+
+- `@@unique([endpointId, position])`
+- `@@unique([endpointId, name])`
+- `@@index([endpointId])`
+
+## ResponseCase
+
+Stores exact-match response cases and a default case marker. Matching semantics are intentionally deferred to the endpoint validation and matching task.
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | `String` | Primary key, assigned by domain/seed code. |
+| `endpointId` | `String` | Required relation to `Endpoint`, cascades on endpoint delete. |
+| `name` | `String` | Case name. Unique per endpoint. |
+| `priority` | `Int` | Case selection ordering placeholder for later matching logic. |
+| `matchArgsJson` | `String` | JSON-encoded exact-match argument object. |
+| `responseJson` | `String` | JSON-encoded response body. |
+| `statusCode` | `Int` | HTTP/runtime status placeholder for later adapters. |
+| `delayMs` | `Int` | Case-level delay duration for later failure simulation/runtime slices. |
+| `errorMode` | `String` | Case-level error mode placeholder, seeded as `none`. |
+| `errorStatusCode` | `Int?` | Optional case-level forced-error status. |
+| `errorMessage` | `String?` | Optional case-level forced-error message. |
+| `errorBodyJson` | `String?` | Optional JSON-encoded case-level error body. |
+| `isDefault` | `Boolean` | Marks the default/no-match case. |
+| `createdAt` | `DateTime` | Audit-ready creation timestamp. |
+| `updatedAt` | `DateTime` | Audit-ready update timestamp maintained by Prisma. |
+
+Indexes and constraints:
+
+- `@@unique([endpointId, name])`
+- `@@index([endpointId, priority])`
+- `@@index([endpointId])`
+
+## Seed Defaults
+
+`npm run db:prepare` upserts one protected enabled endpoint:
+
+- Endpoint ID: `endpoint_default_echo`
+- Tool name: `echo`
+- Title: `Echo`
+- Delete code: `12345678`
+- Parameter: `message` at position `0`
+- Response cases: `default` at priority `0` and `hello-world` at priority `10`, both with no case-level delay/error configured
+
+The seed uses immutable IDs and unique endpoint-scoped keys, so repeated preparation updates the built-in records without duplicating rows.
+
+exec
+/bin/zsh -lc "rg -n \"db:prepare|endpoint|Endpoint|ResponseCase|runtime.sqlite|@prisma|prisma\" package.json tests scripts src app prisma docs/generated -g '"'!node_modules'"'" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+tests/e2e/bootstrap.spec.ts:11:test("health endpoint reports ok status", async ({ request }) => {
+docs/generated/db-schema.md:3:Generated for task `endpoint-domain-and-schema`.
+docs/generated/db-schema.md:8:- Default URL: `file:./data/runtime.sqlite`.
+docs/generated/db-schema.md:9:- Preparation command: `npm run db:prepare`.
+docs/generated/db-schema.md:10:- Preparation behavior: creates `data/`, applies Prisma migrations, generates Prisma Client, and runs idempotent endpoint seed defaults.
+docs/generated/db-schema.md:11:- Persistence source of truth: SQLite. `data/bootstrap-state.json` is no longer used by `db:prepare`.
+docs/generated/db-schema.md:13:## Endpoint
+docs/generated/db-schema.md:21:| `title` | `String` | User-facing display title from the endpoint create/edit model. |
+docs/generated/db-schema.md:22:| `description` | `String` | Human-readable endpoint description. |
+docs/generated/db-schema.md:25:| `deleteCode` | `String?` | Endpoint delete-code storage for later protected delete flows. |
+docs/generated/db-schema.md:35:## EndpointParam
+docs/generated/db-schema.md:37:Stores ordered parameter definitions for each endpoint. The schema supports the MVP limit of up to three parameters by position; domain validation in the next slice owns the user-facing limit enforcement.
+docs/generated/db-schema.md:42:| `endpointId` | `String` | Required relation to `Endpoint`, cascades on endpoint delete. |
+docs/generated/db-schema.md:43:| `position` | `Int` | Parameter order. Unique per endpoint. |
+docs/generated/db-schema.md:44:| `name` | `String` | Parameter key. Unique per endpoint. |
+docs/generated/db-schema.md:55:- `@@unique([endpointId, position])`
+docs/generated/db-schema.md:56:- `@@unique([endpointId, name])`
+docs/generated/db-schema.md:57:- `@@index([endpointId])`
+docs/generated/db-schema.md:59:## ResponseCase
+docs/generated/db-schema.md:61:Stores exact-match response cases and a default case marker. Matching semantics are intentionally deferred to the endpoint validation and matching task.
+docs/generated/db-schema.md:66:| `endpointId` | `String` | Required relation to `Endpoint`, cascades on endpoint delete. |
+docs/generated/db-schema.md:67:| `name` | `String` | Case name. Unique per endpoint. |
+docs/generated/db-schema.md:83:- `@@unique([endpointId, name])`
+docs/generated/db-schema.md:84:- `@@index([endpointId, priority])`
+docs/generated/db-schema.md:85:- `@@index([endpointId])`
+docs/generated/db-schema.md:89:`npm run db:prepare` upserts one protected enabled endpoint:
+docs/generated/db-schema.md:91:- Endpoint ID: `endpoint_default_echo`
+docs/generated/db-schema.md:98:The seed uses immutable IDs and unique endpoint-scoped keys, so repeated preparation updates the built-in records without duplicating rows.
+app/page.tsx:4:  "Endpoint and tool management",
+app/page.tsx:23:          endpoint permissions, and tool-call failure modes.
+package.json:11:    "db:prepare": "node scripts/db-prepare.mjs",
+package.json:20:    "@prisma/adapter-better-sqlite3": "^7.8.0",
+package.json:21:    "@prisma/client": "^7.8.0",
+package.json:35:    "prisma": "^7.8.0",
+scripts/start-smoke.mjs:43:await run("npm", ["run", "db:prepare"]);
+prisma/migrations/202605050002_endpoint_title_response_case_config/migration.sql:1:-- Add PRD-backed endpoint display title and response-case execution config.
+prisma/migrations/202605050002_endpoint_title_response_case_config/migration.sql:2:ALTER TABLE "Endpoint" ADD COLUMN "title" TEXT NOT NULL DEFAULT '';
+prisma/migrations/202605050002_endpoint_title_response_case_config/migration.sql:4:ALTER TABLE "ResponseCase" ADD COLUMN "priority" INTEGER NOT NULL DEFAULT 0;
+prisma/migrations/202605050002_endpoint_title_response_case_config/migration.sql:5:ALTER TABLE "ResponseCase" ADD COLUMN "delayMs" INTEGER NOT NULL DEFAULT 0;
+prisma/migrations/202605050002_endpoint_title_response_case_config/migration.sql:6:ALTER TABLE "ResponseCase" ADD COLUMN "errorMode" TEXT NOT NULL DEFAULT 'none';
+prisma/migrations/202605050002_endpoint_title_response_case_config/migration.sql:7:ALTER TABLE "ResponseCase" ADD COLUMN "errorStatusCode" INTEGER;
+prisma/migrations/202605050002_endpoint_title_response_case_config/migration.sql:8:ALTER TABLE "ResponseCase" ADD COLUMN "errorMessage" TEXT;
+prisma/migrations/202605050002_endpoint_title_response_case_config/migration.sql:9:ALTER TABLE "ResponseCase" ADD COLUMN "errorBodyJson" TEXT;
+prisma/migrations/202605050002_endpoint_title_response_case_config/migration.sql:11:CREATE INDEX "ResponseCase_endpointId_priority_idx" ON "ResponseCase"("endpointId", "priority");
+scripts/db-prepare.mjs:23:await run("npx", ["prisma", "migrate", "deploy"]);
+scripts/db-prepare.mjs:24:await run("npx", ["prisma", "generate"]);
+scripts/db-prepare.mjs:25:await run("node", ["prisma/seed.mjs"]);
+scripts/db-prepare.mjs:27:console.log("Prepared SQLite runtime state with Prisma migrations and endpoint seed defaults.");
+tests/unit/db-prepare.test.ts:13:  await execFileAsync("npm", ["run", "db:prepare"], {
+tests/unit/db-prepare.test.ts:18:test("db:prepare is repeatable and keeps endpoint seed rows singular", async () => {
+tests/unit/db-prepare.test.ts:20:  const databaseUrl = `file:${join(directory, "runtime.sqlite")}`;
+tests/unit/db-prepare.test.ts:27:  const prisma = createPrismaClient();
+tests/unit/db-prepare.test.ts:30:    assert.equal(await prisma.endpoint.count(), 1);
+tests/unit/db-prepare.test.ts:31:    assert.equal(await prisma.endpointParam.count(), 1);
+tests/unit/db-prepare.test.ts:32:    assert.equal(await prisma.responseCase.count(), 2);
+tests/unit/db-prepare.test.ts:34:    const endpoint = await prisma.endpoint.findUniqueOrThrow({
+tests/unit/db-prepare.test.ts:35:      where: { id: "endpoint_default_echo" },
+tests/unit/db-prepare.test.ts:39:    assert.equal(endpoint.name, "echo");
+tests/unit/db-prepare.test.ts:40:    assert.equal(endpoint.title, "Echo");
+tests/unit/db-prepare.test.ts:41:    assert.equal(endpoint.enabled, true);
+tests/unit/db-prepare.test.ts:42:    assert.equal(endpoint.protectedDefault, true);
+tests/unit/db-prepare.test.ts:43:    assert.equal(endpoint.parameters[0]?.position, 0);
+tests/unit/db-prepare.test.ts:44:    assert.equal(endpoint.responseCases.some((responseCase) => responseCase.isDefault), true);
+tests/unit/db-prepare.test.ts:46:    const helloCase = endpoint.responseCases.find((responseCase) => responseCase.name === "hello-world");
+tests/unit/db-prepare.test.ts:52:    await prisma.$disconnect();
+prisma/seed.mjs:1:import { PrismaClient } from "@prisma/client";
+prisma/seed.mjs:2:import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+prisma/seed.mjs:4:export const DEFAULT_ENDPOINT_ID = "endpoint_default_echo";
+prisma/seed.mjs:6:const databaseUrl = process.env.DATABASE_URL ?? "file:./data/runtime.sqlite";
+prisma/seed.mjs:8:const prisma = new PrismaClient({ adapter });
+prisma/seed.mjs:10:export async function seedEndpointDefaults(client = prisma) {
+prisma/seed.mjs:11:  await client.endpoint.upsert({
+prisma/seed.mjs:16:      description: "Default enabled endpoint for smoke-testing endpoint persistence.",
+prisma/seed.mjs:31:      description: "Default enabled endpoint for smoke-testing endpoint persistence.",
+prisma/seed.mjs:78:  await client.endpointParam.upsert({
+prisma/seed.mjs:80:      endpointId_name: {
+prisma/seed.mjs:81:        endpointId: DEFAULT_ENDPOINT_ID,
+prisma/seed.mjs:95:      endpointId: DEFAULT_ENDPOINT_ID,
+prisma/seed.mjs:107:      endpointId_name: {
+prisma/seed.mjs:108:        endpointId: DEFAULT_ENDPOINT_ID,
+prisma/seed.mjs:126:      endpointId: DEFAULT_ENDPOINT_ID,
+prisma/seed.mjs:140:      endpointId_name: {
+prisma/seed.mjs:141:        endpointId: DEFAULT_ENDPOINT_ID,
+prisma/seed.mjs:159:      endpointId: DEFAULT_ENDPOINT_ID,
+prisma/seed.mjs:173:  await seedEndpointDefaults();
+prisma/seed.mjs:174:  await prisma.$disconnect();
+prisma/schema.prisma:2:  provider = "prisma-client-js"
+prisma/schema.prisma:9:model Endpoint {
+prisma/schema.prisma:25:  parameters            EndpointParam[]
+prisma/schema.prisma:26:  responseCases         ResponseCase[]
+prisma/schema.prisma:29:model EndpointParam {
+prisma/schema.prisma:31:  endpointId       String
+prisma/schema.prisma:41:  endpoint         Endpoint @relation(fields: [endpointId], references: [id], onDelete: Cascade)
+prisma/schema.prisma:43:  @@unique([endpointId, position])
+prisma/schema.prisma:44:  @@unique([endpointId, name])
+prisma/schema.prisma:45:  @@index([endpointId])
+prisma/schema.prisma:48:model ResponseCase {
+prisma/schema.prisma:50:  endpointId      String
+prisma/schema.prisma:64:  endpoint        Endpoint @relation(fields: [endpointId], references: [id], onDelete: Cascade)
+prisma/schema.prisma:66:  @@unique([endpointId, name])
+prisma/schema.prisma:67:  @@index([endpointId, priority])
+prisma/schema.prisma:68:  @@index([endpointId])
+prisma/migrations/202605050001_endpoint_persistence/migration.sql:1:-- Endpoint catalog persistence foundation.
+prisma/migrations/202605050001_endpoint_persistence/migration.sql:2:CREATE TABLE "Endpoint" (
+prisma/migrations/202605050001_endpoint_persistence/migration.sql:19:CREATE TABLE "EndpointParam" (
+prisma/migrations/202605050001_endpoint_persistence/migration.sql:21:  "endpointId" TEXT NOT NULL,
+prisma/migrations/202605050001_endpoint_persistence/migration.sql:31:  CONSTRAINT "EndpointParam_endpointId_fkey" FOREIGN KEY ("endpointId") REFERENCES "Endpoint" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+prisma/migrations/202605050001_endpoint_persistence/migration.sql:34:CREATE TABLE "ResponseCase" (
+prisma/migrations/202605050001_endpoint_persistence/migration.sql:36:  "endpointId" TEXT NOT NULL,
+prisma/migrations/202605050001_endpoint_persistence/migration.sql:44:  CONSTRAINT "ResponseCase_endpointId_fkey" FOREIGN KEY ("endpointId") REFERENCES "Endpoint" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+prisma/migrations/202605050001_endpoint_persistence/migration.sql:47:CREATE UNIQUE INDEX "Endpoint_name_key" ON "Endpoint"("name");
+prisma/migrations/202605050001_endpoint_persistence/migration.sql:48:CREATE UNIQUE INDEX "EndpointParam_endpointId_position_key" ON "EndpointParam"("endpointId", "position");
+prisma/migrations/202605050001_endpoint_persistence/migration.sql:49:CREATE UNIQUE INDEX "EndpointParam_endpointId_name_key" ON "EndpointParam"("endpointId", "name");
+prisma/migrations/202605050001_endpoint_persistence/migration.sql:50:CREATE INDEX "EndpointParam_endpointId_idx" ON "EndpointParam"("endpointId");
+prisma/migrations/202605050001_endpoint_persistence/migration.sql:51:CREATE UNIQUE INDEX "ResponseCase_endpointId_name_key" ON "ResponseCase"("endpointId", "name");
+prisma/migrations/202605050001_endpoint_persistence/migration.sql:52:CREATE INDEX "ResponseCase_endpointId_idx" ON "ResponseCase"("endpointId");
+scripts/ralph/generated/current-evaluator-prompt.txt:9:- docs/product-specs/endpoint-tool-management.md
+scripts/ralph/generated/current-evaluator-prompt.txt:10:- docs/exec-plans/active/001-endpoint-domain-and-schema.md
+scripts/ralph/generated/current-evaluator-prompt.txt:12:Current task id: endpoint-domain-and-schema
+scripts/ralph/generated/current-evaluator-prompt.txt:13:Current task title: Endpoint Persistence Schema and Seed Defaults
+scripts/ralph/generated/current-evaluator-prompt.txt:16:Replace the bootstrap runtime placeholder with durable SQLite/Prisma persistence for endpoint/tool data and deterministic seed defaults.
+scripts/ralph/generated/current-evaluator-prompt.txt:20:- Define endpoint, parameter, response case, and timestamp fields required by the PRD for MVP endpoint management.
+scripts/ralph/generated/current-evaluator-prompt.txt:21:- Implement idempotent seed preparation for at least one representative enabled endpoint and any protected defaults needed by endpoint flows.
+scripts/ralph/generated/current-evaluator-prompt.txt:23:- Add unit coverage or command-level assertions that `db:prepare` can run repeatedly.
+scripts/ralph/generated/current-evaluator-prompt.txt:26:- Endpoint validators and exact-match response selection beyond simple schema constraints.
+scripts/ralph/generated/current-evaluator-prompt.txt:27:- Endpoint management UI.
+scripts/ralph/generated/current-evaluator-prompt.txt:32:1. `npm run db:prepare` creates or updates the SQLite runtime state successfully from a clean checkout.
+scripts/ralph/generated/current-evaluator-prompt.txt:33:2. Running `npm run db:prepare` twice is safe and does not duplicate seed data.
+scripts/ralph/generated/current-evaluator-prompt.txt:34:3. The schema can represent endpoint names, descriptions, enabled state, up to three parameters, response cases, default responses, delete codes, and basic failure config fields.
+scripts/ralph/generated/current-evaluator-prompt.txt:42:Confirm that this task maps to the primary product spec `endpoint-tool-management.md` or is explicitly final hardening.
+scripts/ralph/generated/current-evaluator-prompt.txt:47:  "task_id": "endpoint-domain-and-schema",
+scripts/ralph/generated/current-evaluator-prompt.txt:50:      "command": "npm run db:prepare",
+scripts/ralph/generated/current-evaluator-prompt.txt:52:      "output": "\n> mina-mock-mcpserver@1.0.0 db:prepare\n> node scripts/db-prepare.mjs\n\nDatasource \"db\": SQLite database \"runtime.sqlite\" at \"file:./data/runtime.sqlite\"\n\n2 migrations found in prisma/migrations\n\n\nNo pending migrations to apply.\n\n✔ Generated Prisma Client (v7.8.0) to ./node_modules/@prisma/client in 43ms\n\nStart by importing your Prisma Client (See: https://pris.ly/d/importing-client)\n\n\nPrepared SQLite runtime state with Prisma migrations and endpoint seed defaults.\n"
+scripts/ralph/generated/current-evaluator-prompt.txt:57:      "output": "\n> mina-mock-mcpserver@1.0.0 test:unit\n> node --import tsx --test \"tests/unit/**/*.test.ts\"\n\n✔ normalizeLogLevel accepts supported operator log levels (0.343208ms)\n✔ normalizeLogLevel defaults invalid input to info (0.057125ms)\n✔ getBootstrapStatus reports prepared foundation state (0.051708ms)\n✔ db:prepare is repeatable and keeps endpoint seed rows singular (2827.446709ms)\nℹ tests 4\nℹ suites 0\nℹ pass 4\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 2951.502083\n"
+scripts/ralph/generated/current-evaluator-prompt.txt:62:      "output": "\n> mina-mock-mcpserver@1.0.0 verify\n> npm run lint && npm run typecheck && npm run build && npm run test:unit && npm run test:e2e && npm run start:smoke\n\n\n> mina-mock-mcpserver@1.0.0 lint\n> eslint .\n\n\n> mina-mock-mcpserver@1.0.0 typecheck\n> tsc --noEmit\n\n\n> mina-mock-mcpserver@1.0.0 build\n> next build\n\n   ▲ Next.js 15.5.15\n\n   Creating an optimized production build ...\n ✓ Compiled successfully in 540ms\n   Linting and checking validity of types ...\n   Collecting page data ...\n   Generating static pages (0/5) ...\n   Generating static pages (1/5) \r\n   Generating static pages (2/5) \r\n   Generating static pages (3/5) \r\n ✓ Generating static pages (5/5)\n   Finalizing page optimization ...\n   Collecting build traces ...\n\nRoute (app)                                 Size  First Load JS\n┌ ○ /                                      124 B         102 kB\n├ ○ /_not-found                            999 B         103 kB\n└ ƒ /api/health                            124 B         102 kB\n+ First Load JS shared by all             102 kB\n  ├ chunks/255-4f212684648fcab9.js         46 kB\n  ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB\n  └ other shared chunks (total)          1.89 kB\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n\n\n> mina-mock-mcpserver@1.0.0 test:unit\n> node --import tsx --test \"tests/unit/**/*.test.ts\"\n\n✔ normalizeLogLevel accepts supported operator log levels (0.312667ms)\n✔ normalizeLogLevel defaults invalid input to info (0.053917ms)\n✔ getBootstrapStatus reports prepared foundation state (0.051708ms)\n✔ db:prepare is repeatable and keeps endpoint seed rows singular (2809.51225ms)\nℹ tests 4\nℹ suites 0\nℹ pass 4\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 2924.30925\n\n> mina-mock-mcpserver@1.0.0 test:e2e\n> playwright test\n\n\nRunning 2 tests using 1 worker\n\n  ✓  1 [chromium] › tests/e2e/bootstrap.spec.ts:3:5 › foundation dashboard renders planned MCP mock server surfaces (447ms)\n  ✓  2 [chromium] › tests/e2e/bootstrap.spec.ts:11:5 › health endpoint reports ok status (231ms)\n\n  2 passed (3.1s)\n\n> mina-mock-mcpserver@1.0.0 start:smoke\n> node scripts/start-smoke.mjs\n\n\n> mina-mock-mcpserver@1.0.0 db:prepare\n> node scripts/db-prepare.mjs\n\nDatasource \"db\": SQLite database \"runtime.sqlite\" at \"file:./data/runtime.sqlite\"\n\n2 migrations found in prisma/migrations\n\n\nNo pending migrations to apply.\n\n✔ Generated Prisma Client (v7.8.0) to ./node_modules/@prisma/client in 36ms\n\nStart by importing your Prisma Client (See: https://pris.ly/d/importing-client)\n\n\nPrepared SQLite runtime state with Prisma migrations and endpoint seed defaults.\n\n> mina-mock-mcpserver@1.0.0 build\n> next build\n\n   ▲ Next.js 15.5.15\n\n   Creating an optimized production build ...\n ✓ Compiled successfully in 522ms\n   Linting and checking validity of types ...\n   Collecting page data ...\n   Generating static pages (0/5) ...\n   Generating static pages (1/5) \r\n   Generating static pages (2/5) \r\n   Generating static pages (3/5) \r\n ✓ Generating static pages (5/5)\n   Finalizing page optimization ...\n   Collecting build traces ...\n\nRoute (app)                                 Size  First Load JS\n┌ ○ /                                      124 B         102 kB\n├ ○ /_not-found                            999 B         103 kB\n└ ƒ /api/health                            124 B         102 kB\n+ First Load JS shared by all             102 kB\n  ├ chunks/255-4f212684648fcab9.js         46 kB\n  ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB\n  └ other shared chunks (total)          1.89 kB\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n\n   ▲ Next.js 15.5.15\n   - Local:        http://localhost:3100\n   - Network:      http://192.168.100.125:3100\n\n ✓ Starting...\n ✓ Ready in 253ms\nProduction-style startup smoke passed at http://127.0.0.1:3100/api/health\n",
+scripts/ralph/generated/current-evaluator-prompt.txt:69:      "next_server_log_path": "/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T162727-endpoint-domain-and-schema/npm-run-verify-next-server.log"
+scripts/ralph/generated/current-evaluator-prompt.txt:77:Verified `endpoint-domain-and-schema` against the required docs and gates.
+scripts/ralph/generated/current-evaluator-prompt.txt:79:`state/last-result.txt` now contains the operator handoff summary. I also appended a concrete verification note to [001-endpoint-domain-and-schema.md](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/docs/exec-plans/active/001-endpoint-domain-and-schema.md).
+scripts/ralph/generated/current-evaluator-prompt.txt:82:- `npm run db:prepare`
+scripts/ralph/generated/current-task-prompt.txt:7:- docs/product-specs/endpoint-tool-management.md
+scripts/ralph/generated/current-task-prompt.txt:8:- docs/exec-plans/active/001-endpoint-domain-and-schema.md
+scripts/ralph/generated/current-task-prompt.txt:10:Current task id: endpoint-domain-and-schema
+scripts/ralph/generated/current-task-prompt.txt:11:Current task title: Endpoint Persistence Schema and Seed Defaults
+scripts/ralph/generated/current-task-prompt.txt:14:Replace the bootstrap runtime placeholder with durable SQLite/Prisma persistence for endpoint/tool data and deterministic seed defaults.
+scripts/ralph/generated/current-task-prompt.txt:17:- This task is only the persistence foundation for endpoints; it should not implement forms, MCP routes, REST routes, or auth behavior.
+scripts/ralph/generated/current-task-prompt.txt:18:- The schema must use immutable endpoint IDs internally because later OAuth permissions should not drift when a tool name changes.
+scripts/ralph/generated/current-task-prompt.txt:19:- `npm run db:prepare` is the deterministic runtime-prep command used by Ralph and startup smoke, so keep the command name stable.
+scripts/ralph/generated/current-task-prompt.txt:24:- Tables or models exist for endpoints, parameters, response cases, audit-ready timestamps, and enough seed defaults for later slices.
+scripts/ralph/generated/current-task-prompt.txt:30:- Do not make endpoint names the only durable identifier.
+scripts/ralph/generated/current-task-prompt.txt:36:- Define endpoint, parameter, response case, and timestamp fields required by the PRD for MVP endpoint management.
+scripts/ralph/generated/current-task-prompt.txt:37:- Implement idempotent seed preparation for at least one representative enabled endpoint and any protected defaults needed by endpoint flows.
+scripts/ralph/generated/current-task-prompt.txt:39:- Add unit coverage or command-level assertions that `db:prepare` can run repeatedly.
+scripts/ralph/generated/current-task-prompt.txt:42:- Endpoint validators and exact-match response selection beyond simple schema constraints.
+scripts/ralph/generated/current-task-prompt.txt:43:- Endpoint management UI.
+scripts/ralph/generated/current-task-prompt.txt:48:1. `npm run db:prepare` creates or updates the SQLite runtime state successfully from a clean checkout.
+scripts/ralph/generated/current-task-prompt.txt:49:2. Running `npm run db:prepare` twice is safe and does not duplicate seed data.
+scripts/ralph/generated/current-task-prompt.txt:50:3. The schema can represent endpoint names, descriptions, enabled state, up to three parameters, response cases, default responses, delete codes, and basic failure config fields.
+scripts/ralph/generated/current-task-prompt.txt:55:- npm run db:prepare
+scripts/ralph/generated/current-task-prompt.txt:63:Confirm that this task maps to the primary product spec `endpoint-tool-management.md` or is explicitly final hardening.
+scripts/ralph/generated/current-task-prompt.txt:69:- npm run db:prepare
+
+exec
+/bin/zsh -lc "sed -n '1,260p' prisma/seed.mjs" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+exec
+/bin/zsh -lc "sed -n '1,240p' package.json" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+{
+  "name": "mina-mock-mcpserver",
+  "version": "1.0.0",
+  "description": "Public remote MCP mock server and web UI for testing MCP auth and tool calls.",
+  "scripts": {
+    "dev": "next dev --hostname 127.0.0.1 --port 3100",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "db:prepare": "node scripts/db-prepare.mjs",
+    "test:unit": "node --import tsx --test \"tests/unit/**/*.test.ts\"",
+    "test:e2e": "playwright test",
+    "test": "npm run test:unit && npm run test:e2e",
+    "start:smoke": "node scripts/start-smoke.mjs",
+    "start:logged": "node scripts/start-logged.mjs",
+    "verify": "npm run lint && npm run typecheck && npm run build && npm run test:unit && npm run test:e2e && npm run start:smoke"
+  },
+  "dependencies": {
+    "@prisma/adapter-better-sqlite3": "^7.8.0",
+    "@prisma/client": "^7.8.0",
+    "better-sqlite3": "^12.9.0",
+    "next": "^15.3.2",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.26.0",
+    "@playwright/test": "^1.52.0",
+    "@types/node": "^22.15.3",
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.3",
+    "eslint": "^9.26.0",
+    "eslint-config-next": "^15.3.2",
+    "prisma": "^7.8.0",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.32.0"
+  },
+  "private": true
+}
+
+ succeeded in 0ms:
+import { PrismaClient } from "@prisma/client";
+import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+
+export const DEFAULT_ENDPOINT_ID = "endpoint_default_echo";
+
+const databaseUrl = process.env.DATABASE_URL ?? "file:./data/runtime.sqlite";
+const adapter = new PrismaBetterSqlite3({ url: databaseUrl });
+const prisma = new PrismaClient({ adapter });
+
+export async function seedEndpointDefaults(client = prisma) {
+  await client.endpoint.upsert({
+    where: { id: DEFAULT_ENDPOINT_ID },
+    update: {
+      name: "echo",
+      title: "Echo",
+      description: "Default enabled endpoint for smoke-testing endpoint persistence.",
+      enabled: true,
+      protectedDefault: true,
+      deleteCode: "12345678",
+      defaultResponseJson: JSON.stringify({ ok: true, source: "default" }),
+      failureMode: "none",
+      failureStatusCode: null,
+      failureDelayMs: 0,
+      failureMessage: null,
+      malformedResponseJson: null,
+    },
+    create: {
+      id: DEFAULT_ENDPOINT_ID,
+      name: "echo",
+      title: "Echo",
+      description: "Default enabled endpoint for smoke-testing endpoint persistence.",
+      enabled: true,
+      protectedDefault: true,
+      deleteCode: "12345678",
+      defaultResponseJson: JSON.stringify({ ok: true, source: "default" }),
+      parameters: {
+        create: [
+          {
+            id: `${DEFAULT_ENDPOINT_ID}_param_message`,
+            position: 0,
+            name: "message",
+            label: "Message",
+            description: "Message to echo back in later runtime slices.",
+            type: "string",
+            required: true,
+          },
+        ],
+      },
+      responseCases: {
+        create: [
+          {
+            id: `${DEFAULT_ENDPOINT_ID}_case_default`,
+            name: "default",
+            priority: 0,
+            matchArgsJson: "{}",
+            responseJson: JSON.stringify({ ok: true, source: "default" }),
+            statusCode: 200,
+            delayMs: 0,
+            errorMode: "none",
+            isDefault: true,
+          },
+          {
+            id: `${DEFAULT_ENDPOINT_ID}_case_hello`,
+            name: "hello-world",
+            priority: 10,
+            matchArgsJson: JSON.stringify({ message: "hello" }),
+            responseJson: JSON.stringify({ ok: true, message: "world" }),
+            statusCode: 200,
+            delayMs: 0,
+            errorMode: "none",
+            isDefault: false,
+          },
+        ],
+      },
+    },
+  });
+
+  await client.endpointParam.upsert({
+    where: {
+      endpointId_name: {
+        endpointId: DEFAULT_ENDPOINT_ID,
+        name: "message",
+      },
+    },
+    update: {
+      position: 0,
+      label: "Message",
+      description: "Message to echo back in later runtime slices.",
+      type: "string",
+      required: true,
+      defaultValueJson: null,
+    },
+    create: {
+      id: `${DEFAULT_ENDPOINT_ID}_param_message`,
+      endpointId: DEFAULT_ENDPOINT_ID,
+      position: 0,
+      name: "message",
+      label: "Message",
+      description: "Message to echo back in later runtime slices.",
+      type: "string",
+      required: true,
+    },
+  });
+
+  await client.responseCase.upsert({
+    where: {
+      endpointId_name: {
+        endpointId: DEFAULT_ENDPOINT_ID,
+        name: "default",
+      },
+    },
+    update: {
+      priority: 0,
+      matchArgsJson: "{}",
+      responseJson: JSON.stringify({ ok: true, source: "default" }),
+      statusCode: 200,
+      delayMs: 0,
+      errorMode: "none",
+      errorStatusCode: null,
+      errorMessage: null,
+      errorBodyJson: null,
+      isDefault: true,
+    },
+    create: {
+      id: `${DEFAULT_ENDPOINT_ID}_case_default`,
+      endpointId: DEFAULT_ENDPOINT_ID,
+      name: "default",
+      priority: 0,
+      matchArgsJson: "{}",
+      responseJson: JSON.stringify({ ok: true, source: "default" }),
+      statusCode: 200,
+      delayMs: 0,
+      errorMode: "none",
+      isDefault: true,
+    },
+  });
+
+  await client.responseCase.upsert({
+    where: {
+      endpointId_name: {
+        endpointId: DEFAULT_ENDPOINT_ID,
+        name: "hello-world",
+      },
+    },
+    update: {
+      priority: 10,
+      matchArgsJson: JSON.stringify({ message: "hello" }),
+      responseJson: JSON.stringify({ ok: true, message: "world" }),
+      statusCode: 200,
+      delayMs: 0,
+      errorMode: "none",
+      errorStatusCode: null,
+      errorMessage: null,
+      errorBodyJson: null,
+      isDefault: false,
+    },
+    create: {
+      id: `${DEFAULT_ENDPOINT_ID}_case_hello`,
+      endpointId: DEFAULT_ENDPOINT_ID,
+      name: "hello-world",
+      priority: 10,
+      matchArgsJson: JSON.stringify({ message: "hello" }),
+      responseJson: JSON.stringify({ ok: true, message: "world" }),
+      statusCode: 200,
+      delayMs: 0,
+      errorMode: "none",
+      isDefault: false,
+    },
+  });
+}
+
+if (import.meta.url === `file://${process.argv[1]}`) {
+  await seedEndpointDefaults();
+  await prisma.$disconnect();
+}
+
+exec
+/bin/zsh -lc "sed -n '1,220p' tests/unit/db-prepare.test.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import assert from "node:assert/strict";
+import { execFile } from "node:child_process";
+import { mkdtemp } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { promisify } from "node:util";
+import test from "node:test";
+import { createPrismaClient } from "@/lib/db/client";
+
+const execFileAsync = promisify(execFile);
+
+async function runDbPrepare(databaseUrl: string) {
+  await execFileAsync("npm", ["run", "db:prepare"], {
+    env: { ...process.env, DATABASE_URL: databaseUrl },
+  });
+}
+
+test("db:prepare is repeatable and keeps endpoint seed rows singular", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "mcp-mock-db-"));
+  const databaseUrl = `file:${join(directory, "runtime.sqlite")}`;
+
+  await runDbPrepare(databaseUrl);
+  await runDbPrepare(databaseUrl);
+
+  const previousDatabaseUrl = process.env.DATABASE_URL;
+  process.env.DATABASE_URL = databaseUrl;
+  const prisma = createPrismaClient();
+
+  try {
+    assert.equal(await prisma.endpoint.count(), 1);
+    assert.equal(await prisma.endpointParam.count(), 1);
+    assert.equal(await prisma.responseCase.count(), 2);
+
+    const endpoint = await prisma.endpoint.findUniqueOrThrow({
+      where: { id: "endpoint_default_echo" },
+      include: { parameters: true, responseCases: true },
+    });
+
+    assert.equal(endpoint.name, "echo");
+    assert.equal(endpoint.title, "Echo");
+    assert.equal(endpoint.enabled, true);
+    assert.equal(endpoint.protectedDefault, true);
+    assert.equal(endpoint.parameters[0]?.position, 0);
+    assert.equal(endpoint.responseCases.some((responseCase) => responseCase.isDefault), true);
+
+    const helloCase = endpoint.responseCases.find((responseCase) => responseCase.name === "hello-world");
+    assert.equal(helloCase?.priority, 10);
+    assert.equal(helloCase?.delayMs, 0);
+    assert.equal(helloCase?.errorMode, "none");
+    assert.equal(helloCase?.errorStatusCode, null);
+  } finally {
+    await prisma.$disconnect();
+    if (previousDatabaseUrl === undefined) {
+      delete process.env.DATABASE_URL;
+    } else {
+      process.env.DATABASE_URL = previousDatabaseUrl;
+    }
+  }
+});
+
+exec
+/bin/zsh -lc "sed -n '1,220p' prisma.config.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import { defineConfig } from "prisma/config";
+
+const databaseUrl = process.env.DATABASE_URL ?? "file:./data/runtime.sqlite";
+
+export default defineConfig({
+  schema: "prisma/schema.prisma",
+  migrations: {
+    path: "prisma/migrations",
+  },
+  datasource: {
+    url: databaseUrl,
+  },
+});
+
+codex
+{"decision":"not_done","recommend_promotion":false,"confidence":0.35,"summary":"The core implementation appears narrowly scoped: Prisma/SQLite schema, two migrations, idempotent seed, generated schema docs, and a repeatability unit test are present. I am doing one last pass for contradictions such as lingering bootstrap persistence, schema drift, or out-of-scope feature changes.","satisfied_exit_criteria":["Prisma endpoint/parameter/response-case models are present with timestamps and seed defaults","db:prepare applies migrations, generates client, and runs the seed script","Unit coverage exercises repeatable db:prepare against an isolated SQLite database"],"missing_requirements":["Need final check for bootstrap placeholder replacement and docs/schema drift"],"human_review_triggers":[]}
+exec
+/bin/zsh -lc "rg -n \"bootstrap-state|bootstrap|createPrismaClient|DATABASE_URL|runtime.sqlite|sqlite|EndpointParam|deleteCode|failureMode\" . -g '"'!node_modules'"' -g '"'!state/artifacts/**'"' -g '"'!data/**'"'" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+./lib/db/client.ts:1:import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+./lib/db/client.ts:4:export const DEFAULT_DATABASE_URL = "file:./data/runtime.sqlite";
+./lib/db/client.ts:7:  return process.env.DATABASE_URL ?? DEFAULT_DATABASE_URL;
+./lib/db/client.ts:10:export function createPrismaClient() {
+./PRD/mcp_mock_server_prd.md:262:- better-sqlite3 with explicit migrations
+./PRD/mcp_mock_server_prd.md:285:| `deleteCode` | yes | 8-digit numeric code required to delete this endpoint. |
+./PRD/mcp_mock_server_prd.md:1628:  "deleteCode": "12345678",
+./PRD/mcp_mock_server_prd.md:1674:Request shape should match create endpoint, except `deleteCode` is optional unless changing it.
+./PRD/mcp_mock_server_prd.md:1688:  "deleteCode": "12345678"
+./PRD/mcp_mock_server_prd.md:2180:| `DATABASE_URL` | no | `file:./data/mcp-mock.sqlite` | SQLite database path. |
+./package-lock.json:11:        "@prisma/adapter-better-sqlite3": "^7.8.0",
+./package-lock.json:13:        "better-sqlite3": "^12.9.0",
+./package-lock.json:1454:    "node_modules/@prisma/adapter-better-sqlite3": {
+./package-lock.json:1456:      "resolved": "https://registry.npmjs.org/@prisma/adapter-better-sqlite3/-/adapter-better-sqlite3-7.8.0.tgz",
+./package-lock.json:1461:        "better-sqlite3": "^12.6.0"
+./package-lock.json:2806:    "node_modules/better-sqlite3": {
+./package-lock.json:2808:      "resolved": "https://registry.npmjs.org/better-sqlite3/-/better-sqlite3-12.9.0.tgz",
+./package-lock.json:6028:        "better-sqlite3": ">=9.0.0",
+./package-lock.json:6032:        "better-sqlite3": {
+./package.json:20:    "@prisma/adapter-better-sqlite3": "^7.8.0",
+./package.json:22:    "better-sqlite3": "^12.9.0",
+./prisma.config.ts:3:const databaseUrl = process.env.DATABASE_URL ?? "file:./data/runtime.sqlite";
+./app/page.tsx:1:import { getBootstrapStatus } from "@/lib/bootstrap-status";
+./prisma/seed.mjs:2:import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+./prisma/seed.mjs:6:const databaseUrl = process.env.DATABASE_URL ?? "file:./data/runtime.sqlite";
+./prisma/seed.mjs:19:      deleteCode: "12345678",
+./prisma/seed.mjs:21:      failureMode: "none",
+./prisma/seed.mjs:34:      deleteCode: "12345678",
+./state/evaluation.json:13:        "output": "\n> mina-mock-mcpserver@1.0.0 db:prepare\n> node scripts/db-prepare.mjs\n\nDatasource \"db\": SQLite database \"runtime.sqlite\" at \"file:./data/runtime.sqlite\"\n\n2 migrations found in prisma/migrations\n\n\nNo pending migrations to apply.\n\n✔ Generated Prisma Client (v7.8.0) to ./node_modules/@prisma/client in 42ms\n\nStart by importing your Prisma Client (See: https://pris.ly/d/importing-client)\n\n\nPrepared SQLite runtime state with Prisma migrations and endpoint seed defaults.\n"
+./state/evaluation.json:23:        "output": "\n> mina-mock-mcpserver@1.0.0 verify\n> npm run lint && npm run typecheck && npm run build && npm run test:unit && npm run test:e2e && npm run start:smoke\n\n\n> mina-mock-mcpserver@1.0.0 lint\n> eslint .\n\n\n> mina-mock-mcpserver@1.0.0 typecheck\n> tsc --noEmit\n\n\n> mina-mock-mcpserver@1.0.0 build\n> next build\n\n   ▲ Next.js 15.5.15\n\n   Creating an optimized production build ...\n ✓ Compiled successfully in 632ms\n   Linting and checking validity of types ...\n   Collecting page data ...\n   Generating static pages (0/5) ...\n   Generating static pages (1/5) \r\n   Generating static pages (2/5) \r\n   Generating static pages (3/5) \r\n ✓ Generating static pages (5/5)\n   Finalizing page optimization ...\n   Collecting build traces ...\n\nRoute (app)                                 Size  First Load JS\n┌ ○ /                                      124 B         102 kB\n├ ○ /_not-found                            999 B         103 kB\n└ ƒ /api/health                            124 B         102 kB\n+ First Load JS shared by all             102 kB\n  ├ chunks/255-4f212684648fcab9.js         46 kB\n  ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB\n  └ other shared chunks (total)          1.89 kB\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n\n\n> mina-mock-mcpserver@1.0.0 test:unit\n> node --import tsx --test \"tests/unit/**/*.test.ts\"\n\n✔ normalizeLogLevel accepts supported operator log levels (0.345708ms)\n✔ normalizeLogLevel defaults invalid input to info (0.05625ms)\n✔ getBootstrapStatus reports prepared foundation state (0.053041ms)\n✔ db:prepare is repeatable and keeps endpoint seed rows singular (2800.356292ms)\nℹ tests 4\nℹ suites 0\nℹ pass 4\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 2914.962917\n\n> mina-mock-mcpserver@1.0.0 test:e2e\n> playwright test\n\n\nRunning 2 tests using 1 worker\n\n  ✓  1 [chromium] › tests/e2e/bootstrap.spec.ts:3:5 › foundation dashboard renders planned MCP mock server surfaces (514ms)\n  ✓  2 [chromium] › tests/e2e/bootstrap.spec.ts:11:5 › health endpoint reports ok status (227ms)\n\n  2 passed (3.2s)\n\n> mina-mock-mcpserver@1.0.0 start:smoke\n> node scripts/start-smoke.mjs\n\n\n> mina-mock-mcpserver@1.0.0 db:prepare\n> node scripts/db-prepare.mjs\n\nDatasource \"db\": SQLite database \"runtime.sqlite\" at \"file:./data/runtime.sqlite\"\n\n2 migrations found in prisma/migrations\n\n\nNo pending migrations to apply.\n\n✔ Generated Prisma Client (v7.8.0) to ./node_modules/@prisma/client in 34ms\n\nStart by importing your Prisma Client (See: https://pris.ly/d/importing-client)\n\n\nPrepared SQLite runtime state with Prisma migrations and endpoint seed defaults.\n\n> mina-mock-mcpserver@1.0.0 build\n> next build\n\n   ▲ Next.js 15.5.15\n\n   Creating an optimized production build ...\n ✓ Compiled successfully in 622ms\n   Linting and checking validity of types ...\n   Collecting page data ...\n   Generating static pages (0/5) ...\n   Generating static pages (1/5) \r\n   Generating static pages (2/5) \r\n   Generating static pages (3/5) \r\n ✓ Generating static pages (5/5)\n   Finalizing page optimization ...\n   Collecting build traces ...\n\nRoute (app)                                 Size  First Load JS\n┌ ○ /                                      124 B         102 kB\n├ ○ /_not-found                            999 B         103 kB\n└ ƒ /api/health                            124 B         102 kB\n+ First Load JS shared by all             102 kB\n  ├ chunks/255-4f212684648fcab9.js         46 kB\n  ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB\n  └ other shared chunks (total)          1.89 kB\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n\n   ▲ Next.js 15.5.15\n   - Local:        http://localhost:3100\n   - Network:      http://192.168.100.125:3100\n\n ✓ Starting...\n ✓ Ready in 250ms\nProduction-style startup smoke passed at http://127.0.0.1:3100/api/health\n",
+./state/evaluation.json:45:      "`docs/generated/db-schema.md` matches the implemented `Endpoint`, `EndpointParam`, and `ResponseCase` persistence shape and seed defaults.",
+./docs/generated/db-schema.md:8:- Default URL: `file:./data/runtime.sqlite`.
+./docs/generated/db-schema.md:11:- Persistence source of truth: SQLite. `data/bootstrap-state.json` is no longer used by `db:prepare`.
+./docs/generated/db-schema.md:25:| `deleteCode` | `String?` | Endpoint delete-code storage for later protected delete flows. |
+./docs/generated/db-schema.md:27:| `failureMode` | `String` | Basic failure simulation mode placeholder, seeded as `none`. |
+./docs/generated/db-schema.md:35:## EndpointParam
+./prisma/schema.prisma:6:  provider = "sqlite"
+./prisma/schema.prisma:16:  deleteCode            String?
+./prisma/schema.prisma:18:  failureMode           String          @default("none")
+./prisma/schema.prisma:25:  parameters            EndpointParam[]
+./prisma/schema.prisma:29:model EndpointParam {
+./state/backlog.md:3:- [x] bootstrap-foundation — Bootstrap Next.js TypeScript Harness
+./app/api/health/route.ts:2:import { getBootstrapStatus } from "@/lib/bootstrap-status";
+./tests/unit/bootstrap-status.test.ts:3:import { getBootstrapStatus, normalizeLogLevel } from "@/lib/bootstrap-status";
+./tests/unit/db-prepare.test.ts:8:import { createPrismaClient } from "@/lib/db/client";
+./tests/unit/db-prepare.test.ts:14:    env: { ...process.env, DATABASE_URL: databaseUrl },
+./tests/unit/db-prepare.test.ts:20:  const databaseUrl = `file:${join(directory, "runtime.sqlite")}`;
+./tests/unit/db-prepare.test.ts:25:  const previousDatabaseUrl = process.env.DATABASE_URL;
+./tests/unit/db-prepare.test.ts:26:  process.env.DATABASE_URL = databaseUrl;
+./tests/unit/db-prepare.test.ts:27:  const prisma = createPrismaClient();
+./tests/unit/db-prepare.test.ts:54:      delete process.env.DATABASE_URL;
+./tests/unit/db-prepare.test.ts:56:      process.env.DATABASE_URL = previousDatabaseUrl;
+./prisma/migrations/202605050001_endpoint_persistence/migration.sql:8:  "deleteCode" TEXT,
+./prisma/migrations/202605050001_endpoint_persistence/migration.sql:10:  "failureMode" TEXT NOT NULL DEFAULT 'none',
+./prisma/migrations/202605050001_endpoint_persistence/migration.sql:19:CREATE TABLE "EndpointParam" (
+./prisma/migrations/202605050001_endpoint_persistence/migration.sql:31:  CONSTRAINT "EndpointParam_endpointId_fkey" FOREIGN KEY ("endpointId") REFERENCES "Endpoint" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+./prisma/migrations/202605050001_endpoint_persistence/migration.sql:48:CREATE UNIQUE INDEX "EndpointParam_endpointId_position_key" ON "EndpointParam"("endpointId", "position");
+./prisma/migrations/202605050001_endpoint_persistence/migration.sql:49:CREATE UNIQUE INDEX "EndpointParam_endpointId_name_key" ON "EndpointParam"("endpointId", "name");
+./prisma/migrations/202605050001_endpoint_persistence/migration.sql:50:CREATE INDEX "EndpointParam_endpointId_idx" ON "EndpointParam"("endpointId");
+./scripts/ralph/generated/current-task-prompt.txt:14:Replace the bootstrap runtime placeholder with durable SQLite/Prisma persistence for endpoint/tool data and deterministic seed defaults.
+./scripts/ralph/generated/current-task-prompt.txt:29:- Do not keep using `data/bootstrap-state.json` as the real persistence mechanism after this task.
+./scripts/ralph/generated/current-evaluator-prompt.txt:16:Replace the bootstrap runtime placeholder with durable SQLite/Prisma persistence for endpoint/tool data and deterministic seed defaults.
+./scripts/ralph/generated/current-evaluator-prompt.txt:52:      "output": "\n> mina-mock-mcpserver@1.0.0 db:prepare\n> node scripts/db-prepare.mjs\n\nDatasource \"db\": SQLite database \"runtime.sqlite\" at \"file:./data/runtime.sqlite\"\n\n2 migrations found in prisma/migrations\n\n\nNo pending migrations to apply.\n\n✔ Generated Prisma Client (v7.8.0) to ./node_modules/@prisma/client in 43ms\n\nStart by importing your Prisma Client (See: https://pris.ly/d/importing-client)\n\n\nPrepared SQLite runtime state with Prisma migrations and endpoint seed defaults.\n"
+./scripts/ralph/generated/current-evaluator-prompt.txt:62:      "output": "\n> mina-mock-mcpserver@1.0.0 verify\n> npm run lint && npm run typecheck && npm run build && npm run test:unit && npm run test:e2e && npm run start:smoke\n\n\n> mina-mock-mcpserver@1.0.0 lint\n> eslint .\n\n\n> mina-mock-mcpserver@1.0.0 typecheck\n> tsc --noEmit\n\n\n> mina-mock-mcpserver@1.0.0 build\n> next build\n\n   ▲ Next.js 15.5.15\n\n   Creating an optimized production build ...\n ✓ Compiled successfully in 540ms\n   Linting and checking validity of types ...\n   Collecting page data ...\n   Generating static pages (0/5) ...\n   Generating static pages (1/5) \r\n   Generating static pages (2/5) \r\n   Generating static pages (3/5) \r\n ✓ Generating static pages (5/5)\n   Finalizing page optimization ...\n   Collecting build traces ...\n\nRoute (app)                                 Size  First Load JS\n┌ ○ /                                      124 B         102 kB\n├ ○ /_not-found                            999 B         103 kB\n└ ƒ /api/health                            124 B         102 kB\n+ First Load JS shared by all             102 kB\n  ├ chunks/255-4f212684648fcab9.js         46 kB\n  ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB\n  └ other shared chunks (total)          1.89 kB\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n\n\n> mina-mock-mcpserver@1.0.0 test:unit\n> node --import tsx --test \"tests/unit/**/*.test.ts\"\n\n✔ normalizeLogLevel accepts supported operator log levels (0.312667ms)\n✔ normalizeLogLevel defaults invalid input to info (0.053917ms)\n✔ getBootstrapStatus reports prepared foundation state (0.051708ms)\n✔ db:prepare is repeatable and keeps endpoint seed rows singular (2809.51225ms)\nℹ tests 4\nℹ suites 0\nℹ pass 4\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 2924.30925\n\n> mina-mock-mcpserver@1.0.0 test:e2e\n> playwright test\n\n\nRunning 2 tests using 1 worker\n\n  ✓  1 [chromium] › tests/e2e/bootstrap.spec.ts:3:5 › foundation dashboard renders planned MCP mock server surfaces (447ms)\n  ✓  2 [chromium] › tests/e2e/bootstrap.spec.ts:11:5 › health endpoint reports ok status (231ms)\n\n  2 passed (3.1s)\n\n> mina-mock-mcpserver@1.0.0 start:smoke\n> node scripts/start-smoke.mjs\n\n\n> mina-mock-mcpserver@1.0.0 db:prepare\n> node scripts/db-prepare.mjs\n\nDatasource \"db\": SQLite database \"runtime.sqlite\" at \"file:./data/runtime.sqlite\"\n\n2 migrations found in prisma/migrations\n\n\nNo pending migrations to apply.\n\n✔ Generated Prisma Client (v7.8.0) to ./node_modules/@prisma/client in 36ms\n\nStart by importing your Prisma Client (See: https://pris.ly/d/importing-client)\n\n\nPrepared SQLite runtime state with Prisma migrations and endpoint seed defaults.\n\n> mina-mock-mcpserver@1.0.0 build\n> next build\n\n   ▲ Next.js 15.5.15\n\n   Creating an optimized production build ...\n ✓ Compiled successfully in 522ms\n   Linting and checking validity of types ...\n   Collecting page data ...\n   Generating static pages (0/5) ...\n   Generating static pages (1/5) \r\n   Generating static pages (2/5) \r\n   Generating static pages (3/5) \r\n ✓ Generating static pages (5/5)\n   Finalizing page optimization ...\n   Collecting build traces ...\n\nRoute (app)                                 Size  First Load JS\n┌ ○ /                                      124 B         102 kB\n├ ○ /_not-found                            999 B         103 kB\n└ ƒ /api/health                            124 B         102 kB\n+ First Load JS shared by all             102 kB\n  ├ chunks/255-4f212684648fcab9.js         46 kB\n  ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB\n  └ other shared chunks (total)          1.89 kB\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n\n   ▲ Next.js 15.5.15\n   - Local:        http://localhost:3100\n   - Network:      http://192.168.100.125:3100\n\n ✓ Starting...\n ✓ Ready in 253ms\nProduction-style startup smoke passed at http://127.0.0.1:3100/api/health\n",
+./state/deterministic-checks.json:8:      "output": "\n> mina-mock-mcpserver@1.0.0 db:prepare\n> node scripts/db-prepare.mjs\n\nDatasource \"db\": SQLite database \"runtime.sqlite\" at \"file:./data/runtime.sqlite\"\n\n2 migrations found in prisma/migrations\n\n\nNo pending migrations to apply.\n\n✔ Generated Prisma Client (v7.8.0) to ./node_modules/@prisma/client in 43ms\n\nStart by importing your Prisma Client (See: https://pris.ly/d/importing-client)\n\n\nPrepared SQLite runtime state with Prisma migrations and endpoint seed defaults.\n"
+./state/deterministic-checks.json:18:      "output": "\n> mina-mock-mcpserver@1.0.0 verify\n> npm run lint && npm run typecheck && npm run build && npm run test:unit && npm run test:e2e && npm run start:smoke\n\n\n> mina-mock-mcpserver@1.0.0 lint\n> eslint .\n\n\n> mina-mock-mcpserver@1.0.0 typecheck\n> tsc --noEmit\n\n\n> mina-mock-mcpserver@1.0.0 build\n> next build\n\n   ▲ Next.js 15.5.15\n\n   Creating an optimized production build ...\n ✓ Compiled successfully in 540ms\n   Linting and checking validity of types ...\n   Collecting page data ...\n   Generating static pages (0/5) ...\n   Generating static pages (1/5) \r\n   Generating static pages (2/5) \r\n   Generating static pages (3/5) \r\n ✓ Generating static pages (5/5)\n   Finalizing page optimization ...\n   Collecting build traces ...\n\nRoute (app)                                 Size  First Load JS\n┌ ○ /                                      124 B         102 kB\n├ ○ /_not-found                            999 B         103 kB\n└ ƒ /api/health                            124 B         102 kB\n+ First Load JS shared by all             102 kB\n  ├ chunks/255-4f212684648fcab9.js         46 kB\n  ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB\n  └ other shared chunks (total)          1.89 kB\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n\n\n> mina-mock-mcpserver@1.0.0 test:unit\n> node --import tsx --test \"tests/unit/**/*.test.ts\"\n\n✔ normalizeLogLevel accepts supported operator log levels (0.312667ms)\n✔ normalizeLogLevel defaults invalid input to info (0.053917ms)\n✔ getBootstrapStatus reports prepared foundation state (0.051708ms)\n✔ db:prepare is repeatable and keeps endpoint seed rows singular (2809.51225ms)\nℹ tests 4\nℹ suites 0\nℹ pass 4\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 2924.30925\n\n> mina-mock-mcpserver@1.0.0 test:e2e\n> playwright test\n\n\nRunning 2 tests using 1 worker\n\n  ✓  1 [chromium] › tests/e2e/bootstrap.spec.ts:3:5 › foundation dashboard renders planned MCP mock server surfaces (447ms)\n  ✓  2 [chromium] › tests/e2e/bootstrap.spec.ts:11:5 › health endpoint reports ok status (231ms)\n\n  2 passed (3.1s)\n\n> mina-mock-mcpserver@1.0.0 start:smoke\n> node scripts/start-smoke.mjs\n\n\n> mina-mock-mcpserver@1.0.0 db:prepare\n> node scripts/db-prepare.mjs\n\nDatasource \"db\": SQLite database \"runtime.sqlite\" at \"file:./data/runtime.sqlite\"\n\n2 migrations found in prisma/migrations\n\n\nNo pending migrations to apply.\n\n✔ Generated Prisma Client (v7.8.0) to ./node_modules/@prisma/client in 36ms\n\nStart by importing your Prisma Client (See: https://pris.ly/d/importing-client)\n\n\nPrepared SQLite runtime state with Prisma migrations and endpoint seed defaults.\n\n> mina-mock-mcpserver@1.0.0 build\n> next build\n\n   ▲ Next.js 15.5.15\n\n   Creating an optimized production build ...\n ✓ Compiled successfully in 522ms\n   Linting and checking validity of types ...\n   Collecting page data ...\n   Generating static pages (0/5) ...\n   Generating static pages (1/5) \r\n   Generating static pages (2/5) \r\n   Generating static pages (3/5) \r\n ✓ Generating static pages (5/5)\n   Finalizing page optimization ...\n   Collecting build traces ...\n\nRoute (app)                                 Size  First Load JS\n┌ ○ /                                      124 B         102 kB\n├ ○ /_not-found                            999 B         103 kB\n└ ƒ /api/health                            124 B         102 kB\n+ First Load JS shared by all             102 kB\n  ├ chunks/255-4f212684648fcab9.js         46 kB\n  ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB\n  └ other shared chunks (total)          1.89 kB\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n\n   ▲ Next.js 15.5.15\n   - Local:        http://localhost:3100\n   - Network:      http://192.168.100.125:3100\n\n ✓ Starting...\n ✓ Ready in 253ms\nProduction-style startup smoke passed at http://127.0.0.1:3100/api/health\n",
+./state/evaluation.llm.json:1:{"decision":"done","recommend_promotion":true,"confidence":0.92,"summary":"The endpoint persistence task is complete in substance. The repository has Prisma/SQLite wiring, migrations, deterministic db preparation, a generated client setup, an idempotent protected enabled endpoint seed, generated schema documentation matching the implemented models, and repeatability coverage. The provided deterministic gate summary reports all required commands passing, and the inspected implementation stays within the endpoint persistence scope.","satisfied_exit_criteria":["`npm run db:prepare` is implemented through `scripts/db-prepare.mjs`, creating `data/`, applying Prisma migrations, generating Prisma Client, and running endpoint seed defaults.","Repeatability is covered by `tests/unit/db-prepare.test.ts`, which runs `db:prepare` twice against an isolated SQLite database and verifies singular endpoint, parameter, and response-case seed rows.","The Prisma schema represents endpoint names, titles, descriptions, enabled state, immutable IDs, delete codes, default responses, timestamps, ordered parameters, response cases, and basic endpoint/case failure config fields.","`docs/generated/db-schema.md` matches the implemented `Endpoint`, `EndpointParam`, and `ResponseCase` persistence shape and seed defaults.","Required gates are reported passing: `npm run db:prepare`, `npm run test:unit`, and `npm run verify`.","The task maps directly to the endpoint/tool management product spec and does not include broad out-of-scope UI, runtime, auth, or reset behavior."],"missing_requirements":[],"human_review_triggers":[]}
+./state/task-history.md:3:- 2026-05-05T06:51:57+00:00: bootstrap finalized bootstrap-foundation -> endpoint-domain-and-schema
+./docs/exec-plans/active/001-endpoint-domain-and-schema.md:35:Replace the bootstrap runtime placeholder with durable SQLite/Prisma persistence for endpoint/tool data and deterministic seed defaults.
+./docs/exec-plans/active/001-endpoint-domain-and-schema.md:53:- Do not keep using `data/bootstrap-state.json` as the real persistence mechanism after this task.
+./docs/exec-plans/active/001-endpoint-domain-and-schema.md:109:- 2026-05-05T17:05:00+09:00 - Found only the bootstrap placeholder (`scripts/db-prepare.mjs` writing `data/bootstrap-state.json`) and reused the existing `db:prepare` command name while replacing its implementation with Prisma migration/client/seed preparation.
+./docs/exec-plans/completed/bootstrap-foundation.md:5:  "id": "bootstrap-foundation",
+./docs/exec-plans/completed/bootstrap-foundation.md:80:- 2026-05-05T06:51:57+00:00: automatically completed by the bootstrap skill after docs, scaffold, Ralph wiring, and verify succeeded.
+./docs/exec-plans/active/index.md:3:This directory contains only runnable feature and hardening tasks. The completed bootstrap/foundation task is preserved under `docs/exec-plans/completed/` and must not be re-added here.
+./docs/exec-plans/active/index.md:8:1. `001-endpoint-domain-and-schema.md` -> `endpoint-domain-and-schema` -> Replace the bootstrap runtime placeholder with durable SQLite/Prisma persistence for endpoint/tool data and deterministic seed defaults.
+
+exec
+/bin/zsh -lc "sed -n '1,220p' lib/db/client.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaClient } from "@prisma/client";
+
+export const DEFAULT_DATABASE_URL = "file:./data/runtime.sqlite";
+
+export function getDatabaseUrl() {
+  return process.env.DATABASE_URL ?? DEFAULT_DATABASE_URL;
+}
+
+export function createPrismaClient() {
+  const adapter = new PrismaBetterSqlite3({ url: getDatabaseUrl() });
+  return new PrismaClient({ adapter });
+}
+
+exec
+/bin/zsh -lc "sed -n '1,220p' prisma/migrations/202605050001_endpoint_persistence/migration.sql && sed -n '1,220p' prisma/migrations/202605050002_endpoint_title_response_case_config/migration.sql" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+-- Endpoint catalog persistence foundation.
+CREATE TABLE "Endpoint" (
+  "id" TEXT NOT NULL PRIMARY KEY,
+  "name" TEXT NOT NULL,
+  "description" TEXT NOT NULL DEFAULT '',
+  "enabled" BOOLEAN NOT NULL DEFAULT true,
+  "protectedDefault" BOOLEAN NOT NULL DEFAULT false,
+  "deleteCode" TEXT,
+  "defaultResponseJson" TEXT NOT NULL DEFAULT '{}',
+  "failureMode" TEXT NOT NULL DEFAULT 'none',
+  "failureStatusCode" INTEGER,
+  "failureDelayMs" INTEGER NOT NULL DEFAULT 0,
+  "failureMessage" TEXT,
+  "malformedResponseJson" TEXT,
+  "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "updatedAt" DATETIME NOT NULL
+);
+
+CREATE TABLE "EndpointParam" (
+  "id" TEXT NOT NULL PRIMARY KEY,
+  "endpointId" TEXT NOT NULL,
+  "position" INTEGER NOT NULL,
+  "name" TEXT NOT NULL,
+  "label" TEXT,
+  "description" TEXT NOT NULL DEFAULT '',
+  "type" TEXT NOT NULL DEFAULT 'string',
+  "required" BOOLEAN NOT NULL DEFAULT false,
+  "defaultValueJson" TEXT,
+  "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "updatedAt" DATETIME NOT NULL,
+  CONSTRAINT "EndpointParam_endpointId_fkey" FOREIGN KEY ("endpointId") REFERENCES "Endpoint" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE "ResponseCase" (
+  "id" TEXT NOT NULL PRIMARY KEY,
+  "endpointId" TEXT NOT NULL,
+  "name" TEXT NOT NULL,
+  "matchArgsJson" TEXT NOT NULL DEFAULT '{}',
+  "responseJson" TEXT NOT NULL,
+  "statusCode" INTEGER NOT NULL DEFAULT 200,
+  "isDefault" BOOLEAN NOT NULL DEFAULT false,
+  "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "updatedAt" DATETIME NOT NULL,
+  CONSTRAINT "ResponseCase_endpointId_fkey" FOREIGN KEY ("endpointId") REFERENCES "Endpoint" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE UNIQUE INDEX "Endpoint_name_key" ON "Endpoint"("name");
+CREATE UNIQUE INDEX "EndpointParam_endpointId_position_key" ON "EndpointParam"("endpointId", "position");
+CREATE UNIQUE INDEX "EndpointParam_endpointId_name_key" ON "EndpointParam"("endpointId", "name");
+CREATE INDEX "EndpointParam_endpointId_idx" ON "EndpointParam"("endpointId");
+CREATE UNIQUE INDEX "ResponseCase_endpointId_name_key" ON "ResponseCase"("endpointId", "name");
+CREATE INDEX "ResponseCase_endpointId_idx" ON "ResponseCase"("endpointId");
+-- Add PRD-backed endpoint display title and response-case execution config.
+ALTER TABLE "Endpoint" ADD COLUMN "title" TEXT NOT NULL DEFAULT '';
+
+ALTER TABLE "ResponseCase" ADD COLUMN "priority" INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE "ResponseCase" ADD COLUMN "delayMs" INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE "ResponseCase" ADD COLUMN "errorMode" TEXT NOT NULL DEFAULT 'none';
+ALTER TABLE "ResponseCase" ADD COLUMN "errorStatusCode" INTEGER;
+ALTER TABLE "ResponseCase" ADD COLUMN "errorMessage" TEXT;
+ALTER TABLE "ResponseCase" ADD COLUMN "errorBodyJson" TEXT;
+
+CREATE INDEX "ResponseCase_endpointId_priority_idx" ON "ResponseCase"("endpointId", "priority");
+
+exec
+/bin/zsh -lc 'git status --short' in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+git: warning: confstr() failed with code 5: couldn't get path of DARWIN_USER_TEMP_DIR; using /tmp instead
+git: error: couldn't create cache file '/tmp/xcrun_db-OtdutoPx' (errno=Operation not permitted)
+git: warning: confstr() failed with code 5: couldn't get path of DARWIN_USER_TEMP_DIR; using /tmp instead
+git: error: couldn't create cache file '/tmp/xcrun_db-f8MHXqMQ' (errno=Operation not permitted)
+ M docs/exec-plans/active/001-endpoint-domain-and-schema.md
+ M scripts/ralph/generated/current-evaluator-prompt.txt
+ M scripts/ralph/generated/current-task-prompt.txt
+ M state/artifacts/20260505T162122-endpoint-domain-and-schema/commit.log
+ M state/current-cycle.json
+ M state/deterministic-checks.json
+ M state/last-result.txt
+ M state/run-log.md
+?? state/artifacts/20260505T162122-endpoint-domain-and-schema/backlog.log
+?? state/artifacts/20260505T162122-endpoint-domain-and-schema/promote.log
+?? state/artifacts/20260505T162727-endpoint-domain-and-schema/
+
+exec
+/bin/zsh -lc "sed -n '250,330p' PRD/mcp_mock_server_prd.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+2. **NestJS**
+   - stronger structure
+   - useful if the codebase will grow
+
+For MVP, **Fastify + TypeScript** is recommended.
+
+### 7.5 Recommended Database Layer
+
+Use one of:
+
+- Prisma with SQLite
+- Drizzle ORM with SQLite
+- better-sqlite3 with explicit migrations
+
+For fast delivery and clear schema migration, **Prisma + SQLite** is recommended.
+
+---
+
+## 8. Functional Requirements
+
+## 8.1 Endpoint / Tool Management
+
+### FR-ENDPOINT-001: Create Mock Endpoint
+
+The Web UI must allow any public user to create a mock endpoint.
+
+Required fields:
+
+| Field | Required | Description |
+|---|---:|---|
+| `name` | yes | Unique MCP tool name. |
+| `title` | no | Human-readable display name. |
+| `description` | yes | Description shown in MCP `tools/list`. |
+| `parameters` | no | Up to three parameters. |
+| `responseCases` | yes | At least one response case or default response. |
+| `deleteCode` | yes | 8-digit numeric code required to delete this endpoint. |
+| `enabled` | yes | Whether the endpoint is exposed to clients. |
+
+Validation:
+
+- `name` must be unique.
+- `name` should match `^[a-zA-Z0-9_-]{1,64}$`.
+- Parameter count must be between 0 and 3.
+- Parameter names must be unique within the endpoint.
+- Delete code must be exactly 8 digits.
+- Return JSON must be valid JSON unless intentionally configured as a malformed response test.
+
+### FR-ENDPOINT-002: Edit Mock Endpoint
+
+The Web UI must allow any public user to edit an endpoint.
+
+Editable fields:
+
+- title
+- description
+- enabled status
+- parameters
+- response cases
+- artificial delay
+- error simulation settings
+- default no-match behavior
+
+The endpoint `name` should be editable only if no issued OAuth token currently references the endpoint by name. To avoid permission drift, the system should internally use immutable endpoint IDs and expose names separately.
+
+### FR-ENDPOINT-003: Delete Mock Endpoint
+
+Deleting an endpoint must require one of:
+
+1. the endpoint’s 8-digit delete code
+2. the root password from environment variable
+
+If deletion succeeds:
+
+- endpoint is removed from `tools/list`
+- OAuth client allowed-endpoint mappings are cleaned up
+- issued tokens referencing the endpoint remain historically viewable, but calls using those tokens must fail with `403` or tool-not-found depending on route behavior
+
+### FR-ENDPOINT-004: Reset to Default
+
+The Web UI must include a **Reset to Default** button.
+
+
+exec
+/bin/zsh -lc "sed -n '1600,1705p' PRD/mcp_mock_server_prd.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+      "title": "Get Weather",
+      "description": "Returns mock weather data",
+      "enabled": true,
+      "parameterCount": 1,
+      "responseCaseCount": 2,
+      "createdAt": "2026-05-05T00:00:00.000Z",
+      "updatedAt": "2026-05-05T00:00:00.000Z"
+    }
+  ]
+}
+```
+
+---
+
+### Create Endpoint
+
+```text
+POST /api/endpoints
+```
+
+Request:
+
+```json
+{
+  "name": "get_weather",
+  "title": "Get Weather",
+  "description": "Returns mock weather data",
+  "enabled": true,
+  "deleteCode": "12345678",
+  "parameters": [
+    {
+      "name": "city",
+      "type": "string",
+      "description": "City name",
+      "required": true
+    }
+  ],
+  "responseCases": [
+    {
+      "caseName": "Seoul weather",
+      "priority": 1,
+      "matchJson": {
+        "city": "Seoul"
+      },
+      "responseJson": {
+        "city": "Seoul",
+        "temperature": 22,
+        "condition": "Sunny"
+      },
+      "isDefault": false,
+      "delayMs": 0,
+      "errorEnabled": false
+    }
+  ]
+}
+```
+
+Response:
+
+```json
+{
+  "id": "endpoint_uuid",
+  "name": "get_weather"
+}
+```
+
+---
+
+### Update Endpoint
+
+```text
+PUT /api/endpoints/:id
+```
+
+Request shape should match create endpoint, except `deleteCode` is optional unless changing it.
+
+---
+
+### Delete Endpoint
+
+```text
+DELETE /api/endpoints/:id
+```
+
+Request:
+
+```json
+{
+  "deleteCode": "12345678"
+}
+```
+
+Alternative root deletion:
+
+```json
+{
+  "rootPassword": "ROOT_PASSWORD_FROM_ENV"
+}
+```
+
+Response:
+
+```json
+{
+  "deleted": true
+}
+
+exec
+/bin/zsh -lc 'rg -n "failure|delay|malformed|timeout|ResponseCase|default response|parameters|up to three|3" PRD/mcp_mock_server_prd.md docs/product-specs/endpoint-tool-management.md docs/references/prd-analysis.md' in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+docs/references/prd-analysis.md:15:- Endpoint/tool management with parameters, response cases, delete protection, reset, and generated MCP schema.
+docs/references/prd-analysis.md:20:- Failure simulation for delays, forced errors, timeouts, malformed responses, and audit evidence.
+docs/references/prd-analysis.md:26:- OAuth permission behavior needs E2E proof before promotion: allowed endpoint succeeds, denied endpoint returns `403`, revoked/expired/invalid token returns `401`.
+PRD/mcp_mock_server_prd.md:19:3. **Mock OAuth2/OAuth 2.1-style authentication with JWT access tokens**
+PRD/mcp_mock_server_prd.md:25:The product is not intended to be a secure production authorization service. It is a realistic, configurable, public mock server for testing MCP client behavior, authentication handling, token handling, endpoint-level OAuth permissions, and failure scenarios.
+PRD/mcp_mock_server_prd.md:39:For MCP authorization, the product should expose OAuth-style discovery metadata where feasible. The MCP authorization specification describes MCP servers as OAuth resource servers, recommends authorization-server discovery, and requires bearer tokens to be sent in the `Authorization` header for protected requests. It also defines `401 Unauthorized` for missing or invalid authorization and `403 Forbidden` for insufficient permissions/scopes. ([modelcontextprotocol.io](https://modelcontextprotocol.io/specification/2025-11-25/basic/authorization))
+PRD/mcp_mock_server_prd.md:43:## 3. Goals
+PRD/mcp_mock_server_prd.md:45:### 3.1 Primary Goals
+PRD/mcp_mock_server_prd.md:51:3. Define up to **three parameters per tool**.
+PRD/mcp_mock_server_prd.md:64:11. Simulate failure scenarios such as invalid tokens, expired tokens, permission denial, forced server errors, artificial delays, and malformed responses.
+PRD/mcp_mock_server_prd.md:66:13. Support deployment behind Nginx with TLS termination at the proxy.
+PRD/mcp_mock_server_prd.md:76:3. Provide true multi-tenant isolation in MVP.
+PRD/mcp_mock_server_prd.md:103:### 5.3 Demo or QA User
+PRD/mcp_mock_server_prd.md:133:- up to three parameters
+PRD/mcp_mock_server_prd.md:135:- optional default response
+PRD/mcp_mock_server_prd.md:136:- optional artificial delay
+PRD/mcp_mock_server_prd.md:138:- optional malformed response behavior
+PRD/mcp_mock_server_prd.md:154:3. **OAuth Bearer**
+PRD/mcp_mock_server_prd.md:162:### 6.3 Unified and Strict MCP Routes
+PRD/mcp_mock_server_prd.md:171:| `/mcp/oauth` | Requires valid Bearer token. Missing/invalid token returns `401`; insufficient endpoint permission returns `403`. |
+PRD/mcp_mock_server_prd.md:207:http://localhost:3000
+PRD/mcp_mock_server_prd.md:213:API server, internal port 3001
+PRD/mcp_mock_server_prd.md:219:The default Docker deployment should expose only port `3000`. The Next.js gateway should serve the SPA and proxy backend requests to the API server.
+PRD/mcp_mock_server_prd.md:221:### 7.3 Recommended Monorepo Structure
+PRD/mcp_mock_server_prd.md:262:- better-sqlite3 with explicit migrations
+PRD/mcp_mock_server_prd.md:283:| `parameters` | no | Up to three parameters. |
+PRD/mcp_mock_server_prd.md:284:| `responseCases` | yes | At least one response case or default response. |
+PRD/mcp_mock_server_prd.md:292:- Parameter count must be between 0 and 3.
+PRD/mcp_mock_server_prd.md:295:- Return JSON must be valid JSON unless intentionally configured as a malformed response test.
+PRD/mcp_mock_server_prd.md:306:- parameters
+PRD/mcp_mock_server_prd.md:308:- artificial delay
+PRD/mcp_mock_server_prd.md:314:### FR-ENDPOINT-003: Delete Mock Endpoint
+PRD/mcp_mock_server_prd.md:325:- issued tokens referencing the endpoint remain historically viewable, but calls using those tokens must fail with `403` or tool-not-found depending on route behavior
+PRD/mcp_mock_server_prd.md:353:| `delayMs` | Optional artificial delay. |
+PRD/mcp_mock_server_prd.md:360:3. Extra client arguments are ignored by default in MVP, but this should be configurable.
+PRD/mcp_mock_server_prd.md:411:MVP should make all defined parameters required by default, with an optional future setting for required/optional parameters.
+PRD/mcp_mock_server_prd.md:446:### FR-AUTH-003: OAuth Bearer Mode
+PRD/mcp_mock_server_prd.md:475:3. If `Authorization` starts with `Bearer`, validate OAuth token.
+PRD/mcp_mock_server_prd.md:492:- valid token without endpoint permission returns `403`
+PRD/mcp_mock_server_prd.md:496:## 8.3 OAuth Mock Requirements
+PRD/mcp_mock_server_prd.md:528:### FR-OAUTH-003: Built-in OAuth Client
+PRD/mcp_mock_server_prd.md:588:Authorization request parameters:
+PRD/mcp_mock_server_prd.md:676:  "expires_in": 3600,
+PRD/mcp_mock_server_prd.md:712:  "exp": 1770003600,
+PRD/mcp_mock_server_prd.md:865:### FR-MCP-003: Initialized Notification
+PRD/mcp_mock_server_prd.md:938:  "id": 3,
+PRD/mcp_mock_server_prd.md:954:  "id": 3,
+PRD/mcp_mock_server_prd.md:983:    "code": -32601,
+PRD/mcp_mock_server_prd.md:996:  "id": 3,
+PRD/mcp_mock_server_prd.md:998:    "code": -32602,
+PRD/mcp_mock_server_prd.md:1004:or a tool execution error depending on implementation preference. MVP should use JSON-RPC `-32602` for unknown tool names because the `tools/call` parameters are invalid.
+PRD/mcp_mock_server_prd.md:1013:403 Forbidden
+PRD/mcp_mock_server_prd.md:1021:  "id": 3,
+PRD/mcp_mock_server_prd.md:1023:    "code": -32003,
+PRD/mcp_mock_server_prd.md:1055:    "code": -32001,
+PRD/mcp_mock_server_prd.md:1100:      "parameters": [
+PRD/mcp_mock_server_prd.md:1138:### FR-REST-003: REST Error Responses
+PRD/mcp_mock_server_prd.md:1182:Each endpoint and each response case may define `delayMs`.
+PRD/mcp_mock_server_prd.md:1186:- `delayMs` default is `0`.
+PRD/mcp_mock_server_prd.md:1205:### FR-FAIL-003: Timeout Simulation
+PRD/mcp_mock_server_prd.md:1207:Timeout is simulated using large `delayMs`.
+PRD/mcp_mock_server_prd.md:1212:Simulate timeout: delay response by 30 seconds
+PRD/mcp_mock_server_prd.md:1217:For negative testing, an endpoint may be configured to return malformed data.
+PRD/mcp_mock_server_prd.md:1240:3. Basic Auth Users
+PRD/mcp_mock_server_prd.md:1268:## 9.3 Endpoints Screen
+PRD/mcp_mock_server_prd.md:1285:2. Parameters, up to 3
+PRD/mcp_mock_server_prd.md:1286:3. Response cases
+PRD/mcp_mock_server_prd.md:1485:3. Else infer from request headers:
+PRD/mcp_mock_server_prd.md:1628:  "deleteCode": "12345678",
+PRD/mcp_mock_server_prd.md:1629:  "parameters": [
+PRD/mcp_mock_server_prd.md:1650:      "delayMs": 0,
+PRD/mcp_mock_server_prd.md:1688:  "deleteCode": "12345678"
+PRD/mcp_mock_server_prd.md:1746:  "tokenTtlSeconds": 3600,
+PRD/mcp_mock_server_prd.md:1780:    "http://localhost:3000/oauth/callback/generated"
+PRD/mcp_mock_server_prd.md:1844:/oauth/authorize?response_type=code&client_id=default&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fcallback&state=abc123&resource=https%3A%2F%2Fmock.example.com%2Fmcp
+PRD/mcp_mock_server_prd.md:1869:redirect_uri=http://localhost:3000/callback
+PRD/mcp_mock_server_prd.md:1985:### 11.2 `endpoint_parameters`
+PRD/mcp_mock_server_prd.md:1988:CREATE TABLE endpoint_parameters (
+PRD/mcp_mock_server_prd.md:2005:### 11.3 `endpoint_response_cases`
+PRD/mcp_mock_server_prd.md:2016:  delay_ms INTEGER NOT NULL DEFAULT 0,
+PRD/mcp_mock_server_prd.md:2024:  malformed_mode TEXT NOT NULL DEFAULT 'none',
+PRD/mcp_mock_server_prd.md:2052:  token_ttl_seconds INTEGER NOT NULL DEFAULT 3600,
+PRD/mcp_mock_server_prd.md:2069:  client_credentials_ttl_seconds INTEGER NOT NULL DEFAULT 3600,
+PRD/mcp_mock_server_prd.md:2178:| `PORT` | no | `3000` | Public frontend/gateway port. |
+PRD/mcp_mock_server_prd.md:2179:| `API_PORT` | no | `3001` | Internal API server port. |
+PRD/mcp_mock_server_prd.md:2189:| `MAX_DELAY_MS` | no | `60000` | Max artificial delay unless root override. |
+PRD/mcp_mock_server_prd.md:2190:| `RATE_LIMIT_PER_MINUTE` | no | `300` | Basic public rate limit. |
+PRD/mcp_mock_server_prd.md:2195:## 13. Reverse Proxy Requirements
+PRD/mcp_mock_server_prd.md:2203:  listen 443 ssl http2;
+PRD/mcp_mock_server_prd.md:2210:    proxy_pass http://127.0.0.1:3000;
+PRD/mcp_mock_server_prd.md:2252:token_ttl_seconds: 3600
+PRD/mcp_mock_server_prd.md:2264:  - http://localhost:3000/oauth/callback
+PRD/mcp_mock_server_prd.md:2265:  - http://127.0.0.1:3000/oauth/callback
+PRD/mcp_mock_server_prd.md:2310:### 15.3 JWT Key Handling
+PRD/mcp_mock_server_prd.md:2331:Invalid Origin should return `403`.
+PRD/mcp_mock_server_prd.md:2345:| Valid OAuth token without endpoint permission | 403 |
+PRD/mcp_mock_server_prd.md:2346:| Invalid Origin | 403 |
+PRD/mcp_mock_server_prd.md:2357:| `-32700` | Parse error |
+PRD/mcp_mock_server_prd.md:2358:| `-32600` | Invalid request |
+PRD/mcp_mock_server_prd.md:2359:| `-32601` | Method not found |
+PRD/mcp_mock_server_prd.md:2360:| `-32602` | Invalid params |
+PRD/mcp_mock_server_prd.md:2361:| `-32603` | Internal error |
+PRD/mcp_mock_server_prd.md:2362:| `-32001` | Unauthorized |
+PRD/mcp_mock_server_prd.md:2363:| `-32002` | Invalid token |
+PRD/mcp_mock_server_prd.md:2364:| `-32003` | Forbidden |
+PRD/mcp_mock_server_prd.md:2365:| `-32004` | No matching mock response |
+PRD/mcp_mock_server_prd.md:2366:| `-32005` | Configured mock failure |
+PRD/mcp_mock_server_prd.md:2409:3. `tools/call` with matching parameters returns configured mock data.
+PRD/mcp_mock_server_prd.md:2423:3. `tools/call` returns mock data.
+PRD/mcp_mock_server_prd.md:2425:### AC-003: Invalid Basic Auth
+PRD/mcp_mock_server_prd.md:2435:3. User selects endpoint `echo`.
+PRD/mcp_mock_server_prd.md:2445:Given a token that only allows `echo`, when the client calls `get_weather` through `/mcp/oauth`, server returns `403`.
+PRD/mcp_mock_server_prd.md:2466:Given an endpoint with delete code `12345678`:
+PRD/mcp_mock_server_prd.md:2484:Given an endpoint response case with `delayMs=3000`, a call to that case must take at least 3 seconds before returning.
+PRD/mcp_mock_server_prd.md:2490:### AC-013: Reverse Proxy Base URL
+PRD/mcp_mock_server_prd.md:2502:3. SQLite persistence
+PRD/mcp_mock_server_prd.md:2512:13. Token list and revoke UI
+PRD/mcp_mock_server_prd.md:2522:18. Artificial delay
+PRD/mcp_mock_server_prd.md:2527:23. Nginx reverse proxy guide
+PRD/mcp_mock_server_prd.md:2538:3. `notifications/tools/list_changed` push behavior.
+PRD/mcp_mock_server_prd.md:2548:13. OpenAPI generation for REST mock endpoints.
+PRD/mcp_mock_server_prd.md:2559:## 21. Phase 3 Roadmap
+PRD/mcp_mock_server_prd.md:2561:Phase 3 may include:
+PRD/mcp_mock_server_prd.md:2565:3. Time-limited public test environments.
+PRD/mcp_mock_server_prd.md:2599:### Risk 3: MCP Client Compatibility Differences
+PRD/mcp_mock_server_prd.md:2628:## 23. Recommended Implementation Milestones
+PRD/mcp_mock_server_prd.md:2648:### Milestone 3: MCP Core
+PRD/mcp_mock_server_prd.md:2688:- delay
+PRD/mcp_mock_server_prd.md:2690:- malformed response
+PRD/mcp_mock_server_prd.md:2710:2. Create a mock MCP tool with up to three parameters.
+PRD/mcp_mock_server_prd.md:2711:3. Configure exact-match mock responses.
+PRD/mcp_mock_server_prd.md:2719:11. See `403` when using the token for unselected tools.
+PRD/mcp_mock_server_prd.md:2721:13. View and revoke issued tokens from the UI.
+PRD/mcp_mock_server_prd.md:2722:14. Simulate delay and error responses.
+
+exec
+/bin/zsh -lc "sed -n '340,370p' PRD/mcp_mock_server_prd.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+exec
+/bin/zsh -lc "sed -n '1968,2035p' PRD/mcp_mock_server_prd.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+
+### 11.1 `mock_endpoints`
+
+```sql
+CREATE TABLE mock_endpoints (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL UNIQUE,
+  title TEXT,
+  description TEXT NOT NULL,
+  enabled INTEGER NOT NULL DEFAULT 1,
+  delete_code_hash TEXT NOT NULL,
+  no_match_behavior TEXT NOT NULL DEFAULT 'tool_error',
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+);
+```
+
+### 11.2 `endpoint_parameters`
+
+```sql
+CREATE TABLE endpoint_parameters (
+  id TEXT PRIMARY KEY,
+  endpoint_id TEXT NOT NULL,
+  position INTEGER NOT NULL,
+  name TEXT NOT NULL,
+  type TEXT NOT NULL,
+  description TEXT,
+  required INTEGER NOT NULL DEFAULT 1,
+  case_sensitive INTEGER NOT NULL DEFAULT 1,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  FOREIGN KEY (endpoint_id) REFERENCES mock_endpoints(id) ON DELETE CASCADE,
+  UNIQUE(endpoint_id, name),
+  UNIQUE(endpoint_id, position)
+);
+```
+
+### 11.3 `endpoint_response_cases`
+
+```sql
+CREATE TABLE endpoint_response_cases (
+  id TEXT PRIMARY KEY,
+  endpoint_id TEXT NOT NULL,
+  case_name TEXT NOT NULL,
+  priority INTEGER NOT NULL DEFAULT 100,
+  match_json TEXT NOT NULL,
+  response_json TEXT NOT NULL,
+  is_default INTEGER NOT NULL DEFAULT 0,
+  delay_ms INTEGER NOT NULL DEFAULT 0,
+  error_enabled INTEGER NOT NULL DEFAULT 0,
+  error_probability INTEGER NOT NULL DEFAULT 100,
+  rest_status_code INTEGER NOT NULL DEFAULT 200,
+  mcp_error_mode TEXT NOT NULL DEFAULT 'none',
+  mcp_error_code INTEGER,
+  error_message TEXT,
+  error_body_json TEXT,
+  malformed_mode TEXT NOT NULL DEFAULT 'none',
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  FOREIGN KEY (endpoint_id) REFERENCES mock_endpoints(id) ON DELETE CASCADE
+);
+```
+
+### 11.4 `basic_users`
+
+```sql
+CREATE TABLE basic_users (
+  id TEXT PRIMARY KEY,
+
+ succeeded in 0ms:
+### FR-ENDPOINT-005: Exact-Match Response Cases
+
+Each endpoint may define multiple response cases.
+
+Each response case contains:
+
+| Field | Description |
+|---|---|
+| `caseName` | Human-readable case label. |
+| `matchJson` | JSON object containing exact parameter values. |
+| `responseJson` | JSON object/array/string/number/boolean/null returned when matched. |
+| `priority` | Lower number wins if multiple cases match. |
+| `isDefault` | Whether this case is used when no exact match exists. |
+| `delayMs` | Optional artificial delay. |
+| `errorMode` | Optional forced error behavior. |
+
+Exact matching rules:
+
+1. The incoming arguments object is normalized by parameter type.
+2. A response case matches only when every defined endpoint parameter has an exact value match in `matchJson`.
+3. Extra client arguments are ignored by default in MVP, but this should be configurable.
+4. If more than one case matches, the lowest `priority` wins.
+5. If no case matches:
+   - use the default case if configured
+   - otherwise return a tool execution error for MCP
+   - otherwise return `404` or `422` for REST depending on configured no-match behavior
+
+### FR-ENDPOINT-006: Parameter Types
+
+MVP must support these parameter types:
+
+
+exec
+/bin/zsh -lc "sed -n '1175,1228p' PRD/mcp_mock_server_prd.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+
+---
+
+## 8.6 Failure Simulation Requirements
+
+### FR-FAIL-001: Artificial Delay
+
+Each endpoint and each response case may define `delayMs`.
+
+Rules:
+
+- `delayMs` default is `0`.
+- UI max should default to `60000` ms.
+- Root config may increase the max.
+- Delay applies before returning success or configured error.
+
+### FR-FAIL-002: Forced Error
+
+Each endpoint or response case may configure:
+
+| Field | Description |
+|---|---|
+| `errorEnabled` | Whether forced error is active. |
+| `errorProbability` | 0–100%. |
+| `restStatusCode` | REST status code to return. |
+| `mcpErrorMode` | `tool_error` or `protocol_error`. |
+| `mcpErrorCode` | JSON-RPC error code if protocol error. |
+| `errorMessage` | Error message. |
+| `errorBodyJson` | Optional custom error body. |
+
+### FR-FAIL-003: Timeout Simulation
+
+Timeout is simulated using large `delayMs`.
+
+The UI should include a shortcut:
+
+```text
+Simulate timeout: delay response by 30 seconds
+```
+
+### FR-FAIL-004: Malformed Response
+
+For negative testing, an endpoint may be configured to return malformed data.
+
+Modes:
+
+| Mode | REST Behavior | MCP Behavior |
+|---|---|---|
+| `none` | normal JSON | normal JSON-RPC |
+| `invalid_json` | invalid JSON body | invalid JSON body |
+| `wrong_content_type` | text/plain | text/plain |
+| `empty_body` | empty body | empty body |
+
+This setting should show a warning in UI because it intentionally breaks protocol behavior.
+
+exec
+/bin/zsh -lc "sed -n '1,220p' docs/product-specs/index.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+exec
+/bin/zsh -lc "sed -n '1,220p' docs/design-docs/core-beliefs.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# Product Specs Index
+
+## Purpose
+This directory contains user-facing behavior specs.
+If a UI or API behavior is visible to users, it should be defined here before implementation drifts.
+
+## Current Spec Set
+| Spec | Status | Scope |
+|---|---|---|
+| `endpoint-tool-management.md` | confirmed | Endpoint and Tool Management |
+| `mcp-json-rpc-runtime.md` | confirmed | MCP JSON-RPC Runtime |
+| `rest-mock-api.md` | confirmed | REST Mock API |
+| `basic-auth-management.md` | confirmed | Basic Auth Management |
+| `oauth-consent-and-token-runtime.md` | confirmed | OAuth Consent and Token Runtime |
+| `failure-simulation-and-audit.md` | confirmed | Failure Simulation and Audit |
+| `operator-configuration.md` | confirmed | Operator Configuration and Deployment |
+
+## Editing Rule
+When product behavior changes:
+1. update the relevant spec
+2. update the affected design or architecture docs if needed
+3. only then adjust implementation plans
+
+ succeeded in 0ms:
+# Core Beliefs
+
+1. A mock server is useful only when its success and failure modes are explicit.
+2. Public administration can be acceptable for a test service when destructive operations are lightly but consistently protected.
+3. Endpoint permissions must be visible in OAuth consent and mechanically enforced in runtime calls.
+4. Every protocol behavior should be proven by a unit or E2E check before Ralph promotion.
+5. Operators need reset, logs, health, and startup proof as much as feature code.
+
+exec
+/bin/zsh -lc "sed -n '1,220p' docs/FRONTEND.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# FRONTEND.md
+
+## Goal
+Describe the user-facing structure of MCP Mock Server so an agent can implement the UI without guessing the product model.
+
+## Tech Direction
+- Next.js application
+- TypeScript
+- App Router
+- server-backed data flows where appropriate
+
+## Route Map
+| Route | Surface | Notes |
+|---|---|---|
+| / | Dashboard | Counts, URL examples, public UI warning |
+| /endpoints | Endpoint tools | List/search/create/edit/delete/test |
+| /basic-users | Basic Auth users | Built-in default locked |
+| /oauth-users | OAuth users | Built-in default locked |
+| /oauth-clients | OAuth clients | Redirect URIs and allowed endpoints |
+| /tokens | Issued tokens | Claims, permissions, revoke, filters |
+| /config | Server config | Base URL, MCP/REST/OAuth examples, Nginx guide |
+| /reset | Reset | Root-password protected reset |
+| /audit | Audit log | Public mutation and token evidence |
+| /oauth/login | OAuth login | Separate from admin UI |
+| /oauth/consent | OAuth consent | Endpoint permission checklist |
+| /api/* | Admin/API | Health, CRUD, config, reset, audit |
+| /mcp, /mcp/none, /mcp/basic, /mcp/oauth | MCP JSON-RPC | Unified plus strict auth routes |
+| /rest/tools, /rest/tools/:name/call | REST mock API | Same tool catalog through REST |
+| /.well-known/*, /oauth/jwks, /oauth/token, /oauth/revoke | OAuth metadata/runtime | Discovery, token, revocation |
+
+## Primary Screens
+| Screen | Primary jobs |
+|---|---|
+| Dashboard | Summarize service state and show connection examples |
+| Endpoints | Manage mock tools, response cases, failure simulation, delete protection |
+| Endpoint console | Run MCP and REST calls with selected auth mode and inspect raw evidence |
+| Basic Auth users | Manage Basic test identities and built-in lock state |
+| OAuth users | Manage login identities and token TTLs |
+| OAuth clients | Manage client secrets, redirect URIs, and allowed endpoint set |
+| OAuth login/consent | Complete authorization-code flow and select endpoint permissions |
+| Issued tokens | Inspect claims, permissions, expiration, and revoke tokens |
+| Config/guide | Show base URL, MCP/REST/OAuth URLs, sample client config, curl, Nginx |
+| Reset | Root-protected full reset to seed defaults |
+| Audit | Review mutation and security-relevant event history |
+
+## UI Rules
+- favor quiet, dense, operational layouts over marketing composition
+- use icons for copy, edit, delete, revoke, reset, refresh, and external-link actions where available
+- every destructive action has a confirmation path and explains whether delete code or root password is accepted
+- show protocol/auth warnings inline on malformed-response and public-admin controls
+- tables must support search/filter states without layout shift
+- console outputs must preserve raw JSON formatting and elapsed/auth/match metadata
+- UI-focused tasks must include desktop and mobile screenshots plus accessibility checks
+
+## Search / Share / Admin Notes
+- the admin UI is intentionally public, so copy must avoid implying enterprise security
+- root-password fields are used only for protected actions and must not be logged
+- copy buttons should exist for MCP URLs, REST URLs, client config, curl examples, client secrets at issuance, and JWTs at issuance
+- OAuth consent should make selected endpoint permissions unambiguous
+
+## Frontend Non-Goals for v1
+- no marketing landing page before the usable dashboard
+- no enterprise account settings or RBAC screens
+- no hidden destructive operations without confirmation
+- no decorative UI that obscures raw request/response evidence
+
+exec
+/bin/zsh -lc "sed -n '1,220p' docs/PLANS.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# PLANS.md
+
+## Purpose
+Execution plans are the main planning unit in this repository.
+
+A plan is not a vague idea. It is an executable work packet with:
+- a clearly scoped goal
+- explicit non-goals
+- ordered implementation steps
+- validation criteria
+- exit criteria
+- linked docs to update
+- required commands that prove the task is complete
+
+## Directory Layout
+- `docs/exec-plans/active/` -> work currently intended for execution
+- `docs/exec-plans/completed/` -> finished plans kept for history
+- `docs/exec-plans/tech-debt-tracker.md` -> persistent cleanup and deferred concerns
+
+## How to Use Plans
+### Before coding
+Read:
+1. `ARCHITECTURE.md`
+2. the relevant product spec
+3. the relevant design doc
+4. the target active plan
+
+### Before writing or revising plans
+- review the related product, frontend, architecture, and design docs first
+- improve those supporting docs if the plan would otherwise need to guess
+- keep each active plan page focused on one small feature slice
+- review each active plan page on its own before considering the queue ready
+
+### During coding
+- keep diffs narrow
+- update docs when behavior changes
+- use the plan as the source of sequencing
+- if the plan is wrong, fix the plan first
+- search the codebase before assuming a helper or feature is missing
+- prefer targeted checks for the unit or slice you just changed
+
+### After coding
+- move completed plans to the completed directory
+- update quality scores if a domain meaningfully improved
+- record debt instead of letting it stay implicit
+
+## Promotion Rules
+- Required commands in a task's `taskmeta` are hard gates.
+- Failing tests block promotion even if the feature appears complete by inspection.
+- Evaluator judgment exists to catch false positives after checks pass, not to excuse red checks.
+- If the tests do not prove the intended behavior, tighten the task contract and checks before promoting.
+- Fast local checks are for iteration speed; the required commands remain the promotion contract.
+- If a feature depends on an outside resource, include E2E coverage for that feature before promotion.
+- If a task is mainly UI or UX work, include a dedicated `@ui-*` Playwright command with screenshot, responsive, and accessibility checks in the promotion contract.
+- If a task sets `taskmeta.promotion_mode` to `deterministic_only`, passing the required commands is sufficient for promotion without human review.
+- If a plan page is still rough or broad, improve the supporting docs and split the plan before promotion work starts.
+- If the same environment-specific blocker repeats three times, let the Ralph harness auto-branch into a dedicated RCA/fix exec-plan and then return to the original task through normal promotion.
+
+## When The Current Queue Is Done
+- Do not treat an empty active queue as the end of the product.
+- Re-enter through docs first: update the relevant product specs and design docs before writing the next tasks.
+- Preserve completed plans as history and seed a new active sequence for the next feature wave.
+- Make the next tranche ordered, promotion-ready, and sized to the requested backlog depth before implementation begins.
+
+## Merge / Throughput Philosophy
+- small vertical tasks promote only after deterministic gates pass
+- evaluator approval is secondary to required command success
+- tasks that touch external-client behavior require E2E proof before promotion
+- UI-heavy tasks can promote deterministically when screenshot, responsive, and accessibility checks pass
+- repeated environment blockers become RCA/fix plans after three occurrences
+
+exec
+/bin/zsh -lc "sed -n '1,120p' docs/exec-plans/active/index.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# Ralph Loop Task Queue
+
+This directory contains only runnable feature and hardening tasks. The completed bootstrap/foundation task is preserved under `docs/exec-plans/completed/` and must not be re-added here.
+
+Task filenames are ordered for human scanning, while Ralph state and promotion use the stable `taskmeta.id` values. Keep both the filename sequence and `taskmeta.order` aligned whenever this queue changes.
+
+## Current recommended sequence
+1. `001-endpoint-domain-and-schema.md` -> `endpoint-domain-and-schema` -> Replace the bootstrap runtime placeholder with durable SQLite/Prisma persistence for endpoint/tool data and deterministic seed defaults.
+2. `002-endpoint-validation-and-matching.md` -> `endpoint-validation-and-matching` -> Create reusable endpoint domain services for validation, MCP inputSchema generation, and exact-match response-case selection.
+3. `003-endpoint-management-list-editor-ui.md` -> `endpoint-management-list-editor-ui` -> Build the first public endpoint-management UI for listing, searching, creating, and editing endpoint definitions.
+4. `004-endpoint-console-schema-preview-ui.md` -> `endpoint-console-schema-preview-ui` -> Add generated MCP schema preview and a stable endpoint test-console shell without implementing external MCP or REST calls yet.
+5. `005-endpoint-protected-delete-audit.md` -> `endpoint-protected-delete-audit` -> Implement endpoint deletion guarded by delete code or root password, with audit evidence for successful and failed delete attempts.
+6. `006-root-reset-defaults.md` -> `root-reset-defaults` -> Implement root-password-protected reset behavior that restores deterministic default state without harming runtime readiness.
+7. `007-mcp-initialize-and-tools-list.md` -> `mcp-initialize-and-tools-list` -> Implement no-auth MCP JSON-RPC initialization and tool discovery before adding tool execution.
+8. `008-mcp-tools-call-and-errors.md` -> `mcp-tools-call-and-errors` -> Implement no-auth MCP `tools/call` execution and JSON-RPC error semantics using the endpoint matcher.
+9. `009-basic-auth-users-domain-ui.md` -> `basic-auth-users-domain-ui` -> Implement Basic Auth user persistence, hashing, built-in protection, and public management UI before strict route enforcement.
+10. `010-basic-auth-mcp-runtime.md` -> `basic-auth-mcp-runtime` -> Enforce Basic Auth on `/mcp/basic` and Basic header precedence on `/mcp` using the existing Basic user service.
+11. `011-rest-tools-list-runtime.md` -> `rest-tools-list-runtime` -> Expose configured enabled endpoints through `GET /rest/tools` with no-auth and Basic behavior.
+12. `012-rest-tools-call-runtime.md` -> `rest-tools-call-runtime` -> Implement `POST /rest/tools/:name/call` and wire endpoint console REST execution for no-auth and Basic modes.
+13. `013-oauth-users-management-ui.md` -> `oauth-users-management-ui` -> Implement OAuth login-user persistence, built-in protection, TTL settings, and public management UI.
+14. `014-oauth-clients-management-ui.md` -> `oauth-clients-management-ui` -> Implement OAuth client persistence, secret generation, redirect URI management, allowed endpoint selection, and client UI.
+15. `015-oauth-authorize-login-consent.md` -> `oauth-authorize-login-consent` -> Implement the browser authorization entry, mock login, consent screen, endpoint selection, and authorization code creation.
+16. `016-oauth-code-token-jwt.md` -> `oauth-code-token-jwt` -> Implement `/oauth/token` authorization_code exchange and signed JWT access tokens with endpoint permission claims.
+17. `017-oauth-client-credentials-grant.md` -> `oauth-client-credentials-grant` -> Implement non-interactive client_credentials token issuance with endpoint scope intersection.
+18. `018-oauth-discovery-metadata.md` -> `oauth-discovery-metadata` -> Expose OAuth protected-resource, authorization-server, OIDC configuration, and JWKS metadata aligned with the mock server runtime.
+19. `019-oauth-mcp-rest-permission-enforcement.md` -> `oauth-mcp-rest-permission-enforcement` -> Validate Bearer tokens and enforce endpoint permissions on MCP and REST routes, with correct 401 versus 403 behavior.
+20. `020-issued-token-ui-revocation.md` -> `issued-token-ui-revocation` -> Build issued-token inspection/filtering UI and token revocation behavior that affects subsequent OAuth runtime calls.
+21. `021-failure-delay-forced-error-runtime.md` -> `failure-delay-forced-error-runtime` -> Implement artificial delay, timeout shortcut, and forced error behavior for MCP and REST calls.
+22. `022-malformed-response-console-audit.md` -> `malformed-response-console-audit` -> Implement intentionally malformed response modes with visible warnings, console evidence, and audit logging for failure-simulation changes.
+23. `023-operator-config-health-logs.md` -> `operator-config-health-logs` -> Complete operator-facing health, public config, base URL behavior, connection guide, root-protected config changes, and server logging.
+24. `024-docker-nginx-final-hardening.md` -> `docker-nginx-final-hardening` -> Package and reconcile the MVP for operator handoff with Docker/Nginx examples, final docs, debt tracking, and full deterministic proof.
+
+## Split Rationale
+
+The queue is intentionally finer-grained than one task per product spec. Larger PRD areas were split where a single task would otherwise mix persistence, UI, protocol runtime, auth enforcement, token operations, failure modes, or deployment hardening.
+
+## Operating rule
+
+A task may be promoted only when all of the following are true:
+
+- deterministic checks pass
+- the evaluator marks the task as `done`, unless the task uses `promotion_mode = deterministic_only`
+- the evaluator recommends promotion when evaluator review is required
+- the task metadata declares a valid `next_task_on_success`, or explicitly declares that the queue ends here
+
+## Required Detail Sections
+
+Every active task page should include these decision-complete sections before implementation starts:
+
+- `Clarity notes`: what the task means, what assumptions are already decided, and how it relates to surrounding slices
+- `Expected result`: the concrete repo/user/operator state that should exist after the task lands
+- `Objections / risks to avoid`: common wrong turns, scope creep, or implementation shortcuts that should block promotion
+
+## Queue Maintenance Rules
+
+- keep every non-hardening task focused on one primary product spec
+- do not leave completed task contracts in this directory
+- review supporting product, frontend, architecture, and design docs before adding or revising task pages
+- add UI screenshot, responsive, and accessibility checks to UI-heavy tasks before promotion work starts
+- external-client behavior such as MCP, REST, Basic Auth, or OAuth must have E2E proof before promotion
+
+## When this queue ends
+
+When the active sequence is exhausted, do not continue with ad hoc prompts alone.
+Update the relevant product specs and design docs first, then seed the next active queue for the next feature wave.
+
+
+codex
+{"decision":"done","recommend_promotion":true,"confidence":0.9,"summary":"The task is complete in substance. The implementation adds Prisma/SQLite wiring, migrations, generated client setup, deterministic db preparation, idempotent endpoint seed defaults, generated schema documentation, and repeatability coverage. The inspected changes stay scoped to endpoint persistence and do not add out-of-scope UI, MCP, REST, auth, or reset behavior. I did not rerun write-producing commands in this read-only evaluator sandbox, but the provided deterministic check summary reports all required gates passing.","satisfied_exit_criteria":["`npm run db:prepare` is implemented via `scripts/db-prepare.mjs`, which creates `data/`, applies Prisma migrations, generates Prisma Client, and runs seed defaults.","Repeatability is covered by `tests/unit/db-prepare.test.ts`, which runs `db:prepare` twice against an isolated SQLite database and verifies singular seeded endpoint, parameter, and response-case rows.","`prisma/schema.prisma` can represent immutable endpoint IDs, names, titles, descriptions, enabled state, delete codes, default responses, timestamps, ordered parameters, response cases, and basic endpoint/case failure config fields.","`docs/generated/db-schema.md` matches the implemented `Endpoint`, `EndpointParam`, and `ResponseCase` models and seed defaults.","The supplied required checks passed: `npm run db:prepare`, `npm run test:unit`, and `npm run verify`.","The task maps directly to `docs/product-specs/endpoint-tool-management.md` as the endpoint persistence foundation."],"missing_requirements":[],"human_review_triggers":[]}
+2026-05-05T07:32:01.893198Z ERROR codex_core::session: failed to record rollout items: thread 019df70b-918a-78d0-b0d6-9660d2a060fb not found
+tokens used
+82,359
+{"decision":"done","recommend_promotion":true,"confidence":0.9,"summary":"The task is complete in substance. The implementation adds Prisma/SQLite wiring, migrations, generated client setup, deterministic db preparation, idempotent endpoint seed defaults, generated schema documentation, and repeatability coverage. The inspected changes stay scoped to endpoint persistence and do not add out-of-scope UI, MCP, REST, auth, or reset behavior. I did not rerun write-producing commands in this read-only evaluator sandbox, but the provided deterministic check summary reports all required gates passing.","satisfied_exit_criteria":["`npm run db:prepare` is implemented via `scripts/db-prepare.mjs`, which creates `data/`, applies Prisma migrations, generates Prisma Client, and runs seed defaults.","Repeatability is covered by `tests/unit/db-prepare.test.ts`, which runs `db:prepare` twice against an isolated SQLite database and verifies singular seeded endpoint, parameter, and response-case rows.","`prisma/schema.prisma` can represent immutable endpoint IDs, names, titles, descriptions, enabled state, delete codes, default responses, timestamps, ordered parameters, response cases, and basic endpoint/case failure config fields.","`docs/generated/db-schema.md` matches the implemented `Endpoint`, `EndpointParam`, and `ResponseCase` models and seed defaults.","The supplied required checks passed: `npm run db:prepare`, `npm run test:unit`, and `npm run verify`.","The task maps directly to `docs/product-specs/endpoint-tool-management.md` as the endpoint persistence foundation."],"missing_requirements":[],"human_review_triggers":[]}
+evaluation: done promotion=true

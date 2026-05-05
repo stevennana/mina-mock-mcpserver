@@ -71,8 +71,7 @@ Required commands for this task:
 - npm run verify
 
 Previous known gaps from the last evaluation:
-- Endpoint `title` is missing from the Prisma schema and generated DB documentation even though the PRD create/edit endpoint model includes it.
-- ResponseCase lacks `priority`, `delayMs`, and case-level error fields described by the PRD response-case model; this may force later tasks to change persistence rather than build on it.
+- none
 
 
 

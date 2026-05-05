@@ -112,3 +112,4 @@ Confirm that this task maps to the primary product spec `endpoint-tool-managemen
 - 2026-05-05T17:18:00+09:00 - Documented implemented persistence assumptions in `docs/generated/db-schema.md`.
 - 2026-05-05T16:18:17+09:00 - Re-verified the current checkout for this handoff; `npm run db:prepare`, `npm run test:unit`, and `npm run verify` all passed.
 - 2026-05-05T16:23:00+09:00 - Closed evaluator gaps by adding endpoint `title` plus response-case `priority`, `delayMs`, and case-level error config fields to Prisma schema, migration, seed defaults, generated schema docs, and the repeatability test.
+- 2026-05-05T16:29:16+09:00 - Re-read the required repository docs and re-ran the required gates for this task; `npm run db:prepare`, `npm run test:unit`, and `npm run verify` all passed on the current checkout.
