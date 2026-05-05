@@ -13,3 +13,4 @@
 - 2026-05-05T11:05:59.758Z: promoted basic-auth-mcp-runtime -> rest-tools-list-runtime
 - 2026-05-05T11:14:25.340Z: promoted rest-tools-list-runtime -> rest-tools-call-runtime
 - 2026-05-05T11:25:21.487Z: promoted rest-tools-call-runtime -> oauth-users-management-ui
+- 2026-05-05T11:35:14.467Z: promoted oauth-users-management-ui -> oauth-clients-management-ui

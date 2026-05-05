@@ -12,6 +12,7 @@ export default async function OAuthUsersPage() {
         <Link href="/endpoints">Endpoints</Link>
         <Link href="/basic-users">Basic Users</Link>
         <Link href="/oauth-users" aria-current="page">OAuth Users</Link>
+        <Link href="/oauth-clients">OAuth Clients</Link>
         <Link href="/reset">Reset</Link>
         <Link href="/audit">Audit</Link>
       </nav>

@@ -1,1 +1,1 @@
-oauth-users-management-ui
+oauth-clients-management-ui

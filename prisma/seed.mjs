@@ -11,6 +11,12 @@ export const DEFAULT_OAUTH_USER_ID = "oauth_user_default";
 export const DEFAULT_OAUTH_USERNAME = "default";
 export const DEFAULT_OAUTH_PASSWORD = "default";
 export const DEFAULT_OAUTH_ACCESS_TOKEN_TTL_SECONDS = 3600;
+export const DEFAULT_OAUTH_CLIENT_ID = "oauth_client_default";
+export const DEFAULT_OAUTH_CLIENT_IDENTIFIER = "default";
+export const DEFAULT_OAUTH_CLIENT_SECRET = "default";
+export const DEFAULT_OAUTH_CLIENT_DISPLAY_NAME = "Default OAuth client";
+export const DEFAULT_OAUTH_CLIENT_REDIRECT_URI = "http://localhost:3000/oauth/callback";
+export const DEFAULT_OAUTH_CLIENT_CREDENTIALS_TTL_SECONDS = 3600;
 
 const scrypt = promisify(scryptCallback);
 
@@ -228,9 +234,53 @@ export async function seedOAuthUserDefaults(client = prisma) {
   });
 }
 
+export async function seedOAuthClientDefaults(client = prisma) {
+  const secretHash = await hashBasicPassword(DEFAULT_OAUTH_CLIENT_SECRET);
+  await client.oAuthClient.upsert({
+    where: { id: DEFAULT_OAUTH_CLIENT_ID },
+    update: {
+      clientId: DEFAULT_OAUTH_CLIENT_IDENTIFIER,
+      displayName: DEFAULT_OAUTH_CLIENT_DISPLAY_NAME,
+      secretHash,
+      enabled: true,
+      builtIn: true,
+      redirectUrisJson: JSON.stringify([DEFAULT_OAUTH_CLIENT_REDIRECT_URI]),
+      clientCredentialsTtlSeconds: DEFAULT_OAUTH_CLIENT_CREDENTIALS_TTL_SECONDS,
+    },
+    create: {
+      id: DEFAULT_OAUTH_CLIENT_ID,
+      clientId: DEFAULT_OAUTH_CLIENT_IDENTIFIER,
+      displayName: DEFAULT_OAUTH_CLIENT_DISPLAY_NAME,
+      secretHash,
+      enabled: true,
+      builtIn: true,
+      redirectUrisJson: JSON.stringify([DEFAULT_OAUTH_CLIENT_REDIRECT_URI]),
+      clientCredentialsTtlSeconds: DEFAULT_OAUTH_CLIENT_CREDENTIALS_TTL_SECONDS,
+    },
+  });
+
+  const defaultEndpoints = await client.endpoint.findMany({ where: { enabled: true }, select: { id: true } });
+  for (const endpoint of defaultEndpoints) {
+    await client.oAuthClientAllowedEndpoint.upsert({
+      where: {
+        oauthClientId_endpointId: {
+          oauthClientId: DEFAULT_OAUTH_CLIENT_ID,
+          endpointId: endpoint.id,
+        },
+      },
+      update: {},
+      create: {
+        oauthClientId: DEFAULT_OAUTH_CLIENT_ID,
+        endpointId: endpoint.id,
+      },
+    });
+  }
+}
+
 if (import.meta.url === `file://${process.argv[1]}`) {
   await seedEndpointDefaults();
   await seedBasicUserDefaults();
   await seedOAuthUserDefaults();
+  await seedOAuthClientDefaults();
   await prisma.$disconnect();
 }

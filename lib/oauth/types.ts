@@ -2,8 +2,21 @@ export const DEFAULT_OAUTH_USER_ID = "oauth_user_default";
 export const DEFAULT_OAUTH_USERNAME = "default";
 export const DEFAULT_OAUTH_PASSWORD = "default";
 export const DEFAULT_OAUTH_ACCESS_TOKEN_TTL_SECONDS = 3600;
+export const DEFAULT_OAUTH_CLIENT_ID = "oauth_client_default";
+export const DEFAULT_OAUTH_CLIENT_IDENTIFIER = "default";
+export const DEFAULT_OAUTH_CLIENT_SECRET = "default";
+export const DEFAULT_OAUTH_CLIENT_DISPLAY_NAME = "Default OAuth client";
+export const DEFAULT_OAUTH_CLIENT_REDIRECT_URI = "http://localhost:3000/oauth/callback";
+export const DEFAULT_OAUTH_CLIENT_CREDENTIALS_TTL_SECONDS = 3600;
 
 export const OAUTH_ACCESS_TOKEN_TTL_PRESETS = [
+  { label: "15 minutes", seconds: 900 },
+  { label: "1 hour", seconds: 3600 },
+  { label: "8 hours", seconds: 28800 },
+  { label: "24 hours", seconds: 86400 },
+] as const;
+
+export const OAUTH_CLIENT_CREDENTIALS_TTL_PRESETS = [
   { label: "15 minutes", seconds: 900 },
   { label: "1 hour", seconds: 3600 },
   { label: "8 hours", seconds: 28800 },
@@ -56,5 +69,75 @@ export class OAuthUserBuiltInError extends Error {
 export class OAuthUserNotFoundError extends Error {
   constructor() {
     super("OAuth user not found.");
+  }
+}
+
+export type OAuthClientEndpointOption = {
+  id: string;
+  name: string;
+  title: string;
+  enabled: boolean;
+};
+
+export type OAuthClientSummary = {
+  id: string;
+  clientId: string;
+  displayName: string;
+  enabled: boolean;
+  builtIn: boolean;
+  redirectUris: string[];
+  clientCredentialsTtlSeconds: number;
+  allowedEndpointIds: string[];
+  allowedEndpoints: OAuthClientEndpointOption[];
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type OAuthClientListResult = {
+  total: number;
+  enabled: number;
+  disabled: number;
+  clients: OAuthClientSummary[];
+  endpointOptions: OAuthClientEndpointOption[];
+  ttlPresets: typeof OAUTH_CLIENT_CREDENTIALS_TTL_PRESETS;
+};
+
+export type OAuthClientCreateInput = {
+  clientId: string;
+  displayName: string;
+  enabled: boolean;
+  redirectUris: string[];
+  clientCredentialsTtlSeconds: number;
+  allowedEndpointIds: string[];
+};
+
+export type OAuthClientUpdateInput = {
+  displayName?: string;
+  enabled?: boolean;
+  redirectUris?: string[];
+  clientCredentialsTtlSeconds?: number;
+  allowedEndpointIds?: string[];
+};
+
+export type OAuthClientSecretResult = {
+  client: OAuthClientSummary;
+  clientSecret: string;
+};
+
+export class OAuthClientValidationError extends Error {
+  constructor(public readonly fieldErrors: Record<string, string>) {
+    super("OAuth client validation failed.");
+  }
+}
+
+export class OAuthClientBuiltInError extends Error {
+  constructor(public readonly action: "update" | "delete" | "regenerateSecret") {
+    super("Built-in OAuth client cannot be changed.");
+  }
+}
+
+export class OAuthClientNotFoundError extends Error {
+  constructor() {
+    super("OAuth client not found.");
   }
 }

@@ -1,10 +1,13 @@
 import type { PrismaClient } from "@prisma/client";
 import { seedBasicUserDefaults } from "@/lib/basic-auth/service";
-import { seedOAuthUserDefaults } from "@/lib/oauth/service";
+import { seedOAuthClientDefaults, seedOAuthUserDefaults } from "@/lib/oauth/service";
 
 export const DEFAULT_ENDPOINT_ID = "endpoint_default_echo";
 
-type SeedClient = Pick<PrismaClient, "endpoint" | "endpointParam" | "responseCase" | "basicUser" | "oAuthUser">;
+type SeedClient = Pick<
+  PrismaClient,
+  "endpoint" | "endpointParam" | "responseCase" | "basicUser" | "oAuthUser" | "oAuthClient" | "oAuthClientAllowedEndpoint"
+>;
 
 export async function seedEndpointDefaults(client: SeedClient) {
   await client.endpoint.upsert({
@@ -172,4 +175,5 @@ export async function seedAllDefaults(client: SeedClient) {
   await seedEndpointDefaults(client);
   await seedBasicUserDefaults(client);
   await seedOAuthUserDefaults(client);
+  await seedOAuthClientDefaults(client);
 }

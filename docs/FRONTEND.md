@@ -36,7 +36,7 @@ Describe the user-facing structure of MCP Mock Server so an agent can implement 
 | Endpoint console | Preview MCP/REST call shape with selected auth mode, run REST no-auth and Basic calls, and show raw execution evidence |
 | Basic Auth users | List/search/create/password-edit/disable/delete Basic test identities and show the built-in default/default lock state |
 | OAuth users | List/search/create/password-edit/disable/delete OAuth login identities and token TTL presets with built-in default locked |
-| OAuth clients | Manage client secrets, redirect URIs, and allowed endpoint set |
+| OAuth clients | Manage generated client secrets, redirect URIs, client credentials TTL presets, and allowed endpoint set |
 | OAuth login/consent | Complete authorization-code flow and select endpoint permissions |
 | Issued tokens | Inspect claims, permissions, expiration, and revoke tokens |
 | Config/guide | Show base URL, MCP/REST/OAuth URLs, sample client config, curl, Nginx |
@@ -55,6 +55,7 @@ Describe the user-facing structure of MCP Mock Server so an agent can implement 
 - endpoint console REST execution is available for no-auth and Basic modes and shows raw request, raw response, principal, matched case, and elapsed time
 - Basic user forms must not display password hashes and must disable mutation controls for built-in rows
 - OAuth user forms must not display password hashes, must use bounded token TTL presets, and must disable mutation controls for the built-in row
+- OAuth client forms must not display stored secret hashes, must show generated raw client secrets only at creation or regeneration, and must disable mutation controls for the built-in row
 - console outputs must preserve raw JSON formatting and elapsed/auth/match metadata
 - console shell states must clearly mark unavailable runtime actions instead of faking calls
 - UI-focused tasks must include desktop and mobile screenshots plus accessibility checks

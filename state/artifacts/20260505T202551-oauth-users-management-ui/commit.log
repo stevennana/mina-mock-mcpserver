@@ -1,0 +1,21 @@
+[main f9f109a] ralph: oauth-users-management-ui 2026-05-05T20:35:14+09:00
+ 48 files changed, 1376 insertions(+), 89 deletions(-)
+ create mode 100644 app/api/oauth-users/[id]/route.ts
+ create mode 100644 app/api/oauth-users/route.ts
+ create mode 100644 app/oauth-users/oauth-users-manager.tsx
+ create mode 100644 app/oauth-users/page.tsx
+ rename docs/exec-plans/{active => completed}/012-rest-tools-call-runtime.md (94%)
+ create mode 100644 lib/oauth/api.ts
+ create mode 100644 lib/oauth/service.ts
+ create mode 100644 lib/oauth/types.ts
+ create mode 100644 lib/oauth/validation.ts
+ create mode 100644 prisma/migrations/202605050005_oauth_users/migration.sql
+ create mode 100644 state/artifacts/20260505T201455-rest-tools-call-runtime/backlog.log
+ create mode 100644 state/artifacts/20260505T201455-rest-tools-call-runtime/promote.log
+ create mode 100644 state/artifacts/20260505T202551-oauth-users-management-ui/commit.log
+ create mode 100644 state/artifacts/20260505T202551-oauth-users-management-ui/evaluator.log
+ create mode 100644 state/artifacts/20260505T202551-oauth-users-management-ui/task-prompt.log
+ create mode 100644 state/artifacts/20260505T202551-oauth-users-management-ui/worker.jsonl
+ create mode 100644 tests/e2e/oauth-users.spec.ts
+ create mode 100644 tests/unit/oauth-users.test.ts
+commit: created

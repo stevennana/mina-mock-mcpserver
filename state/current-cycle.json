@@ -1,8 +1,8 @@
 {
-  "task_id": "oauth-users-management-ui",
-  "started_at": "2026-05-05T20:25:51+09:00",
-  "artifact_dir": "state/artifacts/20260505T202551-oauth-users-management-ui",
+  "task_id": "oauth-clients-management-ui",
+  "started_at": "2026-05-05T20:35:44+09:00",
+  "artifact_dir": "state/artifacts/20260505T203544-oauth-clients-management-ui",
   "phase": "commit",
   "status": "running",
-  "updated_at": "2026-05-05T11:35:14.240Z"
+  "updated_at": "2026-05-05T11:47:42.295Z"
 }

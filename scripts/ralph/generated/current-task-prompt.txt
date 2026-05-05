@@ -5,54 +5,55 @@ Read the following repository documents before making changes:
 - docs/FRONTEND.md
 - docs/SECURITY.md
 - docs/product-specs/oauth-consent-and-token-runtime.md
-- docs/exec-plans/active/013-oauth-users-management-ui.md
+- docs/exec-plans/active/014-oauth-clients-management-ui.md
 
-Current task id: oauth-users-management-ui
-Current task title: OAuth Users Management UI and Built-In Protection
+Current task id: oauth-clients-management-ui
+Current task title: OAuth Clients Management UI and Allowed Endpoints
 
 Objective:
-Implement OAuth login-user persistence, built-in protection, TTL settings, and public management UI.
+Implement OAuth client persistence, secret generation, redirect URI management, allowed endpoint selection, and client UI.
 
 Clarity notes:
-- This is only OAuth users, not clients or tokens.
-- The built-in OAuth `default/default` user must always remain usable for later login flow tasks.
-- Token TTL settings belong to users here because authorization-code tokens later inherit them.
-- The UI is public configuration, not an authenticated admin surface.
+- This task is only OAuth clients and their maximum allowed endpoint set.
+- Client secrets are sensitive copy-once-style values.
+- Allowed endpoints constrain later consent and client credentials flows.
+- The built-in default/default client must remain protected.
 
 Expected result:
-- OAuth users can be listed, created, password-edited, TTL-edited, enabled/disabled, and deleted where allowed.
-- Built-in OAuth user is visible as locked and protected from weakening.
-- Passwords are hashed and not logged.
-- `@ui-oauth-users` proves UI behavior and responsive/accessibility quality.
+- OAuth clients can be created with user-entered client ID and generated secret.
+- Redirect URIs, display name, allowed endpoints, enabled state, and client credentials TTL can be edited.
+- Built-in client is visible as locked and cannot be disabled/deleted through normal flows.
+- `@ui-oauth-clients` proves the management UI.
 
 Objections / risks to avoid:
-- Do not implement OAuth clients in this task.
-- Do not implement login/authorize/token routes yet.
-- Do not allow never-expiring tokens unless root-enabled in a later explicit feature.
-- Do not store plaintext passwords.
+- Do not implement `/oauth/token` here.
+- Do not repeatedly display stored client secrets unless explicitly configured later.
+- Do not allow clients to request endpoints outside their allowed set later.
+- Do not delete or weaken the built-in client.
 
 Scope:
-- Add OAuth user model/service if not present.
-- Implement TTL presets and validation.
-- Build OAuth users screen/API.
-- Add tests for password hashing, built-in immutability, TTL validation, and UI.
+- Add OAuth client model/service if not present.
+- Generate and hash/store client secrets according to implementation decision.
+- Build OAuth clients screen/API.
+- Implement allowed endpoint selection.
+- Add unit/UI tests tagged `@ui-oauth-clients`.
 
 Out of scope:
-- OAuth clients.
-- Authorization code flow.
-- Token management UI.
-- MCP bearer enforcement.
+- OAuth user management already done.
+- Authorization/login/consent flow.
+- Client credentials token issuance.
+- Discovery metadata.
 
 Exit criteria:
-1. OAuth user CRUD works for non-built-in users.
-2. Built-in user cannot be deleted, disabled, or password-changed.
-3. TTL validation follows MVP constraints.
-4. `@ui-oauth-users` passes.
+1. Client CRUD works for non-built-in clients.
+2. Client secret generation/display behavior is safe and tested.
+3. Allowed endpoint mappings persist correctly.
+4. Built-in client remains protected.
 5. All required checks pass.
 
 Required checks:
 - npm run test:unit
-- npm run test:e2e -- --grep @ui-oauth-users
+- npm run test:e2e -- --grep @ui-oauth-clients
 - npm run verify
 
 Evaluator notes:
@@ -66,7 +67,7 @@ Required repository artifacts for this task:
 
 Required commands for this task:
 - npm run test:unit
-- npm run test:e2e -- --grep @ui-oauth-users
+- npm run test:e2e -- --grep @ui-oauth-clients
 - npm run verify
 
 Previous known gaps from the last evaluation:

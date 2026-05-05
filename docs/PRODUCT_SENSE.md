@@ -45,6 +45,7 @@ Remote MCP adoption is moving auth, transport, and permission bugs into client i
 - a new endpoint can be created and edited through the public endpoint UI, then listed through tools/list and GET /rest/tools, called through tools/call, and called through POST /rest/tools/:name/call
 - Basic default/default and additional users work on strict Basic routes while invalid credentials return 401
 - OAuth default/default remains locked while additional login users can be configured with hashed passwords and MVP token TTL presets
+- OAuth default/default client remains locked while additional clients can be configured with generated copy-once secrets, redirect URIs, client credentials TTL presets, and maximum allowed endpoint sets
 - OAuth consent can select endpoints, exchange a code for a JWT, allow selected tools, deny unselected tools with 403, and return 401 after revocation
 - token and audit screens show enough evidence to debug a client test, including endpoint delete success/failure without stored secrets
 - SQLite state survives restart and root reset restores currently implemented built-in endpoint and Basic user defaults

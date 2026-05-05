@@ -5,7 +5,7 @@
   "id": "oauth-users-management-ui",
   "title": "OAuth Users Management UI and Built-In Protection",
   "order": 13,
-  "status": "active",
+  "status": "completed",
   "next_task_on_success": "oauth-clients-management-ui",
   "prompt_docs": [
     "AGENTS.md",
@@ -26,7 +26,8 @@
     "Required checks do not prove the claimed behavior.",
     "Implementation changes contradict the product spec or security/reliability docs."
   ],
-  "promotion_mode": "deterministic_only"
+  "promotion_mode": "deterministic_only",
+  "completed_at": "2026-05-05T11:35:14.467Z"
 }
 ```
 
@@ -106,3 +107,4 @@ Confirm that this task maps to the primary product spec `oauth-consent-and-token
 - Note when existing partial implementations were found and reused instead of replaced.
 - 2026-05-05T11:25:21.487Z: restored as current task after rest-tools-call-runtime promotion.
 - 2026-05-05T12:15:00.000Z: found no existing OAuth user slice; reused Basic user service/API/UI patterns for OAuth-only model, seed, CRUD, built-in protection, TTL presets, and tests.
+- 2026-05-05T11:35:14.467Z: automatically promoted after deterministic checks and evaluator approval.

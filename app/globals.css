@@ -375,6 +375,54 @@ h1 {
   flex: 0 0 auto;
 }
 
+.checkbox-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.endpoint-check {
+  align-items: flex-start;
+  border: 1px solid #e4e9f0;
+  border-radius: 8px;
+  padding: 10px;
+  background: #fbfcfe;
+}
+
+.endpoint-check span {
+  overflow-wrap: anywhere;
+}
+
+.endpoint-check strong {
+  display: inline-block;
+  margin-right: 4px;
+}
+
+.secret-callout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  align-items: center;
+  border: 1px solid #9dd7b5;
+  border-radius: 8px;
+  margin-bottom: 14px;
+  padding: 12px;
+  background: #effaf3;
+}
+
+.secret-callout strong,
+.secret-callout code {
+  display: block;
+}
+
+.secret-callout code {
+  margin-top: 6px;
+  overflow-wrap: anywhere;
+  color: #173d2a;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 0.86rem;
+}
+
 .endpoint-table-shell {
   min-height: 248px;
   margin-top: 12px;
@@ -660,6 +708,15 @@ h1 {
   .case-grid {
     grid-template-columns: minmax(0, 1fr) 140px 160px;
     align-items: end;
+  }
+
+  .checkbox-grid,
+  .secret-callout {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .secret-callout {
+    grid-template-columns: minmax(0, 1fr) auto;
   }
 
   .parameter-editor {

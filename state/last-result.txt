@@ -1,10 +1,10 @@
-Implemented `oauth-users-management-ui` and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+Implemented `oauth-clients-management-ui` and wrote the handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
 
-What changed: OAuth user persistence, seed/reset support, public CRUD API, `/oauth-users` UI, TTL presets/validation, built-in `default/default` protection, docs, and unit/E2E coverage.
+What changed: OAuth client persistence/migration, default locked `default/default` client seed/reset support, generated scrypt-hashed copy-once secrets, client CRUD/regenerate APIs, `/oauth-clients` UI with redirect URI and allowed endpoint management, docs, and unit/E2E coverage.
 
 Required checks passed:
 - `npm run test:unit`
-- `npm run test:e2e -- --grep @ui-oauth-users`
+- `npm run test:e2e -- --grep @ui-oauth-clients`
 - `npm run verify`
 
-Exit criteria appear satisfied. Remaining work for this task: none. The worktree still includes pre-existing Ralph/task-state changes from before this implementation.
+Exit criteria appear satisfied. Remaining work for this task: none. Note: the worktree still includes pre-existing Ralph/task-state changes from before this implementation.

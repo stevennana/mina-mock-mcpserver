@@ -42,6 +42,7 @@ export async function resetToDefaults(input: ResetInput, client: PrismaClient = 
   }
 
   return client.$transaction(async (tx) => {
+    const deletedOAuthClients = await tx.oAuthClient.deleteMany({});
     const deletedOAuthUsers = await tx.oAuthUser.deleteMany({});
     const deletedBasicUsers = await tx.basicUser.deleteMany({});
     await tx.responseCase.deleteMany({});
@@ -52,6 +53,7 @@ export async function resetToDefaults(input: ResetInput, client: PrismaClient = 
     const seededEndpoints = await tx.endpoint.count();
     const seededBasicUsers = await tx.basicUser.count();
     const seededOAuthUsers = await tx.oAuthUser.count();
+    const seededOAuthClients = await tx.oAuthClient.count();
 
     await recordAuditEvent(
       {
@@ -65,9 +67,11 @@ export async function resetToDefaults(input: ResetInput, client: PrismaClient = 
           deletedEndpoints: deletedEndpoints.count,
           deletedBasicUsers: deletedBasicUsers.count,
           deletedOAuthUsers: deletedOAuthUsers.count,
+          deletedOAuthClients: deletedOAuthClients.count,
           seededEndpoints,
           seededBasicUsers,
           seededOAuthUsers,
+          seededOAuthClients,
         },
       },
       tx,
@@ -80,6 +84,8 @@ export async function resetToDefaults(input: ResetInput, client: PrismaClient = 
       seededBasicUsers,
       deletedOAuthUsers: deletedOAuthUsers.count,
       seededOAuthUsers,
+      deletedOAuthClients: deletedOAuthClients.count,
+      seededOAuthClients,
     };
   });
 }

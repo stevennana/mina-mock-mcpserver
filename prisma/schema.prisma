@@ -24,6 +24,7 @@ model Endpoint {
   updatedAt             DateTime        @updatedAt
   parameters            EndpointParam[]
   responseCases         ResponseCase[]
+  oauthClientAllowances OAuthClientAllowedEndpoint[]
 }
 
 model EndpointParam {
@@ -106,4 +107,31 @@ model OAuthUser {
   updatedAt             DateTime @updatedAt
 
   @@index([builtIn, username])
+}
+
+model OAuthClient {
+  id                          String                       @id
+  clientId                    String                       @unique
+  displayName                 String                       @default("")
+  secretHash                  String
+  enabled                     Boolean                      @default(true)
+  builtIn                     Boolean                      @default(false)
+  redirectUrisJson            String                       @default("[]")
+  clientCredentialsTtlSeconds Int                          @default(3600)
+  createdAt                   DateTime                     @default(now())
+  updatedAt                   DateTime                     @updatedAt
+  allowedEndpoints            OAuthClientAllowedEndpoint[]
+
+  @@index([builtIn, clientId])
+}
+
+model OAuthClientAllowedEndpoint {
+  oauthClientId String
+  endpointId    String
+  createdAt     DateTime    @default(now())
+  oauthClient   OAuthClient @relation(fields: [oauthClientId], references: [id], onDelete: Cascade)
+  endpoint      Endpoint    @relation(fields: [endpointId], references: [id], onDelete: Cascade)
+
+  @@id([oauthClientId, endpointId])
+  @@index([endpointId])
 }

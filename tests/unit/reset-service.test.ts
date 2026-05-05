@@ -49,6 +49,7 @@ test("reset requires confirmation and leaves endpoint state untouched on failure
     assert.equal(await client.endpoint.count(), 1);
     assert.equal(await client.basicUser.count(), 1);
     assert.equal(await client.oAuthUser.count(), 1);
+    assert.equal(await client.oAuthClient.count(), 1);
     assert.equal(await client.auditEvent.count({ where: { eventType: "system.reset", outcome: "failure" } }), 1);
   });
 });
@@ -89,15 +90,19 @@ test("reset clears mutable endpoint data and recreates current seed defaults", a
     assert.equal(result.seededEndpoints, 1);
     assert.equal(result.seededBasicUsers, 1);
     assert.equal(result.seededOAuthUsers, 1);
+    assert.equal(result.seededOAuthClients, 1);
     assert.equal(await client.endpoint.count(), 1);
     assert.equal(await client.basicUser.count(), 1);
     assert.equal(await client.oAuthUser.count(), 1);
+    assert.equal(await client.oAuthClient.count(), 1);
+    assert.equal(await client.oAuthClientAllowedEndpoint.count(), 1);
     assert.equal(await client.endpointParam.count(), 1);
     assert.equal(await client.responseCase.count(), 2);
     assert.equal(await client.endpoint.count({ where: { name: "temporary_reset_endpoint" } }), 0);
     assert.equal(await client.endpoint.count({ where: { id: "endpoint_default_echo", protectedDefault: true } }), 1);
     assert.equal(await client.basicUser.count({ where: { id: "basic_user_default", builtIn: true, enabled: true } }), 1);
     assert.equal(await client.oAuthUser.count({ where: { id: "oauth_user_default", builtIn: true, enabled: true } }), 1);
+    assert.equal(await client.oAuthClient.count({ where: { id: "oauth_client_default", builtIn: true, enabled: true } }), 1);
     assert.equal(await client.auditEvent.count({ where: { eventType: "system.reset", outcome: "success" } }), 1);
   });
 });
