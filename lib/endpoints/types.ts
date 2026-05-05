@@ -1,6 +1,23 @@
 export type EndpointParamType = "string" | "number" | "boolean";
 export type FailureMode = "none" | "delay" | "error" | "malformed";
 export type CaseErrorMode = "none" | "error";
+export type JsonPrimitive = string | number | boolean | null;
+export type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
+
+export type McpInputSchema = {
+  type: "object";
+  properties: Record<
+    string,
+    {
+      type: EndpointParamType;
+      title?: string;
+      description?: string;
+      default?: JsonValue;
+    }
+  >;
+  required: string[];
+  additionalProperties: false;
+};
 
 export type EndpointParamInput = {
   name: string;
@@ -56,6 +73,7 @@ export type EndpointSummary = {
 export type EndpointDetail = EndpointSummary & {
   deleteCode: string | null;
   defaultResponseJson: string;
+  inputSchema: McpInputSchema;
   failureMode: FailureMode;
   failureStatusCode: number | null;
   failureDelayMs: number;

@@ -306,6 +306,14 @@ h1 {
   font-weight: 700;
 }
 
+.field-hint,
+.section-note {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
 .form-message {
   border-radius: 8px;
   margin: 0 0 14px;
@@ -463,6 +471,80 @@ h1 {
   gap: 12px;
 }
 
+.json-panel,
+.evidence-panel pre {
+  max-width: 100%;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  border: 1px solid #d8e0ea;
+  border-radius: 8px;
+  background: #0f1720;
+  color: #e8eef7;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.json-panel {
+  min-height: 180px;
+  margin: 10px 0 0;
+  padding: 12px;
+}
+
+.console-shell {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+
+.console-controls,
+.console-evidence-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  min-width: 0;
+}
+
+.console-arguments {
+  min-height: 132px;
+}
+
+.console-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.console-actions .secondary-button {
+  white-space: normal;
+  text-align: left;
+}
+
+.evidence-panel {
+  min-width: 0;
+  border: 1px solid #e4e9f0;
+  border-radius: 8px;
+  padding: 12px;
+  background: #fbfcfe;
+}
+
+.evidence-panel h4 {
+  margin: 0 0 8px;
+  color: #26313f;
+  font-size: 0.88rem;
+}
+
+.evidence-panel pre {
+  min-height: 150px;
+  margin: 0;
+  padding: 12px;
+}
+
+.evidence-panel.compact pre {
+  min-height: 72px;
+}
+
 @media (max-width: 720px) {
   .shell {
     width: min(100% - 24px, 560px);
@@ -486,6 +568,11 @@ h1 {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .console-controls,
+  .console-evidence-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .case-grid {
     grid-template-columns: minmax(0, 1fr) 140px 160px;
     align-items: end;
@@ -504,5 +591,13 @@ h1 {
 @media (min-width: 1080px) {
   .endpoint-layout {
     grid-template-columns: minmax(420px, 0.92fr) minmax(0, 1.45fr);
+  }
+
+  .console-evidence-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .console-evidence-grid .evidence-panel:nth-child(-n + 2) {
+    grid-column: span 3;
   }
 }

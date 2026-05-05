@@ -1,10 +1,15 @@
-Completed `endpoint-management-list-editor-ui`.
+Completed `endpoint-console-schema-preview-ui`.
 
-I finished the endpoint list/search/create/edit UI, filled the missing MVP fields, synced counts after saves, tightened the tagged Playwright UI proof, updated the relevant docs and progress log, and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+Changed:
+- Added shared MCP `inputSchema` generation in `lib/endpoints/schema.ts`.
+- Rendered live schema preview in the endpoint editor.
+- Added the disabled endpoint console shell with auth controls, arguments JSON validation, raw evidence panels, matched case/principal/elapsed placeholders.
+- Added `@ui-endpoint-console` E2E coverage with desktop/mobile screenshots and overflow/accessibility checks.
+- Updated related docs and `state/last-result.txt`.
 
 Required checks passed:
 - `npm run test:unit`
-- `npm run test:e2e -- --grep @ui-endpoint-editor`
+- `npm run test:e2e -- --grep @ui-endpoint-console`
 - `npm run verify`
 
-Exit criteria appear satisfied. Nothing remains for this task; delete/reset/audit and console execution remain out of scope for later tasks.
+Note: the repo already had unrelated Ralph/state changes before this task; I left them intact.

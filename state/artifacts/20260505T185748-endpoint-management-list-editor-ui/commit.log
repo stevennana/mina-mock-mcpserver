@@ -1,0 +1,23 @@
+[main 2b72621] ralph: endpoint-management-list-editor-ui 2026-05-05T19:03:54+09:00
+ 40 files changed, 2143 insertions(+), 89 deletions(-)
+ create mode 100644 app/api/endpoints/[id]/route.ts
+ create mode 100644 app/api/endpoints/route.ts
+ create mode 100644 app/endpoints/endpoint-manager.tsx
+ create mode 100644 app/endpoints/page.tsx
+ rename docs/exec-plans/{active => completed}/002-endpoint-validation-and-matching.md (95%)
+ create mode 100644 lib/endpoints/api.ts
+ create mode 100644 lib/endpoints/service.ts
+ create mode 100644 lib/endpoints/types.ts
+ create mode 100644 lib/endpoints/validation.ts
+ create mode 100644 state/artifacts/20260505T183939-endpoint-domain-and-schema/backlog.log
+ create mode 100644 state/artifacts/20260505T183939-endpoint-domain-and-schema/promote.log
+ create mode 100644 state/artifacts/20260505T184520-endpoint-management-list-editor-ui/task-prompt.log
+ create mode 100644 state/artifacts/20260505T184520-endpoint-management-list-editor-ui/worker.jsonl
+ create mode 100644 state/artifacts/20260505T185748-endpoint-management-list-editor-ui/commit.log
+ create mode 100644 state/artifacts/20260505T185748-endpoint-management-list-editor-ui/evaluator.log
+ create mode 100644 state/artifacts/20260505T185748-endpoint-management-list-editor-ui/task-prompt.log
+ create mode 100644 state/artifacts/20260505T185748-endpoint-management-list-editor-ui/worker.jsonl
+ create mode 100644 tests/e2e/endpoint-editor.spec.ts
+ create mode 100644 tests/unit/endpoint-validation.test.ts
+ create mode 100644 tests/unit/ralph-promote.test.ts
+commit: created

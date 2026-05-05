@@ -1,8 +1,8 @@
 {
-  "task_id": "endpoint-management-list-editor-ui",
-  "started_at": "2026-05-05T18:57:48+09:00",
-  "artifact_dir": "state/artifacts/20260505T185748-endpoint-management-list-editor-ui",
+  "task_id": "endpoint-console-schema-preview-ui",
+  "started_at": "2026-05-05T19:04:25+09:00",
+  "artifact_dir": "state/artifacts/20260505T190425-endpoint-console-schema-preview-ui",
   "phase": "commit",
   "status": "running",
-  "updated_at": "2026-05-05T10:03:54.704Z"
+  "updated_at": "2026-05-05T10:09:30.664Z"
 }

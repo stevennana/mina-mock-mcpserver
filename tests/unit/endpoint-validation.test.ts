@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { EndpointValidationError } from "@/lib/endpoints/types";
 import type { EndpointInput } from "@/lib/endpoints/types";
+import { generateMcpInputSchema } from "@/lib/endpoints/schema";
 import { validateEndpointInput } from "@/lib/endpoints/validation";
 
 function validEndpoint(overrides: Partial<EndpointInput> = {}): EndpointInput {
@@ -100,4 +101,45 @@ test("endpoint validation returns field-level errors for UI rendering", () => {
       return true;
     },
   );
+});
+
+test("MCP input schema generation reflects endpoint parameters", () => {
+  const schema = generateMcpInputSchema({
+    parameters: [
+      {
+        name: "city",
+        label: "City",
+        description: "City to look up.",
+        type: "string",
+        required: true,
+        defaultValueJson: '"Seoul"',
+      },
+      {
+        name: "units",
+        label: "",
+        description: "",
+        type: "number",
+        required: false,
+        defaultValueJson: "1",
+      },
+    ],
+  });
+
+  assert.deepEqual(schema, {
+    type: "object",
+    properties: {
+      city: {
+        type: "string",
+        title: "City",
+        description: "City to look up.",
+        default: "Seoul",
+      },
+      units: {
+        type: "number",
+        default: 1,
+      },
+    },
+    required: ["city"],
+    additionalProperties: false,
+  });
 });

@@ -22,6 +22,7 @@ Remote MCP adoption is moving auth, transport, and permission bugs into client i
 
 ## Core Value in v1
 - create a mock endpoint once and exercise it through MCP and REST
+- inspect the generated MCP input schema and planned console evidence before runtime calls are wired
 - prove no-auth, Basic, and OAuth bearer client behavior against strict routes
 - issue mock OAuth tokens with endpoint-level permissions through browser consent or client credentials
 - simulate failure cases that clients often mishandle

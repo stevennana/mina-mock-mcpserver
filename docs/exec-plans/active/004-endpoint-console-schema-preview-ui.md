@@ -5,7 +5,7 @@
   "id": "endpoint-console-schema-preview-ui",
   "title": "Endpoint Schema Preview and Test Console Shell",
   "order": 4,
-  "status": "queued",
+  "status": "active",
   "next_task_on_success": "endpoint-protected-delete-audit",
   "prompt_docs": [
     "AGENTS.md",
@@ -105,3 +105,5 @@ Confirm that this task maps to the primary product spec `endpoint-tool-managemen
 
 - Start here. Append timestamped progress notes as work lands.
 - Note when existing partial implementations were found and reused instead of replaced.
+- 2026-05-05T10:03:54.900Z: restored as current task after endpoint-management-list-editor-ui promotion.
+- 2026-05-05T19:21:00+09:00 - Found existing endpoint editor/persistence UI but no reusable schema helper in `lib/endpoints`; added a shared MCP inputSchema generator, live editor preview, disabled console shell evidence panels, and `@ui-endpoint-console` coverage.

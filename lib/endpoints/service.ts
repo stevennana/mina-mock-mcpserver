@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import type { Prisma, PrismaClient } from "@prisma/client";
 import { createPrismaClient } from "@/lib/db/client";
+import { generateMcpInputSchema } from "@/lib/endpoints/schema";
 import { validateEndpointInput } from "@/lib/endpoints/validation";
 import type { EndpointDetail, EndpointInput, EndpointListResult, EndpointSummary } from "@/lib/endpoints/types";
 
@@ -26,25 +27,28 @@ function toSummary(endpoint: EndpointRecord): EndpointSummary {
 }
 
 function toDetail(endpoint: EndpointRecord): EndpointDetail {
+  const parameters = endpoint.parameters.map((parameter) => ({
+    id: parameter.id,
+    position: parameter.position,
+    name: parameter.name,
+    label: parameter.label ?? "",
+    description: parameter.description,
+    type: parameter.type as EndpointDetail["parameters"][number]["type"],
+    required: parameter.required,
+    defaultValueJson: parameter.defaultValueJson,
+  }));
+
   return {
     ...toSummary(endpoint),
     deleteCode: endpoint.deleteCode,
     defaultResponseJson: endpoint.defaultResponseJson,
+    inputSchema: generateMcpInputSchema({ parameters }),
     failureMode: endpoint.failureMode as EndpointDetail["failureMode"],
     failureStatusCode: endpoint.failureStatusCode,
     failureDelayMs: endpoint.failureDelayMs,
     failureMessage: endpoint.failureMessage,
     malformedResponseJson: endpoint.malformedResponseJson,
-    parameters: endpoint.parameters.map((parameter) => ({
-      id: parameter.id,
-      position: parameter.position,
-      name: parameter.name,
-      label: parameter.label ?? "",
-      description: parameter.description,
-      type: parameter.type as EndpointDetail["parameters"][number]["type"],
-      required: parameter.required,
-      defaultValueJson: parameter.defaultValueJson,
-    })),
+    parameters,
     responseCases: endpoint.responseCases.map((responseCase) => ({
       id: responseCase.id,
       name: responseCase.name,

@@ -5,55 +5,54 @@ Read the following repository documents before making changes:
 - docs/FRONTEND.md
 - docs/DESIGN.md
 - docs/product-specs/endpoint-tool-management.md
-- docs/exec-plans/active/003-endpoint-management-list-editor-ui.md
+- docs/exec-plans/active/004-endpoint-console-schema-preview-ui.md
 
-Current task id: endpoint-management-list-editor-ui
-Current task title: Endpoint List, Search, and Editor UI
+Current task id: endpoint-console-schema-preview-ui
+Current task title: Endpoint Schema Preview and Test Console Shell
 
 Objective:
-Build the first public endpoint-management UI for listing, searching, creating, and editing endpoint definitions.
+Add generated MCP schema preview and a stable endpoint test-console shell without implementing external MCP or REST calls yet.
 
 Clarity notes:
-- This is the endpoint CRUD UI slice, not the test console slice.
-- Use domain/API validation from earlier tasks and surface errors clearly in the form.
-- The UI should be operational and dense, suitable for repeated test setup.
-- This is UI-focused and can promote deterministically if the tagged UI proof passes.
+- This task gives users visibility into how an endpoint will be called, but actual protocol execution lands in later MCP/REST tasks.
+- The console shell should make future auth modes and raw evidence panels obvious without pretending unavailable calls work.
+- Generated schema preview must come from the domain service, not handwritten UI logic.
+- The task is UI-focused and requires deterministic screenshot/responsive/accessibility proof.
 
 Expected result:
-- Dashboard/list views show persisted endpoint counts and rows.
-- A user can create and edit endpoint basic info, parameters, response cases, default response, enabled state, delete code, and failure config fields.
-- Search filters by name or description without layout shift.
-- Desktop/mobile screenshot and accessibility coverage exists under `@ui-endpoint-editor`.
+- Endpoint detail/editor pages can show generated MCP inputSchema preview.
+- A console shell exists with auth mode selector, Basic credential fields, OAuth token field, arguments JSON editor, raw request panel, raw response panel, matched case area, principal, and elapsed time placeholders.
+- Unavailable call buttons or placeholder states clearly indicate which runtime task will make them active.
+- `@ui-endpoint-console` proves the console layout is stable on desktop and mobile.
 
 Objections / risks to avoid:
-- Do not implement endpoint deletion, reset, or audit here.
-- Do not wire fake MCP/REST call success into the editor.
-- Do not duplicate server validation with incompatible client rules.
-- Do not build a decorative landing page before the usable management UI.
+- Do not fake successful MCP or REST calls.
+- Do not implement Basic or OAuth credential validation here.
+- Do not create console-only schema generation logic.
+- Do not let JSON panels overflow or obscure controls in mobile screenshots.
 
 Scope:
-- Create endpoint list and search UI.
-- Create endpoint create/edit flow backed by persisted endpoint APIs.
-- Render validation errors and empty/loading/error states.
-- Update dashboard counts from persisted endpoint state.
-- Add Playwright UI test coverage tagged `@ui-endpoint-editor` with desktop and mobile assertions.
+- Render schema preview for selected endpoint definitions.
+- Build console shell controls and read-only evidence panels.
+- Validate arguments JSON syntax locally enough to show user-friendly errors.
+- Add UI tests tagged `@ui-endpoint-console` for preview and console shell states.
 
 Out of scope:
-- Endpoint test console execution.
-- Delete/reset/audit behavior.
-- MCP and REST runtime routes.
-- OAuth or Basic Auth screens.
+- Actual `/mcp*` calls.
+- Actual `/rest*` calls.
+- Basic/OAuth runtime auth.
+- Audit logging for console calls.
 
 Exit criteria:
-1. A public user can create and edit endpoint definitions through the UI.
-2. List/search and dashboard counts reflect persisted endpoint data.
-3. The form captures all MVP endpoint fields without layout overflow on mobile.
-4. `@ui-endpoint-editor` proves screenshot, responsive, and accessibility expectations.
+1. Schema preview reflects endpoint parameter changes.
+2. Console shell has stable controls and evidence panels ready for later runtime wiring.
+3. Invalid arguments JSON is visibly handled without crashing the page.
+4. `@ui-endpoint-console` passes with screenshot, responsive, and accessibility checks.
 5. All required checks pass.
 
 Required checks:
 - npm run test:unit
-- npm run test:e2e -- --grep @ui-endpoint-editor
+- npm run test:e2e -- --grep @ui-endpoint-console
 - npm run verify
 
 Evaluator notes:
@@ -67,7 +66,7 @@ Required repository artifacts for this task:
 
 Required commands for this task:
 - npm run test:unit
-- npm run test:e2e -- --grep @ui-endpoint-editor
+- npm run test:e2e -- --grep @ui-endpoint-console
 - npm run verify
 
 Previous known gaps from the last evaluation:

@@ -1,1 +1,1 @@
-endpoint-management-list-editor-ui
+endpoint-console-schema-preview-ui
