@@ -1,8 +1,8 @@
 # Backlog
 
 - [x] bootstrap-foundation — Bootstrap Next.js TypeScript Harness
-- [x] endpoint-domain-and-schema — Endpoint Persistence Schema and Seed Defaults
-- [ ] endpoint-validation-and-matching — Endpoint Validation, Schema Preview, and Response Matching ← current
+- [ ] endpoint-domain-and-schema — Endpoint Persistence Schema and Seed Defaults ← current
+- [ ] endpoint-validation-and-matching — Endpoint Validation, Schema Preview, and Response Matching
 - [ ] endpoint-management-list-editor-ui — Endpoint List, Search, and Editor UI
 - [ ] endpoint-console-schema-preview-ui — Endpoint Schema Preview and Test Console Shell
 - [ ] endpoint-protected-delete-audit — Endpoint Protected Delete and Audit Evidence
@@ -25,4 +25,3 @@
 - [ ] malformed-response-console-audit — Malformed Response Modes, Console Evidence, and Audit
 - [ ] operator-config-health-logs — Operator Config, Health, Connection Guide, and Logs
 - [ ] docker-nginx-final-hardening — Docker, Nginx, Final Docs, and Queue Completion Hardening
-

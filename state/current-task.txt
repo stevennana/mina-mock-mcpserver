@@ -1,1 +1,1 @@
-endpoint-domain-and-schema
+endpoint-validation-and-matching

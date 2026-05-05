@@ -5,7 +5,7 @@
   "id": "endpoint-domain-and-schema",
   "title": "Endpoint Persistence Schema and Seed Defaults",
   "order": 1,
-  "status": "active",
+  "status": "completed",
   "next_task_on_success": "endpoint-validation-and-matching",
   "prompt_docs": [
     "AGENTS.md",
@@ -26,7 +26,8 @@
     "Required checks do not prove the claimed behavior.",
     "Implementation changes contradict the product spec or security/reliability docs."
   ],
-  "promotion_mode": "deterministic"
+  "promotion_mode": "deterministic",
+  "completed_at": "2026-05-05T09:43:16.706Z"
 }
 ```
 
@@ -141,3 +142,5 @@ Confirm that this task maps to the primary product spec `endpoint-tool-managemen
 - 2026-05-05T18:26:20+09:00 - Re-read the requested repository docs and AGENTS read-order docs, confirmed the current Prisma/SQLite endpoint persistence foundation still maps to `endpoint-tool-management.md`, and re-ran the mandatory gates; `npm run db:prepare`, `npm run test:unit`, and `npm run verify` all passed.
 - 2026-05-05T18:31:09+09:00 - Revalidated the current `endpoint-domain-and-schema` slice against the task prompt; Prisma/SQLite schema, migrations, deterministic seed preparation, generated DB docs, and repeatability coverage are present, and `npm run db:prepare`, `npm run test:unit`, and `npm run verify` all passed.
 - 2026-05-05T18:36:25+09:00 - Re-read the requested repository docs, inspected the current Prisma/SQLite persistence foundation and generated schema docs, then re-ran the mandatory gates; `npm run db:prepare`, `npm run test:unit`, and `npm run verify` all passed with no product-code changes needed.
+- 2026-05-05T18:41:27+09:00 - Re-read the task-required docs plus AGENTS read-order docs, inspected the Prisma/SQLite schema, migrations, seed defaults, generated DB docs, and repeatability test, then re-ran all mandatory gates; `npm run db:prepare`, `npm run test:unit`, and `npm run verify` passed with no product-code changes needed.
+- 2026-05-05T09:43:16.706Z: automatically promoted after deterministic checks and evaluator approval.

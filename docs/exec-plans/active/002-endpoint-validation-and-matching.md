@@ -5,7 +5,7 @@
   "id": "endpoint-validation-and-matching",
   "title": "Endpoint Validation, Schema Preview, and Response Matching",
   "order": 2,
-  "status": "queued",
+  "status": "active",
   "next_task_on_success": "endpoint-management-list-editor-ui",
   "prompt_docs": [
     "AGENTS.md",
@@ -102,3 +102,4 @@ Confirm that this task maps to the primary product spec `endpoint-tool-managemen
 
 - Start here. Append timestamped progress notes as work lands.
 - Note when existing partial implementations were found and reused instead of replaced.
+- 2026-05-05T09:43:16.706Z: restored as current task after endpoint-domain-and-schema promotion.

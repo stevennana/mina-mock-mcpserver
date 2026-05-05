@@ -5,54 +5,52 @@ Read the following repository documents before making changes:
 - docs/DESIGN.md
 - docs/references/prd-analysis.md
 - docs/product-specs/endpoint-tool-management.md
-- docs/exec-plans/active/001-endpoint-domain-and-schema.md
+- docs/exec-plans/active/002-endpoint-validation-and-matching.md
 
-Current task id: endpoint-domain-and-schema
-Current task title: Endpoint Persistence Schema and Seed Defaults
+Current task id: endpoint-validation-and-matching
+Current task title: Endpoint Validation, Schema Preview, and Response Matching
 
 Objective:
-Replace the bootstrap runtime placeholder with durable SQLite/Prisma persistence for endpoint/tool data and deterministic seed defaults.
+Create reusable endpoint domain services for validation, MCP inputSchema generation, and exact-match response-case selection.
 
 Clarity notes:
-- This task is only the persistence foundation for endpoints; it should not implement forms, MCP routes, REST routes, or auth behavior.
-- The schema must use immutable endpoint IDs internally because later OAuth permissions should not drift when a tool name changes.
-- `npm run db:prepare` is the deterministic runtime-prep command used by Ralph and startup smoke, so keep the command name stable.
-- Seed behavior should be idempotent and safe to run before every test or startup smoke.
+- This is pure domain behavior that later UI, MCP, and REST tasks will call.
+- All parameter and response-case rules should be enforced here, not independently reimplemented in route handlers.
+- The matcher should be testable without HTTP, React, or Prisma setup beyond repository fixtures.
+- Malformed response configuration is allowed only when explicitly configured as a negative-test mode.
 
 Expected result:
-- Prisma and SQLite are wired into the repo with migrations/schema files and deterministic runtime preparation.
-- Tables or models exist for endpoints, parameters, response cases, audit-ready timestamps, and enough seed defaults for later slices.
-- Seed data can be recreated without duplicating rows or weakening protected/default invariants.
-- `docs/generated/db-schema.md` records the schema shape and persistence assumptions.
+- Endpoint validation rejects invalid definitions before persistence or runtime exposure.
+- Input schema generation produces MCP-compatible object schemas for zero to three parameters.
+- Exact-match response selection handles string, number, and boolean values consistently.
+- Unit tests pin no-match/default/priority behavior for later MCP and REST use.
 
 Objections / risks to avoid:
-- Do not keep using `data/bootstrap-state.json` as the real persistence mechanism after this task.
-- Do not make endpoint names the only durable identifier.
-- Do not add UI screens or external protocol routes in this persistence task.
-- Do not leave migrations or seed commands dependent on local manual steps.
+- Do not build UI in this task.
+- Do not produce MCP JSON-RPC envelopes here; only generate schema/data used by protocol adapters later.
+- Do not add future matcher types such as regex, enum, object, array, date, or custom JavaScript.
+- Do not silently accept invalid JSON unless the endpoint is intentionally configured for malformed output.
 
 Scope:
-- Add Prisma/SQLite dependencies, schema, migration or sync path, generated client setup, and repo-local DB configuration.
-- Define endpoint, parameter, response case, and timestamp fields required by the PRD for MVP endpoint management.
-- Implement idempotent seed preparation for at least one representative enabled endpoint and any protected defaults needed by endpoint flows.
-- Update `scripts/db-prepare.mjs` to prepare SQLite state deterministically.
-- Add unit coverage or command-level assertions that `db:prepare` can run repeatedly.
+- Implement domain types and validation for endpoint name, parameter count, parameter names, parameter types, delete code, enabled state, response JSON, default case, and error/delay config bounds.
+- Implement MCP `inputSchema` generation from endpoint parameters.
+- Implement argument normalization and exact-match response-case selection with priority/default/no-match outcomes.
+- Add focused unit tests for validators, schema generation, normalization, matching, and no-match/default behavior.
 
 Out of scope:
-- Endpoint validators and exact-match response selection beyond simple schema constraints.
-- Endpoint management UI.
-- MCP, REST, Basic Auth, or OAuth runtime behavior.
-- Root reset behavior; that has its own task.
+- Prisma schema changes unless required by discovered validation gaps.
+- Endpoint UI forms.
+- MCP `tools/call` runtime formatting.
+- REST route error bodies.
 
 Exit criteria:
-1. `npm run db:prepare` creates or updates the SQLite runtime state successfully from a clean checkout.
-2. Running `npm run db:prepare` twice is safe and does not duplicate seed data.
-3. The schema can represent endpoint names, descriptions, enabled state, up to three parameters, response cases, default responses, delete codes, and basic failure config fields.
-4. `docs/generated/db-schema.md` matches the implemented persistence shape.
+1. Validation rules are centralized in a reusable domain module.
+2. Matcher behavior is deterministic and covered for string, number, and boolean parameters.
+3. Generated input schemas match the PRD example shape, including required parameter names and `additionalProperties` behavior.
+4. No route handler needs to invent endpoint validation rules.
 5. All required checks pass.
 
 Required checks:
-- npm run db:prepare
 - npm run test:unit
 - npm run verify
 
@@ -66,7 +64,6 @@ Required repository artifacts for this task:
 - none
 
 Required commands for this task:
-- npm run db:prepare
 - npm run test:unit
 - npm run verify
 

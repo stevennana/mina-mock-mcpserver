@@ -2,7 +2,6 @@ import fs from "node:fs";
 import path from "node:path";
 import { clearTaskBlockers } from "./lib/blocker-utils.mjs";
 import {
-  ACTIVE_TASK_DIR,
   COMPLETED_TASK_DIR,
   appendTaskProgressNote,
   ensureDir,
@@ -49,12 +48,13 @@ function buildNextTaskUpdate({ nextTaskId, parentTaskId, currentTaskId, complete
     };
   }
 
-  const nextTaskPath = path.join(ACTIVE_TASK_DIR, `${nextTaskId}.md`);
-  if (!fileExists(nextTaskPath)) {
+  const nextTask = findTaskDoc(nextTaskId);
+  if (!nextTask) {
     throw new Error(`Next task '${nextTaskId}' does not exist in active plans.`);
   }
 
-  const nextMarkdown = readText(nextTaskPath);
+  const nextTaskPath = nextTask.filePath;
+  const nextMarkdown = nextTask.markdown;
   const nextMeta = parseTaskMeta(nextMarkdown, `Next task '${nextTaskId}'`);
   if (nextMeta.status === "completed") {
     throw new Error(`Next task '${nextTaskId}' is already marked completed and cannot become current.`);

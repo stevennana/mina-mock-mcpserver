@@ -1,8 +1,8 @@
 {
   "task_id": "endpoint-domain-and-schema",
-  "started_at": "2026-05-05T18:34:44+09:00",
-  "artifact_dir": "state/artifacts/20260505T183444-endpoint-domain-and-schema",
+  "started_at": "2026-05-05T18:39:39+09:00",
+  "artifact_dir": "state/artifacts/20260505T183939-endpoint-domain-and-schema",
   "phase": "commit",
   "status": "running",
-  "updated_at": "2026-05-05T09:39:09.035Z"
+  "updated_at": "2026-05-05T09:44:50.274Z"
 }
