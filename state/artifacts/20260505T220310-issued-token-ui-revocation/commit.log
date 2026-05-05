@@ -1,0 +1,12 @@
+[main f5bf09d] ralph: issued-token-ui-revocation 2026-05-05T22:10:29+09:00
+ 24 files changed, 3759 insertions(+), 63 deletions(-)
+ create mode 100644 prisma/migrations/202605050010_oauth_issued_token_issuer/migration.sql
+ create mode 100644 state/artifacts/20260505T214959-issued-token-ui-revocation/backlog.log
+ create mode 100644 state/artifacts/20260505T214959-issued-token-ui-revocation/blocker-evaluation.json
+ create mode 100644 state/artifacts/20260505T214959-issued-token-ui-revocation/blocker-evaluation.json.log
+ create mode 100644 state/artifacts/20260505T214959-issued-token-ui-revocation/promote.log
+ create mode 100644 state/artifacts/20260505T220310-issued-token-ui-revocation/commit.log
+ create mode 100644 state/artifacts/20260505T220310-issued-token-ui-revocation/evaluator.log
+ create mode 100644 state/artifacts/20260505T220310-issued-token-ui-revocation/task-prompt.log
+ create mode 100644 state/artifacts/20260505T220310-issued-token-ui-revocation/worker.jsonl
+commit: created

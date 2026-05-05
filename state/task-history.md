@@ -20,3 +20,4 @@
 - 2026-05-05T12:19:37.153Z: promoted oauth-client-credentials-grant -> oauth-discovery-metadata
 - 2026-05-05T12:38:08.891Z: promoted oauth-discovery-metadata -> oauth-mcp-rest-permission-enforcement
 - 2026-05-05T12:49:29.501Z: promoted oauth-mcp-rest-permission-enforcement -> issued-token-ui-revocation
+- 2026-05-05T13:10:29.907Z: promoted issued-token-ui-revocation -> failure-delay-forced-error-runtime

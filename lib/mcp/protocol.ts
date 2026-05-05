@@ -87,13 +87,16 @@ export function mcpToolResultFromEndpointCall(callResult: EndpointCallResult): M
   }
 
   if (callResult.kind === "case_error") {
-    const bodyText = callResult.body ? textForJson(callResult.body) : callResult.message;
+    const fallbackBody = {
+      error: "tool_error",
+      message: callResult.message,
+      matchedCase: callResult.matchedCase.name,
+    };
+    const body = callResult.body ?? fallbackBody;
     return {
       isError: true,
-      content: [{ type: "text", text: bodyText }],
-      ...(callResult.body && structuredContentFor(callResult.body)
-        ? { structuredContent: structuredContentFor(callResult.body) }
-        : {}),
+      content: [{ type: "text", text: textForJson(body) }],
+      ...(structuredContentFor(body) ? { structuredContent: structuredContentFor(body) } : {}),
     };
   }
 
@@ -171,6 +174,14 @@ export async function handleMcpJsonRpcMessage(
     }
     if (callResult.kind === "invalid_arguments") {
       return errorResponse(message.id, -32602, callResult.message);
+    }
+    if (callResult.kind === "protocol_error") {
+      return errorResponse(message.id, -32000, callResult.message, 200, {
+        error: "protocol_error",
+        tool: message.params.name,
+        matchedCase: callResult.matchedCase.name,
+        ...(callResult.body ? { body: callResult.body } : {}),
+      });
     }
 
     return {

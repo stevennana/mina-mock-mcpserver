@@ -1,8 +1,8 @@
 {
-  "task_id": "issued-token-ui-revocation",
-  "started_at": "2026-05-05T22:03:10+09:00",
-  "artifact_dir": "state/artifacts/20260505T220310-issued-token-ui-revocation",
+  "task_id": "failure-delay-forced-error-runtime",
+  "started_at": "2026-05-05T22:11:00+09:00",
+  "artifact_dir": "state/artifacts/20260505T221100-failure-delay-forced-error-runtime",
   "phase": "commit",
   "status": "running",
-  "updated_at": "2026-05-05T13:10:29.717Z"
+  "updated_at": "2026-05-05T13:22:18.510Z"
 }

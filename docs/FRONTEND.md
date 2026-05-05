@@ -32,7 +32,7 @@ Describe the user-facing structure of MCP Mock Server so an agent can implement 
 | Screen | Primary jobs |
 |---|---|
 | Dashboard | Summarize service state and show connection examples |
-| Endpoints | List, search, create, and edit mock tools, response cases, failure simulation, and delete protection |
+| Endpoints | List, search, create, and edit mock tools, response cases, failure simulation, timeout shortcut, and delete protection |
 | Endpoint console | Preview MCP/REST call shape with selected auth mode, run REST no-auth and Basic calls, and show raw execution evidence |
 | Basic Auth users | List/search/create/password-edit/disable/delete Basic test identities and show the built-in default/default lock state |
 | OAuth users | List/search/create/password-edit/disable/delete OAuth login identities and token TTL presets with built-in default locked |
@@ -53,6 +53,7 @@ Describe the user-facing structure of MCP Mock Server so an agent can implement 
 - endpoint editor forms must surface API/domain validation errors next to the affected fields
 - endpoint editor forms must show generated MCP `inputSchema` from the shared endpoint domain schema helper
 - endpoint console REST execution is available for no-auth and Basic modes and shows raw request, raw response, principal, matched case, and elapsed time
+- endpoint failure simulation controls must make endpoint-level delay/error settings and case-level tool/protocol errors explicit
 - Basic user forms must not display password hashes and must disable mutation controls for built-in rows
 - OAuth user forms must not display password hashes, must use bounded token TTL presets, and must disable mutation controls for the built-in row
 - OAuth client forms must not display stored secret hashes, must show generated raw client secrets only at creation or regeneration, and must disable mutation controls for the built-in row

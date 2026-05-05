@@ -11,7 +11,7 @@ const endpointNamePattern = /^[A-Za-z0-9_-]{1,64}$/;
 const paramNamePattern = /^[A-Za-z_][A-Za-z0-9_]{0,63}$/;
 const paramTypes = new Set<EndpointParamType>(["string", "number", "boolean"]);
 const failureModes = new Set<FailureMode>(["none", "delay", "error", "malformed"]);
-const caseErrorModes = new Set<CaseErrorMode>(["none", "error"]);
+const caseErrorModes = new Set<CaseErrorMode>(["none", "error", "protocol_error"]);
 
 function addError(errors: Record<string, string>, field: string, message: string) {
   if (!errors[field]) {

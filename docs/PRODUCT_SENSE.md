@@ -31,7 +31,7 @@ Remote MCP adoption is moving auth, transport, and permission bugs into client i
 - issue mock OAuth tokens with endpoint-level permissions through browser consent or non-interactive client credentials
 - create mock OAuth authorization codes through browser login and consent with explicit endpoint permission selection
 - expose OAuth discovery metadata and a public JWKS that match the mock RS256 token issuer
-- simulate failure cases that clients often mishandle
+- simulate failure cases that clients often mishandle, including bounded artificial delays and forced REST/MCP errors
 - persist configuration and provide root-password-protected reset/recovery for a public test service
 
 ## Non-Goals for v1

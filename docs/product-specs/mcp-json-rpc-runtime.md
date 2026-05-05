@@ -28,6 +28,8 @@ MCP connection guide examples
 - `tools/call` on `/mcp` without credentials and `/mcp/none` executes enabled endpoints by name through the shared endpoint matcher. Exact response cases return MCP tool results with text content, and JSON-object responses also return `structuredContent`.
 - `tools/call` for valid OAuth Bearer callers executes permitted endpoint tools and returns HTTP `403` with JSON-RPC error data when the token is valid but does not grant the requested endpoint.
 - If no exact response case matches the supplied arguments, the configured default response case is returned. Unknown tools, disabled tools, malformed `tools/call` params, and endpoint argument validation failures return JSON-RPC `-32602` envelopes with HTTP `200`.
+- Configured endpoint or response-case delays apply before MCP tool success, tool-error, or protocol-error responses and are bounded to 30000 ms.
+- Response-case tool errors return MCP `tools/call` results with `isError: true`; endpoint-level or response-case protocol errors return JSON-RPC `-32000` errors with `protocol_error` data.
 - Unsupported JSON-RPC methods return `-32601` with HTTP `200`.
 - `GET` and `DELETE` on the MVP MCP endpoints return deterministic `405 Method Not Allowed` responses with `Allow: POST`.
 

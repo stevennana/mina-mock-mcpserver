@@ -17,6 +17,19 @@ export type EndpointCallSuccess = {
   delayMs: number;
 };
 
+export type EndpointCallProtocolError = {
+  kind: "protocol_error";
+  matchedCase: {
+    id: string;
+    name: string;
+    isDefault: boolean;
+  };
+  statusCode: number;
+  body: JsonValue | null;
+  message: string;
+  delayMs: number;
+};
+
 export type EndpointCallError =
   | {
       kind: "not_found";
@@ -43,9 +56,12 @@ export type EndpointCallError =
       body: JsonValue | null;
       message: string;
       delayMs: number;
-    };
+    }
+  | EndpointCallProtocolError;
 
 export type EndpointCallResult = EndpointCallSuccess | EndpointCallError;
+
+export const MAX_ENDPOINT_DELAY_MS = 30_000;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -119,6 +135,30 @@ function sameArguments(left: EndpointCallArguments, right: EndpointCallArguments
   return leftKeys.every((key, index) => key === rightKeys[index] && left[key] === right[key]);
 }
 
+function boundedDelayMs(value: number) {
+  if (!Number.isFinite(value)) return 0;
+  return Math.max(0, Math.min(MAX_ENDPOINT_DELAY_MS, Math.trunc(value)));
+}
+
+function resolvedDelayMs(endpoint: EndpointDetail, responseCase: EndpointRuntimeCase) {
+  if (responseCase.delayMs > 0) return boundedDelayMs(responseCase.delayMs);
+  return endpoint.failureMode === "delay" ? boundedDelayMs(endpoint.failureDelayMs) : 0;
+}
+
+function endpointForcedErrorDelayMs(endpoint: EndpointDetail) {
+  return boundedDelayMs(endpoint.failureDelayMs);
+}
+
+export async function applyEndpointCallDelay(
+  callResult: EndpointCallResult,
+  sleep: (delayMs: number) => Promise<void> = (delayMs) => new Promise((resolve) => setTimeout(resolve, delayMs)),
+): Promise<EndpointCallResult> {
+  if ("delayMs" in callResult && callResult.delayMs > 0) {
+    await sleep(boundedDelayMs(callResult.delayMs));
+  }
+  return callResult;
+}
+
 export function selectEndpointResponseCase(
   endpoint: Pick<EndpointDetail, "parameters" | "responseCases">,
   rawArguments: unknown,
@@ -160,6 +200,17 @@ export function executeEndpointDetail(endpoint: EndpointDetail | null, rawArgume
     isDefault: selected.value.isDefault,
   };
 
+  if (endpoint.failureMode === "error") {
+    return {
+      kind: "protocol_error",
+      matchedCase,
+      statusCode: endpoint.failureStatusCode ?? 500,
+      body: null,
+      message: endpoint.failureMessage ?? "Endpoint forced error.",
+      delayMs: endpointForcedErrorDelayMs(endpoint),
+    };
+  }
+
   if (selected.value.errorMode === "error") {
     const body = selected.value.errorBodyJson ? parseJson(selected.value.errorBodyJson) : null;
     return {
@@ -168,7 +219,19 @@ export function executeEndpointDetail(endpoint: EndpointDetail | null, rawArgume
       statusCode: selected.value.errorStatusCode ?? selected.value.statusCode,
       body,
       message: selected.value.errorMessage ?? "Endpoint response case returned an error.",
-      delayMs: selected.value.delayMs,
+      delayMs: resolvedDelayMs(endpoint, selected.value),
+    };
+  }
+
+  if (selected.value.errorMode === "protocol_error") {
+    const body = selected.value.errorBodyJson ? parseJson(selected.value.errorBodyJson) : null;
+    return {
+      kind: "protocol_error",
+      matchedCase,
+      statusCode: selected.value.errorStatusCode ?? 500,
+      body,
+      message: selected.value.errorMessage ?? "Endpoint response case returned a protocol error.",
+      delayMs: resolvedDelayMs(endpoint, selected.value),
     };
   }
 
@@ -177,6 +240,6 @@ export function executeEndpointDetail(endpoint: EndpointDetail | null, rawArgume
     matchedCase,
     body: parseJson(selected.value.responseJson),
     statusCode: selected.value.statusCode,
-    delayMs: selected.value.delayMs,
+    delayMs: resolvedDelayMs(endpoint, selected.value),
   };
 }

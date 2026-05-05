@@ -155,6 +155,81 @@ test("MCP tools/call maps unknown tools and invalid params to JSON-RPC invalid p
   });
 });
 
+test("MCP tools/call maps forced tool and protocol errors distinctly", async () => {
+  const toolError = await handleMcpJsonRpcMessage(
+    {
+      jsonrpc: "2.0",
+      id: "tool-error",
+      method: "tools/call",
+      params: { name: "echo", arguments: { message: "fail" } },
+    },
+    async () => tools,
+    async () => ({
+      kind: "case_error",
+      matchedCase: { id: "case_fail", name: "forced-tool-error", isDefault: false },
+      statusCode: 503,
+      body: null,
+      message: "Forced tool error.",
+      delayMs: 0,
+    }),
+  );
+
+  assert.equal(toolError.kind, "json");
+  if (toolError.kind !== "json") return;
+  assert.deepEqual(toolError.body, {
+    jsonrpc: "2.0",
+    id: "tool-error",
+    result: {
+      isError: true,
+      content: [
+        {
+          type: "text",
+          text: '{"error":"tool_error","message":"Forced tool error.","matchedCase":"forced-tool-error"}',
+        },
+      ],
+      structuredContent: {
+        error: "tool_error",
+        message: "Forced tool error.",
+        matchedCase: "forced-tool-error",
+      },
+    },
+  });
+
+  const protocolError = await handleMcpJsonRpcMessage(
+    {
+      jsonrpc: "2.0",
+      id: "protocol-error",
+      method: "tools/call",
+      params: { name: "echo", arguments: { message: "fail" } },
+    },
+    async () => tools,
+    async () => ({
+      kind: "protocol_error",
+      matchedCase: { id: "case_protocol", name: "forced-protocol-error", isDefault: false },
+      statusCode: 502,
+      body: null,
+      message: "Forced protocol error.",
+      delayMs: 0,
+    }),
+  );
+
+  assert.equal(protocolError.kind, "json");
+  if (protocolError.kind !== "json") return;
+  assert.deepEqual(protocolError.body, {
+    jsonrpc: "2.0",
+    id: "protocol-error",
+    error: {
+      code: -32000,
+      message: "Forced protocol error.",
+      data: {
+        error: "protocol_error",
+        tool: "echo",
+        matchedCase: "forced-protocol-error",
+      },
+    },
+  });
+});
+
 test("MCP tools/call maps OAuth permission denial to HTTP 403 with error data", async () => {
   const result = await handleMcpJsonRpcMessage(
     {

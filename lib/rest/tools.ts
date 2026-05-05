@@ -60,6 +60,19 @@ export function restToolCallResponseFromEndpointCall(callResult: EndpointCallRes
     };
   }
 
+  if (callResult.kind === "protocol_error") {
+    return {
+      status: callResult.statusCode,
+      body:
+        callResult.body ?? {
+          error: "protocol_error",
+          message: callResult.message,
+          matchedCase: callResult.matchedCase.name,
+        },
+      matchedCase: callResult.matchedCase.name,
+    };
+  }
+
   if (callResult.kind === "invalid_arguments") {
     return {
       status: 422,

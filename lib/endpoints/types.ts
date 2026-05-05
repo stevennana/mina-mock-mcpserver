@@ -1,6 +1,6 @@
 export type EndpointParamType = "string" | "number" | "boolean";
 export type FailureMode = "none" | "delay" | "error" | "malformed";
-export type CaseErrorMode = "none" | "error";
+export type CaseErrorMode = "none" | "error" | "protocol_error";
 export type JsonPrimitive = string | number | boolean | null;
 export type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
 

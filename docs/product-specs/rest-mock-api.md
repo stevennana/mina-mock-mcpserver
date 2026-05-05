@@ -29,6 +29,8 @@ REST example copy
   - `404 { "error": "tool_not_found", "message": "Tool was not found or is disabled." }`
   - `422 { "error": "invalid_arguments", "message": "<matcher validation message>" }`
   - response-case forced errors return the configured status and configured error body, or `{ "error": "tool_error", "message": "<configured message>", "matchedCase": "<case name>" }` when no error body is configured.
+  - endpoint or response-case protocol forced errors return the configured status and configured error body, or `{ "error": "protocol_error", "message": "<configured message>", "matchedCase": "<case name>" }` when no error body is configured.
+- Configured endpoint or response-case delays apply only to the current call and are bounded to 30000 ms.
 
 ## Validation
 - REST error mapping

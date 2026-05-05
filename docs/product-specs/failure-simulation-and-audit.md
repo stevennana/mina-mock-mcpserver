@@ -11,6 +11,8 @@ Failure simulation controls
 - Timeout shortcut
 - Malformed response warning
 - Audit log filters
+- Endpoint-level delay applies to matched success or forced endpoint errors unless a response case has its own delay.
+- Response-case forced errors can return normal tool-error payloads or protocol errors; REST maps both to configured HTTP status/body shapes while MCP maps tool errors to `isError` tool results and protocol errors to JSON-RPC errors.
 
 ## Validation
 - Delay bounds

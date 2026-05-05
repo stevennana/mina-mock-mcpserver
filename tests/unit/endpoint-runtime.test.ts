@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { executeEndpointDetail, selectEndpointResponseCase } from "@/lib/endpoints/runtime";
+import { applyEndpointCallDelay, executeEndpointDetail, selectEndpointResponseCase } from "@/lib/endpoints/runtime";
 import type { EndpointDetail } from "@/lib/endpoints/types";
 
 function endpointFixture(overrides: Partial<EndpointDetail> = {}): EndpointDetail {
@@ -110,4 +110,72 @@ test("endpoint runtime reports disabled endpoints and invalid arguments determin
     kind: "invalid_arguments",
     message: 'Argument "city" must be string.',
   });
+});
+
+test("endpoint runtime resolves endpoint and case delay predictably", async () => {
+  const endpointDelayResult = executeEndpointDetail(
+    endpointFixture({ failureMode: "delay", failureDelayMs: 125 }),
+    { city: "Busan", units: false },
+  );
+  assert.equal(endpointDelayResult.kind, "matched");
+  if (endpointDelayResult.kind !== "matched") return;
+  assert.equal(endpointDelayResult.delayMs, 125);
+
+  const caseDelayResult = executeEndpointDetail(
+    endpointFixture({
+      failureMode: "delay",
+      failureDelayMs: 125,
+      responseCases: endpointFixture().responseCases.map((responseCase) =>
+        responseCase.name === "seoul" ? { ...responseCase, delayMs: 40 } : responseCase,
+      ),
+    }),
+    { city: "Seoul" },
+  );
+  assert.equal(caseDelayResult.kind, "matched");
+  if (caseDelayResult.kind !== "matched") return;
+  assert.equal(caseDelayResult.delayMs, 40);
+
+  const slept: number[] = [];
+  await applyEndpointCallDelay(caseDelayResult, async (delayMs) => {
+    slept.push(delayMs);
+  });
+  assert.deepEqual(slept, [40]);
+});
+
+test("endpoint runtime maps forced endpoint and case protocol errors", () => {
+  const endpointError = executeEndpointDetail(
+    endpointFixture({
+      failureMode: "error",
+      failureStatusCode: 502,
+      failureDelayMs: 30_000,
+      failureMessage: "Endpoint is forcing a gateway error.",
+    }),
+    { city: "Seoul" },
+  );
+  assert.equal(endpointError.kind, "protocol_error");
+  if (endpointError.kind !== "protocol_error") return;
+  assert.equal(endpointError.statusCode, 502);
+  assert.equal(endpointError.message, "Endpoint is forcing a gateway error.");
+  assert.equal(endpointError.delayMs, 30_000);
+  assert.equal(endpointError.matchedCase.name, "seoul");
+
+  const caseProtocolError = executeEndpointDetail(
+    endpointFixture({
+      responseCases: endpointFixture().responseCases.map((responseCase) =>
+        responseCase.name === "seoul"
+          ? {
+              ...responseCase,
+              errorMode: "protocol_error",
+              errorStatusCode: 529,
+              errorMessage: "Case forced protocol break.",
+            }
+          : responseCase,
+      ),
+    }),
+    { city: "Seoul" },
+  );
+  assert.equal(caseProtocolError.kind, "protocol_error");
+  if (caseProtocolError.kind !== "protocol_error") return;
+  assert.equal(caseProtocolError.statusCode, 529);
+  assert.equal(caseProtocolError.message, "Case forced protocol break.");
 });

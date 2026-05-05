@@ -781,3 +781,18 @@
 - evaluator: started
 - evaluator: status=done promotion=true The task maps directly to oauth-consent-and-token-runtime.md and is complete in substance. The implementation provides issued-token list/detail/filter UI, reconstructs claim and endpoint permission metadata without returning stored raw token values, persists revocation via OAuthIssuedToken.revokedAt, and shares revocation enforcement through the existing Bearer validator used by OAuth REST/MCP runtime paths. Required deterministic gates are reported passing, including unit tests, the @token-revocation E2E, and full verify. -> state/artifacts/20260505T220310-issued-token-ui-revocation/evaluator.log
 - next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T220310-issued-token-ui-revocation/npm-run-test-e2e-grep-token-revocation-next-server.log
+- commit: commit: created
+- promote: Promoted issued-token-ui-revocation -> failure-delay-forced-error-runtime
+- backlog: rendered current=failure-delay-forced-error-runtime
+- health: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxooooooooooooooooxooxo
+- cycle: finished
+
+### cycle 2026-05-05T22:11:00+09:00 task=failure-delay-forced-error-runtime
+- artifacts: state/artifacts/20260505T221100-failure-delay-forced-error-runtime
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260505T221100-failure-delay-forced-error-runtime/worker.jsonl
+- worker-summary: Implemented `failure-delay-forced-error-runtime` and wrote the handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+- evaluator: started
+- evaluator: status=not_done promotion=false Implementation covers the main no-auth/Basic REST and MCP paths, but REST OAuth tool calls can execute the endpoint runtime twice before returning. Because delay is now applied inside callPermittedEndpointByName, a permitted OAuth REST call can incur the configured delay twice, and a 30000 ms timeout shortcut can become roughly a 60000 ms call. That contradicts the reliability/spec requirement that artificial delays are bounded to 30000 ms per configured endpoint call. The required checks passed, but they do not cover this OAuth REST delay path. -> state/artifacts/20260505T221100-failure-delay-forced-error-runtime/evaluator.log
+- next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T221100-failure-delay-forced-error-runtime/npm-run-test-e2e-grep-failure-delay-error-next-server.log

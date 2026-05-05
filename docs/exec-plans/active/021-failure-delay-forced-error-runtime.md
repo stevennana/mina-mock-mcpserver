@@ -5,7 +5,7 @@
   "id": "failure-delay-forced-error-runtime",
   "title": "Delay and Forced Error Simulation Runtime",
   "order": 21,
-  "status": "queued",
+  "status": "active",
   "next_task_on_success": "malformed-response-console-audit",
   "prompt_docs": [
     "AGENTS.md",
@@ -104,3 +104,6 @@ Confirm that this task maps to the primary product spec `failure-simulation-and-
 
 - Start here. Append timestamped progress notes as work lands.
 - Note when existing partial implementations were found and reused instead of replaced.
+- 2026-05-05T13:10:29.907Z: restored as current task after issued-token-ui-revocation promotion.
+- 2026-05-05T22:42:00+09:00: found existing persistence/UI placeholders for delay and forced-error fields; reused them and added shared runtime resolution plus bounded service-level delay execution for REST and MCP.
+- 2026-05-05T22:42:00+09:00: added protocol-specific forced-error mapping, timeout shortcut UI, focused unit coverage, and `@failure-delay-error` E2E coverage without adding malformed response behavior.

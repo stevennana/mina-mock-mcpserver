@@ -3,74 +3,74 @@ Read the following repository documents before making changes:
 - ARCHITECTURE.md
 - docs/PRODUCT_SENSE.md
 - docs/FRONTEND.md
-- docs/SECURITY.md
-- docs/product-specs/oauth-consent-and-token-runtime.md
-- docs/exec-plans/active/020-issued-token-ui-revocation.md
+- docs/RELIABILITY.md
+- docs/product-specs/failure-simulation-and-audit.md
+- docs/exec-plans/active/021-failure-delay-forced-error-runtime.md
 
-Current task id: issued-token-ui-revocation
-Current task title: Issued Token UI and Revocation
+Current task id: failure-delay-forced-error-runtime
+Current task title: Delay and Forced Error Simulation Runtime
 
 Objective:
-Build issued-token inspection/filtering UI and token revocation behavior that affects subsequent OAuth runtime calls.
+Implement artificial delay, timeout shortcut, and forced error behavior for MCP and REST calls.
 
 Clarity notes:
-- This task is token operations and evidence, after bearer enforcement exists.
-- Raw access token values should not be redisplayed after issuance by default.
-- Revocation changes runtime authorization via stored `jti` state.
-- Token detail should help developers debug claims and endpoint permissions.
+- This task covers normal JSON responses that are delayed or intentionally erroring; malformed response modes are next.
+- Delay/error config may exist at endpoint and response-case level and should resolve predictably.
+- Tests should avoid long waits except where timeout shortcut behavior is explicitly proven safely.
+- MCP and REST should share config resolution while mapping errors to their own protocol shapes.
 
 Expected result:
-- Issued tokens can be listed, filtered, and inspected by status, subject, client, grant type, expiry, and endpoint count.
-- Token detail shows claims and endpoint_permissions metadata.
-- Revoking a token marks it revoked and subsequent OAuth calls fail with 401.
-- E2E tests prove UI revocation affects runtime behavior.
+- Configured `delayMs` delays success or error responses.
+- Timeout shortcut sets or applies a 30-second delay option in UI/config.
+- Forced REST errors return configured status/body/message.
+- Forced MCP errors return tool_error or protocol_error according to config.
 
 Objections / risks to avoid:
-- Do not store or redisplay raw token values unless explicit config exists.
-- Do not delete historical token records by default.
-- Do not implement new OAuth grants.
-- Do not let revocation return 403; revoked tokens are invalid and should return 401.
+- Do not implement malformed invalid JSON/wrong content type here.
+- Do not block unrelated requests globally when one endpoint has a delay.
+- Do not add future matcher types.
+- Do not make tests slow/flaky with excessive real waits.
 
 Scope:
-- Build token list/detail/filter UI.
-- Implement revoke action/API and optional `/oauth/revoke` if aligned with docs.
-- Wire revocation state into existing bearer validator.
-- Add unit and E2E tests tagged `@token-revocation`.
+- Implement delay resolution and bounded delay execution.
+- Implement forced error config resolution and protocol-specific mapping.
+- Update endpoint UI/console controls if needed for delay/error execution evidence.
+- Add unit and E2E tests tagged `@failure-delay-error`.
 
 Out of scope:
-- Historical token deletion with root password unless separately trivial and tested.
-- OAuth grant behavior already implemented.
-- Discovery metadata.
+- Malformed response modes.
+- Audit event expansion unless directly tied to config changes already present.
+- New matching types.
+- Operational rate limiting.
 
 Exit criteria:
-1. Token UI exposes claims/permissions without raw-token leakage.
-2. Revocation is persistent and affects runtime calls.
-3. Filters distinguish active, expired, and revoked tokens.
-4. `@token-revocation` passes.
+1. Delay behavior works for MCP and REST without corrupting other calls.
+2. Forced REST/MCP errors match configured behavior.
+3. Timeout shortcut is visible and tested without destabilizing the suite.
+4. `@failure-delay-error` passes.
 5. All required checks pass.
 
 Required checks:
 - npm run test:unit
-- npm run test:e2e -- --grep @token-revocation
+- npm run test:e2e -- --grep @failure-delay-error
 - npm run verify
 
 Evaluator notes:
 Required commands are mandatory promotion gates, not suggestions.
 Do not promote if any required check fails.
 Do not accept broad feature work outside this task.
-Confirm that this task maps to the primary product spec `oauth-consent-and-token-runtime.md` or is explicitly final hardening.
+Confirm that this task maps to the primary product spec `failure-simulation-and-audit.md` or is explicitly final hardening.
 
 Required repository artifacts for this task:
 - none
 
 Required commands for this task:
 - npm run test:unit
-- npm run test:e2e -- --grep @token-revocation
+- npm run test:e2e -- --grep @failure-delay-error
 - npm run verify
 
 Previous known gaps from the last evaluation:
-- Persist and expose enough token metadata for claim detail to show accurate reconstructed claims, especially iss matching the token as issued.
-- Add deterministic coverage that expired issued tokens are distinguished by the token list/filter path, ideally in the @token-revocation E2E or focused unit coverage tied to this task.
+- none
 
 
 

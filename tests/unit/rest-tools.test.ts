@@ -124,4 +124,24 @@ test("REST tool call mapper preserves success bodies and maps deterministic erro
       matchedCase: "forced-error",
     },
   );
+
+  assert.deepEqual(
+    restToolCallResponseFromEndpointCall({
+      kind: "protocol_error",
+      matchedCase: { id: "case_protocol", name: "protocol-error", isDefault: false },
+      statusCode: 502,
+      body: null,
+      message: "Forced protocol outage.",
+      delayMs: 0,
+    }),
+    {
+      status: 502,
+      body: {
+        error: "protocol_error",
+        message: "Forced protocol outage.",
+        matchedCase: "protocol-error",
+      },
+      matchedCase: "protocol-error",
+    },
+  );
 });

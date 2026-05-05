@@ -1,0 +1,3720 @@
+/Users/stevenna/WebstormProjects/mina-mock-mcpserver/scripts/ralph/generated/current-evaluator-prompt.txt
+OpenAI Codex v0.128.0 (research preview)
+--------
+workdir: /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 019df84c-5341-73a0-8253-e552d28329cb
+--------
+user
+You are the promotion evaluator for a repository-local Ralph loop.
+
+Read these documents before deciding:
+- AGENTS.md
+- ARCHITECTURE.md
+- docs/PRODUCT_SENSE.md
+- docs/FRONTEND.md
+- docs/RELIABILITY.md
+- docs/product-specs/failure-simulation-and-audit.md
+- docs/exec-plans/active/021-failure-delay-forced-error-runtime.md
+
+Current task id: failure-delay-forced-error-runtime
+Current task title: Delay and Forced Error Simulation Runtime
+
+Objective:
+Implement artificial delay, timeout shortcut, and forced error behavior for MCP and REST calls.
+
+Scope:
+- Implement delay resolution and bounded delay execution.
+- Implement forced error config resolution and protocol-specific mapping.
+- Update endpoint UI/console controls if needed for delay/error execution evidence.
+- Add unit and E2E tests tagged `@failure-delay-error`.
+
+Out of scope:
+- Malformed response modes.
+- Audit event expansion unless directly tied to config changes already present.
+- New matching types.
+- Operational rate limiting.
+
+Exit criteria:
+1. Delay behavior works for MCP and REST without corrupting other calls.
+2. Forced REST/MCP errors match configured behavior.
+3. Timeout shortcut is visible and tested without destabilizing the suite.
+4. `@failure-delay-error` passes.
+5. All required checks pass.
+
+Evaluator notes:
+Required commands are mandatory promotion gates, not suggestions.
+Do not promote if any required check fails.
+Do not accept broad feature work outside this task.
+Confirm that this task maps to the primary product spec `failure-simulation-and-audit.md` or is explicitly final hardening.
+
+Deterministic check summary:
+{
+  "checked_at": "2026-05-05T13:20:44.553Z",
+  "task_id": "failure-delay-forced-error-runtime",
+  "commands": [
+    {
+      "command": "npm run test:unit",
+      "ok": true,
+      "output": "\n> mina-mock-mcpserver@1.0.0 test:unit\n> node --import tsx --test \"tests/unit/**/*.test.ts\"\n\n✔ Basic passwords are hashed and verified without plaintext storage (109.211625ms)\n✔ Basic Authorization parser handles missing, valid, unsupported, and malformed headers (0.623875ms)\n✔ Basic Authorization resolver authenticates enabled users and fails closed otherwise (1651.260084ms)\n✔ Basic credential verification uses stored hashes and enabled state (1150.97725ms)\n✔ built-in default Basic user cannot be disabled, changed, or deleted (961.734084ms)\n✔ normalizeLogLevel accepts supported operator log levels (0.363417ms)\n✔ normalizeLogLevel defaults invalid input to info (0.061375ms)\n✔ getBootstrapStatus reports prepared foundation state (0.052ms)\n✔ db:prepare is repeatable and keeps seed rows singular (5065.724375ms)\n✔ endpoint runtime selects exact response cases after applying defaults (0.800583ms)\n✔ endpoint runtime falls back to the configured default case on no exact match (0.136292ms)\n✔ endpoint runtime reports disabled endpoints and invalid arguments deterministically (0.076375ms)\n✔ endpoint runtime resolves endpoint and case delay predictably (0.149083ms)\n✔ endpoint runtime maps forced endpoint and case protocol errors (0.12875ms)\n✔ endpoint validation accepts the MVP editor field set (0.63425ms)\n✔ endpoint validation returns field-level errors for UI rendering (0.355584ms)\n✔ MCP input schema generation reflects endpoint parameters (0.393166ms)\n✔ MCP initialize returns explicit no-auth MVP capabilities (0.766875ms)\n✔ MCP initialized notification is accepted without a JSON-RPC body (0.068875ms)\n✔ MCP tools/list returns loaded tools without executing them (0.072334ms)\n✔ MCP tools/call converts endpoint success to content and structuredContent (0.137416ms)\n✔ MCP tools/call maps unknown tools and invalid params to JSON-RPC invalid params (0.101125ms)\n✔ MCP tools/call maps forced tool and protocol errors distinctly (0.106875ms)\n✔ MCP tools/call maps OAuth permission denial to HTTP 403 with error data (0.078167ms)\n✔ MCP unknown methods return JSON-RPC method not found (0.05075ms)\n✔ OAuth authorize validates client and exact registered redirect URI (1655.350542ms)\n✔ OAuth consent creates a single-use-ready authorization code with endpoint bindings (1252.777208ms)\n✔ OAuth consent rejects invalid users and endpoint selections outside the client allowed set (1004.952375ms)\n✔ OAuth client secrets are generated once, hashed, and verifiable (1813.253375ms)\n✔ OAuth client allowed endpoints persist and reject unknown endpoint IDs (1233.105917ms)\n✔ built-in default OAuth client cannot be disabled, regenerated, or deleted (960.759208ms)\n✔ OAuth discovery metadata advertises only implemented grant and endpoint behavior (0.808292ms)\n✔ OAuth issuer resolution respects configured base URL before request origin (0.0995ms)\n✔ OAuth JWKS exposes the public RS256 key without private material (2.573333ms)\n✔ authorization_code exchange issues RS256 JWT claims and stores token metadata (1817.851042ms)\n✔ Bearer token resolver verifies signature, issuer, audience, expiry, revocation, and permissions (1260.006584ms)\n✔ issued token listing, detail, filters, and revoke use stored jti metadata (978.198125ms)\n✔ client_credentials exchange issues client-subject JWT with scoped endpoint intersection (777.744959ms)\n✔ client_credentials exchange rejects invalid credentials and disabled clients (718.763917ms)\n✔ authorization_code exchange rejects reuse, redirect mismatch, expired code, invalid client, and unsupported grants (801.180291ms)\n✔ OAuth user passwords are hashed and verified without plaintext storage (1571.1475ms)\n✔ built-in default OAuth user cannot be disabled, changed, or deleted (1136.293542ms)\n✔ OAuth user TTL validation rejects non-preset and never-expiring values (994.162792ms)\n✔ Ralph promotion resolves ordered successor filenames by taskmeta id (62.392417ms)\n✔ reset requires confirmation and leaves endpoint state untouched on failure (1492.698333ms)\n✔ reset clears mutable endpoint data and recreates current seed defaults (1312.446916ms)\n✔ REST tool metadata maps endpoint parameters without MCP JSON-RPC envelope (0.826042ms)\n✔ REST tool call mapper preserves success bodies and maps deterministic errors (0.149167ms)\nℹ tests 48\nℹ suites 0\nℹ pass 48\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 6607.628125\n"
+    },
+    {
+      "command": "npm run test:e2e -- --grep @failure-delay-error",
+      "ok": true,
+      "output": "\n> mina-mock-mcpserver@1.0.0 test:e2e\n> playwright test --grep @failure-delay-error\n\n\nRunning 1 test using 1 worker\n\n  ✓  1 [chromium] › tests/e2e/failure-delay-error.spec.ts:30:5 › delay and forced error runtime behavior stays protocol-specific @failure-delay-error (2.1s)\n\n  1 passed (6.4s)\n",
+      "preflight": {
+        "command": "ensure-e2e-port-free.sh 3100",
+        "error": "",
+        "ok": true,
+        "output": "port-cleanup: 127.0.0.1:3100 already free\n"
+      },
+      "next_server_log_path": "/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T221100-failure-delay-forced-error-runtime/npm-run-test-e2e-grep-failure-delay-error-next-server.log"
+    },
+    {
+      "command": "npm run verify",
+      "ok": true,
+      "output": "\n> mina-mock-mcpserver@1.0.0 verify\n> npm run lint && npm run typecheck && npm run build && npm run test:unit && npm run test:e2e && npm run start:smoke\n\n\n> mina-mock-mcpserver@1.0.0 lint\n> eslint .\n\n\n> mina-mock-mcpserver@1.0.0 typecheck\n> tsc --noEmit\n\n\n> mina-mock-mcpserver@1.0.0 build\n> next build\n\n   ▲ Next.js 15.5.15\n\n   Creating an optimized production build ...\n ✓ Compiled successfully in 1003ms\n   Linting and checking validity of types ...\n   Collecting page data ...\n   Generating static pages (0/27) ...\n   Generating static pages (6/27) \r\n   Generating static pages (13/27) \r\n   Generating static pages (20/27) \r\n ✓ Generating static pages (27/27)\n   Finalizing page optimization ...\n   Collecting build traces ...\n\nRoute (app)                                     Size  First Load JS\n┌ ○ /                                          167 B         106 kB\n├ ○ /_not-found                                999 B         103 kB\n├ ƒ /.well-known/oauth-authorization-server    187 B         102 kB\n├ ƒ /.well-known/oauth-protected-resource      187 B         102 kB\n├ ƒ /.well-known/openid-configuration          187 B         102 kB\n├ ƒ /api/audit                                 187 B         102 kB\n├ ƒ /api/basic-users                           187 B         102 kB\n├ ƒ /api/basic-users/[id]                      187 B         102 kB\n├ ƒ /api/endpoints                             187 B         102 kB\n├ ƒ /api/endpoints/[id]                        187 B         102 kB\n├ ƒ /api/health                                187 B         102 kB\n├ ƒ /api/oauth-clients                         187 B         102 kB\n├ ƒ /api/oauth-clients/[id]                    187 B         102 kB\n├ ƒ /api/oauth-clients/[id]/secret             187 B         102 kB\n├ ƒ /api/oauth-users                           187 B         102 kB\n├ ƒ /api/oauth-users/[id]                      187 B         102 kB\n├ ƒ /api/oauth/tokens                          187 B         102 kB\n├ ƒ /api/oauth/tokens/[jti]                    187 B         102 kB\n├ ƒ /api/oauth/tokens/[jti]/revoke             187 B         102 kB\n├ ƒ /api/reset                                 187 B         102 kB\n├ ○ /audit                                     167 B         106 kB\n├ ○ /basic-users                             2.22 kB         108 kB\n├ ƒ /config                                    167 B         106 kB\n├ ○ /endpoints                               5.68 kB         111 kB\n├ ƒ /mcp                                       187 B         102 kB\n├ ƒ /mcp/basic                                 187 B         102 kB\n├ ƒ /mcp/none                                  187 B         102 kB\n├ ƒ /mcp/oauth                                 187 B         102 kB\n├ ○ /oauth-clients                              3 kB         109 kB\n├ ○ /oauth-users                             2.42 kB         108 kB\n├ ƒ /oauth/authorize                           187 B         102 kB\n├ ƒ /oauth/consent                             187 B         102 kB\n├ ƒ /oauth/jwks                                187 B         102 kB\n├ ƒ /oauth/login                               187 B         102 kB\n├ ƒ /oauth/token                               187 B         102 kB\n├ ○ /reset                                   1.01 kB         107 kB\n├ ƒ /rest/tools                                187 B         102 kB\n├ ƒ /rest/tools/[name]/call                    187 B         102 kB\n└ ○ /tokens                                  2.58 kB         108 kB\n+ First Load JS shared by all                 102 kB\n  ├ chunks/255-4f212684648fcab9.js             46 kB\n  ├ chunks/4bd1b696-c023c6e3521b1417.js      54.2 kB\n  └ other shared chunks (total)              1.92 kB\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n\n\n> mina-mock-mcpserver@1.0.0 test:unit\n> node --import tsx --test \"tests/unit/**/*.test.ts\"\n\n✔ Basic passwords are hashed and verified without plaintext storage (109.616042ms)\n✔ Basic Authorization parser handles missing, valid, unsupported, and malformed headers (0.61275ms)\n✔ Basic Authorization resolver authenticates enabled users and fails closed otherwise (1427.187291ms)\n✔ Basic credential verification uses stored hashes and enabled state (1321.261542ms)\n✔ built-in default Basic user cannot be disabled, changed, or deleted (910.805333ms)\n✔ normalizeLogLevel accepts supported operator log levels (0.376708ms)\n✔ normalizeLogLevel defaults invalid input to info (0.06125ms)\n✔ getBootstrapStatus reports prepared foundation state (0.054208ms)\n✔ db:prepare is repeatable and keeps seed rows singular (4940.156917ms)\n✔ endpoint runtime selects exact response cases after applying defaults (0.820916ms)\n✔ endpoint runtime falls back to the configured default case on no exact match (0.156375ms)\n✔ endpoint runtime reports disabled endpoints and invalid arguments deterministically (0.071875ms)\n✔ endpoint runtime resolves endpoint and case delay predictably (0.153291ms)\n✔ endpoint runtime maps forced endpoint and case protocol errors (0.128167ms)\n✔ endpoint validation accepts the MVP editor field set (0.646042ms)\n✔ endpoint validation returns field-level errors for UI rendering (0.37425ms)\n✔ MCP input schema generation reflects endpoint parameters (0.395875ms)\n✔ MCP initialize returns explicit no-auth MVP capabilities (0.751917ms)\n✔ MCP initialized notification is accepted without a JSON-RPC body (0.073666ms)\n✔ MCP tools/list returns loaded tools without executing them (0.070125ms)\n✔ MCP tools/call converts endpoint success to content and structuredContent (0.134833ms)\n✔ MCP tools/call maps unknown tools and invalid params to JSON-RPC invalid params (0.105209ms)\n✔ MCP tools/call maps forced tool and protocol errors distinctly (0.121958ms)\n✔ MCP tools/call maps OAuth permission denial to HTTP 403 with error data (0.066084ms)\n✔ MCP unknown methods return JSON-RPC method not found (0.047125ms)\n✔ OAuth authorize validates client and exact registered redirect URI (1577.793ms)\n✔ OAuth consent creates a single-use-ready authorization code with endpoint bindings (1311.118542ms)\n✔ OAuth consent rejects invalid users and endpoint selections outside the client allowed set (991.868417ms)\n✔ OAuth client secrets are generated once, hashed, and verifiable (1725.316208ms)\n✔ OAuth client allowed endpoints persist and reject unknown endpoint IDs (1175.446083ms)\n✔ built-in default OAuth client cannot be disabled, regenerated, or deleted (970.799375ms)\n✔ OAuth discovery metadata advertises only implemented grant and endpoint behavior (0.763916ms)\n✔ OAuth issuer resolution respects configured base URL before request origin (0.0975ms)\n✔ OAuth JWKS exposes the public RS256 key without private material (2.670458ms)\n✔ authorization_code exchange issues RS256 JWT claims and stores token metadata (1650.863375ms)\n✔ Bearer token resolver verifies signature, issuer, audience, expiry, revocation, and permissions (1301.357708ms)\n✔ issued token listing, detail, filters, and revoke use stored jti metadata (1009.385584ms)\n✔ client_credentials exchange issues client-subject JWT with scoped endpoint intersection (777.980667ms)\n✔ client_credentials exchange rejects invalid credentials and disabled clients (724.748625ms)\n✔ authorization_code exchange rejects reuse, redirect mismatch, expired code, invalid client, and unsupported grants (815.065375ms)\n✔ OAuth user passwords are hashed and verified without plaintext storage (1416.801458ms)\n✔ built-in default OAuth user cannot be disabled, changed, or deleted (1206.478834ms)\n✔ OAuth user TTL validation rejects non-preset and never-expiring values (890.88525ms)\n✔ Ralph promotion resolves ordered successor filenames by taskmeta id (56.628667ms)\n✔ reset requires confirmation and leaves endpoint state untouched on failure (1341.451333ms)\n✔ reset clears mutable endpoint data and recreates current seed defaults (1422.902375ms)\n✔ REST tool metadata maps endpoint parameters without MCP JSON-RPC envelope (1.187458ms)\n✔ REST tool call mapper preserves success bodies and maps deterministic errors (0.459375ms)\nℹ tests 48\nℹ suites 0\nℹ pass 48\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 6508.596292\n\n> mina-mock-mcpserver@1.0.0 test:e2e\n> playwright test\n\n\nRunning 23 tests using 1 worker\n\n  ✓   1 [chromium] › tests/e2e/basic-auth-mcp.spec.ts:7:5 › Basic Auth MCP strict route and unified precedence fail closed and allow valid callers @basic-auth-mcp (711ms)\n  ✓   2 [chromium] › tests/e2e/basic-users.spec.ts:5:5 › Basic users management UI protects default and manages editable users @ui-basic-users (1.7s)\n  ✓   3 [chromium] › tests/e2e/bootstrap.spec.ts:3:5 › foundation dashboard renders planned MCP mock server surfaces (506ms)\n  ✓   4 [chromium] › tests/e2e/bootstrap.spec.ts:11:5 › health endpoint reports ok status (161ms)\n  ✓   5 [chromium] › tests/e2e/endpoint-console.spec.ts:5:5 › endpoint schema preview and console shell stay stable on desktop and mobile @ui-endpoint-console (1.0s)\n  ✓   6 [chromium] › tests/e2e/endpoint-delete-audit.spec.ts:17:5 › endpoint delete requires confirmation and writes non-secret audit evidence @endpoint-delete-audit (3.1s)\n  ✓   7 [chromium] › tests/e2e/endpoint-editor.spec.ts:5:5 › endpoint editor supports persisted create, edit, search, screenshots, and responsive checks @ui-endpoint-editor (1.4s)\n  ✓   8 [chromium] › tests/e2e/failure-delay-error.spec.ts:30:5 › delay and forced error runtime behavior stays protocol-specific @failure-delay-error (1.4s)\n  ✓   9 [chromium] › tests/e2e/mcp-initialize-list.spec.ts:3:5 › no-auth MCP initialize, initialized notification, and tools/list use enabled endpoint schemas @mcp-initialize-list (56ms)\n  ✓  10 [chromium] › tests/e2e/mcp-tools-call.spec.ts:3:5 › no-auth MCP tools/call executes enabled endpoint cases and deterministic errors @mcp-tools-call (71ms)\n  ✓  11 [chromium] › tests/e2e/oauth-client-credentials.spec.ts:12:5 › OAuth client_credentials issues tokens with endpoint scope intersection @oauth-client-credentials (848ms)\n  ✓  12 [chromium] › tests/e2e/oauth-clients.spec.ts:5:5 › OAuth clients management UI protects default, shows secrets once, and persists allowed endpoints @ui-oauth-clients (2.3s)\n  ✓  13 [chromium] › tests/e2e/oauth-code-token.spec.ts:12:5 › OAuth authorization code exchanges once for endpoint-permission JWT @oauth-code-token (1.7s)\n  ✓  14 [chromium] › tests/e2e/oauth-code-token.spec.ts:108:5 › OAuth token endpoint rejects invalid authorization_code exchanges @oauth-code-token (29ms)\n  ✓  15 [chromium] › tests/e2e/oauth-consent.spec.ts:6:5 › OAuth authorization login and consent creates an endpoint-bound code @oauth-consent (740ms)\n  ✓  16 [chromium] › tests/e2e/oauth-consent.spec.ts:81:5 › OAuth authorize and login invalid paths fail deterministically @oauth-consent (1.2s)\n  ✓  17 [chromium] › tests/e2e/oauth-discovery.spec.ts:17:5 › OAuth discovery metadata and JWKS are internally consistent @oauth-discovery (1.5s)\n  ✓  18 [chromium] › tests/e2e/oauth-permissions.spec.ts:16:5 › OAuth Bearer permissions filter MCP and REST and distinguish 401 from 403 @oauth-permissions (669ms)\n  ✓  19 [chromium] › tests/e2e/oauth-users.spec.ts:5:5 › OAuth users management UI protects default, validates TTLs, and manages editable users @ui-oauth-users (2.1s)\n  ✓  20 [chromium] › tests/e2e/rest-tools-call.spec.ts:7:5 › REST tools call executes exact matches, Basic auth, errors, and console evidence @rest-tools-call (1.1s)\n  ✓  21 [chromium] › tests/e2e/rest-tools-list.spec.ts:7:5 › REST tools list exposes enabled metadata for no-auth and Basic callers @rest-tools-list (137ms)\n  ✓  22 [chromium] › tests/e2e/root-reset.spec.ts:16:5 › root reset requires password and restores deterministic endpoint defaults @root-reset (3.3s)\n  ✓  23 [chromium] › tests/e2e/token-revocation.spec.ts:12:5 › issued token UI inspects metadata and revocation changes OAuth runtime 401 @token-revocation (2.9s)\n\n  23 passed (33.0s)\n\n> mina-mock-mcpserver@1.0.0 start:smoke\n> node scripts/start-smoke.mjs\n\n\n> mina-mock-mcpserver@1.0.0 db:prepare\n> node scripts/db-prepare.mjs\n\nDatasource \"db\": SQLite database \"runtime.sqlite\" at \"file:./data/runtime.sqlite\"\n\n10 migrations found in prisma/migrations\n\n\nNo pending migrations to apply.\n\n✔ Generated Prisma Client (v7.8.0) to ./node_modules/@prisma/client in 60ms\n\nStart by importing your Prisma Client (See: https://pris.ly/d/importing-client)\n\n\nPrepared SQLite runtime state with Prisma migrations and seed defaults.\n\n> mina-mock-mcpserver@1.0.0 build\n> next build\n\n   ▲ Next.js 15.5.15\n\n   Creating an optimized production build ...\n ✓ Compiled successfully in 1006ms\n   Linting and checking validity of types ...\n   Collecting page data ...\n   Generating static pages (0/27) ...\n   Generating static pages (6/27) \r\n   Generating static pages (13/27) \r\n   Generating static pages (20/27) \r\n ✓ Generating static pages (27/27)\n   Finalizing page optimization ...\n   Collecting build traces ...\n\nRoute (app)                                     Size  First Load JS\n┌ ○ /                                          167 B         106 kB\n├ ○ /_not-found                                999 B         103 kB\n├ ƒ /.well-known/oauth-authorization-server    187 B         102 kB\n├ ƒ /.well-known/oauth-protected-resource      187 B         102 kB\n├ ƒ /.well-known/openid-configuration          187 B         102 kB\n├ ƒ /api/audit                                 187 B         102 kB\n├ ƒ /api/basic-users                           187 B         102 kB\n├ ƒ /api/basic-users/[id]                      187 B         102 kB\n├ ƒ /api/endpoints                             187 B         102 kB\n├ ƒ /api/endpoints/[id]                        187 B         102 kB\n├ ƒ /api/health                                187 B         102 kB\n├ ƒ /api/oauth-clients                         187 B         102 kB\n├ ƒ /api/oauth-clients/[id]                    187 B         102 kB\n├ ƒ /api/oauth-clients/[id]/secret             187 B         102 kB\n├ ƒ /api/oauth-users                           187 B         102 kB\n├ ƒ /api/oauth-users/[id]                      187 B         102 kB\n├ ƒ /api/oauth/tokens                          187 B         102 kB\n├ ƒ /api/oauth/tokens/[jti]                    187 B         102 kB\n├ ƒ /api/oauth/tokens/[jti]/revoke             187 B         102 kB\n├ ƒ /api/reset                                 187 B         102 kB\n├ ○ /audit                                     167 B         106 kB\n├ ○ /basic-users                             2.22 kB         108 kB\n├ ƒ /config                                    167 B         106 kB\n├ ○ /endpoints                               5.68 kB         111 kB\n├ ƒ /mcp                                       187 B         102 kB\n├ ƒ /mcp/basic                                 187 B         102 kB\n├ ƒ /mcp/none                                  187 B         102 kB\n├ ƒ /mcp/oauth                                 187 B         102 kB\n├ ○ /oauth-clients                              3 kB         109 kB\n├ ○ /oauth-users                             2.42 kB         108 kB\n├ ƒ /oauth/authorize                           187 B         102 kB\n├ ƒ /oauth/consent                             187 B         102 kB\n├ ƒ /oauth/jwks                                187 B         102 kB\n├ ƒ /oauth/login                               187 B         102 kB\n├ ƒ /oauth/token                               187 B         102 kB\n├ ○ /reset                                   1.01 kB         107 kB\n├ ƒ /rest/tools                                187 B         102 kB\n├ ƒ /rest/tools/[name]/call                    187 B         102 kB\n└ ○ /tokens                                  2.58 kB         108 kB\n+ First Load JS shared by all                 102 kB\n  ├ chunks/255-4f212684648fcab9.js             46 kB\n  ├ chunks/4bd1b696-c023c6e3521b1417.js      54.2 kB\n  └ other shared chunks (total)              1.92 kB\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n\n   ▲ Next.js 15.5.15\n   - Local:        http://localhost:3100\n   - Network:      http://192.168.100.125:3100\n\n ✓ Starting...\n ✓ Ready in 269ms\nProduction-style startup smoke passed at http://127.0.0.1:3100/api/health\n",
+      "preflight": {
+        "command": "ensure-e2e-port-free.sh 3100",
+        "error": "",
+        "ok": true,
+        "output": "port-cleanup: 127.0.0.1:3100 already free\n"
+      },
+      "next_server_log_path": "/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T221100-failure-delay-forced-error-runtime/npm-run-verify-next-server.log"
+    }
+  ],
+  "missing_files": [],
+  "pass": true
+}
+
+Worker handoff summary from the last run:
+Implemented `failure-delay-forced-error-runtime` and wrote the handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+
+What changed: shared bounded delay execution for REST/MCP, forced REST error mapping, MCP `tool_error` vs `protocol_error` mapping, endpoint editor timeout shortcut, docs updates, and focused unit/E2E coverage with `@failure-delay-error`.
+
+Required checks passed:
+- `npm run test:unit`
+- `npm run test:e2e -- --grep @failure-delay-error`
+- `npm run verify`
+
+Exit criteria appear satisfied. Malformed response behavior remains untouched for the next task.
+
+Your job:
+- inspect the repository and current implementation
+- determine whether the current task is actually complete
+- mark `done` only if the exit criteria are satisfied in substance, not just approximately
+- prefer conservative decisions
+- recommend promotion only if the task is truly ready
+
+Return JSON only using the provided schema.
+
+codex
+{"decision":"not_done","recommend_promotion":false,"confidence":0,"summary":"Starting evaluation by reading the required repository docs and task plan, then I’ll inspect the implementation and tests against the exit criteria.","satisfied_exit_criteria":[],"missing_requirements":[],"human_review_triggers":[]}
+exec
+/bin/zsh -lc "sed -n '1,220p' AGENTS.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+exec
+/bin/zsh -lc "sed -n '1,240p' ARCHITECTURE.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+exec
+/bin/zsh -lc "sed -n '1,220p' docs/PRODUCT_SENSE.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# ARCHITECTURE.md
+
+## Goal
+Build MCP Mock Server as an agent-legible codebase with strong boundaries, a short instruction surface, and enough extension seams to support future change without overbuilding v1.
+
+## System Overview
+MCP Mock Server is a web application with:
+- a public Next.js UI served on port 3000
+- server-side route handlers for admin APIs, MCP, REST, OAuth, and discovery metadata
+- SQLite persistence prepared by npm run db:prepare
+- operator logs under logs/ with LOG_LEVEL selection
+- Ralph scripts under scripts/ralph/ driving active task promotion
+
+## Architectural Priorities
+- isolate MCP protocol formatting from endpoint matching and auth decisions
+- keep auth mode resolution explicit and fail closed for invalid Basic/Bearer headers
+- store immutable endpoint IDs and treat names as external labels
+- make seeded built-in users/clients impossible to delete or disable through normal flows
+- prove persistence and production-style startup with deterministic commands
+
+## Layered Domain Model
+Use a strict forward-only dependency shape inside each domain:
+
+`Types -> Config -> Repo -> Service -> Runtime -> UI`
+
+### Why this matters
+The repository is intended to work well with long-running agent loops. Strict boundaries reduce accidental coupling and make failure analysis easier.
+
+## Primary Domains
+| Domain | Responsibility |
+|---|---|
+| Endpoint catalog | Endpoint CRUD, parameters, response cases, delete code, enabled state |
+| Matcher/runtime | Argument normalization, exact match, default/no-match, delay/error/malformed behavior |
+| MCP protocol | JSON-RPC request handling, initialize, tools/list, tools/call, MCP errors |
+| REST API | Tool list/call responses and REST error mapping |
+| Basic auth | Basic users, password hashing, built-in default protection, 401 behavior |
+| OAuth | Users, clients, codes, JWTs, permissions, revocation, discovery metadata |
+| Admin UI | Dashboards, editors, console, config, reset, audit screens |
+| Operations | SQLite prep, seed defaults, base URL, Docker/Nginx docs, logs, health |
+
+## Frontend / Backend Shape
+### Frontend
+- App Router screens should be dense, operational, and optimized for repeated testing
+- UI routes read and mutate through server-backed APIs, not local-only state
+- route-level loading and error states are required for public mutation surfaces
+- test console shows raw request, raw response, principal, matched case, and elapsed time
+- OAuth login and consent UI is separate from the admin navigation
+
+### Server
+- Next.js route handlers own HTTP surfaces for MVP
+- domain services own validation, matching, auth, token, and reset logic
+- repositories isolate Prisma access
+- protocol adapters convert domain outcomes into MCP JSON-RPC or REST responses
+- startup code prepares runtime state before production-style serving
+
+## Persistence Strategy
+- SQLite is the source of truth for endpoints, parameters, cases, users, clients, codes, tokens, audit events, and settings
+- Prisma migrations define the schema and db:prepare applies migrations plus idempotent seed defaults
+- built-in default/default Basic user, OAuth user, and OAuth client are recreated and protected
+- issued token records store jti and metadata; raw tokens are shown only at issuance unless explicitly configured
+- tests use isolated temporary databases or resettable seed state
+
+## Verification Shape
+- unit tests cover validators, matching, auth precedence, JWT claims, permissions, reset, and protocol formatting
+- Playwright proves browser-visible workflows and external-client-like OAuth/MCP/REST flows
+- start:smoke builds, prepares runtime state, starts the production server, probes health, and shuts down
+- verify runs lint, typecheck, build, unit, E2E, and startup smoke
+- failing required checks block Ralph promotion
+
+## Long-Running Agent Readiness
+- docs are the system of record
+- plans are executable, not aspirational
+- domain boundaries are explicit
+- repeated issues should be upgraded into tests or static checks
+
+ succeeded in 0ms:
+# AGENTS.md
+
+## Purpose
+MCP Mock Server is a public remote MCP mock server and web UI for testing no-auth, Basic Auth, and mock OAuth bearer tool calls.
+
+This repository is optimized for agent-legible development and a Ralph-style task-promotion loop.
+
+## Read Order
+Before changing code or plans, read these files in order:
+
+1. `ARCHITECTURE.md`
+2. `docs/PRODUCT_SENSE.md`
+3. `docs/design-docs/core-beliefs.md`
+4. `docs/product-specs/index.md`
+5. `docs/FRONTEND.md`
+6. `docs/PLANS.md`
+7. active plans in `docs/exec-plans/active/`
+
+## Scope Guardrails
+### In scope for v1
+- Next.js App Router web gateway and route handlers
+- TypeScript domain/services with Prisma SQLite persistence
+- endpoint/tool management with up to three parameters and exact-match response cases
+- no-auth, Basic, and OAuth bearer MCP/REST runtime paths
+- OAuth user/client/token administration, authorization code flow, client credentials flow, discovery metadata, and JWKS
+- failure simulation, audit log, server config, reset, logging, Docker/Nginx guidance, and Ralph harness
+
+### Explicitly out of scope for v1
+- production-grade identity management
+- external OAuth provider integration
+- true multi-tenant isolation
+- enterprise RBAC for the public admin UI
+- handling sensitive customer data
+- full MCP resources, prompts, sampling, elicitation, or task-augmented execution in MVP
+- replacing a real authorization server
+
+## Product Shape
+- public admin UI for mock endpoint, auth, token, config, reset, and audit management
+- MCP Streamable HTTP-style JSON-RPC endpoints at /mcp and strict auth aliases
+- REST tool list/call API for curl and Postman style testing
+- mock OAuth authorization server with login, consent, token, revocation, and discovery metadata
+- SQLite-backed persistence with deterministic seed defaults
+
+## Technical Shape
+- Next.js App Router and TypeScript with npm scripts
+- Prisma plus SQLite for migrations, seed defaults, and persistent runtime state
+- layered domain shape: types, config, repo, service, runtime, UI
+- Playwright for E2E and UI verification, node --import tsx --test for unit tests
+- logs/ plus LOG_LEVEL and start:logged for operator-visible server flow
+
+## Validation Strategy
+Use layered checks:
+- unit tests for domain rules
+- integration tests for repository/runtime boundaries where needed
+- small E2E coverage for the required user journeys only
+
+Promotion is blocked when required checks fail. Required test commands in active task contracts are hard gates, not suggestions.
+While iterating, prefer the smallest targeted check for the code you just changed. Use the full required command set before considering the task done.
+If a feature depends on an outside resource such as AI chat or another remote service, keep it in the required E2E flows before allowing promotion.
+If a task is mainly UI or UX work, require a dedicated `@ui-*` Playwright command with screenshot, responsive, and accessibility checks before allowing promotion.
+If `taskmeta.promotion_mode` is `deterministic_only`, passing the required commands is sufficient for promotion without human review.
+For manual server inspection, prefer `npm run start:logged` and set `LOG_LEVEL` intentionally instead of relying only on ephemeral terminal output.
+
+### Required E2E flows
+- endpoint create/edit/delete and console call flow
+- MCP initialize, tools/list, and tools/call in no-auth mode
+- Basic user creation and strict /mcp/basic success/failure
+- REST tools list/call across auth modes
+- OAuth browser consent, token exchange, allowed tool call, denied tool call, and revocation
+- failure simulation and audit evidence
+- config/health/reset/startup smoke
+
+## Documentation Discipline
+- If behavior changes, update the related spec or design doc in the same cycle.
+- Prefer small, executable plans over vague TODOs.
+- When a repeated mistake appears, first document it; if it keeps recurring, promote it into tests or lint rules.
+- Keep the documented test strategy current; do not leave promotion gates implied.
+- When adding or editing tests, explain what behavior the test protects if that intent would otherwise be easy to lose.
+
+## Search Discipline
+- Search the codebase before concluding that a thing is unimplemented.
+- Prefer multiple targeted searches over one broad assumption.
+- If you find a partial implementation, adapt or complete it instead of duplicating it blindly.
+
+## Optional Companion Skills
+- If the customer allows them and they are installed, consider relevant companion skills before planning or implementation.
+- Good candidates include database, Next.js pattern, UI design, responsive UI, and clean-architecture skills.
+
+## Done Definition
+A task is done only when its scoped behavior works in substance, docs and tests match the implementation, required deterministic commands pass, and promotion rules in taskmeta are satisfied.
+
+ succeeded in 0ms:
+# PRODUCT_SENSE.md
+
+## One-Line Product Definition
+MCP Mock Server is a public remote MCP mock server and web UI for testing no-auth, Basic Auth, and mock OAuth bearer tool calls.
+
+## Who It Is For
+### Primary user
+MCP client developers, AI agent developers, demo/QA users, and the server operator.
+
+## User Problem
+MCP client and AI-agent developers need a configurable remote server that behaves enough like a real MCP server to prove connection, auth, token, permission, and tool-call behavior before integrating with production systems.
+
+## Why This Product Exists
+Remote MCP adoption is moving auth, transport, and permission bugs into client integration work. A public mock server gives teams a repeatable target for manual testing, automated E2E checks, demos, and negative-path validation.
+
+## Product Principles
+- realistic MCP and OAuth behavior over decorative admin features
+- public-by-design administration with light destructive-operation protection
+- destructive endpoint deletion requires a delete code or root-password override and leaves non-secret audit evidence
+- deterministic mocks: exact-match cases, explicit defaults, and observable failures
+- endpoint permissions are visible, selectable, and enforced
+- operator recovery paths must be simple and root-password protected
+
+## Core Value in v1
+- create a mock endpoint once and exercise it through MCP and REST
+- inspect the generated MCP input schema and execute REST no-auth or Basic calls from the endpoint console with raw evidence
+- initialize no-auth MCP clients, list enabled tools, and execute exact-match tool calls
+- manage Basic Auth test users while keeping the built-in default/default fixture locked
+- list enabled tools and call configured mock tools through simple REST routes for curl and Postman style testing
+- prove no-auth, Basic, and OAuth bearer client behavior against strict routes
+- issue mock OAuth tokens with endpoint-level permissions through browser consent or non-interactive client credentials
+- create mock OAuth authorization codes through browser login and consent with explicit endpoint permission selection
+- expose OAuth discovery metadata and a public JWKS that match the mock RS256 token issuer
+- simulate failure cases that clients often mishandle, including bounded artificial delays and forced REST/MCP errors
+- persist configuration and provide root-password-protected reset/recovery for a public test service
+
+## Non-Goals for v1
+- production-grade identity management
+- external OAuth provider integration
+- true multi-tenant isolation
+- enterprise RBAC for the public admin UI
+- handling sensitive customer data
+- full MCP resources, prompts, sampling, elicitation, or task-augmented execution in MVP
+- replacing a real authorization server
+
+## v1 Success Signals
+- a new endpoint can be created and edited through the public endpoint UI, then listed through tools/list and GET /rest/tools, called through tools/call, and called through POST /rest/tools/:name/call
+- Basic default/default and additional users work on strict Basic routes while invalid credentials return 401
+- OAuth default/default remains locked while additional login users can be configured with hashed passwords and MVP token TTL presets
+- OAuth default/default client remains locked while additional clients can be configured with generated copy-once secrets, redirect URIs, client credentials TTL presets, and maximum allowed endpoint sets
+- OAuth consent can select endpoints, exchange a single-use code for a JWT with endpoint permission claims, allow selected tools, deny unselected tools with 403, and return 401 after revocation
+- OAuth Bearer runtime enforcement applies the same endpoint permission resolver to MCP and REST calls while leaving no-auth and Basic callers unrestricted by OAuth permissions
+- OAuth client credentials can issue a JWT without browser login, using the client's TTL and only the endpoint-scope intersection allowed for that client
+- token and audit screens show enough evidence to debug a client test, including token status, claims, endpoint permissions, revocation, and endpoint delete success/failure without stored secrets
+- SQLite state survives restart and root reset restores currently implemented built-in endpoint and Basic user defaults
+- npm run verify and npm run start:smoke pass before task promotion
+
+## Product Risks
+- public UI can be abused or reset if root/delete-code handling is weak
+- OAuth semantics can drift into unrealistic behavior unless routes and E2E checks pin 401/403/token claims
+- MCP spec details may change, so the implementation must isolate protocol formatting
+- failure simulation can intentionally violate protocol behavior and needs visible warnings
+- persistent SQLite state can make tests flaky unless seeded and isolated deterministically
+
+exec
+/bin/zsh -lc "sed -n '1,220p' docs/FRONTEND.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# FRONTEND.md
+
+## Goal
+Describe the user-facing structure of MCP Mock Server so an agent can implement the UI without guessing the product model.
+
+## Tech Direction
+- Next.js application
+- TypeScript
+- App Router
+- server-backed data flows where appropriate
+
+## Route Map
+| Route | Surface | Notes |
+|---|---|---|
+| / | Dashboard | Counts, URL examples, public UI warning |
+| /endpoints | Endpoint tools | List/search/create/edit/delete/test |
+| /basic-users | Basic Auth users | Built-in default locked |
+| /oauth-users | OAuth users | Built-in default locked |
+| /oauth-clients | OAuth clients | Redirect URIs and allowed endpoints |
+| /tokens | Issued tokens | Claims, permissions, revoke, filters |
+| /config | Server config | Base URL, MCP/REST/OAuth examples, discovery metadata, JWKS, Nginx guide |
+| /reset | Reset | Root-password protected reset |
+| /audit | Audit log | Public mutation, protected delete, and token evidence |
+| /oauth/login | OAuth login | Separate from admin UI |
+| /oauth/consent | OAuth consent | Endpoint permission checklist |
+| /api/* | Admin/API | Health, CRUD, config, reset, audit |
+| /mcp, /mcp/none, /mcp/basic | MCP JSON-RPC | Unified plus currently implemented strict auth routes |
+| /rest/tools, /rest/tools/:name/call | REST mock API | Same tool catalog through REST |
+| /.well-known/*, /oauth/jwks, /oauth/token, /oauth/revoke | OAuth metadata/runtime | Discovery, token, revocation |
+
+## Primary Screens
+| Screen | Primary jobs |
+|---|---|
+| Dashboard | Summarize service state and show connection examples |
+| Endpoints | List, search, create, and edit mock tools, response cases, failure simulation, timeout shortcut, and delete protection |
+| Endpoint console | Preview MCP/REST call shape with selected auth mode, run REST no-auth and Basic calls, and show raw execution evidence |
+| Basic Auth users | List/search/create/password-edit/disable/delete Basic test identities and show the built-in default/default lock state |
+| OAuth users | List/search/create/password-edit/disable/delete OAuth login identities and token TTL presets with built-in default locked |
+| OAuth clients | Manage generated client secrets, redirect URIs, client credentials TTL presets, and allowed endpoint set |
+| OAuth login/consent | Complete authorization-code flow and select endpoint permissions |
+| Issued tokens | Inspect claims, permissions, expiration, and revoke tokens |
+| Config/guide | Show base URL, MCP/REST/OAuth URLs, OAuth discovery metadata, JWKS, sample client config, curl, Nginx |
+| Reset | Root-protected reset to current seed defaults with exact confirmation text |
+| Audit | Review mutation and security-relevant event history without exposing submitted secrets |
+
+## UI Rules
+- favor quiet, dense, operational layouts over marketing composition
+- use icons for copy, edit, delete, revoke, reset, refresh, and external-link actions where available
+- every destructive action has a confirmation path and explains whether delete code or root password is accepted
+- endpoint deletion keeps confirmation inputs separate from the endpoint editor values and clears submitted secrets after attempts
+- show protocol/auth warnings inline on malformed-response and public-admin controls
+- tables must support search/filter states without layout shift
+- endpoint editor forms must surface API/domain validation errors next to the affected fields
+- endpoint editor forms must show generated MCP `inputSchema` from the shared endpoint domain schema helper
+- endpoint console REST execution is available for no-auth and Basic modes and shows raw request, raw response, principal, matched case, and elapsed time
+- endpoint failure simulation controls must make endpoint-level delay/error settings and case-level tool/protocol errors explicit
+- Basic user forms must not display password hashes and must disable mutation controls for built-in rows
+- OAuth user forms must not display password hashes, must use bounded token TTL presets, and must disable mutation controls for the built-in row
+- OAuth client forms must not display stored secret hashes, must show generated raw client secrets only at creation or regeneration, and must disable mutation controls for the built-in row
+- console outputs must preserve raw JSON formatting and elapsed/auth/match metadata
+- console shell states must clearly mark unavailable runtime actions instead of faking calls
+- UI-focused tasks must include desktop and mobile screenshots plus accessibility checks
+
+## Search / Share / Admin Notes
+- the admin UI is intentionally public, so copy must avoid implying enterprise security
+- root-password fields are used only for protected actions and must not be logged
+- reset confirmation must make clear that currently implemented endpoint data is deleted and seed defaults are recreated
+- copy buttons should exist for MCP URLs, REST URLs, client config, curl examples, client secrets at issuance, and JWTs at issuance
+- OAuth consent should make selected endpoint permissions unambiguous
+- OAuth consent must show client, redirect URI, resource, login user, authorization-code TTL, and the endpoint checklist outside the public admin navigation
+
+## Frontend Non-Goals for v1
+- no marketing landing page before the usable dashboard
+- no enterprise account settings or RBAC screens
+- no hidden destructive operations without confirmation
+- no decorative UI that obscures raw request/response evidence
+
+codex
+{"decision":"not_done","recommend_promotion":false,"confidence":0,"summary":"I’ve confirmed the product/spec framing: this task is squarely in the failure simulation slice, with protocol isolation and visible runtime evidence as the key risks. Next I’m checking the active plan, reliability/spec docs, and the actual diff/test coverage.","satisfied_exit_criteria":[],"missing_requirements":[],"human_review_triggers":[]}
+exec
+/bin/zsh -lc "sed -n '1,280p' docs/product-specs/failure-simulation-and-audit.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+exec
+/bin/zsh -lc "sed -n '1,260p' docs/RELIABILITY.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# Failure Simulation and Audit
+
+## Goal
+Users configure delays, forced errors, malformed responses, and review audit evidence for public mutations and token events.
+
+## Trigger / Entry
+Failure simulation controls
+
+## User-Visible Behavior
+- Failure simulation controls
+- Timeout shortcut
+- Malformed response warning
+- Audit log filters
+- Endpoint-level delay applies to matched success or forced endpoint errors unless a response case has its own delay.
+- Response-case forced errors can return normal tool-error payloads or protocol errors; REST maps both to configured HTTP status/body shapes while MCP maps tool errors to `isError` tool results and protocol errors to JSON-RPC errors.
+
+## Validation
+- Delay bounds
+- Forced error probability/config mapping
+- Malformed response modes
+- Audit event writes for mutations and failures
+- Configure forced error/delay/malformed response and observe UI console plus audit events
+
+ succeeded in 0ms:
+# RELIABILITY.md
+
+## Purpose
+Define the reliability expectations and failure-handling rules for MCP Mock Server.
+
+## Core Reliability Rules
+- seed defaults must be idempotent and protected from normal deletion
+- invalid auth fails closed and never falls back to anonymous access
+- reset must leave the service operational with default users/client/endpoints
+- current reset invariants cover endpoint data and current endpoint seed defaults; later Basic/OAuth slices must add their own reset extensions when those built-ins land
+- long delays and malformed responses are intentional per endpoint/case and must not corrupt other requests
+- artificial delays are bounded to 30000 ms, apply only to the configured endpoint call, and must not stall unrelated requests globally
+- worker stalls in Ralph are detected through worker.jsonl heartbeat evidence
+
+## Verification
+- npm run db:prepare applies schema and seed data
+- npm run start:smoke proves production-style startup and health response
+- E2E checks cover OAuth permission denial, revocation, and reset recovery
+- audit tests prove mutation evidence is written
+- Ralph status verifies current-task state and active queue consistency
+
+## Runtime Startup Contract
+If the app depends on persistent runtime state, document how runtime preparation happens and how a production-style startup smoke proves the `start` path actually works.
+
+## MCP No-Auth Runtime
+- `/mcp` without credentials and `/mcp/none` must share the same no-auth MCP adapter so client examples do not drift.
+- The first runtime slice is stateless: `initialize` does not create an MCP session, `notifications/initialized` returns `202` with no body, and unsupported SSE/session methods return `405` with `Allow: POST`.
+- `tools/list` must read enabled endpoints from the endpoint domain service and use the shared generated MCP input schema helper; disabled endpoints must remain hidden.
+- `tools/call` in no-auth mode must call the shared endpoint matcher by endpoint name. Unknown or disabled tools and argument validation failures return JSON-RPC `-32602`; unsupported JSON-RPC methods return `-32601`; no exact response-case match falls back to the configured default case.
+
+## Operator Logging
+Document how `npm run start:logged` writes operator-visible server logs into `logs/`, which environment variable controls the log level, and which levels are supported for manual debugging.
+Generated server code should expose at least `trace`, `debug`, `info`, `warn`, and `error` logging without dumping secrets or full sensitive payloads by default.
+
+## Test Strategy
+Document which behaviors are protected by unit tests, which flows require end-to-end coverage, and which command failures block task promotion.
+When tests cover subtle or business-critical behavior, capture why those tests exist so future loops do not weaken them casually.
+If a user-visible behavior depends on an outside resource such as AI chat or a third-party service, require end-to-end coverage before promotion.
+If a task is mainly UI or UX work, require a dedicated `@ui-*` Playwright command with screenshot, responsive, and accessibility checks before promotion.
+UI tasks that fully prove quality through those deterministic checks may use `taskmeta.promotion_mode = deterministic_only` so promotion does not require human review.
+
+## Known Gaps
+- production hosting rate limits and abuse controls are outside MVP unless added later
+- SQLite backup/rotation policy is not yet defined
+- SSE streaming and MCP sessions are Phase 2
+- privacy policy for storing IP or IP hash in audit logs must be decided before public deployment
+
+## Environment-Specific Verification Blockers
+If the direct operator path passes but the current sandboxed or wrapped runner still fails, record that separately from normal product bugs and escalate it explicitly instead of hiding it inside generic “not done” wording.
+
+exec
+/bin/zsh -lc "sed -n '1,260p' docs/exec-plans/active/021-failure-delay-forced-error-runtime.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# Delay and Forced Error Simulation Runtime
+
+```json taskmeta
+{
+  "id": "failure-delay-forced-error-runtime",
+  "title": "Delay and Forced Error Simulation Runtime",
+  "order": 21,
+  "status": "active",
+  "next_task_on_success": "malformed-response-console-audit",
+  "prompt_docs": [
+    "AGENTS.md",
+    "ARCHITECTURE.md",
+    "docs/PRODUCT_SENSE.md",
+    "docs/FRONTEND.md",
+    "docs/RELIABILITY.md",
+    "docs/product-specs/failure-simulation-and-audit.md"
+  ],
+  "required_commands": [
+    "npm run test:unit",
+    "npm run test:e2e -- --grep @failure-delay-error",
+    "npm run verify"
+  ],
+  "required_files": [],
+  "human_review_triggers": [
+    "The task broadens into unrelated feature fronts.",
+    "Required checks do not prove the claimed behavior.",
+    "Implementation changes contradict the product spec or security/reliability docs."
+  ],
+  "promotion_mode": "deterministic"
+}
+```
+
+## Objective
+
+Implement artificial delay, timeout shortcut, and forced error behavior for MCP and REST calls.
+
+## Clarity notes
+
+- This task covers normal JSON responses that are delayed or intentionally erroring; malformed response modes are next.
+- Delay/error config may exist at endpoint and response-case level and should resolve predictably.
+- Tests should avoid long waits except where timeout shortcut behavior is explicitly proven safely.
+- MCP and REST should share config resolution while mapping errors to their own protocol shapes.
+
+## Expected result
+
+- Configured `delayMs` delays success or error responses.
+- Timeout shortcut sets or applies a 30-second delay option in UI/config.
+- Forced REST errors return configured status/body/message.
+- Forced MCP errors return tool_error or protocol_error according to config.
+
+## Objections / risks to avoid
+
+- Do not implement malformed invalid JSON/wrong content type here.
+- Do not block unrelated requests globally when one endpoint has a delay.
+- Do not add future matcher types.
+- Do not make tests slow/flaky with excessive real waits.
+
+## Scope
+
+- Implement delay resolution and bounded delay execution.
+- Implement forced error config resolution and protocol-specific mapping.
+- Update endpoint UI/console controls if needed for delay/error execution evidence.
+- Add unit and E2E tests tagged `@failure-delay-error`.
+
+## Out of scope
+
+- Malformed response modes.
+- Audit event expansion unless directly tied to config changes already present.
+- New matching types.
+- Operational rate limiting.
+
+## Exit criteria
+
+1. Delay behavior works for MCP and REST without corrupting other calls.
+2. Forced REST/MCP errors match configured behavior.
+3. Timeout shortcut is visible and tested without destabilizing the suite.
+4. `@failure-delay-error` passes.
+5. All required checks pass.
+
+## Required checks
+
+- npm run test:unit
+- npm run test:e2e -- --grep @failure-delay-error
+- npm run verify
+
+## Implementation notes
+
+- Prefer fake timers/unit tests for delay calculation and one controlled E2E timing proof.
+
+## Docs to update
+
+- docs/PRODUCT_SENSE.md
+- docs/FRONTEND.md
+- docs/RELIABILITY.md
+
+## Evaluator notes
+
+Required commands are mandatory promotion gates, not suggestions.
+Do not promote if any required check fails.
+Do not accept broad feature work outside this task.
+Confirm that this task maps to the primary product spec `failure-simulation-and-audit.md` or is explicitly final hardening.
+
+## Progress log
+
+- Start here. Append timestamped progress notes as work lands.
+- Note when existing partial implementations were found and reused instead of replaced.
+- 2026-05-05T13:10:29.907Z: restored as current task after issued-token-ui-revocation promotion.
+- 2026-05-05T22:42:00+09:00: found existing persistence/UI placeholders for delay and forced-error fields; reused them and added shared runtime resolution plus bounded service-level delay execution for REST and MCP.
+- 2026-05-05T22:42:00+09:00: added protocol-specific forced-error mapping, timeout shortcut UI, focused unit coverage, and `@failure-delay-error` E2E coverage without adding malformed response behavior.
+
+exec
+/bin/zsh -lc 'git status --short' in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+git: warning: confstr() failed with code 5: couldn't get path of DARWIN_USER_TEMP_DIR; using /tmp instead
+git: error: couldn't create cache file '/tmp/xcrun_db-DkHb39HN' (errno=Operation not permitted)
+git: warning: confstr() failed with code 5: couldn't get path of DARWIN_USER_TEMP_DIR; using /tmp instead
+git: error: couldn't create cache file '/tmp/xcrun_db-2FZol0cS' (errno=Operation not permitted)
+ M app/endpoints/endpoint-manager.tsx
+ M docs/FRONTEND.md
+ M docs/PRODUCT_SENSE.md
+ M docs/RELIABILITY.md
+ D docs/exec-plans/active/020-issued-token-ui-revocation.md
+ M docs/exec-plans/active/021-failure-delay-forced-error-runtime.md
+ M docs/product-specs/failure-simulation-and-audit.md
+ M docs/product-specs/mcp-json-rpc-runtime.md
+ M docs/product-specs/rest-mock-api.md
+ M lib/endpoints/runtime.ts
+ M lib/endpoints/service.ts
+ M lib/endpoints/types.ts
+ M lib/endpoints/validation.ts
+ M lib/mcp/protocol.ts
+ M lib/rest/tools.ts
+ M scripts/ralph/generated/current-evaluator-prompt.txt
+ M scripts/ralph/generated/current-task-prompt.txt
+ M state/artifacts/20260505T220310-issued-token-ui-revocation/commit.log
+ M state/backlog.md
+ M state/blocker-tracker.json
+ M state/current-cycle.json
+ M state/current-task.txt
+ M state/deterministic-checks.json
+ M state/last-result.txt
+ M state/run-log.md
+ M state/task-history.md
+ M tests/unit/endpoint-runtime.test.ts
+ M tests/unit/mcp-protocol.test.ts
+ M tests/unit/rest-tools.test.ts
+?? docs/exec-plans/completed/020-issued-token-ui-revocation.md
+?? state/artifacts/20260505T220310-issued-token-ui-revocation/backlog.log
+?? state/artifacts/20260505T220310-issued-token-ui-revocation/promote.log
+?? state/artifacts/20260505T221100-failure-delay-forced-error-runtime/
+?? tests/e2e/failure-delay-error.spec.ts
+
+exec
+/bin/zsh -lc 'git diff -- lib/mcp/protocol.ts lib/rest/tools.ts' in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+git: warning: confstr() failed with code 5: couldn't get path of DARWIN_USER_TEMP_DIR; using /tmp instead
+git: error: couldn't create cache file '/tmp/xcrun_db-51DstALt' (errno=Operation not permitted)
+git: warning: confstr() failed with code 5: couldn't get path of DARWIN_USER_TEMP_DIR; using /tmp instead
+git: error: couldn't create cache file '/tmp/xcrun_db-NnXtbn1W' (errno=Operation not permitted)
+diff --git a/lib/mcp/protocol.ts b/lib/mcp/protocol.ts
+index 8279473..5defc69 100644
+--- a/lib/mcp/protocol.ts
++++ b/lib/mcp/protocol.ts
+@@ -87,13 +87,16 @@ export function mcpToolResultFromEndpointCall(callResult: EndpointCallResult): M
+   }
+ 
+   if (callResult.kind === "case_error") {
+-    const bodyText = callResult.body ? textForJson(callResult.body) : callResult.message;
++    const fallbackBody = {
++      error: "tool_error",
++      message: callResult.message,
++      matchedCase: callResult.matchedCase.name,
++    };
++    const body = callResult.body ?? fallbackBody;
+     return {
+       isError: true,
+-      content: [{ type: "text", text: bodyText }],
+-      ...(callResult.body && structuredContentFor(callResult.body)
+-        ? { structuredContent: structuredContentFor(callResult.body) }
+-        : {}),
++      content: [{ type: "text", text: textForJson(body) }],
++      ...(structuredContentFor(body) ? { structuredContent: structuredContentFor(body) } : {}),
+     };
+   }
+ 
+@@ -172,6 +175,14 @@ export async function handleMcpJsonRpcMessage(
+     if (callResult.kind === "invalid_arguments") {
+       return errorResponse(message.id, -32602, callResult.message);
+     }
++    if (callResult.kind === "protocol_error") {
++      return errorResponse(message.id, -32000, callResult.message, 200, {
++        error: "protocol_error",
++        tool: message.params.name,
++        matchedCase: callResult.matchedCase.name,
++        ...(callResult.body ? { body: callResult.body } : {}),
++      });
++    }
+ 
+     return {
+       kind: "json",
+diff --git a/lib/rest/tools.ts b/lib/rest/tools.ts
+index bbd278f..d90373d 100644
+--- a/lib/rest/tools.ts
++++ b/lib/rest/tools.ts
+@@ -60,6 +60,19 @@ export function restToolCallResponseFromEndpointCall(callResult: EndpointCallRes
+     };
+   }
+ 
++  if (callResult.kind === "protocol_error") {
++    return {
++      status: callResult.statusCode,
++      body:
++        callResult.body ?? {
++          error: "protocol_error",
++          message: callResult.message,
++          matchedCase: callResult.matchedCase.name,
++        },
++      matchedCase: callResult.matchedCase.name,
++    };
++  }
++
+   if (callResult.kind === "invalid_arguments") {
+     return {
+       status: 422,
+
+exec
+/bin/zsh -lc 'git diff -- lib/endpoints/runtime.ts lib/endpoints/service.ts lib/endpoints/types.ts lib/endpoints/validation.ts' in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+git: warning: confstr() failed with code 5: couldn't get path of DARWIN_USER_TEMP_DIR; using /tmp instead
+git: error: couldn't create cache file '/tmp/xcrun_db-KZnCsT7t' (errno=Operation not permitted)
+git: warning: confstr() failed with code 5: couldn't get path of DARWIN_USER_TEMP_DIR; using /tmp instead
+git: error: couldn't create cache file '/tmp/xcrun_db-cJsnIzPP' (errno=Operation not permitted)
+diff --git a/lib/endpoints/runtime.ts b/lib/endpoints/runtime.ts
+index d17732f..55a72f2 100644
+--- a/lib/endpoints/runtime.ts
++++ b/lib/endpoints/runtime.ts
+@@ -17,6 +17,19 @@ export type EndpointCallSuccess = {
+   delayMs: number;
+ };
+ 
++export type EndpointCallProtocolError = {
++  kind: "protocol_error";
++  matchedCase: {
++    id: string;
++    name: string;
++    isDefault: boolean;
++  };
++  statusCode: number;
++  body: JsonValue | null;
++  message: string;
++  delayMs: number;
++};
++
+ export type EndpointCallError =
+   | {
+       kind: "not_found";
+@@ -43,10 +56,13 @@ export type EndpointCallError =
+       body: JsonValue | null;
+       message: string;
+       delayMs: number;
+-    };
++    }
++  | EndpointCallProtocolError;
+ 
+ export type EndpointCallResult = EndpointCallSuccess | EndpointCallError;
+ 
++export const MAX_ENDPOINT_DELAY_MS = 30_000;
++
+ function isRecord(value: unknown): value is Record<string, unknown> {
+   return value !== null && typeof value === "object" && !Array.isArray(value);
+ }
+@@ -119,6 +135,30 @@ function sameArguments(left: EndpointCallArguments, right: EndpointCallArguments
+   return leftKeys.every((key, index) => key === rightKeys[index] && left[key] === right[key]);
+ }
+ 
++function boundedDelayMs(value: number) {
++  if (!Number.isFinite(value)) return 0;
++  return Math.max(0, Math.min(MAX_ENDPOINT_DELAY_MS, Math.trunc(value)));
++}
++
++function resolvedDelayMs(endpoint: EndpointDetail, responseCase: EndpointRuntimeCase) {
++  if (responseCase.delayMs > 0) return boundedDelayMs(responseCase.delayMs);
++  return endpoint.failureMode === "delay" ? boundedDelayMs(endpoint.failureDelayMs) : 0;
++}
++
++function endpointForcedErrorDelayMs(endpoint: EndpointDetail) {
++  return boundedDelayMs(endpoint.failureDelayMs);
++}
++
++export async function applyEndpointCallDelay(
++  callResult: EndpointCallResult,
++  sleep: (delayMs: number) => Promise<void> = (delayMs) => new Promise((resolve) => setTimeout(resolve, delayMs)),
++): Promise<EndpointCallResult> {
++  if ("delayMs" in callResult && callResult.delayMs > 0) {
++    await sleep(boundedDelayMs(callResult.delayMs));
++  }
++  return callResult;
++}
++
+ export function selectEndpointResponseCase(
+   endpoint: Pick<EndpointDetail, "parameters" | "responseCases">,
+   rawArguments: unknown,
+@@ -160,6 +200,17 @@ export function executeEndpointDetail(endpoint: EndpointDetail | null, rawArgume
+     isDefault: selected.value.isDefault,
+   };
+ 
++  if (endpoint.failureMode === "error") {
++    return {
++      kind: "protocol_error",
++      matchedCase,
++      statusCode: endpoint.failureStatusCode ?? 500,
++      body: null,
++      message: endpoint.failureMessage ?? "Endpoint forced error.",
++      delayMs: endpointForcedErrorDelayMs(endpoint),
++    };
++  }
++
+   if (selected.value.errorMode === "error") {
+     const body = selected.value.errorBodyJson ? parseJson(selected.value.errorBodyJson) : null;
+     return {
+@@ -168,7 +219,19 @@ export function executeEndpointDetail(endpoint: EndpointDetail | null, rawArgume
+       statusCode: selected.value.errorStatusCode ?? selected.value.statusCode,
+       body,
+       message: selected.value.errorMessage ?? "Endpoint response case returned an error.",
+-      delayMs: selected.value.delayMs,
++      delayMs: resolvedDelayMs(endpoint, selected.value),
++    };
++  }
++
++  if (selected.value.errorMode === "protocol_error") {
++    const body = selected.value.errorBodyJson ? parseJson(selected.value.errorBodyJson) : null;
++    return {
++      kind: "protocol_error",
++      matchedCase,
++      statusCode: selected.value.errorStatusCode ?? 500,
++      body,
++      message: selected.value.errorMessage ?? "Endpoint response case returned a protocol error.",
++      delayMs: resolvedDelayMs(endpoint, selected.value),
+     };
+   }
+ 
+@@ -177,6 +240,6 @@ export function executeEndpointDetail(endpoint: EndpointDetail | null, rawArgume
+     matchedCase,
+     body: parseJson(selected.value.responseJson),
+     statusCode: selected.value.statusCode,
+-    delayMs: selected.value.delayMs,
++    delayMs: resolvedDelayMs(endpoint, selected.value),
+   };
+ }
+diff --git a/lib/endpoints/service.ts b/lib/endpoints/service.ts
+index 5766178..091223e 100644
+--- a/lib/endpoints/service.ts
++++ b/lib/endpoints/service.ts
+@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
+ import type { Prisma, PrismaClient } from "@prisma/client";
+ import { recordAuditEvent } from "@/lib/audit/service";
+ import { createPrismaClient } from "@/lib/db/client";
+-import { executeEndpointDetail } from "@/lib/endpoints/runtime";
++import { applyEndpointCallDelay, executeEndpointDetail } from "@/lib/endpoints/runtime";
+ import { generateMcpInputSchema } from "@/lib/endpoints/schema";
+ import { EndpointDeleteAuthorizationError, EndpointNotFoundError } from "@/lib/endpoints/types";
+ import { validateEndpointInput } from "@/lib/endpoints/validation";
+@@ -172,7 +172,7 @@ export async function callEndpointByName(
+   client: PrismaClient = createPrismaClient(),
+ ): Promise<EndpointCallResult> {
+   const endpoint = await client.endpoint.findUnique({ where: { name }, include: endpointInclude });
+-  return executeEndpointDetail(endpoint ? toDetail(endpoint) : null, rawArguments);
++  return applyEndpointCallDelay(executeEndpointDetail(endpoint ? toDetail(endpoint) : null, rawArguments));
+ }
+ 
+ export async function callPermittedEndpointByName(
+@@ -192,7 +192,7 @@ export async function callPermittedEndpointByName(
+     return { kind: "forbidden", message: "Bearer token does not grant permission for this endpoint." };
+   }
+ 
+-  return executeEndpointDetail(toDetail(endpoint), rawArguments);
++  return applyEndpointCallDelay(executeEndpointDetail(toDetail(endpoint), rawArguments));
+ }
+ 
+ export async function createEndpoint(input: EndpointInput, client: PrismaClient = createPrismaClient()) {
+diff --git a/lib/endpoints/types.ts b/lib/endpoints/types.ts
+index 156dcd0..250f461 100644
+--- a/lib/endpoints/types.ts
++++ b/lib/endpoints/types.ts
+@@ -1,6 +1,6 @@
+ export type EndpointParamType = "string" | "number" | "boolean";
+ export type FailureMode = "none" | "delay" | "error" | "malformed";
+-export type CaseErrorMode = "none" | "error";
++export type CaseErrorMode = "none" | "error" | "protocol_error";
+ export type JsonPrimitive = string | number | boolean | null;
+ export type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
+ 
+diff --git a/lib/endpoints/validation.ts b/lib/endpoints/validation.ts
+index f83cc80..b818b15 100644
+--- a/lib/endpoints/validation.ts
++++ b/lib/endpoints/validation.ts
+@@ -11,7 +11,7 @@ const endpointNamePattern = /^[A-Za-z0-9_-]{1,64}$/;
+ const paramNamePattern = /^[A-Za-z_][A-Za-z0-9_]{0,63}$/;
+ const paramTypes = new Set<EndpointParamType>(["string", "number", "boolean"]);
+ const failureModes = new Set<FailureMode>(["none", "delay", "error", "malformed"]);
+-const caseErrorModes = new Set<CaseErrorMode>(["none", "error"]);
++const caseErrorModes = new Set<CaseErrorMode>(["none", "error", "protocol_error"]);
+ 
+ function addError(errors: Record<string, string>, field: string, message: string) {
+   if (!errors[field]) {
+
+exec
+/bin/zsh -lc 'git diff -- app/endpoints/endpoint-manager.tsx docs/product-specs/mcp-json-rpc-runtime.md docs/product-specs/rest-mock-api.md' in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+exec
+/bin/zsh -lc 'git diff -- tests/unit/endpoint-runtime.test.ts tests/unit/mcp-protocol.test.ts tests/unit/rest-tools.test.ts tests/e2e/failure-delay-error.spec.ts' in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+git: warning: confstr() failed with code 5: couldn't get path of DARWIN_USER_TEMP_DIR; using /tmp instead
+git: error: couldn't create cache file '/tmp/xcrun_db-TwgWd3gA' (errno=Operation not permitted)
+git: warning: confstr() failed with code 5: couldn't get path of DARWIN_USER_TEMP_DIR; using /tmp instead
+git: error: couldn't create cache file '/tmp/xcrun_db-p95Oko2W' (errno=Operation not permitted)
+diff --git a/app/endpoints/endpoint-manager.tsx b/app/endpoints/endpoint-manager.tsx
+index 5060967..61aa5b3 100644
+--- a/app/endpoints/endpoint-manager.tsx
++++ b/app/endpoints/endpoint-manager.tsx
+@@ -622,6 +622,7 @@ export function EndpointManager({ initialData }: { initialData: EndpointListResu
+                     <select className="text-input" value={responseCase.errorMode} onChange={(event) => updateResponseCase(index, { errorMode: event.target.value as EndpointInput["responseCases"][number]["errorMode"] })}>
+                       <option value="none">none</option>
+                       <option value="error">error</option>
++                      <option value="protocol_error">protocol_error</option>
+                     </select>
+                   </label>
+                   <label className="field-block">
+@@ -672,6 +673,12 @@ export function EndpointManager({ initialData }: { initialData: EndpointListResu
+               <input aria-label="Failure delay ms" className="text-input" type="number" value={form.failureDelayMs} onChange={(event) => updateForm("failureDelayMs", Number(event.target.value))} />
+               {errorFor(fieldErrors, "failureDelayMs")}
+             </label>
++            <div className="field-block">
++              <span>Timeout shortcut</span>
++              <button className="secondary-button" type="button" onClick={() => setForm((current) => ({ ...current, failureMode: "delay", failureDelayMs: 30_000 }))}>
++                Set 30s delay
++              </button>
++            </div>
+             <label className="field-block wide">
+               <span>Failure message</span>
+               <input aria-label="Failure message" className="text-input" value={form.failureMessage ?? ""} onChange={(event) => updateForm("failureMessage", event.target.value)} />
+diff --git a/docs/product-specs/mcp-json-rpc-runtime.md b/docs/product-specs/mcp-json-rpc-runtime.md
+index ff5ab31..65f9a86 100644
+--- a/docs/product-specs/mcp-json-rpc-runtime.md
++++ b/docs/product-specs/mcp-json-rpc-runtime.md
+@@ -28,6 +28,8 @@ MCP connection guide examples
+ - `tools/call` on `/mcp` without credentials and `/mcp/none` executes enabled endpoints by name through the shared endpoint matcher. Exact response cases return MCP tool results with text content, and JSON-object responses also return `structuredContent`.
+ - `tools/call` for valid OAuth Bearer callers executes permitted endpoint tools and returns HTTP `403` with JSON-RPC error data when the token is valid but does not grant the requested endpoint.
+ - If no exact response case matches the supplied arguments, the configured default response case is returned. Unknown tools, disabled tools, malformed `tools/call` params, and endpoint argument validation failures return JSON-RPC `-32602` envelopes with HTTP `200`.
++- Configured endpoint or response-case delays apply before MCP tool success, tool-error, or protocol-error responses and are bounded to 30000 ms.
++- Response-case tool errors return MCP `tools/call` results with `isError: true`; endpoint-level or response-case protocol errors return JSON-RPC `-32000` errors with `protocol_error` data.
+ - Unsupported JSON-RPC methods return `-32601` with HTTP `200`.
+ - `GET` and `DELETE` on the MVP MCP endpoints return deterministic `405 Method Not Allowed` responses with `Allow: POST`.
+ 
+diff --git a/docs/product-specs/rest-mock-api.md b/docs/product-specs/rest-mock-api.md
+index 6b668c3..a3c2b59 100644
+--- a/docs/product-specs/rest-mock-api.md
++++ b/docs/product-specs/rest-mock-api.md
+@@ -29,6 +29,8 @@ REST example copy
+   - `404 { "error": "tool_not_found", "message": "Tool was not found or is disabled." }`
+   - `422 { "error": "invalid_arguments", "message": "<matcher validation message>" }`
+   - response-case forced errors return the configured status and configured error body, or `{ "error": "tool_error", "message": "<configured message>", "matchedCase": "<case name>" }` when no error body is configured.
++  - endpoint or response-case protocol forced errors return the configured status and configured error body, or `{ "error": "protocol_error", "message": "<configured message>", "matchedCase": "<case name>" }` when no error body is configured.
++- Configured endpoint or response-case delays apply only to the current call and are bounded to 30000 ms.
+ 
+ ## Validation
+ - REST error mapping
+
+ succeeded in 0ms:
+git: warning: confstr() failed with code 5: couldn't get path of DARWIN_USER_TEMP_DIR; using /tmp instead
+git: error: couldn't create cache file '/tmp/xcrun_db-YIOj6nSE' (errno=Operation not permitted)
+git: warning: confstr() failed with code 5: couldn't get path of DARWIN_USER_TEMP_DIR; using /tmp instead
+git: error: couldn't create cache file '/tmp/xcrun_db-WvaQKjnv' (errno=Operation not permitted)
+diff --git a/tests/unit/endpoint-runtime.test.ts b/tests/unit/endpoint-runtime.test.ts
+index b79e3d0..6cacb54 100644
+--- a/tests/unit/endpoint-runtime.test.ts
++++ b/tests/unit/endpoint-runtime.test.ts
+@@ -1,6 +1,6 @@
+ import assert from "node:assert/strict";
+ import test from "node:test";
+-import { executeEndpointDetail, selectEndpointResponseCase } from "@/lib/endpoints/runtime";
++import { applyEndpointCallDelay, executeEndpointDetail, selectEndpointResponseCase } from "@/lib/endpoints/runtime";
+ import type { EndpointDetail } from "@/lib/endpoints/types";
+ 
+ function endpointFixture(overrides: Partial<EndpointDetail> = {}): EndpointDetail {
+@@ -111,3 +111,71 @@ test("endpoint runtime reports disabled endpoints and invalid arguments determin
+     message: 'Argument "city" must be string.',
+   });
+ });
++
++test("endpoint runtime resolves endpoint and case delay predictably", async () => {
++  const endpointDelayResult = executeEndpointDetail(
++    endpointFixture({ failureMode: "delay", failureDelayMs: 125 }),
++    { city: "Busan", units: false },
++  );
++  assert.equal(endpointDelayResult.kind, "matched");
++  if (endpointDelayResult.kind !== "matched") return;
++  assert.equal(endpointDelayResult.delayMs, 125);
++
++  const caseDelayResult = executeEndpointDetail(
++    endpointFixture({
++      failureMode: "delay",
++      failureDelayMs: 125,
++      responseCases: endpointFixture().responseCases.map((responseCase) =>
++        responseCase.name === "seoul" ? { ...responseCase, delayMs: 40 } : responseCase,
++      ),
++    }),
++    { city: "Seoul" },
++  );
++  assert.equal(caseDelayResult.kind, "matched");
++  if (caseDelayResult.kind !== "matched") return;
++  assert.equal(caseDelayResult.delayMs, 40);
++
++  const slept: number[] = [];
++  await applyEndpointCallDelay(caseDelayResult, async (delayMs) => {
++    slept.push(delayMs);
++  });
++  assert.deepEqual(slept, [40]);
++});
++
++test("endpoint runtime maps forced endpoint and case protocol errors", () => {
++  const endpointError = executeEndpointDetail(
++    endpointFixture({
++      failureMode: "error",
++      failureStatusCode: 502,
++      failureDelayMs: 30_000,
++      failureMessage: "Endpoint is forcing a gateway error.",
++    }),
++    { city: "Seoul" },
++  );
++  assert.equal(endpointError.kind, "protocol_error");
++  if (endpointError.kind !== "protocol_error") return;
++  assert.equal(endpointError.statusCode, 502);
++  assert.equal(endpointError.message, "Endpoint is forcing a gateway error.");
++  assert.equal(endpointError.delayMs, 30_000);
++  assert.equal(endpointError.matchedCase.name, "seoul");
++
++  const caseProtocolError = executeEndpointDetail(
++    endpointFixture({
++      responseCases: endpointFixture().responseCases.map((responseCase) =>
++        responseCase.name === "seoul"
++          ? {
++              ...responseCase,
++              errorMode: "protocol_error",
++              errorStatusCode: 529,
++              errorMessage: "Case forced protocol break.",
++            }
++          : responseCase,
++      ),
++    }),
++    { city: "Seoul" },
++  );
++  assert.equal(caseProtocolError.kind, "protocol_error");
++  if (caseProtocolError.kind !== "protocol_error") return;
++  assert.equal(caseProtocolError.statusCode, 529);
++  assert.equal(caseProtocolError.message, "Case forced protocol break.");
++});
+diff --git a/tests/unit/mcp-protocol.test.ts b/tests/unit/mcp-protocol.test.ts
+index 7a1b965..cb464f8 100644
+--- a/tests/unit/mcp-protocol.test.ts
++++ b/tests/unit/mcp-protocol.test.ts
+@@ -155,6 +155,81 @@ test("MCP tools/call maps unknown tools and invalid params to JSON-RPC invalid p
+   });
+ });
+ 
++test("MCP tools/call maps forced tool and protocol errors distinctly", async () => {
++  const toolError = await handleMcpJsonRpcMessage(
++    {
++      jsonrpc: "2.0",
++      id: "tool-error",
++      method: "tools/call",
++      params: { name: "echo", arguments: { message: "fail" } },
++    },
++    async () => tools,
++    async () => ({
++      kind: "case_error",
++      matchedCase: { id: "case_fail", name: "forced-tool-error", isDefault: false },
++      statusCode: 503,
++      body: null,
++      message: "Forced tool error.",
++      delayMs: 0,
++    }),
++  );
++
++  assert.equal(toolError.kind, "json");
++  if (toolError.kind !== "json") return;
++  assert.deepEqual(toolError.body, {
++    jsonrpc: "2.0",
++    id: "tool-error",
++    result: {
++      isError: true,
++      content: [
++        {
++          type: "text",
++          text: '{"error":"tool_error","message":"Forced tool error.","matchedCase":"forced-tool-error"}',
++        },
++      ],
++      structuredContent: {
++        error: "tool_error",
++        message: "Forced tool error.",
++        matchedCase: "forced-tool-error",
++      },
++    },
++  });
++
++  const protocolError = await handleMcpJsonRpcMessage(
++    {
++      jsonrpc: "2.0",
++      id: "protocol-error",
++      method: "tools/call",
++      params: { name: "echo", arguments: { message: "fail" } },
++    },
++    async () => tools,
++    async () => ({
++      kind: "protocol_error",
++      matchedCase: { id: "case_protocol", name: "forced-protocol-error", isDefault: false },
++      statusCode: 502,
++      body: null,
++      message: "Forced protocol error.",
++      delayMs: 0,
++    }),
++  );
++
++  assert.equal(protocolError.kind, "json");
++  if (protocolError.kind !== "json") return;
++  assert.deepEqual(protocolError.body, {
++    jsonrpc: "2.0",
++    id: "protocol-error",
++    error: {
++      code: -32000,
++      message: "Forced protocol error.",
++      data: {
++        error: "protocol_error",
++        tool: "echo",
++        matchedCase: "forced-protocol-error",
++      },
++    },
++  });
++});
++
+ test("MCP tools/call maps OAuth permission denial to HTTP 403 with error data", async () => {
+   const result = await handleMcpJsonRpcMessage(
+     {
+diff --git a/tests/unit/rest-tools.test.ts b/tests/unit/rest-tools.test.ts
+index 16da3a8..14d5594 100644
+--- a/tests/unit/rest-tools.test.ts
++++ b/tests/unit/rest-tools.test.ts
+@@ -124,4 +124,24 @@ test("REST tool call mapper preserves success bodies and maps deterministic erro
+       matchedCase: "forced-error",
+     },
+   );
++
++  assert.deepEqual(
++    restToolCallResponseFromEndpointCall({
++      kind: "protocol_error",
++      matchedCase: { id: "case_protocol", name: "protocol-error", isDefault: false },
++      statusCode: 502,
++      body: null,
++      message: "Forced protocol outage.",
++      delayMs: 0,
++    }),
++    {
++      status: 502,
++      body: {
++        error: "protocol_error",
++        message: "Forced protocol outage.",
++        matchedCase: "protocol-error",
++      },
++      matchedCase: "protocol-error",
++    },
++  );
+ });
+
+exec
+/bin/zsh -lc "sed -n '1,260p' tests/e2e/failure-delay-error.spec.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+exec
+/bin/zsh -lc "sed -n '1,320p' lib/endpoints/runtime.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import { expect, test } from "@playwright/test";
+
+function endpointInput(name: string, overrides: Record<string, unknown> = {}) {
+  return {
+    name,
+    title: name,
+    description: "Failure simulation E2E fixture.",
+    enabled: true,
+    deleteCode: "87654321",
+    defaultResponseJson: "{}",
+    failureMode: "none",
+    failureDelayMs: 0,
+    parameters: [],
+    responseCases: [
+      {
+        name: "default",
+        priority: 0,
+        matchArgsJson: "{}",
+        responseJson: JSON.stringify({ ok: true, name }),
+        statusCode: 200,
+        delayMs: 0,
+        errorMode: "none",
+        isDefault: true,
+      },
+    ],
+    ...overrides,
+  };
+}
+
+test("delay and forced error runtime behavior stays protocol-specific @failure-delay-error", async ({
+  page,
+  request,
+}) => {
+  const suffix = Date.now() % 1_000_000;
+  const delayedName = `failure_delay_${suffix}`;
+  const fastName = `failure_fast_${suffix}`;
+  const forcedName = `failure_forced_${suffix}`;
+
+  const delayedCreate = await request.post("/api/endpoints", {
+    data: endpointInput(delayedName, {
+      failureMode: "delay",
+      failureDelayMs: 120,
+      responseCases: [
+        {
+          name: "default",
+          priority: 0,
+          matchArgsJson: "{}",
+          responseJson: JSON.stringify({ ok: true, delayed: true }),
+          statusCode: 200,
+          delayMs: 0,
+          errorMode: "none",
+          isDefault: true,
+        },
+      ],
+    }),
+  });
+  expect(delayedCreate.status()).toBe(201);
+  const delayedEndpoint = (await delayedCreate.json()).endpoint as { id: string };
+
+  const fastCreate = await request.post("/api/endpoints", {
+    data: endpointInput(fastName),
+  });
+  expect(fastCreate.status()).toBe(201);
+
+  const forcedCreate = await request.post("/api/endpoints", {
+    data: endpointInput(forcedName, {
+      parameters: [
+        {
+          name: "mode",
+          label: "Mode",
+          description: "Failure mode selector.",
+          type: "string",
+          required: true,
+          defaultValueJson: null,
+        },
+      ],
+      responseCases: [
+        {
+          name: "default",
+          priority: 0,
+          matchArgsJson: "{}",
+          responseJson: JSON.stringify({ ok: true }),
+          statusCode: 200,
+          delayMs: 0,
+          errorMode: "none",
+          isDefault: true,
+        },
+        {
+          name: "tool-error",
+          priority: 10,
+          matchArgsJson: JSON.stringify({ mode: "tool" }),
+          responseJson: "{}",
+          statusCode: 200,
+          delayMs: 25,
+          errorMode: "error",
+          errorStatusCode: 503,
+          errorMessage: "Forced tool outage.",
+          errorBodyJson: JSON.stringify({ error: "forced_tool", message: "Forced tool outage." }),
+          isDefault: false,
+        },
+        {
+          name: "protocol-error",
+          priority: 20,
+          matchArgsJson: JSON.stringify({ mode: "protocol" }),
+          responseJson: "{}",
+          statusCode: 200,
+          delayMs: 0,
+          errorMode: "protocol_error",
+          errorStatusCode: 502,
+          errorMessage: "Forced protocol outage.",
+          isDefault: false,
+        },
+      ],
+    }),
+  });
+  expect(forcedCreate.status()).toBe(201);
+
+  const delayedStart = Date.now();
+  const delayedRestPromise = request.post(`/rest/tools/${delayedName}/call`, { data: { arguments: {} } });
+  const fastRestPromise = request.post(`/rest/tools/${fastName}/call`, { data: { arguments: {} } });
+  const fastRest = await fastRestPromise;
+  const fastElapsedMs = Date.now() - delayedStart;
+  const delayedRest = await delayedRestPromise;
+  const delayedElapsedMs = Date.now() - delayedStart;
+
+  expect(fastRest.status()).toBe(200);
+  expect(delayedRest.status()).toBe(200);
+  expect(fastElapsedMs).toBeLessThan(delayedElapsedMs);
+  expect(delayedElapsedMs).toBeGreaterThanOrEqual(90);
+  await expect(delayedRest.json()).resolves.toEqual({ ok: true, delayed: true });
+
+  const delayedMcpStart = Date.now();
+  const delayedMcp = await request.post("/mcp/none", {
+    data: {
+      jsonrpc: "2.0",
+      id: "delayed-mcp",
+      method: "tools/call",
+      params: { name: delayedName, arguments: {} },
+    },
+  });
+  expect(Date.now() - delayedMcpStart).toBeGreaterThanOrEqual(90);
+  expect(delayedMcp.status()).toBe(200);
+  expect((await delayedMcp.json()).result.structuredContent).toEqual({ ok: true, delayed: true });
+
+  const restToolError = await request.post(`/rest/tools/${forcedName}/call`, {
+    data: { arguments: { mode: "tool" } },
+  });
+  expect(restToolError.status()).toBe(503);
+  expect(restToolError.headers()["x-mcp-mock-matched-case"]).toBe("tool-error");
+  await expect(restToolError.json()).resolves.toEqual({
+    error: "forced_tool",
+    message: "Forced tool outage.",
+  });
+
+  const mcpToolError = await request.post("/mcp/none", {
+    data: {
+      jsonrpc: "2.0",
+      id: "tool-error",
+      method: "tools/call",
+      params: { name: forcedName, arguments: { mode: "tool" } },
+    },
+  });
+  expect(mcpToolError.status()).toBe(200);
+  expect((await mcpToolError.json()).result).toMatchObject({
+    isError: true,
+    structuredContent: { error: "forced_tool", message: "Forced tool outage." },
+  });
+
+  const restProtocolError = await request.post(`/rest/tools/${forcedName}/call`, {
+    data: { arguments: { mode: "protocol" } },
+  });
+  expect(restProtocolError.status()).toBe(502);
+  await expect(restProtocolError.json()).resolves.toEqual({
+    error: "protocol_error",
+    message: "Forced protocol outage.",
+    matchedCase: "protocol-error",
+  });
+
+  const mcpProtocolError = await request.post("/mcp/none", {
+    data: {
+      jsonrpc: "2.0",
+      id: "protocol-error",
+      method: "tools/call",
+      params: { name: forcedName, arguments: { mode: "protocol" } },
+    },
+  });
+  expect(mcpProtocolError.status()).toBe(200);
+  await expect(mcpProtocolError.json()).resolves.toEqual({
+    jsonrpc: "2.0",
+    id: "protocol-error",
+    error: {
+      code: -32000,
+      message: "Forced protocol outage.",
+      data: {
+        error: "protocol_error",
+        tool: forcedName,
+        matchedCase: "protocol-error",
+      },
+    },
+  });
+
+  await page.goto("/endpoints");
+  await page.getByLabel("Search").fill(delayedName);
+  await page.getByRole("button", { name: delayedName }).click();
+  await page.getByRole("button", { name: "Set 30s delay" }).click();
+  await expect(page.getByLabel("Failure mode")).toHaveValue("delay");
+  await expect(page.getByLabel("Failure delay ms")).toHaveValue("30000");
+
+  const beforeTimeoutSave = await request.get(`/api/endpoints/${delayedEndpoint.id}`);
+  expect(beforeTimeoutSave.status()).toBe(200);
+  const timeoutPayload = await beforeTimeoutSave.json();
+  const timeoutSave = await request.patch(`/api/endpoints/${delayedEndpoint.id}`, {
+    data: {
+      ...timeoutPayload.endpoint,
+      failureMode: "delay",
+      failureDelayMs: 30_000,
+    },
+  });
+  expect(timeoutSave.status()).toBe(200);
+  const savedPayload = await timeoutSave.json();
+  expect(savedPayload.endpoint.failureMode).toBe("delay");
+  expect(savedPayload.endpoint.failureDelayMs).toBe(30_000);
+});
+
+ succeeded in 0ms:
+import type { EndpointDetail, JsonValue } from "@/lib/endpoints/types";
+
+export type EndpointRuntimeCase = EndpointDetail["responseCases"][number];
+export type EndpointRuntimeParam = EndpointDetail["parameters"][number];
+
+export type EndpointCallArguments = Record<string, JsonValue>;
+
+export type EndpointCallSuccess = {
+  kind: "matched";
+  matchedCase: {
+    id: string;
+    name: string;
+    isDefault: boolean;
+  };
+  body: JsonValue;
+  statusCode: number;
+  delayMs: number;
+};
+
+export type EndpointCallProtocolError = {
+  kind: "protocol_error";
+  matchedCase: {
+    id: string;
+    name: string;
+    isDefault: boolean;
+  };
+  statusCode: number;
+  body: JsonValue | null;
+  message: string;
+  delayMs: number;
+};
+
+export type EndpointCallError =
+  | {
+      kind: "not_found";
+    }
+  | {
+      kind: "disabled";
+    }
+  | {
+      kind: "forbidden";
+      message: string;
+    }
+  | {
+      kind: "invalid_arguments";
+      message: string;
+    }
+  | {
+      kind: "case_error";
+      matchedCase: {
+        id: string;
+        name: string;
+        isDefault: boolean;
+      };
+      statusCode: number;
+      body: JsonValue | null;
+      message: string;
+      delayMs: number;
+    }
+  | EndpointCallProtocolError;
+
+export type EndpointCallResult = EndpointCallSuccess | EndpointCallError;
+
+export const MAX_ENDPOINT_DELAY_MS = 30_000;
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function parseJson(value: string): JsonValue {
+  return JSON.parse(value) as JsonValue;
+}
+
+function argumentType(value: JsonValue): "string" | "number" | "boolean" | "object" | "array" | "null" {
+  if (value === null) return "null";
+  if (Array.isArray(value)) return "array";
+  if (typeof value === "object") return "object";
+  if (typeof value === "string") return "string";
+  if (typeof value === "number") return "number";
+  if (typeof value === "boolean") return "boolean";
+  return "object";
+}
+
+function normalizeArguments(
+  parameters: EndpointRuntimeParam[],
+  rawArguments: unknown,
+): { ok: true; value: EndpointCallArguments } | { ok: false; message: string } {
+  if (!isRecord(rawArguments)) {
+    return { ok: false, message: "tools/call params.arguments must be an object." };
+  }
+
+  const parameterNames = new Set(parameters.map((parameter) => parameter.name));
+  for (const argName of Object.keys(rawArguments)) {
+    if (!parameterNames.has(argName)) {
+      return { ok: false, message: `Unexpected argument "${argName}".` };
+    }
+  }
+
+  const normalized: EndpointCallArguments = {};
+  for (const parameter of parameters) {
+    const supplied = rawArguments[parameter.name];
+    const value =
+      supplied === undefined && parameter.defaultValueJson ? parseJson(parameter.defaultValueJson) : supplied;
+
+    if (value === undefined) {
+      if (parameter.required) {
+        return { ok: false, message: `Missing required argument "${parameter.name}".` };
+      }
+      continue;
+    }
+
+    if (
+      value === null ||
+      Array.isArray(value) ||
+      typeof value === "object" ||
+      argumentType(value as JsonValue) !== parameter.type
+    ) {
+      return {
+        ok: false,
+        message: `Argument "${parameter.name}" must be ${parameter.type}.`,
+      };
+    }
+
+    normalized[parameter.name] = value as JsonValue;
+  }
+
+  return { ok: true, value: normalized };
+}
+
+function sameArguments(left: EndpointCallArguments, right: EndpointCallArguments) {
+  const leftKeys = Object.keys(left).sort();
+  const rightKeys = Object.keys(right).sort();
+  if (leftKeys.length !== rightKeys.length) return false;
+
+  return leftKeys.every((key, index) => key === rightKeys[index] && left[key] === right[key]);
+}
+
+function boundedDelayMs(value: number) {
+  if (!Number.isFinite(value)) return 0;
+  return Math.max(0, Math.min(MAX_ENDPOINT_DELAY_MS, Math.trunc(value)));
+}
+
+function resolvedDelayMs(endpoint: EndpointDetail, responseCase: EndpointRuntimeCase) {
+  if (responseCase.delayMs > 0) return boundedDelayMs(responseCase.delayMs);
+  return endpoint.failureMode === "delay" ? boundedDelayMs(endpoint.failureDelayMs) : 0;
+}
+
+function endpointForcedErrorDelayMs(endpoint: EndpointDetail) {
+  return boundedDelayMs(endpoint.failureDelayMs);
+}
+
+export async function applyEndpointCallDelay(
+  callResult: EndpointCallResult,
+  sleep: (delayMs: number) => Promise<void> = (delayMs) => new Promise((resolve) => setTimeout(resolve, delayMs)),
+): Promise<EndpointCallResult> {
+  if ("delayMs" in callResult && callResult.delayMs > 0) {
+    await sleep(boundedDelayMs(callResult.delayMs));
+  }
+  return callResult;
+}
+
+export function selectEndpointResponseCase(
+  endpoint: Pick<EndpointDetail, "parameters" | "responseCases">,
+  rawArguments: unknown,
+): { ok: true; value: EndpointRuntimeCase; arguments: EndpointCallArguments } | { ok: false; message: string } {
+  const normalized = normalizeArguments(endpoint.parameters, rawArguments);
+  if (!normalized.ok) return normalized;
+
+  const defaultCase = endpoint.responseCases.find((responseCase) => responseCase.isDefault);
+  const exactCases = endpoint.responseCases.filter((responseCase) => !responseCase.isDefault);
+  const exactMatch = exactCases.find((responseCase) => {
+    const matchArgs = parseJson(responseCase.matchArgsJson);
+    return isRecord(matchArgs) && sameArguments(normalized.value, matchArgs as EndpointCallArguments);
+  });
+
+  const selected = exactMatch ?? defaultCase;
+  if (!selected) {
+    return { ok: false, message: "No matching response case is configured." };
+  }
+
+  return { ok: true, value: selected, arguments: normalized.value };
+}
+
+export function executeEndpointDetail(endpoint: EndpointDetail | null, rawArguments: unknown): EndpointCallResult {
+  if (!endpoint) {
+    return { kind: "not_found" };
+  }
+  if (!endpoint.enabled) {
+    return { kind: "disabled" };
+  }
+
+  const selected = selectEndpointResponseCase(endpoint, rawArguments);
+  if (!selected.ok) {
+    return { kind: "invalid_arguments", message: selected.message };
+  }
+
+  const matchedCase = {
+    id: selected.value.id,
+    name: selected.value.name,
+    isDefault: selected.value.isDefault,
+  };
+
+  if (endpoint.failureMode === "error") {
+    return {
+      kind: "protocol_error",
+      matchedCase,
+      statusCode: endpoint.failureStatusCode ?? 500,
+      body: null,
+      message: endpoint.failureMessage ?? "Endpoint forced error.",
+      delayMs: endpointForcedErrorDelayMs(endpoint),
+    };
+  }
+
+  if (selected.value.errorMode === "error") {
+    const body = selected.value.errorBodyJson ? parseJson(selected.value.errorBodyJson) : null;
+    return {
+      kind: "case_error",
+      matchedCase,
+      statusCode: selected.value.errorStatusCode ?? selected.value.statusCode,
+      body,
+      message: selected.value.errorMessage ?? "Endpoint response case returned an error.",
+      delayMs: resolvedDelayMs(endpoint, selected.value),
+    };
+  }
+
+  if (selected.value.errorMode === "protocol_error") {
+    const body = selected.value.errorBodyJson ? parseJson(selected.value.errorBodyJson) : null;
+    return {
+      kind: "protocol_error",
+      matchedCase,
+      statusCode: selected.value.errorStatusCode ?? 500,
+      body,
+      message: selected.value.errorMessage ?? "Endpoint response case returned a protocol error.",
+      delayMs: resolvedDelayMs(endpoint, selected.value),
+    };
+  }
+
+  return {
+    kind: "matched",
+    matchedCase,
+    body: parseJson(selected.value.responseJson),
+    statusCode: selected.value.statusCode,
+    delayMs: resolvedDelayMs(endpoint, selected.value),
+  };
+}
+
+exec
+/bin/zsh -lc "sed -n '1,260p' lib/mcp/protocol.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import {
+  DEFAULT_MCP_PROTOCOL_VERSION,
+  MCP_SERVER_INFO,
+  SUPPORTED_MCP_PROTOCOL_VERSIONS,
+} from "@/lib/mcp/types";
+import type { EndpointCallResult } from "@/lib/endpoints/runtime";
+import type { JsonValue } from "@/lib/endpoints/types";
+import type {
+  McpJsonRpcId,
+  McpJsonRpcRequest,
+  McpJsonRpcResponse,
+  McpTool,
+  McpToolCallResult,
+} from "@/lib/mcp/types";
+
+export type McpProtocolResult =
+  | {
+      kind: "json";
+      status: number;
+      body: McpJsonRpcResponse;
+    }
+  | {
+      kind: "accepted";
+    };
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function idFromMessage(message: unknown): McpJsonRpcId {
+  if (!isRecord(message)) return null;
+  return typeof message.id === "string" || typeof message.id === "number" || message.id === null ? message.id : null;
+}
+
+function errorResponse(
+  id: McpJsonRpcId,
+  code: number,
+  message: string,
+  status = 200,
+  data?: Record<string, JsonValue>,
+): McpProtocolResult {
+  return {
+    kind: "json",
+    status,
+    body: {
+      jsonrpc: "2.0",
+      id,
+      error: { code, message, ...(data ? { data } : {}) },
+    },
+  };
+}
+
+function requestedProtocolVersion(params: unknown) {
+  if (!isRecord(params) || typeof params.protocolVersion !== "string") {
+    return DEFAULT_MCP_PROTOCOL_VERSION;
+  }
+  return SUPPORTED_MCP_PROTOCOL_VERSIONS.includes(
+    params.protocolVersion as (typeof SUPPORTED_MCP_PROTOCOL_VERSIONS)[number],
+  )
+    ? params.protocolVersion
+    : DEFAULT_MCP_PROTOCOL_VERSION;
+}
+
+function isJsonRpcRequest(message: unknown): message is McpJsonRpcRequest {
+  return isRecord(message) && message.jsonrpc === "2.0" && typeof message.method === "string";
+}
+
+function isToolCallParams(params: unknown): params is { name: string; arguments?: unknown } {
+  return isRecord(params) && typeof params.name === "string" && (params.arguments === undefined || isRecord(params.arguments));
+}
+
+function textForJson(value: JsonValue) {
+  return typeof value === "string" ? value : JSON.stringify(value);
+}
+
+function structuredContentFor(value: JsonValue): Record<string, JsonValue> | undefined {
+  return isRecord(value) ? (value as Record<string, JsonValue>) : undefined;
+}
+
+export function mcpToolResultFromEndpointCall(callResult: EndpointCallResult): McpToolCallResult {
+  if (callResult.kind === "matched") {
+    const structuredContent = structuredContentFor(callResult.body);
+    return {
+      content: [{ type: "text", text: textForJson(callResult.body) }],
+      ...(structuredContent ? { structuredContent } : {}),
+    };
+  }
+
+  if (callResult.kind === "case_error") {
+    const fallbackBody = {
+      error: "tool_error",
+      message: callResult.message,
+      matchedCase: callResult.matchedCase.name,
+    };
+    const body = callResult.body ?? fallbackBody;
+    return {
+      isError: true,
+      content: [{ type: "text", text: textForJson(body) }],
+      ...(structuredContentFor(body) ? { structuredContent: structuredContentFor(body) } : {}),
+    };
+  }
+
+  return {
+    isError: true,
+    content: [{ type: "text", text: callResult.kind === "invalid_arguments" ? callResult.message : "Tool execution failed." }],
+  };
+}
+
+export async function handleMcpJsonRpcMessage(
+  message: unknown,
+  loadTools: () => Promise<McpTool[]>,
+  callTool?: (name: string, rawArguments: unknown) => Promise<EndpointCallResult>,
+): Promise<McpProtocolResult> {
+  if (!isJsonRpcRequest(message)) {
+    return errorResponse(idFromMessage(message), -32600, "Invalid Request", 400);
+  }
+
+  if (message.id === undefined) {
+    if (message.method === "notifications/initialized") {
+      return { kind: "accepted" };
+    }
+    return { kind: "accepted" };
+  }
+
+  if (message.method === "initialize") {
+    return {
+      kind: "json",
+      status: 200,
+      body: {
+        jsonrpc: "2.0",
+        id: message.id,
+        result: {
+          protocolVersion: requestedProtocolVersion(message.params),
+          capabilities: {
+            tools: {
+              listChanged: false,
+            },
+          },
+          serverInfo: MCP_SERVER_INFO,
+        },
+      },
+    };
+  }
+
+  if (message.method === "tools/list") {
+    return {
+      kind: "json",
+      status: 200,
+      body: {
+        jsonrpc: "2.0",
+        id: message.id,
+        result: {
+          tools: await loadTools(),
+        },
+      },
+    };
+  }
+
+  if (message.method === "tools/call") {
+    if (!callTool || !isToolCallParams(message.params)) {
+      return errorResponse(message.id, -32602, "Invalid params");
+    }
+
+    const callResult = await callTool(message.params.name, message.params.arguments ?? {});
+    if (callResult.kind === "not_found" || callResult.kind === "disabled") {
+      return errorResponse(message.id, -32602, "Unknown tool");
+    }
+    if (callResult.kind === "forbidden") {
+      return errorResponse(message.id, -32003, "Forbidden", 403, {
+        error: "forbidden",
+        message: callResult.message,
+        tool: message.params.name,
+      });
+    }
+    if (callResult.kind === "invalid_arguments") {
+      return errorResponse(message.id, -32602, callResult.message);
+    }
+    if (callResult.kind === "protocol_error") {
+      return errorResponse(message.id, -32000, callResult.message, 200, {
+        error: "protocol_error",
+        tool: message.params.name,
+        matchedCase: callResult.matchedCase.name,
+        ...(callResult.body ? { body: callResult.body } : {}),
+      });
+    }
+
+    return {
+      kind: "json",
+      status: 200,
+      body: {
+        jsonrpc: "2.0",
+        id: message.id,
+        result: mcpToolResultFromEndpointCall(callResult),
+      },
+    };
+  }
+
+  return errorResponse(message.id, -32601, "Method not found");
+}
+
+exec
+/bin/zsh -lc "sed -n '1,220p' lib/rest/tools.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import type { EndpointCallResult } from "@/lib/endpoints/runtime";
+import type { EndpointParamInput, EndpointRestTool, JsonValue } from "@/lib/endpoints/types";
+
+type RestToolEndpointInput = {
+  name: string;
+  title: string;
+  description: string;
+  parameters: EndpointParamInput[];
+};
+
+function parseDefaultValue(value: string | null | undefined): JsonValue | undefined {
+  if (!value?.trim()) return undefined;
+  return JSON.parse(value) as JsonValue;
+}
+
+export function restToolFromEndpoint(endpoint: RestToolEndpointInput): EndpointRestTool {
+  return {
+    name: endpoint.name,
+    title: endpoint.title,
+    description: endpoint.description,
+    parameters: endpoint.parameters.map((parameter) => {
+      const defaultValue = parseDefaultValue(parameter.defaultValueJson);
+      return {
+        name: parameter.name,
+        label: parameter.label ?? "",
+        description: parameter.description ?? "",
+        type: parameter.type,
+        required: parameter.required,
+        ...(defaultValue !== undefined ? { defaultValue } : {}),
+      };
+    }),
+  };
+}
+
+export type RestToolCallResponse = {
+  status: number;
+  body: JsonValue;
+  matchedCase?: string;
+};
+
+export function restToolCallResponseFromEndpointCall(callResult: EndpointCallResult): RestToolCallResponse {
+  if (callResult.kind === "matched") {
+    return {
+      status: callResult.statusCode,
+      body: callResult.body,
+      matchedCase: callResult.matchedCase.name,
+    };
+  }
+
+  if (callResult.kind === "case_error") {
+    return {
+      status: callResult.statusCode,
+      body:
+        callResult.body ?? {
+          error: "tool_error",
+          message: callResult.message,
+          matchedCase: callResult.matchedCase.name,
+        },
+      matchedCase: callResult.matchedCase.name,
+    };
+  }
+
+  if (callResult.kind === "protocol_error") {
+    return {
+      status: callResult.statusCode,
+      body:
+        callResult.body ?? {
+          error: "protocol_error",
+          message: callResult.message,
+          matchedCase: callResult.matchedCase.name,
+        },
+      matchedCase: callResult.matchedCase.name,
+    };
+  }
+
+  if (callResult.kind === "invalid_arguments") {
+    return {
+      status: 422,
+      body: {
+        error: "invalid_arguments",
+        message: callResult.message,
+      },
+    };
+  }
+
+  if (callResult.kind === "forbidden") {
+    return {
+      status: 403,
+      body: {
+        error: "forbidden",
+        message: callResult.message,
+      },
+    };
+  }
+
+  return {
+    status: 404,
+    body: {
+      error: "tool_not_found",
+      message: "Tool was not found or is disabled.",
+    },
+  };
+}
+
+codex
+{"decision":"not_done","recommend_promotion":false,"confidence":0,"summary":"The core runtime path is small and mostly well factored: matching stays shared, delay is applied in the endpoint service before protocol mapping, and REST/MCP adapters keep different error shapes. I’m doing one more pass around validation/persistence and API handlers to catch schema or edge-case mismatches before deciding.","satisfied_exit_criteria":[],"missing_requirements":[],"human_review_triggers":[]}
+exec
+/bin/zsh -lc "sed -n '1,260p' lib/endpoints/validation.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import type {
+  CaseErrorMode,
+  EndpointInput,
+  EndpointParamType,
+  FailureMode,
+  ResponseCaseInput,
+} from "@/lib/endpoints/types";
+import { EndpointValidationError } from "@/lib/endpoints/types";
+
+const endpointNamePattern = /^[A-Za-z0-9_-]{1,64}$/;
+const paramNamePattern = /^[A-Za-z_][A-Za-z0-9_]{0,63}$/;
+const paramTypes = new Set<EndpointParamType>(["string", "number", "boolean"]);
+const failureModes = new Set<FailureMode>(["none", "delay", "error", "malformed"]);
+const caseErrorModes = new Set<CaseErrorMode>(["none", "error", "protocol_error"]);
+
+function addError(errors: Record<string, string>, field: string, message: string) {
+  if (!errors[field]) {
+    errors[field] = message;
+  }
+}
+
+function parseJson(errors: Record<string, string>, field: string, value: string, expectedObject = false) {
+  try {
+    const parsed = JSON.parse(value);
+    if (expectedObject && (parsed === null || Array.isArray(parsed) || typeof parsed !== "object")) {
+      addError(errors, field, "Must be a JSON object.");
+    }
+  } catch {
+    addError(errors, field, "Must be valid JSON.");
+  }
+}
+
+function validateStatus(errors: Record<string, string>, field: string, value: number | null | undefined) {
+  if (value == null) return;
+  if (!Number.isInteger(value) || value < 100 || value > 599) {
+    addError(errors, field, "Must be an HTTP status code from 100 to 599.");
+  }
+}
+
+function validateDelay(errors: Record<string, string>, field: string, value: number) {
+  if (!Number.isInteger(value) || value < 0 || value > 30_000) {
+    addError(errors, field, "Must be a whole number from 0 to 30000.");
+  }
+}
+
+export function normalizeEndpointInput(input: EndpointInput): EndpointInput {
+  return {
+    ...input,
+    name: input.name.trim(),
+    title: input.title?.trim() ?? "",
+    description: input.description?.trim() ?? "",
+    deleteCode: input.deleteCode?.trim() ? input.deleteCode.trim() : null,
+    failureStatusCode: input.failureStatusCode ?? null,
+    failureMessage: input.failureMessage?.trim() ? input.failureMessage.trim() : null,
+    malformedResponseJson: input.malformedResponseJson?.trim() ? input.malformedResponseJson.trim() : null,
+    parameters: input.parameters.map((parameter) => ({
+      ...parameter,
+      name: parameter.name.trim(),
+      label: parameter.label?.trim() ?? "",
+      description: parameter.description?.trim() ?? "",
+      defaultValueJson: parameter.defaultValueJson?.trim() ? parameter.defaultValueJson.trim() : null,
+    })),
+    responseCases: input.responseCases.map((responseCase) => ({
+      ...responseCase,
+      name: responseCase.name.trim(),
+      errorStatusCode: responseCase.errorStatusCode ?? null,
+      errorMessage: responseCase.errorMessage?.trim() ? responseCase.errorMessage.trim() : null,
+      errorBodyJson: responseCase.errorBodyJson?.trim() ? responseCase.errorBodyJson.trim() : null,
+    })),
+  };
+}
+
+export function validateEndpointInput(rawInput: EndpointInput): EndpointInput {
+  const input = normalizeEndpointInput(rawInput);
+  const errors: Record<string, string> = {};
+
+  if (!endpointNamePattern.test(input.name)) {
+    addError(errors, "name", "Use 1-64 letters, numbers, underscores, or hyphens.");
+  }
+  if ((input.title ?? "").length > 80) {
+    addError(errors, "title", "Use 80 characters or fewer.");
+  }
+  if ((input.description ?? "").length > 500) {
+    addError(errors, "description", "Use 500 characters or fewer.");
+  }
+  if (input.deleteCode && !/^\d{8}$/.test(input.deleteCode)) {
+    addError(errors, "deleteCode", "Use exactly 8 digits.");
+  }
+
+  parseJson(errors, "defaultResponseJson", input.defaultResponseJson);
+
+  if (!failureModes.has(input.failureMode)) {
+    addError(errors, "failureMode", "Choose a supported failure mode.");
+  }
+  validateStatus(errors, "failureStatusCode", input.failureStatusCode);
+  validateDelay(errors, "failureDelayMs", input.failureDelayMs);
+  if (input.failureMode === "error" && input.failureStatusCode == null) {
+    addError(errors, "failureStatusCode", "Required when forced error mode is selected.");
+  }
+  if (input.failureMode === "malformed") {
+    if (!input.malformedResponseJson) {
+      addError(errors, "malformedResponseJson", "Required when malformed response mode is selected.");
+    }
+  } else if (input.malformedResponseJson) {
+    parseJson(errors, "malformedResponseJson", input.malformedResponseJson);
+  }
+
+  validateParameters(errors, input);
+  validateResponseCases(errors, input.responseCases);
+
+  if (Object.keys(errors).length > 0) {
+    throw new EndpointValidationError(errors);
+  }
+
+  return input;
+}
+
+function validateParameters(errors: Record<string, string>, input: EndpointInput) {
+  if (input.parameters.length > 3) {
+    addError(errors, "parameters", "Use no more than three parameters.");
+  }
+
+  const names = new Set<string>();
+  input.parameters.forEach((parameter, index) => {
+    const prefix = `parameters.${index}`;
+    if (!paramNamePattern.test(parameter.name)) {
+      addError(errors, `${prefix}.name`, "Use a valid parameter name.");
+    }
+    if (names.has(parameter.name)) {
+      addError(errors, `${prefix}.name`, "Parameter names must be unique.");
+    }
+    names.add(parameter.name);
+    if (!paramTypes.has(parameter.type)) {
+      addError(errors, `${prefix}.type`, "Choose string, number, or boolean.");
+    }
+    if (parameter.defaultValueJson) {
+      parseJson(errors, `${prefix}.defaultValueJson`, parameter.defaultValueJson);
+    }
+  });
+}
+
+function validateResponseCases(errors: Record<string, string>, responseCases: ResponseCaseInput[]) {
+  if (responseCases.length === 0) {
+    addError(errors, "responseCases", "Add at least one response case.");
+  }
+
+  const names = new Set<string>();
+  let defaultCount = 0;
+
+  responseCases.forEach((responseCase, index) => {
+    const prefix = `responseCases.${index}`;
+    if (!responseCase.name || responseCase.name.length > 64) {
+      addError(errors, `${prefix}.name`, "Use a case name from 1 to 64 characters.");
+    }
+    if (names.has(responseCase.name)) {
+      addError(errors, `${prefix}.name`, "Response case names must be unique.");
+    }
+    names.add(responseCase.name);
+    if (!Number.isInteger(responseCase.priority)) {
+      addError(errors, `${prefix}.priority`, "Priority must be a whole number.");
+    }
+    parseJson(errors, `${prefix}.matchArgsJson`, responseCase.matchArgsJson, true);
+    parseJson(errors, `${prefix}.responseJson`, responseCase.responseJson);
+    validateStatus(errors, `${prefix}.statusCode`, responseCase.statusCode);
+    validateDelay(errors, `${prefix}.delayMs`, responseCase.delayMs);
+    if (!caseErrorModes.has(responseCase.errorMode)) {
+      addError(errors, `${prefix}.errorMode`, "Choose a supported case error mode.");
+    }
+    validateStatus(errors, `${prefix}.errorStatusCode`, responseCase.errorStatusCode);
+    if (responseCase.errorBodyJson) {
+      parseJson(errors, `${prefix}.errorBodyJson`, responseCase.errorBodyJson);
+    }
+    if (responseCase.isDefault) {
+      defaultCount += 1;
+    }
+  });
+
+  if (defaultCount !== 1) {
+    addError(errors, "responseCases.default", "Choose exactly one default response case.");
+  }
+}
+
+exec
+/bin/zsh -lc "sed -n '1,260p' lib/endpoints/types.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+export type EndpointParamType = "string" | "number" | "boolean";
+export type FailureMode = "none" | "delay" | "error" | "malformed";
+export type CaseErrorMode = "none" | "error" | "protocol_error";
+export type JsonPrimitive = string | number | boolean | null;
+export type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
+
+export type McpInputSchema = {
+  type: "object";
+  properties: Record<
+    string,
+    {
+      type: EndpointParamType;
+      title?: string;
+      description?: string;
+      default?: JsonValue;
+    }
+  >;
+  required: string[];
+  additionalProperties: false;
+};
+
+export type EndpointParamInput = {
+  name: string;
+  label?: string;
+  description?: string;
+  type: EndpointParamType;
+  required: boolean;
+  defaultValueJson?: string | null;
+};
+
+export type ResponseCaseInput = {
+  name: string;
+  priority: number;
+  matchArgsJson: string;
+  responseJson: string;
+  statusCode: number;
+  delayMs: number;
+  errorMode: CaseErrorMode;
+  errorStatusCode?: number | null;
+  errorMessage?: string | null;
+  errorBodyJson?: string | null;
+  isDefault: boolean;
+};
+
+export type EndpointInput = {
+  name: string;
+  title?: string;
+  description?: string;
+  enabled: boolean;
+  deleteCode?: string | null;
+  defaultResponseJson: string;
+  failureMode: FailureMode;
+  failureStatusCode?: number | null;
+  failureDelayMs: number;
+  failureMessage?: string | null;
+  malformedResponseJson?: string | null;
+  parameters: EndpointParamInput[];
+  responseCases: ResponseCaseInput[];
+};
+
+export type EndpointSummary = {
+  id: string;
+  name: string;
+  title: string;
+  description: string;
+  enabled: boolean;
+  protectedDefault: boolean;
+  parameterCount: number;
+  responseCaseCount: number;
+  updatedAt: string;
+};
+
+export type EndpointDetail = EndpointSummary & {
+  deleteCode: string | null;
+  defaultResponseJson: string;
+  inputSchema: McpInputSchema;
+  failureMode: FailureMode;
+  failureStatusCode: number | null;
+  failureDelayMs: number;
+  failureMessage: string | null;
+  malformedResponseJson: string | null;
+  parameters: Array<EndpointParamInput & { id: string; position: number }>;
+  responseCases: Array<ResponseCaseInput & { id: string }>;
+};
+
+export type EndpointListResult = {
+  total: number;
+  enabled: number;
+  disabled: number;
+  endpoints: EndpointSummary[];
+};
+
+export type EndpointMcpTool = {
+  name: string;
+  description: string;
+  inputSchema: McpInputSchema;
+};
+
+export type EndpointRestToolParameter = {
+  name: string;
+  label: string;
+  description: string;
+  type: EndpointParamType;
+  required: boolean;
+  defaultValue?: JsonValue;
+};
+
+export type EndpointRestTool = {
+  name: string;
+  title: string;
+  description: string;
+  parameters: EndpointRestToolParameter[];
+};
+
+export type EndpointRestToolListResult = {
+  tools: EndpointRestTool[];
+};
+
+export type EndpointDeleteInput = {
+  deleteCode?: string | null;
+  rootPassword?: string | null;
+};
+
+export class EndpointValidationError extends Error {
+  constructor(public readonly fieldErrors: Record<string, string>) {
+    super("Endpoint validation failed");
+  }
+}
+
+export class EndpointDeleteAuthorizationError extends Error {
+  constructor(public readonly reason: "missing_confirmation" | "invalid_confirmation" | "protected_default") {
+    super("Endpoint delete authorization failed");
+  }
+}
+
+export class EndpointNotFoundError extends Error {
+  constructor() {
+    super("Endpoint not found");
+  }
+}
+
+exec
+/bin/zsh -lc 'rg "failureMode|failureDelayMs|errorMode|errorStatusCode|failureStatusCode" -n app lib prisma tests docs/product-specs | head -n 200' in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+tests/e2e/rest-tools-call.spec.ts:24:      failureMode: "none",
+tests/e2e/rest-tools-call.spec.ts:25:      failureDelayMs: 0,
+tests/e2e/rest-tools-call.spec.ts:44:          errorMode: "none",
+tests/e2e/rest-tools-call.spec.ts:54:          errorMode: "none",
+tests/e2e/rest-tools-call.spec.ts:64:          errorMode: "error",
+tests/e2e/rest-tools-call.spec.ts:65:          errorStatusCode: 503,
+prisma/schema.prisma:18:  failureMode           String          @default("none")
+prisma/schema.prisma:19:  failureStatusCode     Int?
+prisma/schema.prisma:20:  failureDelayMs        Int             @default(0)
+prisma/schema.prisma:59:  errorMode       String   @default("none")
+prisma/schema.prisma:60:  errorStatusCode Int?
+lib/db/seed.ts:32:      failureMode: "none",
+lib/db/seed.ts:33:      failureStatusCode: null,
+lib/db/seed.ts:34:      failureDelayMs: 0,
+lib/db/seed.ts:70:            errorMode: "none",
+lib/db/seed.ts:81:            errorMode: "none",
+lib/db/seed.ts:129:      errorMode: "none",
+lib/db/seed.ts:130:      errorStatusCode: null,
+lib/db/seed.ts:144:      errorMode: "none",
+lib/db/seed.ts:162:      errorMode: "none",
+lib/db/seed.ts:163:      errorStatusCode: null,
+lib/db/seed.ts:177:      errorMode: "none",
+tests/e2e/failure-delay-error.spec.ts:11:    failureMode: "none",
+tests/e2e/failure-delay-error.spec.ts:12:    failureDelayMs: 0,
+tests/e2e/failure-delay-error.spec.ts:22:        errorMode: "none",
+tests/e2e/failure-delay-error.spec.ts:41:      failureMode: "delay",
+tests/e2e/failure-delay-error.spec.ts:42:      failureDelayMs: 120,
+tests/e2e/failure-delay-error.spec.ts:51:          errorMode: "none",
+tests/e2e/failure-delay-error.spec.ts:85:          errorMode: "none",
+tests/e2e/failure-delay-error.spec.ts:95:          errorMode: "error",
+tests/e2e/failure-delay-error.spec.ts:96:          errorStatusCode: 503,
+tests/e2e/failure-delay-error.spec.ts:108:          errorMode: "protocol_error",
+tests/e2e/failure-delay-error.spec.ts:109:          errorStatusCode: 502,
+tests/e2e/failure-delay-error.spec.ts:215:      failureMode: "delay",
+tests/e2e/failure-delay-error.spec.ts:216:      failureDelayMs: 30_000,
+tests/e2e/failure-delay-error.spec.ts:221:  expect(savedPayload.endpoint.failureMode).toBe("delay");
+tests/e2e/failure-delay-error.spec.ts:222:  expect(savedPayload.endpoint.failureDelayMs).toBe(30_000);
+tests/e2e/rest-tools-list.spec.ts:22:      failureMode: "none",
+tests/e2e/rest-tools-list.spec.ts:23:      failureDelayMs: 0,
+tests/e2e/rest-tools-list.spec.ts:42:          errorMode: "none",
+tests/e2e/rest-tools-list.spec.ts:58:      failureMode: "none",
+tests/e2e/rest-tools-list.spec.ts:59:      failureDelayMs: 0,
+tests/e2e/rest-tools-list.spec.ts:69:          errorMode: "none",
+prisma/migrations/202605050002_endpoint_title_response_case_config/migration.sql:6:ALTER TABLE "ResponseCase" ADD COLUMN "errorMode" TEXT NOT NULL DEFAULT 'none';
+prisma/migrations/202605050002_endpoint_title_response_case_config/migration.sql:7:ALTER TABLE "ResponseCase" ADD COLUMN "errorStatusCode" INTEGER;
+tests/e2e/basic-auth-mcp.spec.ts:23:      failureMode: "none",
+tests/e2e/basic-auth-mcp.spec.ts:24:      failureDelayMs: 0,
+tests/e2e/basic-auth-mcp.spec.ts:43:          errorMode: "none",
+tests/e2e/basic-auth-mcp.spec.ts:53:          errorMode: "none",
+tests/e2e/mcp-initialize-list.spec.ts:18:      failureMode: "none",
+tests/e2e/mcp-initialize-list.spec.ts:19:      failureDelayMs: 0,
+tests/e2e/mcp-initialize-list.spec.ts:38:          errorMode: "none",
+tests/e2e/mcp-initialize-list.spec.ts:54:      failureMode: "none",
+tests/e2e/mcp-initialize-list.spec.ts:55:      failureDelayMs: 0,
+tests/e2e/mcp-initialize-list.spec.ts:65:          errorMode: "none",
+prisma/migrations/202605050001_endpoint_persistence/migration.sql:10:  "failureMode" TEXT NOT NULL DEFAULT 'none',
+prisma/migrations/202605050001_endpoint_persistence/migration.sql:11:  "failureStatusCode" INTEGER,
+prisma/migrations/202605050001_endpoint_persistence/migration.sql:12:  "failureDelayMs" INTEGER NOT NULL DEFAULT 0,
+tests/e2e/mcp-tools-call.spec.ts:18:      failureMode: "none",
+tests/e2e/mcp-tools-call.spec.ts:19:      failureDelayMs: 0,
+tests/e2e/mcp-tools-call.spec.ts:38:          errorMode: "none",
+tests/e2e/mcp-tools-call.spec.ts:48:          errorMode: "none",
+tests/e2e/mcp-tools-call.spec.ts:64:      failureMode: "none",
+tests/e2e/mcp-tools-call.spec.ts:65:      failureDelayMs: 0,
+tests/e2e/mcp-tools-call.spec.ts:75:          errorMode: "none",
+lib/endpoints/service.ts:60:    failureMode: endpoint.failureMode as EndpointDetail["failureMode"],
+lib/endpoints/service.ts:61:    failureStatusCode: endpoint.failureStatusCode,
+lib/endpoints/service.ts:62:    failureDelayMs: endpoint.failureDelayMs,
+lib/endpoints/service.ts:74:      errorMode: responseCase.errorMode as EndpointDetail["responseCases"][number]["errorMode"],
+lib/endpoints/service.ts:75:      errorStatusCode: responseCase.errorStatusCode,
+lib/endpoints/service.ts:212:      failureMode: validInput.failureMode,
+lib/endpoints/service.ts:213:      failureStatusCode: validInput.failureStatusCode,
+lib/endpoints/service.ts:214:      failureDelayMs: validInput.failureDelayMs,
+lib/endpoints/service.ts:262:        failureMode: validInput.failureMode,
+lib/endpoints/service.ts:263:        failureStatusCode: validInput.failureStatusCode,
+lib/endpoints/service.ts:264:        failureDelayMs: validInput.failureDelayMs,
+lib/endpoints/types.ts:38:  errorMode: CaseErrorMode;
+lib/endpoints/types.ts:39:  errorStatusCode?: number | null;
+lib/endpoints/types.ts:52:  failureMode: FailureMode;
+lib/endpoints/types.ts:53:  failureStatusCode?: number | null;
+lib/endpoints/types.ts:54:  failureDelayMs: number;
+lib/endpoints/types.ts:77:  failureMode: FailureMode;
+lib/endpoints/types.ts:78:  failureStatusCode: number | null;
+lib/endpoints/types.ts:79:  failureDelayMs: number;
+lib/endpoints/runtime.ts:145:  return endpoint.failureMode === "delay" ? boundedDelayMs(endpoint.failureDelayMs) : 0;
+lib/endpoints/runtime.ts:149:  return boundedDelayMs(endpoint.failureDelayMs);
+lib/endpoints/runtime.ts:203:  if (endpoint.failureMode === "error") {
+lib/endpoints/runtime.ts:207:      statusCode: endpoint.failureStatusCode ?? 500,
+lib/endpoints/runtime.ts:214:  if (selected.value.errorMode === "error") {
+lib/endpoints/runtime.ts:219:      statusCode: selected.value.errorStatusCode ?? selected.value.statusCode,
+lib/endpoints/runtime.ts:226:  if (selected.value.errorMode === "protocol_error") {
+lib/endpoints/runtime.ts:231:      statusCode: selected.value.errorStatusCode ?? 500,
+prisma/seed.mjs:44:      failureMode: "none",
+prisma/seed.mjs:45:      failureStatusCode: null,
+prisma/seed.mjs:46:      failureDelayMs: 0,
+prisma/seed.mjs:82:            errorMode: "none",
+prisma/seed.mjs:93:            errorMode: "none",
+prisma/seed.mjs:141:      errorMode: "none",
+prisma/seed.mjs:142:      errorStatusCode: null,
+prisma/seed.mjs:156:      errorMode: "none",
+prisma/seed.mjs:174:      errorMode: "none",
+prisma/seed.mjs:175:      errorStatusCode: null,
+prisma/seed.mjs:189:      errorMode: "none",
+tests/unit/endpoint-validation.test.ts:16:    failureMode: "none",
+tests/unit/endpoint-validation.test.ts:17:    failureStatusCode: null,
+tests/unit/endpoint-validation.test.ts:18:    failureDelayMs: 0,
+tests/unit/endpoint-validation.test.ts:39:        errorMode: "none",
+tests/unit/endpoint-validation.test.ts:40:        errorStatusCode: null,
+tests/unit/endpoint-validation.test.ts:52:    failureMode: "delay",
+tests/unit/endpoint-validation.test.ts:53:    failureDelayMs: 125,
+tests/unit/endpoint-validation.test.ts:63:        errorMode: "none",
+tests/unit/endpoint-validation.test.ts:64:        errorStatusCode: null,
+app/endpoints/endpoint-manager.tsx:40:  failureMode: "none",
+app/endpoints/endpoint-manager.tsx:41:  failureStatusCode: null,
+app/endpoints/endpoint-manager.tsx:42:  failureDelayMs: 0,
+app/endpoints/endpoint-manager.tsx:54:      errorMode: "none",
+app/endpoints/endpoint-manager.tsx:55:      errorStatusCode: null,
+app/endpoints/endpoint-manager.tsx:72:    failureMode: endpoint.failureMode,
+app/endpoints/endpoint-manager.tsx:73:    failureStatusCode: endpoint.failureStatusCode,
+app/endpoints/endpoint-manager.tsx:74:    failureDelayMs: endpoint.failureDelayMs,
+app/endpoints/endpoint-manager.tsx:92:      errorMode: responseCase.errorMode,
+app/endpoints/endpoint-manager.tsx:93:      errorStatusCode: responseCase.errorStatusCode,
+app/endpoints/endpoint-manager.tsx:622:                    <select className="text-input" value={responseCase.errorMode} onChange={(event) => updateResponseCase(index, { errorMode: event.target.value as EndpointInput["responseCases"][number]["errorMode"] })}>
+app/endpoints/endpoint-manager.tsx:630:                    <input className="text-input" type="number" value={responseCase.errorStatusCode ?? ""} onChange={(event) => updateResponseCase(index, { errorStatusCode: event.target.value ? Number(event.target.value) : null })} />
+app/endpoints/endpoint-manager.tsx:631:                    {errorFor(fieldErrors, `responseCases.${index}.errorStatusCode`)}
+app/endpoints/endpoint-manager.tsx:649:          <button className="secondary-button" type="button" onClick={() => updateForm("responseCases", [...form.responseCases, { name: `case-${form.responseCases.length + 1}`, priority: form.responseCases.length + 1, matchArgsJson: "{}", responseJson: '{\n  "ok": true\n}', statusCode: 200, delayMs: 0, errorMode: "none", errorStatusCode: null, errorMessage: "", errorBodyJson: "", isDefault: false }])}>
+app/endpoints/endpoint-manager.tsx:658:              <select aria-label="Failure mode" className="text-input" value={form.failureMode} onChange={(event) => updateForm("failureMode", event.target.value as EndpointInput["failureMode"])}>
+app/endpoints/endpoint-manager.tsx:664:              {errorFor(fieldErrors, "failureMode")}
+app/endpoints/endpoint-manager.tsx:668:              <input aria-label="Failure status" className="text-input" type="number" value={form.failureStatusCode ?? ""} onChange={(event) => updateForm("failureStatusCode", event.target.value ? Number(event.target.value) : null)} />
+app/endpoints/endpoint-manager.tsx:669:              {errorFor(fieldErrors, "failureStatusCode")}
+app/endpoints/endpoint-manager.tsx:673:              <input aria-label="Failure delay ms" className="text-input" type="number" value={form.failureDelayMs} onChange={(event) => updateForm("failureDelayMs", Number(event.target.value))} />
+app/endpoints/endpoint-manager.tsx:674:              {errorFor(fieldErrors, "failureDelayMs")}
+app/endpoints/endpoint-manager.tsx:678:              <button className="secondary-button" type="button" onClick={() => setForm((current) => ({ ...current, failureMode: "delay", failureDelayMs: 30_000 }))}>
+lib/endpoints/api.ts:42:    failureMode: asString(record.failureMode, "none") as EndpointInput["failureMode"],
+lib/endpoints/api.ts:43:    failureStatusCode: nullableNumber(record.failureStatusCode),
+lib/endpoints/api.ts:44:    failureDelayMs: asNumber(record.failureDelayMs),
+lib/endpoints/api.ts:62:      errorMode: asString(responseCase.errorMode, "none") as EndpointInput["responseCases"][number]["errorMode"],
+lib/endpoints/api.ts:63:      errorStatusCode: nullableNumber(responseCase.errorStatusCode),
+lib/endpoints/validation.ts:13:const failureModes = new Set<FailureMode>(["none", "delay", "error", "malformed"]);
+lib/endpoints/validation.ts:53:    failureStatusCode: input.failureStatusCode ?? null,
+lib/endpoints/validation.ts:66:      errorStatusCode: responseCase.errorStatusCode ?? null,
+lib/endpoints/validation.ts:92:  if (!failureModes.has(input.failureMode)) {
+lib/endpoints/validation.ts:93:    addError(errors, "failureMode", "Choose a supported failure mode.");
+lib/endpoints/validation.ts:95:  validateStatus(errors, "failureStatusCode", input.failureStatusCode);
+lib/endpoints/validation.ts:96:  validateDelay(errors, "failureDelayMs", input.failureDelayMs);
+lib/endpoints/validation.ts:97:  if (input.failureMode === "error" && input.failureStatusCode == null) {
+lib/endpoints/validation.ts:98:    addError(errors, "failureStatusCode", "Required when forced error mode is selected.");
+lib/endpoints/validation.ts:100:  if (input.failureMode === "malformed") {
+lib/endpoints/validation.ts:166:    if (!caseErrorModes.has(responseCase.errorMode)) {
+lib/endpoints/validation.ts:167:      addError(errors, `${prefix}.errorMode`, "Choose a supported case error mode.");
+lib/endpoints/validation.ts:169:    validateStatus(errors, `${prefix}.errorStatusCode`, responseCase.errorStatusCode);
+tests/unit/reset-service.test.ts:67:        failureMode: "none",
+tests/unit/reset-service.test.ts:68:        failureDelayMs: 0,
+tests/unit/reset-service.test.ts:78:            errorMode: "none",
+tests/unit/endpoint-runtime.test.ts:25:    failureMode: "none",
+tests/unit/endpoint-runtime.test.ts:26:    failureStatusCode: null,
+tests/unit/endpoint-runtime.test.ts:27:    failureDelayMs: 0,
+tests/unit/endpoint-runtime.test.ts:61:        errorMode: "none",
+tests/unit/endpoint-runtime.test.ts:62:        errorStatusCode: null,
+tests/unit/endpoint-runtime.test.ts:75:        errorMode: "none",
+tests/unit/endpoint-runtime.test.ts:76:        errorStatusCode: null,
+tests/unit/endpoint-runtime.test.ts:117:    endpointFixture({ failureMode: "delay", failureDelayMs: 125 }),
+tests/unit/endpoint-runtime.test.ts:126:      failureMode: "delay",
+tests/unit/endpoint-runtime.test.ts:127:      failureDelayMs: 125,
+tests/unit/endpoint-runtime.test.ts:148:      failureMode: "error",
+tests/unit/endpoint-runtime.test.ts:149:      failureStatusCode: 502,
+tests/unit/endpoint-runtime.test.ts:150:      failureDelayMs: 30_000,
+tests/unit/endpoint-runtime.test.ts:168:              errorMode: "protocol_error",
+tests/unit/endpoint-runtime.test.ts:169:              errorStatusCode: 529,
+tests/unit/db-prepare.test.ts:53:    assert.equal(helloCase?.errorMode, "none");
+tests/unit/db-prepare.test.ts:54:    assert.equal(helloCase?.errorStatusCode, null);
+
+exec
+/bin/zsh -lc 'rg "restToolCallResponseFromEndpointCall|x-mcp-mock-matched-case|callEndpointByName|callPermittedEndpointByName" -n app lib' in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+lib/rest/tools.ts:41:export function restToolCallResponseFromEndpointCall(callResult: EndpointCallResult): RestToolCallResponse {
+lib/rest/http.ts:4:import { callEndpointByName, callPermittedEndpointByName, listEnabledRestTools } from "@/lib/endpoints/service";
+lib/rest/http.ts:5:import { restToolCallResponseFromEndpointCall } from "@/lib/rest/tools";
+lib/rest/http.ts:80:    const callResult = await callPermittedEndpointByName(name, {}, resolution.principal.endpointIds);
+lib/rest/http.ts:95:      const response = restToolCallResponseFromEndpointCall(callResult);
+lib/rest/http.ts:115:    const authorizedCallResult = await callPermittedEndpointByName(
+lib/rest/http.ts:120:    const response = restToolCallResponseFromEndpointCall(authorizedCallResult);
+lib/rest/http.ts:148:  const callResult = await callEndpointByName(name, argumentsFromBody(body));
+lib/rest/http.ts:149:  const response = restToolCallResponseFromEndpointCall(callResult);
+lib/mcp/http.ts:4:import { callEndpointByName, callPermittedEndpointByName, listEnabledMcpTools } from "@/lib/endpoints/service";
+lib/mcp/http.ts:63:      ? (name, rawArguments) => callPermittedEndpointByName(name, rawArguments, runtime.endpointIds ?? [])
+lib/mcp/http.ts:64:      : callEndpointByName,
+lib/endpoints/service.ts:169:export async function callEndpointByName(
+lib/endpoints/service.ts:178:export async function callPermittedEndpointByName(
+app/endpoints/endpoint-manager.tsx:414:          `x-mcp-mock-matched-case: ${response.headers.get("X-MCP-Mock-Matched-Case") ?? ""}`,
+
+exec
+/bin/zsh -lc "sed -n '1,220p' lib/rest/http.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import { NextResponse } from "next/server";
+import { resolveBasicAuthorizationHeader } from "@/lib/auth/basic";
+import { parseBearerAuthorizationHeader, resolveOAuthBearerAuthorizationHeader } from "@/lib/auth/oauth";
+import { callEndpointByName, callPermittedEndpointByName, listEnabledRestTools } from "@/lib/endpoints/service";
+import { restToolCallResponseFromEndpointCall } from "@/lib/rest/tools";
+
+export const dynamic = "force-dynamic";
+
+function unauthorizedRestResponse(message = "Authorization header was invalid.") {
+  return NextResponse.json(
+    {
+      error: "unauthorized",
+      message,
+    },
+    {
+      status: 401,
+      headers: {
+        "WWW-Authenticate": 'Basic realm="MCP Mock Server"',
+      },
+    },
+  );
+}
+
+function unauthorizedBearerRestResponse(message = "Authorization header was invalid.") {
+  return NextResponse.json(
+    {
+      error: "unauthorized",
+      message,
+    },
+    {
+      status: 401,
+      headers: {
+        "WWW-Authenticate": 'Bearer realm="MCP Mock Server"',
+      },
+    },
+  );
+}
+
+export async function handleRestToolsGet(request: Request) {
+  const bearer = parseBearerAuthorizationHeader(request.headers.get("Authorization"));
+  if (bearer.kind === "bearer" || bearer.kind === "invalid") {
+    const resolution = await resolveOAuthBearerAuthorizationHeader(request.headers.get("Authorization"), request.url);
+    if (resolution.kind !== "authenticated") {
+      return unauthorizedBearerRestResponse();
+    }
+    return NextResponse.json(await listEnabledRestTools(undefined, { endpointIds: resolution.principal.endpointIds }));
+  }
+
+  const resolution = await resolveBasicAuthorizationHeader(request.headers.get("Authorization"));
+  if (resolution.kind === "unauthorized") {
+    return unauthorizedRestResponse();
+  }
+
+  return NextResponse.json(await listEnabledRestTools());
+}
+
+function principalForResolution(resolution: Awaited<ReturnType<typeof resolveBasicAuthorizationHeader>>) {
+  return resolution.kind === "authenticated" ? `basic:${resolution.principal.username}` : "anonymous";
+}
+
+function bearerPrincipal(clientId: string) {
+  return `oauth:${clientId}`;
+}
+
+function argumentsFromBody(body: unknown) {
+  if (body !== null && typeof body === "object" && !Array.isArray(body) && "arguments" in body) {
+    return (body as { arguments?: unknown }).arguments ?? {};
+  }
+  return body;
+}
+
+export async function handleRestToolCallPost(request: Request, name: string) {
+  const bearer = parseBearerAuthorizationHeader(request.headers.get("Authorization"));
+  if (bearer.kind === "bearer" || bearer.kind === "invalid") {
+    const resolution = await resolveOAuthBearerAuthorizationHeader(request.headers.get("Authorization"), request.url);
+    if (resolution.kind !== "authenticated") {
+      return unauthorizedBearerRestResponse();
+    }
+
+    const callResult = await callPermittedEndpointByName(name, {}, resolution.principal.endpointIds);
+    if (callResult.kind === "forbidden") {
+      return NextResponse.json(
+        {
+          error: "forbidden",
+          message: callResult.message,
+          tool: name,
+        },
+        {
+          status: 403,
+          headers: { "X-MCP-Mock-Principal": bearerPrincipal(resolution.principal.clientId) },
+        },
+      );
+    }
+    if (callResult.kind === "not_found" || callResult.kind === "disabled") {
+      const response = restToolCallResponseFromEndpointCall(callResult);
+      return NextResponse.json(response.body, {
+        status: response.status,
+        headers: { "X-MCP-Mock-Principal": bearerPrincipal(resolution.principal.clientId) },
+      });
+    }
+
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        {
+          error: "invalid_json",
+          message: "Request body must be valid JSON.",
+        },
+        { status: 400 },
+      );
+    }
+
+    const authorizedCallResult = await callPermittedEndpointByName(
+      name,
+      argumentsFromBody(body),
+      resolution.principal.endpointIds,
+    );
+    const response = restToolCallResponseFromEndpointCall(authorizedCallResult);
+    return NextResponse.json(response.body, {
+      status: response.status,
+      headers: {
+        "X-MCP-Mock-Principal": bearerPrincipal(resolution.principal.clientId),
+        ...(response.matchedCase ? { "X-MCP-Mock-Matched-Case": response.matchedCase } : {}),
+      },
+    });
+  }
+
+  const authorization = await resolveBasicAuthorizationHeader(request.headers.get("Authorization"));
+  if (authorization.kind === "unauthorized") {
+    return unauthorizedRestResponse();
+  }
+
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json(
+      {
+        error: "invalid_json",
+        message: "Request body must be valid JSON.",
+      },
+      { status: 400 },
+    );
+  }
+
+  const callResult = await callEndpointByName(name, argumentsFromBody(body));
+  const response = restToolCallResponseFromEndpointCall(callResult);
+  const headers = {
+    "X-MCP-Mock-Principal": principalForResolution(authorization),
+    ...(response.matchedCase ? { "X-MCP-Mock-Matched-Case": response.matchedCase } : {}),
+  };
+
+  return NextResponse.json(response.body, {
+    status: response.status,
+    headers,
+  });
+}
+
+export function unsupportedRestToolsMethod() {
+  return NextResponse.json(
+    {
+      error: "method_not_allowed",
+      message: "This REST endpoint supports tool metadata listing with GET and tool calls with POST only.",
+    },
+    {
+      status: 405,
+      headers: { Allow: "GET, POST" },
+    },
+  );
+}
+
+exec
+/bin/zsh -lc "sed -n '1,160p' lib/mcp/http.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import { NextResponse } from "next/server";
+import { resolveBasicAuthorizationHeader } from "@/lib/auth/basic";
+import { parseBearerAuthorizationHeader, resolveOAuthBearerAuthorizationHeader } from "@/lib/auth/oauth";
+import { callEndpointByName, callPermittedEndpointByName, listEnabledMcpTools } from "@/lib/endpoints/service";
+import { handleMcpJsonRpcMessage } from "@/lib/mcp/protocol";
+
+export const dynamic = "force-dynamic";
+
+function unauthorizedBasicResponse(message = "Valid Basic credentials are required.") {
+  return NextResponse.json(
+    {
+      error: "unauthorized",
+      message,
+    },
+    {
+      status: 401,
+      headers: {
+        "WWW-Authenticate": 'Basic realm="MCP Mock Server"',
+      },
+    },
+  );
+}
+
+function unauthorizedBearerResponse(message = "Valid Bearer token is required.") {
+  return NextResponse.json(
+    {
+      error: "unauthorized",
+      message,
+    },
+    {
+      status: 401,
+      headers: {
+        "WWW-Authenticate": 'Bearer realm="MCP Mock Server"',
+      },
+    },
+  );
+}
+
+async function handleMcpJsonRpcPost(
+  request: Request,
+  runtime: {
+    endpointIds?: string[];
+  } = {},
+) {
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json(
+      {
+        jsonrpc: "2.0",
+        id: null,
+        error: { code: -32700, message: "Parse error" },
+      },
+      { status: 400 },
+    );
+  }
+
+  const result = await handleMcpJsonRpcMessage(
+    body,
+    () => listEnabledMcpTools(undefined, runtime.endpointIds ? { endpointIds: runtime.endpointIds } : undefined),
+    runtime.endpointIds
+      ? (name, rawArguments) => callPermittedEndpointByName(name, rawArguments, runtime.endpointIds ?? [])
+      : callEndpointByName,
+  );
+  if (result.kind === "accepted") {
+    return new Response(null, { status: 202 });
+  }
+
+  return NextResponse.json(result.body, { status: result.status });
+}
+
+export async function handleNoAuthMcpPost(request: Request) {
+  return handleMcpJsonRpcPost(request);
+}
+
+export async function handleUnifiedMcpPost(request: Request) {
+  const authorization = request.headers.get("Authorization");
+  const bearer = parseBearerAuthorizationHeader(authorization);
+  if (bearer.kind === "bearer" || bearer.kind === "invalid") {
+    const resolution = await resolveOAuthBearerAuthorizationHeader(authorization, request.url);
+    if (resolution.kind !== "authenticated") {
+      return unauthorizedBearerResponse("Authorization header was invalid.");
+    }
+    return handleMcpJsonRpcPost(request, { endpointIds: resolution.principal.endpointIds });
+  }
+
+  const resolution = await resolveBasicAuthorizationHeader(authorization);
+
+  if (resolution.kind === "unauthorized") {
+    return unauthorizedBasicResponse("Authorization header was invalid.");
+  }
+  if (resolution.kind === "authenticated" || resolution.kind === "missing") {
+    return handleMcpJsonRpcPost(request);
+  }
+
+  return unauthorizedBasicResponse();
+}
+
+export async function handleStrictOAuthMcpPost(request: Request) {
+  const resolution = await resolveOAuthBearerAuthorizationHeader(request.headers.get("Authorization"), request.url);
+  if (resolution.kind !== "authenticated") {
+    return unauthorizedBearerResponse();
+  }
+
+  return handleMcpJsonRpcPost(request, { endpointIds: resolution.principal.endpointIds });
+}
+
+export async function handleStrictBasicMcpPost(request: Request) {
+  const resolution = await resolveBasicAuthorizationHeader(request.headers.get("Authorization"));
+  if (resolution.kind !== "authenticated") {
+    return unauthorizedBasicResponse();
+  }
+
+  return handleMcpJsonRpcPost(request);
+}
+
+export function unsupportedStreamableHttpMethod() {
+  return NextResponse.json(
+    {
+      error: "method_not_allowed",
+      message: "This MVP MCP endpoint supports JSON-RPC over HTTP POST only; SSE streams and session termination are not implemented.",
+    },
+    {
+      status: 405,
+      headers: { Allow: "POST" },
+    },
+  );
+}
+
+exec
+/bin/zsh -lc "sed -n '1,380p' tests/unit/endpoint-validation.test.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import assert from "node:assert/strict";
+import test from "node:test";
+import { EndpointValidationError } from "@/lib/endpoints/types";
+import type { EndpointInput } from "@/lib/endpoints/types";
+import { generateMcpInputSchema } from "@/lib/endpoints/schema";
+import { validateEndpointInput } from "@/lib/endpoints/validation";
+
+function validEndpoint(overrides: Partial<EndpointInput> = {}): EndpointInput {
+  return {
+    name: "weather_lookup",
+    title: "Weather lookup",
+    description: "Returns deterministic weather data.",
+    enabled: true,
+    deleteCode: "12345678",
+    defaultResponseJson: JSON.stringify({ ok: true }),
+    failureMode: "none",
+    failureStatusCode: null,
+    failureDelayMs: 0,
+    failureMessage: null,
+    malformedResponseJson: null,
+    parameters: [
+      {
+        name: "city",
+        label: "City",
+        description: "City name",
+        type: "string",
+        required: true,
+        defaultValueJson: null,
+      },
+    ],
+    responseCases: [
+      {
+        name: "default",
+        priority: 0,
+        matchArgsJson: "{}",
+        responseJson: JSON.stringify({ ok: true }),
+        statusCode: 200,
+        delayMs: 0,
+        errorMode: "none",
+        errorStatusCode: null,
+        errorMessage: null,
+        errorBodyJson: null,
+        isDefault: true,
+      },
+    ],
+    ...overrides,
+  };
+}
+
+test("endpoint validation accepts the MVP editor field set", () => {
+  const input = validEndpoint({
+    failureMode: "delay",
+    failureDelayMs: 125,
+    responseCases: [
+      ...validEndpoint().responseCases,
+      {
+        name: "seattle",
+        priority: 10,
+        matchArgsJson: JSON.stringify({ city: "Seattle" }),
+        responseJson: JSON.stringify({ temp: 62 }),
+        statusCode: 200,
+        delayMs: 10,
+        errorMode: "none",
+        errorStatusCode: null,
+        errorMessage: null,
+        errorBodyJson: null,
+        isDefault: false,
+      },
+    ],
+  });
+
+  assert.equal(validateEndpointInput(input).name, "weather_lookup");
+});
+
+test("endpoint validation returns field-level errors for UI rendering", () => {
+  assert.throws(
+    () =>
+      validateEndpointInput(
+        validEndpoint({
+          name: "bad name",
+          deleteCode: "abc",
+          defaultResponseJson: "{",
+          parameters: [
+            { name: "city", label: "", description: "", type: "string", required: false, defaultValueJson: null },
+            { name: "city", label: "", description: "", type: "string", required: false, defaultValueJson: null },
+            { name: "extra_one", label: "", description: "", type: "string", required: false, defaultValueJson: null },
+            { name: "extra_two", label: "", description: "", type: "string", required: false, defaultValueJson: null },
+          ],
+          responseCases: [{ ...validEndpoint().responseCases[0], isDefault: false }],
+        }),
+      ),
+    (error) => {
+      assert.equal(error instanceof EndpointValidationError, true);
+      const fieldErrors = (error as EndpointValidationError).fieldErrors;
+      assert.match(fieldErrors.name, /letters/);
+      assert.match(fieldErrors.deleteCode, /8 digits/);
+      assert.match(fieldErrors.defaultResponseJson, /valid JSON/);
+      assert.match(fieldErrors.parameters, /three/);
+      assert.match(fieldErrors["parameters.1.name"], /unique/);
+      assert.match(fieldErrors["responseCases.default"], /exactly one/);
+      return true;
+    },
+  );
+});
+
+test("MCP input schema generation reflects endpoint parameters", () => {
+  const schema = generateMcpInputSchema({
+    parameters: [
+      {
+        name: "city",
+        label: "City",
+        description: "City to look up.",
+        type: "string",
+        required: true,
+        defaultValueJson: '"Seoul"',
+      },
+      {
+        name: "units",
+        label: "",
+        description: "",
+        type: "number",
+        required: false,
+        defaultValueJson: "1",
+      },
+    ],
+  });
+
+  assert.deepEqual(schema, {
+    type: "object",
+    properties: {
+      city: {
+        type: "string",
+        title: "City",
+        description: "City to look up.",
+        default: "Seoul",
+      },
+      units: {
+        type: "number",
+        default: 1,
+      },
+    },
+    required: ["city"],
+    additionalProperties: false,
+  });
+});
+
+exec
+/bin/zsh -lc "sed -n '380,460p' app/endpoints/endpoint-manager.tsx" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+      },
+      null,
+      2,
+    );
+
+    setConsoleState({
+      status: "running",
+      message: "Running REST call.",
+      rawRequest: requestEvidence,
+      rawResponse: "Waiting for response.",
+      matchedCase: "Pending",
+      principal: "Pending",
+      elapsedMs: "-- ms",
+    });
+
+    const startedAt = performance.now();
+    try {
+      const response = await fetch(route, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ arguments: parsedArguments }),
+      });
+      const elapsedMs = `${Math.round(performance.now() - startedAt)} ms`;
+      const responseText = await response.text();
+      const matchedCase = response.headers.get("X-MCP-Mock-Matched-Case") ?? "No match";
+      const principal = response.headers.get("X-MCP-Mock-Principal") ?? (authMode === "none" ? "anonymous" : "unauthenticated");
+      setConsoleState({
+        status: response.ok ? "success" : "error",
+        message: response.ok ? "REST call completed." : `REST call returned HTTP ${response.status}.`,
+        rawRequest: requestEvidence,
+        rawResponse: [
+          `HTTP ${response.status}`,
+          `content-type: ${response.headers.get("content-type") ?? ""}`,
+          `www-authenticate: ${response.headers.get("www-authenticate") ?? ""}`,
+          `x-mcp-mock-matched-case: ${response.headers.get("X-MCP-Mock-Matched-Case") ?? ""}`,
+          `x-mcp-mock-principal: ${response.headers.get("X-MCP-Mock-Principal") ?? ""}`,
+          "",
+          safePrettyJson(responseText),
+        ].join("\n"),
+        matchedCase,
+        principal,
+        elapsedMs,
+      });
+    } catch (error) {
+      setConsoleState({
+        status: "error",
+        message: error instanceof Error ? error.message : "REST call failed.",
+        rawRequest: requestEvidence,
+        rawResponse: "No HTTP response was received.",
+        matchedCase: "No match",
+        principal: "unknown",
+        elapsedMs: `${Math.round(performance.now() - startedAt)} ms`,
+      });
+    }
+  }
+
+  return (
+    <div className="endpoint-layout">
+      <section className="endpoint-list-panel" aria-labelledby="endpoint-list-title">
+        <div className="section-heading-row">
+          <div>
+            <h2 id="endpoint-list-title">Endpoint catalog</h2>
+            <p>{listData.total} persisted endpoints, {listData.enabled} enabled</p>
+          </div>
+          <button className="primary-button" type="button" onClick={startCreate}>
+            New endpoint
+          </button>
+        </div>
+
+        <label className="field-label" htmlFor="endpoint-search">Search</label>
+        <input
+          id="endpoint-search"
+          className="text-input"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Name, title, or description"
+        />
+
+        <div className="endpoint-table-shell" aria-live="polite">
+          <table className="endpoint-table">
+            <thead>
+
+exec
+/bin/zsh -lc "sed -n '1,340p' lib/endpoints/service.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import { randomUUID } from "node:crypto";
+import type { Prisma, PrismaClient } from "@prisma/client";
+import { recordAuditEvent } from "@/lib/audit/service";
+import { createPrismaClient } from "@/lib/db/client";
+import { applyEndpointCallDelay, executeEndpointDetail } from "@/lib/endpoints/runtime";
+import { generateMcpInputSchema } from "@/lib/endpoints/schema";
+import { EndpointDeleteAuthorizationError, EndpointNotFoundError } from "@/lib/endpoints/types";
+import { validateEndpointInput } from "@/lib/endpoints/validation";
+import { restToolFromEndpoint } from "@/lib/rest/tools";
+import { verifyRootPassword } from "@/lib/security/root-password";
+import type { EndpointCallResult } from "@/lib/endpoints/runtime";
+import type {
+  EndpointDeleteInput,
+  EndpointDetail,
+  EndpointInput,
+  EndpointListResult,
+  EndpointMcpTool,
+  EndpointRestToolListResult,
+  EndpointSummary,
+} from "@/lib/endpoints/types";
+
+const endpointInclude = {
+  parameters: { orderBy: { position: "asc" } },
+  responseCases: { orderBy: [{ isDefault: "desc" }, { priority: "asc" }, { name: "asc" }] },
+} satisfies Prisma.EndpointInclude;
+
+type EndpointRecord = Prisma.EndpointGetPayload<{ include: typeof endpointInclude }>;
+
+function toSummary(endpoint: EndpointRecord): EndpointSummary {
+  return {
+    id: endpoint.id,
+    name: endpoint.name,
+    title: endpoint.title,
+    description: endpoint.description,
+    enabled: endpoint.enabled,
+    protectedDefault: endpoint.protectedDefault,
+    parameterCount: endpoint.parameters.length,
+    responseCaseCount: endpoint.responseCases.length,
+    updatedAt: endpoint.updatedAt.toISOString(),
+  };
+}
+
+function toDetail(endpoint: EndpointRecord): EndpointDetail {
+  const parameters = endpoint.parameters.map((parameter) => ({
+    id: parameter.id,
+    position: parameter.position,
+    name: parameter.name,
+    label: parameter.label ?? "",
+    description: parameter.description,
+    type: parameter.type as EndpointDetail["parameters"][number]["type"],
+    required: parameter.required,
+    defaultValueJson: parameter.defaultValueJson,
+  }));
+
+  return {
+    ...toSummary(endpoint),
+    deleteCode: endpoint.deleteCode,
+    defaultResponseJson: endpoint.defaultResponseJson,
+    inputSchema: generateMcpInputSchema({ parameters }),
+    failureMode: endpoint.failureMode as EndpointDetail["failureMode"],
+    failureStatusCode: endpoint.failureStatusCode,
+    failureDelayMs: endpoint.failureDelayMs,
+    failureMessage: endpoint.failureMessage,
+    malformedResponseJson: endpoint.malformedResponseJson,
+    parameters,
+    responseCases: endpoint.responseCases.map((responseCase) => ({
+      id: responseCase.id,
+      name: responseCase.name,
+      priority: responseCase.priority,
+      matchArgsJson: responseCase.matchArgsJson,
+      responseJson: responseCase.responseJson,
+      statusCode: responseCase.statusCode,
+      delayMs: responseCase.delayMs,
+      errorMode: responseCase.errorMode as EndpointDetail["responseCases"][number]["errorMode"],
+      errorStatusCode: responseCase.errorStatusCode,
+      errorMessage: responseCase.errorMessage,
+      errorBodyJson: responseCase.errorBodyJson,
+      isDefault: responseCase.isDefault,
+    })),
+  };
+}
+
+export async function listEndpoints(client: PrismaClient = createPrismaClient()): Promise<EndpointListResult> {
+  const endpoints = await client.endpoint.findMany({
+    include: endpointInclude,
+    orderBy: [{ protectedDefault: "desc" }, { updatedAt: "desc" }, { name: "asc" }],
+  });
+
+  const summaries = endpoints.map(toSummary);
+  return {
+    total: summaries.length,
+    enabled: summaries.filter((endpoint) => endpoint.enabled).length,
+    disabled: summaries.filter((endpoint) => !endpoint.enabled).length,
+    endpoints: summaries,
+  };
+}
+
+type EndpointPermissionFilter = {
+  endpointIds?: string[];
+};
+
+function enabledEndpointWhere(filter?: EndpointPermissionFilter): Prisma.EndpointWhereInput {
+  return {
+    enabled: true,
+    ...(filter?.endpointIds ? { id: { in: filter.endpointIds } } : {}),
+  };
+}
+
+export async function listEnabledMcpTools(
+  client: PrismaClient = createPrismaClient(),
+  filter?: EndpointPermissionFilter,
+): Promise<EndpointMcpTool[]> {
+  const endpoints = await client.endpoint.findMany({
+    where: enabledEndpointWhere(filter),
+    include: { parameters: { orderBy: { position: "asc" } } },
+    orderBy: [{ name: "asc" }],
+  });
+
+  return endpoints.map((endpoint) => ({
+    name: endpoint.name,
+    description: endpoint.description || endpoint.title,
+    inputSchema: generateMcpInputSchema({
+      parameters: endpoint.parameters.map((parameter) => ({
+        name: parameter.name,
+        label: parameter.label ?? "",
+        description: parameter.description ?? "",
+        type: parameter.type as EndpointDetail["parameters"][number]["type"],
+        required: parameter.required,
+        defaultValueJson: parameter.defaultValueJson,
+      })),
+    }),
+  }));
+}
+
+export async function listEnabledRestTools(
+  client: PrismaClient = createPrismaClient(),
+  filter?: EndpointPermissionFilter,
+): Promise<EndpointRestToolListResult> {
+  const endpoints = await client.endpoint.findMany({
+    where: enabledEndpointWhere(filter),
+    include: { parameters: { orderBy: { position: "asc" } } },
+    orderBy: [{ name: "asc" }],
+  });
+
+  return {
+    tools: endpoints.map((endpoint) =>
+      restToolFromEndpoint({
+        name: endpoint.name,
+        title: endpoint.title,
+        description: endpoint.description,
+        parameters: endpoint.parameters.map((parameter) => ({
+          name: parameter.name,
+          label: parameter.label ?? "",
+          description: parameter.description ?? "",
+          type: parameter.type as EndpointDetail["parameters"][number]["type"],
+          required: parameter.required,
+          defaultValueJson: parameter.defaultValueJson,
+        })),
+      }),
+    ),
+  };
+}
+
+export async function getEndpoint(id: string, client: PrismaClient = createPrismaClient()) {
+  const endpoint = await client.endpoint.findUnique({ where: { id }, include: endpointInclude });
+  return endpoint ? toDetail(endpoint) : null;
+}
+
+export async function callEndpointByName(
+  name: string,
+  rawArguments: unknown,
+  client: PrismaClient = createPrismaClient(),
+): Promise<EndpointCallResult> {
+  const endpoint = await client.endpoint.findUnique({ where: { name }, include: endpointInclude });
+  return applyEndpointCallDelay(executeEndpointDetail(endpoint ? toDetail(endpoint) : null, rawArguments));
+}
+
+export async function callPermittedEndpointByName(
+  name: string,
+  rawArguments: unknown,
+  endpointIds: string[],
+  client: PrismaClient = createPrismaClient(),
+): Promise<EndpointCallResult> {
+  const endpoint = await client.endpoint.findUnique({ where: { name }, include: endpointInclude });
+  if (!endpoint) {
+    return { kind: "not_found" };
+  }
+  if (!endpoint.enabled) {
+    return { kind: "disabled" };
+  }
+  if (!new Set(endpointIds).has(endpoint.id)) {
+    return { kind: "forbidden", message: "Bearer token does not grant permission for this endpoint." };
+  }
+
+  return applyEndpointCallDelay(executeEndpointDetail(toDetail(endpoint), rawArguments));
+}
+
+export async function createEndpoint(input: EndpointInput, client: PrismaClient = createPrismaClient()) {
+  const validInput = validateEndpointInput(input);
+  const id = `endpoint_${randomUUID()}`;
+
+  const endpoint = await client.endpoint.create({
+    data: {
+      id,
+      name: validInput.name,
+      title: validInput.title ?? "",
+      description: validInput.description ?? "",
+      enabled: validInput.enabled,
+      protectedDefault: false,
+      deleteCode: validInput.deleteCode,
+      defaultResponseJson: validInput.defaultResponseJson,
+      failureMode: validInput.failureMode,
+      failureStatusCode: validInput.failureStatusCode,
+      failureDelayMs: validInput.failureDelayMs,
+      failureMessage: validInput.failureMessage,
+      malformedResponseJson: validInput.malformedResponseJson,
+      parameters: {
+        create: validInput.parameters.map((parameter, position) => ({
+          id: `${id}_param_${position}_${randomUUID()}`,
+          position,
+          name: parameter.name,
+          label: parameter.label || null,
+          description: parameter.description ?? "",
+          type: parameter.type,
+          required: parameter.required,
+          defaultValueJson: parameter.defaultValueJson,
+        })),
+      },
+      responseCases: {
+        create: validInput.responseCases.map((responseCase) => ({
+          id: `${id}_case_${randomUUID()}`,
+          ...responseCase,
+        })),
+      },
+    },
+    include: endpointInclude,
+  });
+
+  return toDetail(endpoint);
+}
+
+export async function updateEndpoint(
+  id: string,
+  input: EndpointInput,
+  client: PrismaClient = createPrismaClient(),
+) {
+  const validInput = validateEndpointInput(input);
+
+  const endpoint = await client.$transaction(async (tx) => {
+    await tx.endpointParam.deleteMany({ where: { endpointId: id } });
+    await tx.responseCase.deleteMany({ where: { endpointId: id } });
+
+    return tx.endpoint.update({
+      where: { id },
+      data: {
+        name: validInput.name,
+        title: validInput.title ?? "",
+        description: validInput.description ?? "",
+        enabled: validInput.enabled,
+        deleteCode: validInput.deleteCode,
+        defaultResponseJson: validInput.defaultResponseJson,
+        failureMode: validInput.failureMode,
+        failureStatusCode: validInput.failureStatusCode,
+        failureDelayMs: validInput.failureDelayMs,
+        failureMessage: validInput.failureMessage,
+        malformedResponseJson: validInput.malformedResponseJson,
+        parameters: {
+          create: validInput.parameters.map((parameter, position) => ({
+            id: `${id}_param_${position}_${randomUUID()}`,
+            position,
+            name: parameter.name,
+            label: parameter.label || null,
+            description: parameter.description ?? "",
+            type: parameter.type,
+            required: parameter.required,
+            defaultValueJson: parameter.defaultValueJson,
+          })),
+        },
+        responseCases: {
+          create: validInput.responseCases.map((responseCase) => ({
+            id: `${id}_case_${randomUUID()}`,
+            ...responseCase,
+          })),
+        },
+      },
+      include: endpointInclude,
+    });
+  });
+
+  return toDetail(endpoint);
+}
+
+function deleteMethodFor(endpoint: EndpointRecord, input: EndpointDeleteInput) {
+  const deleteCode = input.deleteCode?.trim() ?? "";
+  const rootPassword = input.rootPassword ?? "";
+
+  if (deleteCode && endpoint.deleteCode && deleteCode === endpoint.deleteCode) {
+    return "delete_code";
+  }
+  if (verifyRootPassword(rootPassword)) {
+    return "root_password";
+  }
+  return null;
+}
+
+export async function deleteEndpoint(
+  id: string,
+  input: EndpointDeleteInput,
+  client: PrismaClient = createPrismaClient(),
+) {
+  const endpoint = await client.endpoint.findUnique({ where: { id }, include: endpointInclude });
+  if (!endpoint) {
+    throw new EndpointNotFoundError();
+  }
+
+  if (endpoint.protectedDefault) {
+    await recordAuditEvent(
+      {
+        eventType: "endpoint.delete",
+        subjectType: "endpoint",
+        subjectId: endpoint.id,
+        subjectName: endpoint.name,
+        outcome: "failure",
+        metadata: { reason: "protected_default" },
+      },
+      client,
+    );
+    throw new EndpointDeleteAuthorizationError("protected_default");
+  }
+
+  const method = deleteMethodFor(endpoint, input);
+  if (!method) {
+    await recordAuditEvent(
+      {
+        eventType: "endpoint.delete",
+        subjectType: "endpoint",
+        subjectId: endpoint.id,
+        subjectName: endpoint.name,
+        outcome: "failure",
+        metadata: { reason: "invalid_confirmation" },
+
+exec
+/bin/zsh -lc "sed -n '1,180p' lib/endpoints/api.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import { Prisma } from "@prisma/client";
+import { NextResponse } from "next/server";
+import { EndpointDeleteAuthorizationError, EndpointNotFoundError, EndpointValidationError } from "@/lib/endpoints/types";
+import type { EndpointDeleteInput, EndpointInput } from "@/lib/endpoints/types";
+
+function asRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : {};
+}
+
+function asString(value: unknown, fallback = "") {
+  return typeof value === "string" ? value : fallback;
+}
+
+function asBoolean(value: unknown, fallback = false) {
+  return typeof value === "boolean" ? value : fallback;
+}
+
+function asNumber(value: unknown, fallback = 0) {
+  return typeof value === "number" && Number.isFinite(value) ? value : fallback;
+}
+
+function nullableNumber(value: unknown) {
+  return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+function nullableString(value: unknown) {
+  return typeof value === "string" && value.trim() ? value : null;
+}
+
+export function endpointInputFromBody(body: unknown): EndpointInput {
+  const record = asRecord(body);
+  const parameters = Array.isArray(record.parameters) ? record.parameters.map(asRecord) : [];
+  const responseCases = Array.isArray(record.responseCases) ? record.responseCases.map(asRecord) : [];
+
+  return {
+    name: asString(record.name),
+    title: asString(record.title),
+    description: asString(record.description),
+    enabled: asBoolean(record.enabled, true),
+    deleteCode: nullableString(record.deleteCode),
+    defaultResponseJson: asString(record.defaultResponseJson, "{}"),
+    failureMode: asString(record.failureMode, "none") as EndpointInput["failureMode"],
+    failureStatusCode: nullableNumber(record.failureStatusCode),
+    failureDelayMs: asNumber(record.failureDelayMs),
+    failureMessage: nullableString(record.failureMessage),
+    malformedResponseJson: nullableString(record.malformedResponseJson),
+    parameters: parameters.map((parameter) => ({
+      name: asString(parameter.name),
+      label: asString(parameter.label),
+      description: asString(parameter.description),
+      type: asString(parameter.type, "string") as EndpointInput["parameters"][number]["type"],
+      required: asBoolean(parameter.required),
+      defaultValueJson: nullableString(parameter.defaultValueJson),
+    })),
+    responseCases: responseCases.map((responseCase) => ({
+      name: asString(responseCase.name),
+      priority: asNumber(responseCase.priority),
+      matchArgsJson: asString(responseCase.matchArgsJson, "{}"),
+      responseJson: asString(responseCase.responseJson, "{}"),
+      statusCode: asNumber(responseCase.statusCode, 200),
+      delayMs: asNumber(responseCase.delayMs),
+      errorMode: asString(responseCase.errorMode, "none") as EndpointInput["responseCases"][number]["errorMode"],
+      errorStatusCode: nullableNumber(responseCase.errorStatusCode),
+      errorMessage: nullableString(responseCase.errorMessage),
+      errorBodyJson: nullableString(responseCase.errorBodyJson),
+      isDefault: asBoolean(responseCase.isDefault),
+    })),
+  };
+}
+
+export function endpointDeleteInputFromBody(body: unknown): EndpointDeleteInput {
+  const record = asRecord(body);
+  return {
+    deleteCode: nullableString(record.deleteCode),
+    rootPassword: nullableString(record.rootPassword),
+  };
+}
+
+export function endpointErrorResponse(error: unknown) {
+  if (error instanceof EndpointValidationError) {
+    return NextResponse.json({ error: "validation_failed", fieldErrors: error.fieldErrors }, { status: 400 });
+  }
+
+  if (error instanceof EndpointDeleteAuthorizationError) {
+    if (error.reason === "protected_default") {
+      return NextResponse.json(
+        { error: "protected_default", message: "Built-in endpoint defaults cannot be deleted through this action." },
+        { status: 409 },
+      );
+    }
+    return NextResponse.json(
+      { error: "delete_confirmation_failed", message: "Enter the endpoint delete code or root password to delete." },
+      { status: 403 },
+    );
+  }
+
+  if (error instanceof EndpointNotFoundError) {
+    return NextResponse.json({ error: "not_found" }, { status: 404 });
+  }
+
+  if (error instanceof Prisma.PrismaClientKnownRequestError) {
+    if (error.code === "P2002") {
+      return NextResponse.json(
+        { error: "validation_failed", fieldErrors: { name: "Endpoint name must be unique." } },
+        { status: 409 },
+      );
+    }
+    if (error.code === "P2025") {
+      return NextResponse.json({ error: "not_found" }, { status: 404 });
+    }
+  }
+
+  console.error(error);
+  return NextResponse.json({ error: "internal_error" }, { status: 500 });
+}
+
+exec
+/bin/zsh -lc "sed -n '1,220p' tests/e2e/oauth-permissions.spec.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import { expect, test } from "@playwright/test";
+import { createPrismaClient } from "@/lib/db/client";
+
+test.setTimeout(60_000);
+
+function basic(username: string, password: string) {
+  return `Basic ${Buffer.from(`${username}:${password}`, "utf8").toString("base64")}`;
+}
+
+function decodeJwt(token: string) {
+  const [, encodedPayload] = token.split(".");
+  expect(encodedPayload).toBeTruthy();
+  return JSON.parse(Buffer.from(encodedPayload ?? "", "base64url").toString("utf8"));
+}
+
+test("OAuth Bearer permissions filter MCP and REST and distinguish 401 from 403 @oauth-permissions", async ({
+  request,
+}) => {
+  const suffix = Date.now();
+  const allowedEndpointId = `endpoint_oauth_allowed_${suffix}`;
+  const deniedEndpointId = `endpoint_oauth_denied_${suffix}`;
+  const allowedName = `oauth-allowed-${suffix}`;
+  const deniedName = `oauth-denied-${suffix}`;
+  const prisma = createPrismaClient();
+
+  try {
+    await prisma.endpoint.create({
+      data: {
+        id: allowedEndpointId,
+        name: allowedName,
+        title: "OAuth allowed E2E",
+        description: "Allowed through Bearer permissions.",
+        defaultResponseJson: JSON.stringify({ allowed: true }),
+        responseCases: {
+          create: {
+            id: `${allowedEndpointId}_default`,
+            name: "Default",
+            responseJson: JSON.stringify({ allowed: true }),
+            isDefault: true,
+          },
+        },
+      },
+    });
+    await prisma.endpoint.create({
+      data: {
+        id: deniedEndpointId,
+        name: deniedName,
+        title: "OAuth denied E2E",
+        description: "Denied through Bearer permissions.",
+        defaultResponseJson: JSON.stringify({ denied: true }),
+        responseCases: {
+          create: {
+            id: `${deniedEndpointId}_default`,
+            name: "Default",
+            responseJson: JSON.stringify({ denied: true }),
+            isDefault: true,
+          },
+        },
+      },
+    });
+
+    const clientId = `oauth-permissions-${suffix}`;
+    const createClientResponse = await request.post("/api/oauth-clients", {
+      data: {
+        clientId,
+        displayName: "OAuth Permissions E2E",
+        enabled: true,
+        redirectUris: ["http://localhost:3000/oauth/callback"],
+        clientCredentialsTtlSeconds: 900,
+        allowedEndpointIds: [allowedEndpointId],
+      },
+    });
+    expect(createClientResponse.status()).toBe(201);
+    const createdClient = await createClientResponse.json();
+
+    const tokenResponse = await request.post("/oauth/token", {
+      form: {
+        grant_type: "client_credentials",
+        client_id: clientId,
+        client_secret: createdClient.clientSecret,
+        resource: "https://resource.example/oauth-permissions",
+      },
+    });
+    expect(tokenResponse.status()).toBe(200);
+    const tokenPayload = await tokenResponse.json();
+    const bearer = `Bearer ${tokenPayload.access_token}`;
+
+    const strictMissing = await request.post("/mcp/oauth", {
+      data: { jsonrpc: "2.0", id: 1, method: "tools/list" },
+    });
+    expect(strictMissing.status()).toBe(401);
+    expect(strictMissing.headers()["www-authenticate"]).toContain("Bearer");
+
+    const invalidUnified = await request.post("/mcp", {
+      headers: { Authorization: "Bearer invalid-token" },
+      data: { jsonrpc: "2.0", id: 2, method: "tools/list" },
+    });
+    expect(invalidUnified.status()).toBe(401);
+    expect(invalidUnified.headers()["www-authenticate"]).toContain("Bearer");
+
+    const restList = await request.get("/rest/tools", { headers: { Authorization: bearer } });
+    expect(restList.status()).toBe(200);
+    const restTools = (await restList.json()).tools as Array<{ name: string }>;
+    expect(restTools.some((tool) => tool.name === allowedName)).toBe(true);
+    expect(restTools.some((tool) => tool.name === deniedName)).toBe(false);
+
+    const mcpList = await request.post("/mcp/oauth", {
+      headers: { Authorization: bearer },
+      data: { jsonrpc: "2.0", id: 3, method: "tools/list" },
+    });
+    expect(mcpList.status()).toBe(200);
+    const mcpTools = (await mcpList.json()).result.tools as Array<{ name: string }>;
+    expect(mcpTools.some((tool) => tool.name === allowedName)).toBe(true);
+    expect(mcpTools.some((tool) => tool.name === deniedName)).toBe(false);
+
+    const restAllowed = await request.post(`/rest/tools/${allowedName}/call`, {
+      headers: { Authorization: bearer },
+      data: { arguments: {} },
+    });
+    expect(restAllowed.status()).toBe(200);
+    expect(restAllowed.headers()["x-mcp-mock-principal"]).toBe(`oauth:${clientId}`);
+    expect(await restAllowed.json()).toEqual({ allowed: true });
+
+    const mcpAllowed = await request.post("/mcp/oauth", {
+      headers: { Authorization: bearer },
+      data: {
+        jsonrpc: "2.0",
+        id: 4,
+        method: "tools/call",
+        params: { name: allowedName, arguments: {} },
+      },
+    });
+    expect(mcpAllowed.status()).toBe(200);
+    expect((await mcpAllowed.json()).result.structuredContent).toEqual({ allowed: true });
+
+    const restDenied = await request.post(`/rest/tools/${deniedName}/call`, {
+      headers: { Authorization: bearer },
+      data: { arguments: {} },
+    });
+    expect(restDenied.status()).toBe(403);
+    expect(await restDenied.json()).toMatchObject({
+      error: "forbidden",
+      tool: deniedName,
+    });
+
+    const mcpDenied = await request.post("/mcp/oauth", {
+      headers: { Authorization: bearer },
+      data: {
+        jsonrpc: "2.0",
+        id: 5,
+        method: "tools/call",
+        params: { name: deniedName, arguments: {} },
+      },
+    });
+    expect(mcpDenied.status()).toBe(403);
+    expect(await mcpDenied.json()).toMatchObject({
+      error: {
+        code: -32003,
+        message: "Forbidden",
+        data: { error: "forbidden", tool: deniedName },
+      },
+    });
+
+    const noAuthRestList = await request.get("/rest/tools");
+    expect(((await noAuthRestList.json()).tools as Array<{ name: string }>).some((tool) => tool.name === deniedName)).toBe(true);
+    const basicRestList = await request.get("/rest/tools", { headers: { Authorization: basic("default", "default") } });
+    expect(((await basicRestList.json()).tools as Array<{ name: string }>).some((tool) => tool.name === deniedName)).toBe(true);
+
+    const claims = decodeJwt(tokenPayload.access_token);
+    await prisma.oAuthIssuedToken.update({
+      where: { jti: claims.jti },
+      data: { revokedAt: new Date() },
+    });
+    const revoked = await request.get("/rest/tools", { headers: { Authorization: bearer } });
+    expect(revoked.status()).toBe(401);
+  } finally {
+    await prisma.$disconnect();
+  }
+});
+
+exec
+/bin/zsh -lc 'rg "handleRestToolCallPost|rest/tools" -n app tests/e2e/rest-tools-call.spec.ts tests/e2e/oauth-permissions.spec.ts' in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+tests/e2e/oauth-permissions.spec.ts:101:    const restList = await request.get("/rest/tools", { headers: { Authorization: bearer } });
+tests/e2e/oauth-permissions.spec.ts:116:    const restAllowed = await request.post(`/rest/tools/${allowedName}/call`, {
+tests/e2e/oauth-permissions.spec.ts:136:    const restDenied = await request.post(`/rest/tools/${deniedName}/call`, {
+tests/e2e/oauth-permissions.spec.ts:164:    const noAuthRestList = await request.get("/rest/tools");
+tests/e2e/oauth-permissions.spec.ts:166:    const basicRestList = await request.get("/rest/tools", { headers: { Authorization: basic("default", "default") } });
+tests/e2e/oauth-permissions.spec.ts:174:    const revoked = await request.get("/rest/tools", { headers: { Authorization: bearer } });
+tests/e2e/rest-tools-call.spec.ts:80:  const success = await request.post(`/rest/tools/${endpointName}/call`, {
+tests/e2e/rest-tools-call.spec.ts:88:  const basicSuccess = await request.post(`/rest/tools/${endpointName}/call`, {
+tests/e2e/rest-tools-call.spec.ts:95:  const defaultCase = await request.post(`/rest/tools/${endpointName}/call`, {
+tests/e2e/rest-tools-call.spec.ts:102:  const invalidArguments = await request.post(`/rest/tools/${endpointName}/call`, {
+tests/e2e/rest-tools-call.spec.ts:111:  const forcedError = await request.post(`/rest/tools/${endpointName}/call`, {
+tests/e2e/rest-tools-call.spec.ts:121:  const unknownTool = await request.post(`/rest/tools/missing_${suffix}/call`, {
+tests/e2e/rest-tools-call.spec.ts:130:  const invalidAuth = await request.post(`/rest/tools/${endpointName}/call`, {
+tests/e2e/rest-tools-call.spec.ts:150:  await expect(consoleRegion.getByRole("region", { name: "Raw request" })).toContainText(`/rest/tools/${endpointName}/call`);
+app/rest/tools/[name]/call/route.ts:2:  handleRestToolCallPost,
+app/rest/tools/[name]/call/route.ts:14:  return handleRestToolCallPost(request, name);
+app/endpoints/endpoint-manager.tsx:321:      route: `/rest/tools/${form.name || "unsaved_endpoint"}/call`,
+app/endpoints/endpoint-manager.tsx:365:    const route = `/rest/tools/${encodeURIComponent(form.name || "unsaved_endpoint")}/call`;
+
+codex
+{"decision":"not_done","recommend_promotion":false,"confidence":0.78,"summary":"Implementation covers the main no-auth/Basic REST and MCP paths, but REST OAuth tool calls can execute the endpoint runtime twice before returning. Because delay is now applied inside callPermittedEndpointByName, a permitted OAuth REST call can incur the configured delay twice, and a 30000 ms timeout shortcut can become roughly a 60000 ms call. That contradicts the reliability/spec requirement that artificial delays are bounded to 30000 ms per configured endpoint call. The required checks passed, but they do not cover this OAuth REST delay path.","satisfied_exit_criteria":["Delay behavior is implemented and tested for no-auth REST and MCP calls.","Forced REST/MCP tool and protocol error mapping is implemented and covered by unit tests plus @failure-delay-error E2E.","Timeout shortcut is visible in the endpoint UI and persisted through the API without running a long E2E wait.","Required deterministic commands in the provided summary passed: npm run test:unit, npm run test:e2e -- --grep @failure-delay-error, and npm run verify.","The task maps to docs/product-specs/failure-simulation-and-audit.md and does not appear to include malformed response work."],"missing_requirements":["REST OAuth bearer tool calls need to avoid executing callPermittedEndpointByName twice now that endpoint calls can sleep. The current lib/rest/http.ts pre-check can add an extra configured delay before the actual body is parsed and executed.","Add or adjust coverage for delayed REST OAuth calls, or refactor the permission/not-found pre-check so it does not execute runtime behavior before the real call."],"human_review_triggers":["Required checks do not prove the claimed behavior across REST auth modes.","Implementation changes currently contradict docs/RELIABILITY.md delay bound semantics for OAuth REST calls."]}
+tokens used
+106,876
+{"decision":"not_done","recommend_promotion":false,"confidence":0.78,"summary":"Implementation covers the main no-auth/Basic REST and MCP paths, but REST OAuth tool calls can execute the endpoint runtime twice before returning. Because delay is now applied inside callPermittedEndpointByName, a permitted OAuth REST call can incur the configured delay twice, and a 30000 ms timeout shortcut can become roughly a 60000 ms call. That contradicts the reliability/spec requirement that artificial delays are bounded to 30000 ms per configured endpoint call. The required checks passed, but they do not cover this OAuth REST delay path.","satisfied_exit_criteria":["Delay behavior is implemented and tested for no-auth REST and MCP calls.","Forced REST/MCP tool and protocol error mapping is implemented and covered by unit tests plus @failure-delay-error E2E.","Timeout shortcut is visible in the endpoint UI and persisted through the API without running a long E2E wait.","Required deterministic commands in the provided summary passed: npm run test:unit, npm run test:e2e -- --grep @failure-delay-error, and npm run verify.","The task maps to docs/product-specs/failure-simulation-and-audit.md and does not appear to include malformed response work."],"missing_requirements":["REST OAuth bearer tool calls need to avoid executing callPermittedEndpointByName twice now that endpoint calls can sleep. The current lib/rest/http.ts pre-check can add an extra configured delay before the actual body is parsed and executed.","Add or adjust coverage for delayed REST OAuth calls, or refactor the permission/not-found pre-check so it does not execute runtime behavior before the real call."],"human_review_triggers":["Required checks do not prove the claimed behavior across REST auth modes.","Implementation changes currently contradict docs/RELIABILITY.md delay bound semantics for OAuth REST calls."]}
+evaluation: not_done promotion=false

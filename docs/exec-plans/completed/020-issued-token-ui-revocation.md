@@ -5,7 +5,7 @@
   "id": "issued-token-ui-revocation",
   "title": "Issued Token UI and Revocation",
   "order": 20,
-  "status": "active",
+  "status": "completed",
   "next_task_on_success": "failure-delay-forced-error-runtime",
   "prompt_docs": [
     "AGENTS.md",
@@ -26,7 +26,8 @@
     "Required checks do not prove the claimed behavior.",
     "Implementation changes contradict the product spec or security/reliability docs."
   ],
-  "promotion_mode": "deterministic"
+  "promotion_mode": "deterministic",
+  "completed_at": "2026-05-05T13:10:29.907Z"
 }
 ```
 
@@ -106,3 +107,4 @@ Confirm that this task maps to the primary product spec `oauth-consent-and-token
 - 2026-05-05T12:49:29.501Z: restored as current task after oauth-mcp-rest-permission-enforcement promotion.
 - 2026-05-05T12:51:21Z: found existing bearer validator already rejects stored `revokedAt`; reused it and added issued-token list/detail/revoke service/API/UI plus focused unit and `@token-revocation` E2E coverage.
 - 2026-05-05T13:23:00Z: addressed evaluator gaps by persisting issued-token `issuer`, reconstructing detail claims from stored issuer metadata, checking stored issuer during bearer validation, and adding deterministic expired-token list/filter unit coverage.
+- 2026-05-05T13:10:29.907Z: automatically promoted after deterministic checks and evaluator approval.

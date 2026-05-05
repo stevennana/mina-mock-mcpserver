@@ -622,6 +622,7 @@ export function EndpointManager({ initialData }: { initialData: EndpointListResu
                     <select className="text-input" value={responseCase.errorMode} onChange={(event) => updateResponseCase(index, { errorMode: event.target.value as EndpointInput["responseCases"][number]["errorMode"] })}>
                       <option value="none">none</option>
                       <option value="error">error</option>
+                      <option value="protocol_error">protocol_error</option>
                     </select>
                   </label>
                   <label className="field-block">
@@ -672,6 +673,12 @@ export function EndpointManager({ initialData }: { initialData: EndpointListResu
               <input aria-label="Failure delay ms" className="text-input" type="number" value={form.failureDelayMs} onChange={(event) => updateForm("failureDelayMs", Number(event.target.value))} />
               {errorFor(fieldErrors, "failureDelayMs")}
             </label>
+            <div className="field-block">
+              <span>Timeout shortcut</span>
+              <button className="secondary-button" type="button" onClick={() => setForm((current) => ({ ...current, failureMode: "delay", failureDelayMs: 30_000 }))}>
+                Set 30s delay
+              </button>
+            </div>
             <label className="field-block wide">
               <span>Failure message</span>
               <input aria-label="Failure message" className="text-input" value={form.failureMessage ?? ""} onChange={(event) => updateForm("failureMessage", event.target.value)} />

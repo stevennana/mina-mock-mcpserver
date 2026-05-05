@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import type { Prisma, PrismaClient } from "@prisma/client";
 import { recordAuditEvent } from "@/lib/audit/service";
 import { createPrismaClient } from "@/lib/db/client";
-import { executeEndpointDetail } from "@/lib/endpoints/runtime";
+import { applyEndpointCallDelay, executeEndpointDetail } from "@/lib/endpoints/runtime";
 import { generateMcpInputSchema } from "@/lib/endpoints/schema";
 import { EndpointDeleteAuthorizationError, EndpointNotFoundError } from "@/lib/endpoints/types";
 import { validateEndpointInput } from "@/lib/endpoints/validation";
@@ -172,7 +172,7 @@ export async function callEndpointByName(
   client: PrismaClient = createPrismaClient(),
 ): Promise<EndpointCallResult> {
   const endpoint = await client.endpoint.findUnique({ where: { name }, include: endpointInclude });
-  return executeEndpointDetail(endpoint ? toDetail(endpoint) : null, rawArguments);
+  return applyEndpointCallDelay(executeEndpointDetail(endpoint ? toDetail(endpoint) : null, rawArguments));
 }
 
 export async function callPermittedEndpointByName(
@@ -192,7 +192,7 @@ export async function callPermittedEndpointByName(
     return { kind: "forbidden", message: "Bearer token does not grant permission for this endpoint." };
   }
 
-  return executeEndpointDetail(toDetail(endpoint), rawArguments);
+  return applyEndpointCallDelay(executeEndpointDetail(toDetail(endpoint), rawArguments));
 }
 
 export async function createEndpoint(input: EndpointInput, client: PrismaClient = createPrismaClient()) {

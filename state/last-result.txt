@@ -1,16 +1,10 @@
-Implemented the remaining `issued-token-ui-revocation` hardening and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+Implemented `failure-delay-forced-error-runtime` and wrote the handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
 
-What changed:
-- Added persisted `issuer` metadata for issued tokens via Prisma migration.
-- Stored issuer during both OAuth token issuance paths.
-- Reconstructed token detail claims from stored issuer metadata, so `claims.iss` matches the issued JWT.
-- Tightened Bearer validation to compare stored issuer with JWT `iss`.
-- Added deterministic unit coverage for expired-token filtering and issuer reconstruction.
-- Updated DB schema docs and the active task progress log.
+What changed: shared bounded delay execution for REST/MCP, forced REST error mapping, MCP `tool_error` vs `protocol_error` mapping, endpoint editor timeout shortcut, docs updates, and focused unit/E2E coverage with `@failure-delay-error`.
 
-Required checks all passed:
+Required checks passed:
 - `npm run test:unit`
-- `npm run test:e2e -- --grep @token-revocation`
+- `npm run test:e2e -- --grep @failure-delay-error`
 - `npm run verify`
 
-Exit criteria appear satisfied. Nothing remains for this task.
+Exit criteria appear satisfied. Malformed response behavior remains untouched for the next task.
