@@ -1,0 +1,17 @@
+[main 480b902] ralph: operator-config-health-logs 2026-05-05T23:00:41+09:00
+ 52 files changed, 6412 insertions(+), 221 deletions(-)
+ create mode 100644 app/api/config/route.ts
+ create mode 100644 app/config/config-manager.tsx
+ rename docs/exec-plans/{active => completed}/022-malformed-response-console-audit.md (95%)
+ create mode 100644 lib/operator/config.ts
+ create mode 100644 lib/operator/logger.ts
+ create mode 100644 prisma/migrations/202605050011_server_settings/migration.sql
+ create mode 100644 state/artifacts/20260505T223008-malformed-response-console-audit/backlog.log
+ create mode 100644 state/artifacts/20260505T223008-malformed-response-console-audit/promote.log
+ create mode 100644 state/artifacts/20260505T224115-operator-config-health-logs/commit.log
+ create mode 100644 state/artifacts/20260505T224115-operator-config-health-logs/evaluator.log
+ create mode 100644 state/artifacts/20260505T224115-operator-config-health-logs/task-prompt.log
+ create mode 100644 state/artifacts/20260505T224115-operator-config-health-logs/worker.jsonl
+ create mode 100644 tests/e2e/operator-config.spec.ts
+ create mode 100644 tests/unit/operator-config.test.ts
+commit: created

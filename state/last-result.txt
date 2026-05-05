@@ -1,8 +1,13 @@
-Implemented `operator-config-health-logs` and wrote the handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+Implemented the evaluator-gap fix for `operator-config-health-logs`.
 
-What changed: health/config now report real runtime and DB state, base URL resolution follows `APP_BASE_URL -> DB override -> forwarded headers -> Host -> local fallback`, `/config` is a full connection guide, OAuth issuer paths use the shared resolver, root-protected base URL override is persisted/audited, and `start:logged` writes `logs/server-*.log` with normalized `LOG_LEVEL`.
+Changed:
+- [lib/operator/config.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/lib/operator/config.ts): base URL validation failures after a valid root password now write non-secret `system.config.base_url` failure audit evidence.
+- [tests/unit/operator-config.test.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/tests/unit/operator-config.test.ts): added audit coverage for valid-root invalid-URL failures.
+- [tests/e2e/operator-config.spec.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/tests/e2e/operator-config.spec.ts): added `@operator-config` proof that the audit record exists and does not include the submitted secret-bearing URL.
+- [docs/exec-plans/active/023-operator-config-health-logs.md](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/docs/exec-plans/active/023-operator-config-health-logs.md): appended a concrete progress note.
+- [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt): wrote the requested operator handoff summary.
 
-Required checks passed:
+All required checks passed:
 - `npm run lint`
 - `npm run typecheck`
 - `npm run build`
@@ -11,4 +16,4 @@ Required checks passed:
 - `npm run start:smoke`
 - `npm run verify`
 
-Exit criteria appear satisfied. The only note: a direct manual `start:logged` bind attempt hit sandbox `EPERM`, but it did create/write the log file; production startup proof passed through `start:smoke`.
+Exit criteria appear satisfied. Existing dirty Ralph/state artifacts were already present; I left them in place and only added the requested `state/last-result.txt` handoff.

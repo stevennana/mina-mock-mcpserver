@@ -36,6 +36,26 @@ test("operator config health, base URL override, connection guide, and logs guid
   });
   expect(invalidSave.status()).toBe(403);
 
+  const invalidUrlSave = await request.post("/api/config", {
+    data: {
+      baseUrl: "https://root:secret@operator.example",
+      rootPassword: "e2e-root-password",
+    },
+  });
+  expect(invalidUrlSave.status()).toBe(400);
+
+  const auditResponse = await request.get("/api/audit");
+  expect(auditResponse.status()).toBe(200);
+  const auditPayload = await auditResponse.json();
+  const validationAudit = auditPayload.events.find(
+    (event: { eventType: string; outcome: string; metadata: { reason?: string }; metadataJson?: string }) =>
+      event.eventType === "system.config.base_url" &&
+      event.outcome === "failure" &&
+      event.metadata.reason === "validation_failed",
+  );
+  expect(validationAudit).toBeTruthy();
+  expect(JSON.stringify(validationAudit)).not.toContain("secret");
+
   const save = await request.post("/api/config", {
     data: {
       baseUrl: "https://operator.example/",

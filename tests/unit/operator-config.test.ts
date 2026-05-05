@@ -107,6 +107,32 @@ test("operator public config and health report persisted runtime state", async (
   });
 });
 
+test("operator base URL validation failures with valid root password write non-secret audit evidence", async () => {
+  await withIsolatedDb(async (client) => {
+    await assert.rejects(
+      () => updateOperatorBaseUrl({ rootPassword: "unit-root-password", baseUrl: "https://root:secret@mock.example" }, client),
+      { name: "OperatorConfigValidationError" },
+    );
+
+    const auditEvent = await client.auditEvent.findFirst({
+      where: {
+        eventType: "system.config.base_url",
+        outcome: "failure",
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    assert.ok(auditEvent);
+    assert.equal(auditEvent.subjectName, "baseUrl");
+    assert.deepEqual(JSON.parse(auditEvent.metadataJson), {
+      reason: "validation_failed",
+      fields: "baseUrl",
+    });
+    assert.equal(auditEvent.metadataJson.includes("secret"), false);
+    assert.equal(await client.serverSetting.count(), 0);
+  });
+});
+
 test("operator config validation and log redaction avoid secrets", () => {
   assert.equal(normalizeBaseUrl("https://mock.example/path/"), "https://mock.example/path");
   assert.throws(() => normalizeBaseUrl("ftp://mock.example"), { name: "OperatorConfigValidationError" });

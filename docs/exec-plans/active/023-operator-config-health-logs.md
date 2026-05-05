@@ -117,3 +117,4 @@ Confirm that this task maps to the primary product spec `operator-configuration.
 - Note when existing partial implementations were found and reused instead of replaced.
 - 2026-05-05T13:40:45.211Z: restored as current task after malformed-response-console-audit promotion.
 - 2026-05-05T14:25:00.000Z: found partial `/config`, `/api/health`, and `start:logged` implementations; reused them while adding shared operator config/base URL/logging services, persisted base URL override, public config API, expanded connection guide, and `@operator-config` coverage.
+- 2026-05-05T14:02:58Z: tightened the base URL override service so validation failures after a valid root password write non-secret audit evidence, and added unit/E2E assertions for that evaluator gap.

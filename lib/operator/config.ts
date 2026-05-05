@@ -59,6 +59,26 @@ export function normalizeBaseUrl(value: string) {
   return parsed.toString().replace(/\/+$/, "");
 }
 
+async function recordBaseUrlAuditEvent(
+  input: {
+    outcome: "success" | "failure";
+    metadata: Record<string, string | number | boolean | null>;
+  },
+  client: ConfigClient,
+) {
+  await recordAuditEvent(
+    {
+      eventType: "system.config.base_url",
+      subjectType: "server_setting",
+      subjectId: BASE_URL_SETTING_KEY,
+      subjectName: "baseUrl",
+      outcome: input.outcome,
+      metadata: input.metadata,
+    },
+    client,
+  );
+}
+
 function firstHeaderValue(value: string | null) {
   return value?.split(",")[0]?.trim() || null;
 }
@@ -209,17 +229,7 @@ export async function updateOperatorBaseUrl(
   client: ConfigClient = createPrismaClient(),
 ) {
   if (!verifyRootPassword(input.rootPassword)) {
-    await recordAuditEvent(
-      {
-        eventType: "system.config.base_url",
-        subjectType: "server_setting",
-        subjectId: BASE_URL_SETTING_KEY,
-        subjectName: "baseUrl",
-        outcome: "failure",
-        metadata: { reason: "invalid_root_password" },
-      },
-      client,
-    );
+    await recordBaseUrlAuditEvent({ outcome: "failure", metadata: { reason: "invalid_root_password" } }, client);
     operatorLog("warn", "base URL override rejected", { reason: "invalid_root_password" });
     throw new OperatorConfigAuthorizationError();
   }
@@ -227,38 +237,31 @@ export async function updateOperatorBaseUrl(
   const rawBaseUrl = input.baseUrl?.trim() ?? "";
   if (!rawBaseUrl) {
     await client.serverSetting.deleteMany({ where: { key: BASE_URL_SETTING_KEY } });
-    await recordAuditEvent(
-      {
-        eventType: "system.config.base_url",
-        subjectType: "server_setting",
-        subjectId: BASE_URL_SETTING_KEY,
-        subjectName: "baseUrl",
-        outcome: "success",
-        metadata: { action: "clear" },
-      },
-      client,
-    );
+    await recordBaseUrlAuditEvent({ outcome: "success", metadata: { action: "clear" } }, client);
     operatorLog("info", "base URL override cleared");
     return { databaseOverride: null };
   }
 
-  const baseUrl = normalizeBaseUrl(rawBaseUrl);
+  let baseUrl: string;
+  try {
+    baseUrl = normalizeBaseUrl(rawBaseUrl);
+  } catch (error) {
+    if (error instanceof OperatorConfigValidationError) {
+      await recordBaseUrlAuditEvent(
+        { outcome: "failure", metadata: { reason: "validation_failed", fields: Object.keys(error.fieldErrors).join(",") } },
+        client,
+      );
+      operatorLog("warn", "base URL override rejected", { reason: "validation_failed" });
+    }
+    throw error;
+  }
+
   await client.serverSetting.upsert({
     where: { key: BASE_URL_SETTING_KEY },
     update: { value: baseUrl },
     create: { key: BASE_URL_SETTING_KEY, value: baseUrl },
   });
-  await recordAuditEvent(
-    {
-      eventType: "system.config.base_url",
-      subjectType: "server_setting",
-      subjectId: BASE_URL_SETTING_KEY,
-      subjectName: "baseUrl",
-      outcome: "success",
-      metadata: { action: "set", baseUrl },
-    },
-    client,
-  );
+  await recordBaseUrlAuditEvent({ outcome: "success", metadata: { action: "set", baseUrl } }, client);
   operatorLog("info", "base URL override updated", { baseUrl });
   return { databaseOverride: baseUrl };
 }

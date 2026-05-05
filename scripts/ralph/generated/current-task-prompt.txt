@@ -80,7 +80,7 @@ Required commands for this task:
 - npm run verify
 
 Previous known gaps from the last evaluation:
-- none
+- Base URL override validation failures with a valid root password are not audited, despite docs/SECURITY.md requiring non-secret audit evidence for base URL override success and failure.
 
 
 
