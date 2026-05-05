@@ -1,12 +1,10 @@
-Implemented `mcp-initialize-and-tools-list`.
+Implemented `mcp-tools-call-and-errors` and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
 
-Added stateless no-auth MCP handlers for `/mcp` and `/mcp/none`, covering `initialize`, `notifications/initialized`, and `tools/list`. Tool listing now reads enabled endpoints through the endpoint domain service and uses the shared generated MCP `inputSchema`; disabled endpoints are hidden. GET/DELETE return deterministic `405` with `Allow: POST`.
+Changed no-auth MCP `tools/call` to execute enabled endpoints through the shared endpoint runtime matcher, return MCP text content plus `structuredContent` for JSON objects, use the default response case for no exact match, and return JSON-RPC `-32602` / `-32601` for the documented error cases. Added unit coverage and `@mcp-tools-call` E2E coverage, and updated the MCP runtime/reliability/product docs plus the active task log.
 
-Updated docs and the task progress log, and wrote the operator handoff to `state/last-result.txt`.
-
-Checks passed:
+Required checks passed:
 - `npm run test:unit`
-- `npm run test:e2e -- --grep @mcp-initialize-list`
+- `npm run test:e2e -- --grep @mcp-tools-call`
 - `npm run verify`
 
-Reference used for unsupported Streamable HTTP GET/DELETE behavior: official MCP transport spec, https://modelcontextprotocol.io/specification/2025-06-18/basic/transports.
+Exit criteria appear satisfied. Remaining work: none for this task.

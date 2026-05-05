@@ -1,1 +1,1 @@
-mcp-initialize-and-tools-list
+mcp-tools-call-and-errors

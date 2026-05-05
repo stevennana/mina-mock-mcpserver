@@ -7,3 +7,4 @@
 - 2026-05-05T10:09:30.850Z: promoted endpoint-console-schema-preview-ui -> endpoint-protected-delete-audit
 - 2026-05-05T10:19:51.517Z: promoted endpoint-protected-delete-audit -> root-reset-defaults
 - 2026-05-05T10:31:06.589Z: promoted root-reset-defaults -> mcp-initialize-and-tools-list
+- 2026-05-05T10:39:05.356Z: promoted mcp-initialize-and-tools-list -> mcp-tools-call-and-errors

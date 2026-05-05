@@ -556,3 +556,18 @@
 - evaluator: started
 - evaluator: status=done promotion=true The task maps directly to docs/product-specs/mcp-json-rpc-runtime.md and the inspected implementation satisfies the scoped no-auth MCP initialize, initialized notification, and tools/list behavior on /mcp and /mcp/none. Tool listings are loaded from the endpoint service with shared generated input schemas and disabled endpoints are hidden. Required deterministic checks are reported passing, including the targeted @mcp-initialize-list E2E and full verify. -> state/artifacts/20260505T193136-mcp-initialize-and-tools-list/evaluator.log
 - next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T193136-mcp-initialize-and-tools-list/npm-run-test-e2e-grep-mcp-initialize-list-next-server.log
+- commit: commit: created
+- promote: Promoted mcp-initialize-and-tools-list -> mcp-tools-call-and-errors
+- backlog: rendered current=mcp-tools-call-and-errors
+- health: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxoooooo
+- cycle: finished
+
+### cycle 2026-05-05T19:39:35+09:00 task=mcp-tools-call-and-errors
+- artifacts: state/artifacts/20260505T193935-mcp-tools-call-and-errors
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260505T193935-mcp-tools-call-and-errors/worker.jsonl
+- worker-summary: Implemented `mcp-tools-call-and-errors` and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+- evaluator: started
+- evaluator: status=done promotion=true The implementation matches the active task and the primary MCP JSON-RPC runtime spec. No-auth `/mcp` and `/mcp/none` route through the shared MCP adapter, `tools/call` invokes the endpoint matcher by endpoint name, success responses include MCP text content plus `structuredContent` for JSON objects, unknown/disabled tools and invalid arguments map to JSON-RPC `-32602`, unsupported methods map to `-32601`, and no exact response-case match deterministically falls back to the default case. Required deterministic checks are recorded as passing. -> state/artifacts/20260505T193935-mcp-tools-call-and-errors/evaluator.log
+- next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T193935-mcp-tools-call-and-errors/npm-run-test-e2e-grep-mcp-tools-call-next-server.log

@@ -4,54 +4,54 @@ Read the following repository documents before making changes:
 - docs/PRODUCT_SENSE.md
 - docs/RELIABILITY.md
 - docs/product-specs/mcp-json-rpc-runtime.md
-- docs/exec-plans/active/007-mcp-initialize-and-tools-list.md
+- docs/exec-plans/active/008-mcp-tools-call-and-errors.md
 
-Current task id: mcp-initialize-and-tools-list
-Current task title: MCP Initialize and Tools List No-Auth Runtime
+Current task id: mcp-tools-call-and-errors
+Current task title: MCP Tools Call and Error Semantics
 
 Objective:
-Implement no-auth MCP JSON-RPC initialization and tool discovery before adding tool execution.
+Implement no-auth MCP `tools/call` execution and JSON-RPC error semantics using the endpoint matcher.
 
 Clarity notes:
-- This is the first MCP runtime slice and should not attempt to finish all MCP behavior.
-- `/mcp` without Authorization and `/mcp/none` should share the no-auth path.
-- Tool listing should read enabled endpoints and generated input schemas from existing domain services.
-- Unsupported Streamable HTTP methods can be explicit MVP responses.
+- This task completes no-auth MCP tool execution after list/initialize already work.
+- MCP success and error envelopes are protocol contracts, not REST responses.
+- Endpoint matching should remain shared with REST later.
+- This task can include unknown method behavior because it belongs to protocol error semantics.
 
 Expected result:
-- MCP clients can call `initialize` and receive server info/capabilities.
-- MCP clients can send `notifications/initialized` and receive the expected no-body/accepted behavior.
-- `tools/list` returns enabled endpoint tools for no-auth callers.
-- GET/DELETE unsupported behavior is deterministic if SSE/session support is absent.
+- `tools/call` executes exact-match endpoint response cases.
+- Successful MCP responses include text content and structuredContent when appropriate.
+- Unknown method, invalid params, unknown tool, no-match, and endpoint disabled behavior are deterministic.
+- E2E coverage proves a configured tool can be called through `/mcp/none`.
 
 Objections / risks to avoid:
-- Do not implement `tools/call` in this task.
-- Do not add Basic/OAuth auth handling beyond preserving no-auth behavior.
-- Do not handcraft schemas instead of using endpoint domain schema generation.
-- Do not claim SSE support if it is not implemented.
+- Do not duplicate response-case matching logic inside MCP handlers.
+- Do not return REST-style error bodies from JSON-RPC routes.
+- Do not add Basic/OAuth authorization here.
+- Do not implement failure simulation modes beyond existing domain outcomes unless already available.
 
 Scope:
-- Implement POST handling for `initialize`, `notifications/initialized`, and `tools/list` on `/mcp` and `/mcp/none`.
-- Return JSON-RPC compliant responses and HTTP statuses for these methods.
-- Expose enabled endpoint names/descriptions/input schemas in tool listings.
-- Add unit and E2E coverage tagged `@mcp-initialize-list`.
+- Implement `tools/call` for no-auth MCP routes.
+- Map matcher outcomes to MCP success, tool execution error, or JSON-RPC protocol error as documented.
+- Add unit tests for response conversion and error mapping.
+- Add E2E coverage tagged `@mcp-tools-call` for success and negative cases.
 
 Out of scope:
-- `tools/call` execution.
-- Unknown tool/call errors.
-- Basic Auth and OAuth routes.
-- SSE streaming/session management.
+- Auth-specific MCP aliases.
+- REST routes.
+- OAuth permission denial.
+- Failure simulation runtime not already represented by matcher outcomes.
 
 Exit criteria:
-1. `initialize` response matches documented protocol version/serverInfo/capability decisions.
-2. `notifications/initialized` returns accepted/no-body behavior.
-3. `tools/list` reflects enabled endpoints and hides disabled ones.
-4. `@mcp-initialize-list` passes.
+1. Configured endpoint calls return expected MCP content.
+2. Unknown tool uses JSON-RPC `-32602` or documented chosen behavior.
+3. Unsupported methods return `-32601`.
+4. No-match behavior is deterministic and tested.
 5. All required checks pass.
 
 Required checks:
 - npm run test:unit
-- npm run test:e2e -- --grep @mcp-initialize-list
+- npm run test:e2e -- --grep @mcp-tools-call
 - npm run verify
 
 Evaluator notes:
@@ -65,7 +65,7 @@ Required repository artifacts for this task:
 
 Required commands for this task:
 - npm run test:unit
-- npm run test:e2e -- --grep @mcp-initialize-list
+- npm run test:e2e -- --grep @mcp-tools-call
 - npm run verify
 
 Previous known gaps from the last evaluation:

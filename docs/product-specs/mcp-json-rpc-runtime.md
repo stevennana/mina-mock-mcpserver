@@ -20,6 +20,9 @@ MCP connection guide examples
 - `serverInfo` is `name: "mina-mock-mcpserver"` and `version: "1.0.0"`.
 - `notifications/initialized` is accepted as a JSON-RPC notification with HTTP `202` and no response body.
 - `tools/list` returns enabled endpoint tools only, with each tool's name, description, and generated endpoint-domain `inputSchema`.
+- `tools/call` on `/mcp` without credentials and `/mcp/none` executes enabled endpoints by name through the shared endpoint matcher. Exact response cases return MCP tool results with text content, and JSON-object responses also return `structuredContent`.
+- If no exact response case matches the supplied arguments, the configured default response case is returned. Unknown tools, disabled tools, malformed `tools/call` params, and endpoint argument validation failures return JSON-RPC `-32602` envelopes with HTTP `200`.
+- Unsupported JSON-RPC methods return `-32601` with HTTP `200`.
 - `GET` and `DELETE` on the MVP MCP endpoints return deterministic `405 Method Not Allowed` responses with `Allow: POST`.
 
 ## Validation

@@ -81,3 +81,95 @@ test("MCP tools/list returns loaded tools without executing them", async () => {
     result: { tools },
   });
 });
+
+test("MCP tools/call converts endpoint success to content and structuredContent", async () => {
+  const result = await handleMcpJsonRpcMessage(
+    {
+      jsonrpc: "2.0",
+      id: "call-1",
+      method: "tools/call",
+      params: {
+        name: "echo",
+        arguments: { message: "hello" },
+      },
+    },
+    async () => tools,
+    async () => ({
+      kind: "matched",
+      matchedCase: { id: "case_hello", name: "hello-world", isDefault: false },
+      body: { ok: true, message: "world" },
+      statusCode: 200,
+      delayMs: 0,
+    }),
+  );
+
+  assert.equal(result.kind, "json");
+  if (result.kind !== "json") return;
+  assert.deepEqual(result.body, {
+    jsonrpc: "2.0",
+    id: "call-1",
+    result: {
+      content: [{ type: "text", text: '{"ok":true,"message":"world"}' }],
+      structuredContent: { ok: true, message: "world" },
+    },
+  });
+});
+
+test("MCP tools/call maps unknown tools and invalid params to JSON-RPC invalid params", async () => {
+  const unknownTool = await handleMcpJsonRpcMessage(
+    {
+      jsonrpc: "2.0",
+      id: "call-missing",
+      method: "tools/call",
+      params: { name: "missing", arguments: {} },
+    },
+    async () => tools,
+    async () => ({ kind: "not_found" }),
+  );
+
+  assert.equal(unknownTool.kind, "json");
+  if (unknownTool.kind !== "json") return;
+  assert.deepEqual(unknownTool.body, {
+    jsonrpc: "2.0",
+    id: "call-missing",
+    error: { code: -32602, message: "Unknown tool" },
+  });
+
+  const invalidParams = await handleMcpJsonRpcMessage(
+    {
+      jsonrpc: "2.0",
+      id: "call-invalid",
+      method: "tools/call",
+      params: { name: "echo", arguments: [] },
+    },
+    async () => tools,
+    async () => ({ kind: "not_found" }),
+  );
+
+  assert.equal(invalidParams.kind, "json");
+  if (invalidParams.kind !== "json") return;
+  assert.deepEqual(invalidParams.body, {
+    jsonrpc: "2.0",
+    id: "call-invalid",
+    error: { code: -32602, message: "Invalid params" },
+  });
+});
+
+test("MCP unknown methods return JSON-RPC method not found", async () => {
+  const result = await handleMcpJsonRpcMessage(
+    {
+      jsonrpc: "2.0",
+      id: "unknown-1",
+      method: "tools/unknown",
+    },
+    async () => tools,
+  );
+
+  assert.equal(result.kind, "json");
+  if (result.kind !== "json") return;
+  assert.deepEqual(result.body, {
+    jsonrpc: "2.0",
+    id: "unknown-1",
+    error: { code: -32601, message: "Method not found" },
+  });
+});

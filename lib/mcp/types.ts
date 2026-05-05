@@ -1,4 +1,4 @@
-import type { EndpointMcpTool } from "@/lib/endpoints/types";
+import type { EndpointMcpTool, JsonValue } from "@/lib/endpoints/types";
 
 export const MCP_SERVER_INFO = {
   name: "mina-mock-mcpserver",
@@ -29,11 +29,20 @@ export type McpInitializeResult = {
   serverInfo: typeof MCP_SERVER_INFO;
 };
 
+export type McpToolCallResult = {
+  content: Array<{
+    type: "text";
+    text: string;
+  }>;
+  structuredContent?: Record<string, JsonValue>;
+  isError?: true;
+};
+
 export type McpJsonRpcResponse =
   | {
       jsonrpc: "2.0";
       id: McpJsonRpcId;
-      result: McpInitializeResult | { tools: McpTool[] };
+      result: McpInitializeResult | { tools: McpTool[] } | McpToolCallResult;
     }
   | {
       jsonrpc: "2.0";

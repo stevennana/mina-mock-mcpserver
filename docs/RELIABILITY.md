@@ -25,6 +25,7 @@ If the app depends on persistent runtime state, document how runtime preparation
 - `/mcp` without credentials and `/mcp/none` must share the same no-auth MCP adapter so client examples do not drift.
 - The first runtime slice is stateless: `initialize` does not create an MCP session, `notifications/initialized` returns `202` with no body, and unsupported SSE/session methods return `405` with `Allow: POST`.
 - `tools/list` must read enabled endpoints from the endpoint domain service and use the shared generated MCP input schema helper; disabled endpoints must remain hidden.
+- `tools/call` in no-auth mode must call the shared endpoint matcher by endpoint name. Unknown or disabled tools and argument validation failures return JSON-RPC `-32602`; unsupported JSON-RPC methods return `-32601`; no exact response-case match falls back to the configured default case.
 
 ## Operator Logging
 Document how `npm run start:logged` writes operator-visible server logs into `logs/`, which environment variable controls the log level, and which levels are supported for manual debugging.

@@ -2,10 +2,12 @@ import { randomUUID } from "node:crypto";
 import type { Prisma, PrismaClient } from "@prisma/client";
 import { recordAuditEvent } from "@/lib/audit/service";
 import { createPrismaClient } from "@/lib/db/client";
+import { executeEndpointDetail } from "@/lib/endpoints/runtime";
 import { generateMcpInputSchema } from "@/lib/endpoints/schema";
 import { EndpointDeleteAuthorizationError, EndpointNotFoundError } from "@/lib/endpoints/types";
 import { validateEndpointInput } from "@/lib/endpoints/validation";
 import { verifyRootPassword } from "@/lib/security/root-password";
+import type { EndpointCallResult } from "@/lib/endpoints/runtime";
 import type {
   EndpointDeleteInput,
   EndpointDetail,
@@ -117,6 +119,15 @@ export async function listEnabledMcpTools(client: PrismaClient = createPrismaCli
 export async function getEndpoint(id: string, client: PrismaClient = createPrismaClient()) {
   const endpoint = await client.endpoint.findUnique({ where: { id }, include: endpointInclude });
   return endpoint ? toDetail(endpoint) : null;
+}
+
+export async function callEndpointByName(
+  name: string,
+  rawArguments: unknown,
+  client: PrismaClient = createPrismaClient(),
+): Promise<EndpointCallResult> {
+  const endpoint = await client.endpoint.findUnique({ where: { name }, include: endpointInclude });
+  return executeEndpointDetail(endpoint ? toDetail(endpoint) : null, rawArguments);
 }
 
 export async function createEndpoint(input: EndpointInput, client: PrismaClient = createPrismaClient()) {

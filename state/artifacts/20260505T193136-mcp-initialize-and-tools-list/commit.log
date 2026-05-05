@@ -1,0 +1,17 @@
+[main 19eeca1] ralph: mcp-initialize-and-tools-list 2026-05-05T19:39:05+09:00
+ 33 files changed, 2368 insertions(+), 142 deletions(-)
+ create mode 100644 app/mcp/none/route.ts
+ create mode 100644 app/mcp/route.ts
+ rename docs/exec-plans/{active => completed}/006-root-reset-defaults.md (95%)
+ create mode 100644 lib/mcp/http.ts
+ create mode 100644 lib/mcp/protocol.ts
+ create mode 100644 lib/mcp/types.ts
+ create mode 100644 state/artifacts/20260505T192021-root-reset-defaults/backlog.log
+ create mode 100644 state/artifacts/20260505T192021-root-reset-defaults/promote.log
+ create mode 100644 state/artifacts/20260505T193136-mcp-initialize-and-tools-list/commit.log
+ create mode 100644 state/artifacts/20260505T193136-mcp-initialize-and-tools-list/evaluator.log
+ create mode 100644 state/artifacts/20260505T193136-mcp-initialize-and-tools-list/task-prompt.log
+ create mode 100644 state/artifacts/20260505T193136-mcp-initialize-and-tools-list/worker.jsonl
+ create mode 100644 tests/e2e/mcp-initialize-list.spec.ts
+ create mode 100644 tests/unit/mcp-protocol.test.ts
+commit: created

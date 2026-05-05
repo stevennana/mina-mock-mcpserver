@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { listEnabledMcpTools } from "@/lib/endpoints/service";
+import { callEndpointByName, listEnabledMcpTools } from "@/lib/endpoints/service";
 import { handleMcpJsonRpcMessage } from "@/lib/mcp/protocol";
 
 export const dynamic = "force-dynamic";
@@ -19,7 +19,7 @@ export async function handleNoAuthMcpPost(request: Request) {
     );
   }
 
-  const result = await handleMcpJsonRpcMessage(body, listEnabledMcpTools);
+  const result = await handleMcpJsonRpcMessage(body, listEnabledMcpTools, callEndpointByName);
   if (result.kind === "accepted") {
     return new Response(null, { status: 202 });
   }
