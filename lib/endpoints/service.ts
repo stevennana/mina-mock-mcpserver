@@ -11,6 +11,7 @@ import type {
   EndpointDetail,
   EndpointInput,
   EndpointListResult,
+  EndpointMcpTool,
   EndpointSummary,
 } from "@/lib/endpoints/types";
 
@@ -88,6 +89,29 @@ export async function listEndpoints(client: PrismaClient = createPrismaClient())
     disabled: summaries.filter((endpoint) => !endpoint.enabled).length,
     endpoints: summaries,
   };
+}
+
+export async function listEnabledMcpTools(client: PrismaClient = createPrismaClient()): Promise<EndpointMcpTool[]> {
+  const endpoints = await client.endpoint.findMany({
+    where: { enabled: true },
+    include: { parameters: { orderBy: { position: "asc" } } },
+    orderBy: [{ name: "asc" }],
+  });
+
+  return endpoints.map((endpoint) => ({
+    name: endpoint.name,
+    description: endpoint.description || endpoint.title,
+    inputSchema: generateMcpInputSchema({
+      parameters: endpoint.parameters.map((parameter) => ({
+        name: parameter.name,
+        label: parameter.label ?? "",
+        description: parameter.description ?? "",
+        type: parameter.type as EndpointDetail["parameters"][number]["type"],
+        required: parameter.required,
+        defaultValueJson: parameter.defaultValueJson,
+      })),
+    }),
+  }));
 }
 
 export async function getEndpoint(id: string, client: PrismaClient = createPrismaClient()) {

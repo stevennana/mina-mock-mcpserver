@@ -21,6 +21,11 @@ Define the reliability expectations and failure-handling rules for MCP Mock Serv
 ## Runtime Startup Contract
 If the app depends on persistent runtime state, document how runtime preparation happens and how a production-style startup smoke proves the `start` path actually works.
 
+## MCP No-Auth Runtime
+- `/mcp` without credentials and `/mcp/none` must share the same no-auth MCP adapter so client examples do not drift.
+- The first runtime slice is stateless: `initialize` does not create an MCP session, `notifications/initialized` returns `202` with no body, and unsupported SSE/session methods return `405` with `Allow: POST`.
+- `tools/list` must read enabled endpoints from the endpoint domain service and use the shared generated MCP input schema helper; disabled endpoints must remain hidden.
+
 ## Operator Logging
 Document how `npm run start:logged` writes operator-visible server logs into `logs/`, which environment variable controls the log level, and which levels are supported for manual debugging.
 Generated server code should expose at least `trace`, `debug`, `info`, `warn`, and `error` logging without dumping secrets or full sensitive payloads by default.

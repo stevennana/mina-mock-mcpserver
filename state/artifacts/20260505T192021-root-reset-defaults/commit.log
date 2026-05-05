@@ -1,0 +1,18 @@
+[main 498dae8] ralph: root-reset-defaults 2026-05-05T19:31:06+09:00
+ 39 files changed, 3243 insertions(+), 123 deletions(-)
+ create mode 100644 app/api/reset/route.ts
+ create mode 100644 app/reset/page.tsx
+ create mode 100644 app/reset/reset-form.tsx
+ rename docs/exec-plans/{active => completed}/005-endpoint-protected-delete-audit.md (95%)
+ create mode 100644 lib/db/seed.ts
+ create mode 100644 lib/reset/service.ts
+ create mode 100644 lib/reset/types.ts
+ create mode 100644 state/artifacts/20260505T191001-endpoint-protected-delete-audit/backlog.log
+ create mode 100644 state/artifacts/20260505T191001-endpoint-protected-delete-audit/promote.log
+ create mode 100644 state/artifacts/20260505T192021-root-reset-defaults/commit.log
+ create mode 100644 state/artifacts/20260505T192021-root-reset-defaults/evaluator.log
+ create mode 100644 state/artifacts/20260505T192021-root-reset-defaults/task-prompt.log
+ create mode 100644 state/artifacts/20260505T192021-root-reset-defaults/worker.jsonl
+ create mode 100644 tests/e2e/root-reset.spec.ts
+ create mode 100644 tests/unit/reset-service.test.ts
+commit: created

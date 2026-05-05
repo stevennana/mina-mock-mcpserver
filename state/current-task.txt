@@ -1,1 +1,1 @@
-root-reset-defaults
+mcp-initialize-and-tools-list

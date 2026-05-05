@@ -90,6 +90,12 @@ export type EndpointListResult = {
   endpoints: EndpointSummary[];
 };
 
+export type EndpointMcpTool = {
+  name: string;
+  description: string;
+  inputSchema: McpInputSchema;
+};
+
 export type EndpointDeleteInput = {
   deleteCode?: string | null;
   rootPassword?: string | null;

@@ -1,0 +1,1584 @@
+/Users/stevenna/WebstormProjects/mina-mock-mcpserver/scripts/ralph/generated/current-evaluator-prompt.txt
+OpenAI Codex v0.128.0 (research preview)
+--------
+workdir: /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 019df7b7-2c59-7c12-87e1-87cb7a860483
+--------
+user
+You are the promotion evaluator for a repository-local Ralph loop.
+
+Read these documents before deciding:
+- AGENTS.md
+- ARCHITECTURE.md
+- docs/PRODUCT_SENSE.md
+- docs/RELIABILITY.md
+- docs/product-specs/mcp-json-rpc-runtime.md
+- docs/exec-plans/active/007-mcp-initialize-and-tools-list.md
+
+Current task id: mcp-initialize-and-tools-list
+Current task title: MCP Initialize and Tools List No-Auth Runtime
+
+Objective:
+Implement no-auth MCP JSON-RPC initialization and tool discovery before adding tool execution.
+
+Scope:
+- Implement POST handling for `initialize`, `notifications/initialized`, and `tools/list` on `/mcp` and `/mcp/none`.
+- Return JSON-RPC compliant responses and HTTP statuses for these methods.
+- Expose enabled endpoint names/descriptions/input schemas in tool listings.
+- Add unit and E2E coverage tagged `@mcp-initialize-list`.
+
+Out of scope:
+- `tools/call` execution.
+- Unknown tool/call errors.
+- Basic Auth and OAuth routes.
+- SSE streaming/session management.
+
+Exit criteria:
+1. `initialize` response matches documented protocol version/serverInfo/capability decisions.
+2. `notifications/initialized` returns accepted/no-body behavior.
+3. `tools/list` reflects enabled endpoints and hides disabled ones.
+4. `@mcp-initialize-list` passes.
+5. All required checks pass.
+
+Evaluator notes:
+Required commands are mandatory promotion gates, not suggestions.
+Do not promote if any required check fails.
+Do not accept broad feature work outside this task.
+Confirm that this task maps to the primary product spec `mcp-json-rpc-runtime.md` or is explicitly final hardening.
+
+Deterministic check summary:
+{
+  "checked_at": "2026-05-05T10:37:49.890Z",
+  "task_id": "mcp-initialize-and-tools-list",
+  "commands": [
+    {
+      "command": "npm run test:unit",
+      "ok": true,
+      "output": "\n> mina-mock-mcpserver@1.0.0 test:unit\n> node --import tsx --test \"tests/unit/**/*.test.ts\"\n\n✔ normalizeLogLevel accepts supported operator log levels (0.353458ms)\n✔ normalizeLogLevel defaults invalid input to info (0.058666ms)\n✔ getBootstrapStatus reports prepared foundation state (0.053334ms)\n✔ db:prepare is repeatable and keeps endpoint seed rows singular (2984.748208ms)\n✔ endpoint validation accepts the MVP editor field set (0.630916ms)\n✔ endpoint validation returns field-level errors for UI rendering (0.354292ms)\n✔ MCP input schema generation reflects endpoint parameters (0.39125ms)\n✔ MCP initialize returns explicit no-auth MVP capabilities (1.129334ms)\n✔ MCP initialized notification is accepted without a JSON-RPC body (0.098667ms)\n✔ MCP tools/list returns loaded tools without executing them (0.081375ms)\n✔ Ralph promotion resolves ordered successor filenames by taskmeta id (46.081375ms)\n✔ reset requires confirmation and leaves endpoint state untouched on failure (875.62875ms)\n✔ reset clears mutable endpoint data and recreates current seed defaults (601.59125ms)\nℹ tests 13\nℹ suites 0\nℹ pass 13\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 3155.840916\n"
+    },
+    {
+      "command": "npm run test:e2e -- --grep @mcp-initialize-list",
+      "ok": true,
+      "output": "\n> mina-mock-mcpserver@1.0.0 test:e2e\n> playwright test --grep @mcp-initialize-list\n\n\nRunning 1 test using 1 worker\n\n  ✓  1 [chromium] › tests/e2e/mcp-initialize-list.spec.ts:3:5 › no-auth MCP initialize, initialized notification, and tools/list use enabled endpoint schemas @mcp-initialize-list (551ms)\n\n  1 passed (4.6s)\n",
+      "preflight": {
+        "command": "ensure-e2e-port-free.sh 3100",
+        "error": "",
+        "ok": true,
+        "output": "port-cleanup: 127.0.0.1:3100 already free\n"
+      },
+      "next_server_log_path": "/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T193136-mcp-initialize-and-tools-list/npm-run-test-e2e-grep-mcp-initialize-list-next-server.log"
+    },
+    {
+      "command": "npm run verify",
+      "ok": true,
+      "output": "\n> mina-mock-mcpserver@1.0.0 verify\n> npm run lint && npm run typecheck && npm run build && npm run test:unit && npm run test:e2e && npm run start:smoke\n\n\n> mina-mock-mcpserver@1.0.0 lint\n> eslint .\n\n\n> mina-mock-mcpserver@1.0.0 typecheck\n> tsc --noEmit\n\n\n> mina-mock-mcpserver@1.0.0 build\n> next build\n\n   ▲ Next.js 15.5.15\n\n   Creating an optimized production build ...\n ✓ Compiled successfully in 822ms\n   Linting and checking validity of types ...\n   Collecting page data ...\n   Generating static pages (0/11) ...\n   Generating static pages (2/11) \r\n   Generating static pages (5/11) \r\n   Generating static pages (8/11) \r\n ✓ Generating static pages (11/11)\n   Finalizing page optimization ...\n   Collecting build traces ...\n\nRoute (app)                                 Size  First Load JS\n┌ ○ /                                      164 B         106 kB\n├ ○ /_not-found                            999 B         103 kB\n├ ƒ /api/audit                             140 B         102 kB\n├ ƒ /api/endpoints                         140 B         102 kB\n├ ƒ /api/endpoints/[id]                    140 B         102 kB\n├ ƒ /api/health                            140 B         102 kB\n├ ƒ /api/reset                             140 B         102 kB\n├ ○ /audit                                 164 B         106 kB\n├ ○ /endpoints                           4.97 kB         110 kB\n├ ƒ /mcp                                   140 B         102 kB\n├ ƒ /mcp/none                              140 B         102 kB\n└ ○ /reset                               1.02 kB         107 kB\n+ First Load JS shared by all             102 kB\n  ├ chunks/255-4f212684648fcab9.js         46 kB\n  ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB\n  └ other shared chunks (total)          1.89 kB\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n\n\n> mina-mock-mcpserver@1.0.0 test:unit\n> node --import tsx --test \"tests/unit/**/*.test.ts\"\n\n✔ normalizeLogLevel accepts supported operator log levels (0.354625ms)\n✔ normalizeLogLevel defaults invalid input to info (0.059041ms)\n✔ getBootstrapStatus reports prepared foundation state (0.053083ms)\n✔ db:prepare is repeatable and keeps endpoint seed rows singular (2880.056333ms)\n✔ endpoint validation accepts the MVP editor field set (0.642875ms)\n✔ endpoint validation returns field-level errors for UI rendering (0.361875ms)\n✔ MCP input schema generation reflects endpoint parameters (0.728417ms)\n✔ MCP initialize returns explicit no-auth MVP capabilities (0.755875ms)\n✔ MCP initialized notification is accepted without a JSON-RPC body (0.075166ms)\n✔ MCP tools/list returns loaded tools without executing them (0.072709ms)\n✔ Ralph promotion resolves ordered successor filenames by taskmeta id (41.224709ms)\n✔ reset requires confirmation and leaves endpoint state untouched on failure (690.774417ms)\n✔ reset clears mutable endpoint data and recreates current seed defaults (600.599ms)\nℹ tests 13\nℹ suites 0\nℹ pass 13\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 3040.508084\n\n> mina-mock-mcpserver@1.0.0 test:e2e\n> playwright test\n\n\nRunning 7 tests using 1 worker\n\n  ✓  1 [chromium] › tests/e2e/bootstrap.spec.ts:3:5 › foundation dashboard renders planned MCP mock server surfaces (494ms)\n  ✓  2 [chromium] › tests/e2e/bootstrap.spec.ts:11:5 › health endpoint reports ok status (206ms)\n  ✓  3 [chromium] › tests/e2e/endpoint-console.spec.ts:5:5 › endpoint schema preview and console shell stay stable on desktop and mobile @ui-endpoint-console (962ms)\n  ✓  4 [chromium] › tests/e2e/endpoint-delete-audit.spec.ts:17:5 › endpoint delete requires confirmation and writes non-secret audit evidence @endpoint-delete-audit (3.3s)\n  ✓  5 [chromium] › tests/e2e/endpoint-editor.spec.ts:5:5 › endpoint editor supports persisted create, edit, search, screenshots, and responsive checks @ui-endpoint-editor (1.4s)\n  ✓  6 [chromium] › tests/e2e/mcp-initialize-list.spec.ts:3:5 › no-auth MCP initialize, initialized notification, and tools/list use enabled endpoint schemas @mcp-initialize-list (272ms)\n  ✓  7 [chromium] › tests/e2e/root-reset.spec.ts:16:5 › root reset requires password and restores deterministic endpoint defaults @root-reset (3.1s)\n\n  7 passed (13.6s)\n\n> mina-mock-mcpserver@1.0.0 start:smoke\n> node scripts/start-smoke.mjs\n\n\n> mina-mock-mcpserver@1.0.0 db:prepare\n> node scripts/db-prepare.mjs\n\nDatasource \"db\": SQLite database \"runtime.sqlite\" at \"file:./data/runtime.sqlite\"\n\n3 migrations found in prisma/migrations\n\n\nNo pending migrations to apply.\n\n✔ Generated Prisma Client (v7.8.0) to ./node_modules/@prisma/client in 45ms\n\nStart by importing your Prisma Client (See: https://pris.ly/d/importing-client)\n\n\nPrepared SQLite runtime state with Prisma migrations and endpoint seed defaults.\n\n> mina-mock-mcpserver@1.0.0 build\n> next build\n\n   ▲ Next.js 15.5.15\n\n   Creating an optimized production build ...\n ✓ Compiled successfully in 826ms\n   Linting and checking validity of types ...\n   Collecting page data ...\n   Generating static pages (0/11) ...\n   Generating static pages (2/11) \r\n   Generating static pages (5/11) \r\n   Generating static pages (8/11) \r\n ✓ Generating static pages (11/11)\n   Finalizing page optimization ...\n   Collecting build traces ...\n\nRoute (app)                                 Size  First Load JS\n┌ ○ /                                      164 B         106 kB\n├ ○ /_not-found                            999 B         103 kB\n├ ƒ /api/audit                             140 B         102 kB\n├ ƒ /api/endpoints                         140 B         102 kB\n├ ƒ /api/endpoints/[id]                    140 B         102 kB\n├ ƒ /api/health                            140 B         102 kB\n├ ƒ /api/reset                             140 B         102 kB\n├ ○ /audit                                 164 B         106 kB\n├ ○ /endpoints                           4.97 kB         110 kB\n├ ƒ /mcp                                   140 B         102 kB\n├ ƒ /mcp/none                              140 B         102 kB\n└ ○ /reset                               1.02 kB         107 kB\n+ First Load JS shared by all             102 kB\n  ├ chunks/255-4f212684648fcab9.js         46 kB\n  ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB\n  └ other shared chunks (total)          1.89 kB\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n\n   ▲ Next.js 15.5.15\n   - Local:        http://localhost:3100\n   - Network:      http://192.168.100.125:3100\n\n ✓ Starting...\n ✓ Ready in 260ms\nProduction-style startup smoke passed at http://127.0.0.1:3100/api/health\n",
+      "preflight": {
+        "command": "ensure-e2e-port-free.sh 3100",
+        "error": "",
+        "ok": true,
+        "output": "port-cleanup: 127.0.0.1:3100 already free\n"
+      },
+      "next_server_log_path": "/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T193136-mcp-initialize-and-tools-list/npm-run-verify-next-server.log"
+    }
+  ],
+  "missing_files": [],
+  "pass": true
+}
+
+Worker handoff summary from the last run:
+Implemented `mcp-initialize-and-tools-list`.
+
+Added stateless no-auth MCP handlers for `/mcp` and `/mcp/none`, covering `initialize`, `notifications/initialized`, and `tools/list`. Tool listing now reads enabled endpoints through the endpoint domain service and uses the shared generated MCP `inputSchema`; disabled endpoints are hidden. GET/DELETE return deterministic `405` with `Allow: POST`.
+
+Updated docs and the task progress log, and wrote the operator handoff to `state/last-result.txt`.
+
+Checks passed:
+- `npm run test:unit`
+- `npm run test:e2e -- --grep @mcp-initialize-list`
+- `npm run verify`
+
+Reference used for unsupported Streamable HTTP GET/DELETE behavior: official MCP transport spec, https://modelcontextprotocol.io/specification/2025-06-18/basic/transports.
+
+Your job:
+- inspect the repository and current implementation
+- determine whether the current task is actually complete
+- mark `done` only if the exit criteria are satisfied in substance, not just approximately
+- prefer conservative decisions
+- recommend promotion only if the task is truly ready
+
+Return JSON only using the provided schema.
+
+codex
+{"decision":"not_done","recommend_promotion":false,"confidence":0,"summary":"Starting evaluation by reading the required repository docs and then checking the implementation/tests against the task contract.","satisfied_exit_criteria":[],"missing_requirements":[],"human_review_triggers":[]}
+codex
+{"decision":"not_done","recommend_promotion":false,"confidence":0,"summary":"I’m going to read the required docs first, then inspect the MCP route/runtime code and the tagged tests against the exit criteria.","satisfied_exit_criteria":[],"missing_requirements":[],"human_review_triggers":[]}
+exec
+/bin/zsh -lc "sed -n '1,260p' ARCHITECTURE.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+exec
+/bin/zsh -lc "sed -n '1,220p' AGENTS.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# ARCHITECTURE.md
+
+## Goal
+Build MCP Mock Server as an agent-legible codebase with strong boundaries, a short instruction surface, and enough extension seams to support future change without overbuilding v1.
+
+## System Overview
+MCP Mock Server is a web application with:
+- a public Next.js UI served on port 3000
+- server-side route handlers for admin APIs, MCP, REST, OAuth, and discovery metadata
+- SQLite persistence prepared by npm run db:prepare
+- operator logs under logs/ with LOG_LEVEL selection
+- Ralph scripts under scripts/ralph/ driving active task promotion
+
+## Architectural Priorities
+- isolate MCP protocol formatting from endpoint matching and auth decisions
+- keep auth mode resolution explicit and fail closed for invalid Basic/Bearer headers
+- store immutable endpoint IDs and treat names as external labels
+- make seeded built-in users/clients impossible to delete or disable through normal flows
+- prove persistence and production-style startup with deterministic commands
+
+## Layered Domain Model
+Use a strict forward-only dependency shape inside each domain:
+
+`Types -> Config -> Repo -> Service -> Runtime -> UI`
+
+### Why this matters
+The repository is intended to work well with long-running agent loops. Strict boundaries reduce accidental coupling and make failure analysis easier.
+
+## Primary Domains
+| Domain | Responsibility |
+|---|---|
+| Endpoint catalog | Endpoint CRUD, parameters, response cases, delete code, enabled state |
+| Matcher/runtime | Argument normalization, exact match, default/no-match, delay/error/malformed behavior |
+| MCP protocol | JSON-RPC request handling, initialize, tools/list, tools/call, MCP errors |
+| REST API | Tool list/call responses and REST error mapping |
+| Basic auth | Basic users, password hashing, built-in default protection, 401 behavior |
+| OAuth | Users, clients, codes, JWTs, permissions, revocation, discovery metadata |
+| Admin UI | Dashboards, editors, console, config, reset, audit screens |
+| Operations | SQLite prep, seed defaults, base URL, Docker/Nginx docs, logs, health |
+
+## Frontend / Backend Shape
+### Frontend
+- App Router screens should be dense, operational, and optimized for repeated testing
+- UI routes read and mutate through server-backed APIs, not local-only state
+- route-level loading and error states are required for public mutation surfaces
+- test console shows raw request, raw response, principal, matched case, and elapsed time
+- OAuth login and consent UI is separate from the admin navigation
+
+### Server
+- Next.js route handlers own HTTP surfaces for MVP
+- domain services own validation, matching, auth, token, and reset logic
+- repositories isolate Prisma access
+- protocol adapters convert domain outcomes into MCP JSON-RPC or REST responses
+- startup code prepares runtime state before production-style serving
+
+## Persistence Strategy
+- SQLite is the source of truth for endpoints, parameters, cases, users, clients, codes, tokens, audit events, and settings
+- Prisma migrations define the schema and db:prepare applies migrations plus idempotent seed defaults
+- built-in default/default Basic user, OAuth user, and OAuth client are recreated and protected
+- issued token records store jti and metadata; raw tokens are shown only at issuance unless explicitly configured
+- tests use isolated temporary databases or resettable seed state
+
+## Verification Shape
+- unit tests cover validators, matching, auth precedence, JWT claims, permissions, reset, and protocol formatting
+- Playwright proves browser-visible workflows and external-client-like OAuth/MCP/REST flows
+- start:smoke builds, prepares runtime state, starts the production server, probes health, and shuts down
+- verify runs lint, typecheck, build, unit, E2E, and startup smoke
+- failing required checks block Ralph promotion
+
+## Long-Running Agent Readiness
+- docs are the system of record
+- plans are executable, not aspirational
+- domain boundaries are explicit
+- repeated issues should be upgraded into tests or static checks
+
+ succeeded in 0ms:
+# AGENTS.md
+
+## Purpose
+MCP Mock Server is a public remote MCP mock server and web UI for testing no-auth, Basic Auth, and mock OAuth bearer tool calls.
+
+This repository is optimized for agent-legible development and a Ralph-style task-promotion loop.
+
+## Read Order
+Before changing code or plans, read these files in order:
+
+1. `ARCHITECTURE.md`
+2. `docs/PRODUCT_SENSE.md`
+3. `docs/design-docs/core-beliefs.md`
+4. `docs/product-specs/index.md`
+5. `docs/FRONTEND.md`
+6. `docs/PLANS.md`
+7. active plans in `docs/exec-plans/active/`
+
+## Scope Guardrails
+### In scope for v1
+- Next.js App Router web gateway and route handlers
+- TypeScript domain/services with Prisma SQLite persistence
+- endpoint/tool management with up to three parameters and exact-match response cases
+- no-auth, Basic, and OAuth bearer MCP/REST runtime paths
+- OAuth user/client/token administration, authorization code flow, client credentials flow, discovery metadata, and JWKS
+- failure simulation, audit log, server config, reset, logging, Docker/Nginx guidance, and Ralph harness
+
+### Explicitly out of scope for v1
+- production-grade identity management
+- external OAuth provider integration
+- true multi-tenant isolation
+- enterprise RBAC for the public admin UI
+- handling sensitive customer data
+- full MCP resources, prompts, sampling, elicitation, or task-augmented execution in MVP
+- replacing a real authorization server
+
+## Product Shape
+- public admin UI for mock endpoint, auth, token, config, reset, and audit management
+- MCP Streamable HTTP-style JSON-RPC endpoints at /mcp and strict auth aliases
+- REST tool list/call API for curl and Postman style testing
+- mock OAuth authorization server with login, consent, token, revocation, and discovery metadata
+- SQLite-backed persistence with deterministic seed defaults
+
+## Technical Shape
+- Next.js App Router and TypeScript with npm scripts
+- Prisma plus SQLite for migrations, seed defaults, and persistent runtime state
+- layered domain shape: types, config, repo, service, runtime, UI
+- Playwright for E2E and UI verification, node --import tsx --test for unit tests
+- logs/ plus LOG_LEVEL and start:logged for operator-visible server flow
+
+## Validation Strategy
+Use layered checks:
+- unit tests for domain rules
+- integration tests for repository/runtime boundaries where needed
+- small E2E coverage for the required user journeys only
+
+Promotion is blocked when required checks fail. Required test commands in active task contracts are hard gates, not suggestions.
+While iterating, prefer the smallest targeted check for the code you just changed. Use the full required command set before considering the task done.
+If a feature depends on an outside resource such as AI chat or another remote service, keep it in the required E2E flows before allowing promotion.
+If a task is mainly UI or UX work, require a dedicated `@ui-*` Playwright command with screenshot, responsive, and accessibility checks before allowing promotion.
+If `taskmeta.promotion_mode` is `deterministic_only`, passing the required commands is sufficient for promotion without human review.
+For manual server inspection, prefer `npm run start:logged` and set `LOG_LEVEL` intentionally instead of relying only on ephemeral terminal output.
+
+### Required E2E flows
+- endpoint create/edit/delete and console call flow
+- MCP initialize, tools/list, and tools/call in no-auth mode
+- Basic user creation and strict /mcp/basic success/failure
+- REST tools list/call across auth modes
+- OAuth browser consent, token exchange, allowed tool call, denied tool call, and revocation
+- failure simulation and audit evidence
+- config/health/reset/startup smoke
+
+## Documentation Discipline
+- If behavior changes, update the related spec or design doc in the same cycle.
+- Prefer small, executable plans over vague TODOs.
+- When a repeated mistake appears, first document it; if it keeps recurring, promote it into tests or lint rules.
+- Keep the documented test strategy current; do not leave promotion gates implied.
+- When adding or editing tests, explain what behavior the test protects if that intent would otherwise be easy to lose.
+
+## Search Discipline
+- Search the codebase before concluding that a thing is unimplemented.
+- Prefer multiple targeted searches over one broad assumption.
+- If you find a partial implementation, adapt or complete it instead of duplicating it blindly.
+
+## Optional Companion Skills
+- If the customer allows them and they are installed, consider relevant companion skills before planning or implementation.
+- Good candidates include database, Next.js pattern, UI design, responsive UI, and clean-architecture skills.
+
+## Done Definition
+A task is done only when its scoped behavior works in substance, docs and tests match the implementation, required deterministic commands pass, and promotion rules in taskmeta are satisfied.
+
+exec
+/bin/zsh -lc "sed -n '1,260p' docs/PRODUCT_SENSE.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# PRODUCT_SENSE.md
+
+## One-Line Product Definition
+MCP Mock Server is a public remote MCP mock server and web UI for testing no-auth, Basic Auth, and mock OAuth bearer tool calls.
+
+## Who It Is For
+### Primary user
+MCP client developers, AI agent developers, demo/QA users, and the server operator.
+
+## User Problem
+MCP client and AI-agent developers need a configurable remote server that behaves enough like a real MCP server to prove connection, auth, token, permission, and tool-call behavior before integrating with production systems.
+
+## Why This Product Exists
+Remote MCP adoption is moving auth, transport, and permission bugs into client integration work. A public mock server gives teams a repeatable target for manual testing, automated E2E checks, demos, and negative-path validation.
+
+## Product Principles
+- realistic MCP and OAuth behavior over decorative admin features
+- public-by-design administration with light destructive-operation protection
+- destructive endpoint deletion requires a delete code or root-password override and leaves non-secret audit evidence
+- deterministic mocks: exact-match cases, explicit defaults, and observable failures
+- endpoint permissions are visible, selectable, and enforced
+- operator recovery paths must be simple and root-password protected
+
+## Core Value in v1
+- create a mock endpoint once and exercise it through MCP and REST
+- inspect the generated MCP input schema and planned console evidence before runtime calls are wired
+- initialize no-auth MCP clients and list enabled tools before tool execution is wired
+- prove no-auth, Basic, and OAuth bearer client behavior against strict routes
+- issue mock OAuth tokens with endpoint-level permissions through browser consent or client credentials
+- simulate failure cases that clients often mishandle
+- persist configuration and provide root-password-protected reset/recovery for a public test service
+
+## Non-Goals for v1
+- production-grade identity management
+- external OAuth provider integration
+- true multi-tenant isolation
+- enterprise RBAC for the public admin UI
+- handling sensitive customer data
+- full MCP resources, prompts, sampling, elicitation, or task-augmented execution in MVP
+- replacing a real authorization server
+
+## v1 Success Signals
+- a new endpoint can be created and edited through the public endpoint UI, then listed through tools/list, called through tools/call, and called through REST
+- Basic default/default and additional users work on strict Basic routes while invalid credentials return 401
+- OAuth consent can select endpoints, exchange a code for a JWT, allow selected tools, deny unselected tools with 403, and return 401 after revocation
+- token and audit screens show enough evidence to debug a client test, including endpoint delete success/failure without stored secrets
+- SQLite state survives restart and root reset restores currently implemented built-in defaults
+- npm run verify and npm run start:smoke pass before task promotion
+
+## Product Risks
+- public UI can be abused or reset if root/delete-code handling is weak
+- OAuth semantics can drift into unrealistic behavior unless routes and E2E checks pin 401/403/token claims
+- MCP spec details may change, so the implementation must isolate protocol formatting
+- failure simulation can intentionally violate protocol behavior and needs visible warnings
+- persistent SQLite state can make tests flaky unless seeded and isolated deterministically
+
+codex
+{"decision":"not_done","recommend_promotion":false,"confidence":0,"summary":"The first docs align this task with the primary MCP protocol domain and explicitly make required checks blocking. I’m now checking the runtime spec, reliability notes, and active plan for exact response/status expectations.","satisfied_exit_criteria":[],"missing_requirements":[],"human_review_triggers":[]}
+exec
+/bin/zsh -lc "sed -n '1,260p' docs/RELIABILITY.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# RELIABILITY.md
+
+## Purpose
+Define the reliability expectations and failure-handling rules for MCP Mock Server.
+
+## Core Reliability Rules
+- seed defaults must be idempotent and protected from normal deletion
+- invalid auth fails closed and never falls back to anonymous access
+- reset must leave the service operational with default users/client/endpoints
+- current reset invariants cover endpoint data and current endpoint seed defaults; later Basic/OAuth slices must add their own reset extensions when those built-ins land
+- long delays and malformed responses are intentional per endpoint/case and must not corrupt other requests
+- worker stalls in Ralph are detected through worker.jsonl heartbeat evidence
+
+## Verification
+- npm run db:prepare applies schema and seed data
+- npm run start:smoke proves production-style startup and health response
+- E2E checks cover OAuth permission denial, revocation, and reset recovery
+- audit tests prove mutation evidence is written
+- Ralph status verifies current-task state and active queue consistency
+
+## Runtime Startup Contract
+If the app depends on persistent runtime state, document how runtime preparation happens and how a production-style startup smoke proves the `start` path actually works.
+
+## MCP No-Auth Runtime
+- `/mcp` without credentials and `/mcp/none` must share the same no-auth MCP adapter so client examples do not drift.
+- The first runtime slice is stateless: `initialize` does not create an MCP session, `notifications/initialized` returns `202` with no body, and unsupported SSE/session methods return `405` with `Allow: POST`.
+- `tools/list` must read enabled endpoints from the endpoint domain service and use the shared generated MCP input schema helper; disabled endpoints must remain hidden.
+
+## Operator Logging
+Document how `npm run start:logged` writes operator-visible server logs into `logs/`, which environment variable controls the log level, and which levels are supported for manual debugging.
+Generated server code should expose at least `trace`, `debug`, `info`, `warn`, and `error` logging without dumping secrets or full sensitive payloads by default.
+
+## Test Strategy
+Document which behaviors are protected by unit tests, which flows require end-to-end coverage, and which command failures block task promotion.
+When tests cover subtle or business-critical behavior, capture why those tests exist so future loops do not weaken them casually.
+If a user-visible behavior depends on an outside resource such as AI chat or a third-party service, require end-to-end coverage before promotion.
+If a task is mainly UI or UX work, require a dedicated `@ui-*` Playwright command with screenshot, responsive, and accessibility checks before promotion.
+UI tasks that fully prove quality through those deterministic checks may use `taskmeta.promotion_mode = deterministic_only` so promotion does not require human review.
+
+## Known Gaps
+- production hosting rate limits and abuse controls are outside MVP unless added later
+- SQLite backup/rotation policy is not yet defined
+- SSE streaming and MCP sessions are Phase 2
+- privacy policy for storing IP or IP hash in audit logs must be decided before public deployment
+
+## Environment-Specific Verification Blockers
+If the direct operator path passes but the current sandboxed or wrapped runner still fails, record that separately from normal product bugs and escalate it explicitly instead of hiding it inside generic “not done” wording.
+
+exec
+/bin/zsh -lc "sed -n '1,300p' docs/product-specs/mcp-json-rpc-runtime.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# MCP JSON-RPC Runtime
+
+## Goal
+Remote MCP routes implement initialize, initialized notification, tools/list, tools/call, strict auth aliases, and JSON-RPC error semantics.
+
+## Trigger / Entry
+MCP connection guide examples
+
+## User-Visible Behavior
+- MCP connection guide examples
+- Unified /mcp route
+- Strict /mcp/none, /mcp/basic, /mcp/oauth routes
+- Tool listing and calling
+
+## No-Auth Initialize and Tool Listing
+- `/mcp` without `Authorization` and `/mcp/none` share the no-auth runtime path.
+- The MVP server supports JSON-RPC over Streamable HTTP `POST`; it does not assign MCP sessions or expose SSE streams.
+- `initialize` returns protocol version `2025-06-18` when requested, otherwise the newest MVP-supported version from `2025-06-18` and `2025-03-26`.
+- `initialize` advertises only the `tools` capability with `listChanged: false`; resources, prompts, logging, sampling, and SSE/session capabilities are not claimed.
+- `serverInfo` is `name: "mina-mock-mcpserver"` and `version: "1.0.0"`.
+- `notifications/initialized` is accepted as a JSON-RPC notification with HTTP `202` and no response body.
+- `tools/list` returns enabled endpoint tools only, with each tool's name, description, and generated endpoint-domain `inputSchema`.
+- `GET` and `DELETE` on the MVP MCP endpoints return deterministic `405 Method Not Allowed` responses with `Allow: POST`.
+
+## Validation
+- JSON-RPC parsing/formatting
+- Unknown method/tool errors
+- Notification empty response
+- MCP content/structuredContent formatting
+- Call initialize, list tools, call a configured tool, and observe route-specific auth behavior
+
+exec
+/bin/zsh -lc "sed -n '1,320p' docs/exec-plans/active/007-mcp-initialize-and-tools-list.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# MCP Initialize and Tools List No-Auth Runtime
+
+```json taskmeta
+{
+  "id": "mcp-initialize-and-tools-list",
+  "title": "MCP Initialize and Tools List No-Auth Runtime",
+  "order": 7,
+  "status": "active",
+  "next_task_on_success": "mcp-tools-call-and-errors",
+  "prompt_docs": [
+    "AGENTS.md",
+    "ARCHITECTURE.md",
+    "docs/PRODUCT_SENSE.md",
+    "docs/RELIABILITY.md",
+    "docs/product-specs/mcp-json-rpc-runtime.md"
+  ],
+  "required_commands": [
+    "npm run test:unit",
+    "npm run test:e2e -- --grep @mcp-initialize-list",
+    "npm run verify"
+  ],
+  "required_files": [],
+  "human_review_triggers": [
+    "The task broadens into unrelated feature fronts.",
+    "Required checks do not prove the claimed behavior.",
+    "Implementation changes contradict the product spec or security/reliability docs."
+  ],
+  "promotion_mode": "deterministic"
+}
+```
+
+## Objective
+
+Implement no-auth MCP JSON-RPC initialization and tool discovery before adding tool execution.
+
+## Clarity notes
+
+- This is the first MCP runtime slice and should not attempt to finish all MCP behavior.
+- `/mcp` without Authorization and `/mcp/none` should share the no-auth path.
+- Tool listing should read enabled endpoints and generated input schemas from existing domain services.
+- Unsupported Streamable HTTP methods can be explicit MVP responses.
+
+## Expected result
+
+- MCP clients can call `initialize` and receive server info/capabilities.
+- MCP clients can send `notifications/initialized` and receive the expected no-body/accepted behavior.
+- `tools/list` returns enabled endpoint tools for no-auth callers.
+- GET/DELETE unsupported behavior is deterministic if SSE/session support is absent.
+
+## Objections / risks to avoid
+
+- Do not implement `tools/call` in this task.
+- Do not add Basic/OAuth auth handling beyond preserving no-auth behavior.
+- Do not handcraft schemas instead of using endpoint domain schema generation.
+- Do not claim SSE support if it is not implemented.
+
+## Scope
+
+- Implement POST handling for `initialize`, `notifications/initialized`, and `tools/list` on `/mcp` and `/mcp/none`.
+- Return JSON-RPC compliant responses and HTTP statuses for these methods.
+- Expose enabled endpoint names/descriptions/input schemas in tool listings.
+- Add unit and E2E coverage tagged `@mcp-initialize-list`.
+
+## Out of scope
+
+- `tools/call` execution.
+- Unknown tool/call errors.
+- Basic Auth and OAuth routes.
+- SSE streaming/session management.
+
+## Exit criteria
+
+1. `initialize` response matches documented protocol version/serverInfo/capability decisions.
+2. `notifications/initialized` returns accepted/no-body behavior.
+3. `tools/list` reflects enabled endpoints and hides disabled ones.
+4. `@mcp-initialize-list` passes.
+5. All required checks pass.
+
+## Required checks
+
+- npm run test:unit
+- npm run test:e2e -- --grep @mcp-initialize-list
+- npm run verify
+
+## Implementation notes
+
+- Keep JSON-RPC adapter code separate from domain services.
+
+## Docs to update
+
+- docs/PRODUCT_SENSE.md
+- docs/RELIABILITY.md
+
+## Evaluator notes
+
+Required commands are mandatory promotion gates, not suggestions.
+Do not promote if any required check fails.
+Do not accept broad feature work outside this task.
+Confirm that this task maps to the primary product spec `mcp-json-rpc-runtime.md` or is explicitly final hardening.
+
+## Progress log
+
+- Start here. Append timestamped progress notes as work lands.
+- Note when existing partial implementations were found and reused instead of replaced.
+- 2026-05-05T10:31:06.589Z: restored as current task after root-reset-defaults promotion.
+- 2026-05-05T10:33:14Z: found no existing MCP route implementation; reused the existing endpoint domain `generateMcpInputSchema` helper for tools/list rather than creating protocol-local schemas.
+- 2026-05-05T10:33:14Z: added stateless no-auth MCP handlers for `/mcp` and `/mcp/none`, documented MVP protocol/capability decisions, and added unit plus `@mcp-initialize-list` E2E coverage.
+
+exec
+/bin/zsh -lc "rg --files app src lib tests | rg 'mcp|endpoint'" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+tests/e2e/endpoint-console.spec.ts
+tests/e2e/endpoint-delete-audit.spec.ts
+tests/e2e/mcp-initialize-list.spec.ts
+tests/e2e/endpoint-editor.spec.ts
+tests/unit/endpoint-validation.test.ts
+tests/unit/mcp-protocol.test.ts
+app/mcp/none/route.ts
+app/mcp/route.ts
+lib/mcp/protocol.ts
+lib/mcp/types.ts
+lib/mcp/http.ts
+lib/endpoints/service.ts
+lib/endpoints/types.ts
+lib/endpoints/api.ts
+lib/endpoints/validation.ts
+lib/endpoints/schema.ts
+app/endpoints/page.tsx
+app/endpoints/endpoint-manager.tsx
+app/api/endpoints/route.ts
+app/api/endpoints/[id]/route.ts
+
+exec
+/bin/zsh -lc "rg -n \"initialize|tools/list|notifications/initialized|generateMcpInputSchema|mcp\" app src lib tests docs -g '*.ts' -g '*.tsx' -g '*.md'" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+docs/SECURITY.md:25:- MCP routes /mcp, /mcp/none, /mcp/basic, /mcp/oauth
+app/mcp/none/route.ts:1:export { dynamic, handleNoAuthMcpPost as POST, unsupportedStreamableHttpMethod as DELETE, unsupportedStreamableHttpMethod as GET } from "@/lib/mcp/http";
+tests/e2e/mcp-initialize-list.spec.ts:3:test("no-auth MCP initialize, initialized notification, and tools/list use enabled endpoint schemas @mcp-initialize-list", async ({
+tests/e2e/mcp-initialize-list.spec.ts:7:  const enabledName = `mcp_list_enabled_${suffix}`;
+tests/e2e/mcp-initialize-list.spec.ts:8:  const disabledName = `mcp_list_disabled_${suffix}`;
+tests/e2e/mcp-initialize-list.spec.ts:14:      description: "Visible through MCP tools/list.",
+tests/e2e/mcp-initialize-list.spec.ts:50:      description: "Hidden from MCP tools/list.",
+tests/e2e/mcp-initialize-list.spec.ts:73:  const initialize = await request.post("/mcp", {
+tests/e2e/mcp-initialize-list.spec.ts:77:      method: "initialize",
+tests/e2e/mcp-initialize-list.spec.ts:85:  expect(initialize.status()).toBe(200);
+tests/e2e/mcp-initialize-list.spec.ts:86:  expect(initialize.headers()["content-type"]).toMatch(/application\/json/);
+tests/e2e/mcp-initialize-list.spec.ts:87:  expect(initialize.headers()["mcp-session-id"]).toBeUndefined();
+tests/e2e/mcp-initialize-list.spec.ts:88:  expect(await initialize.json()).toEqual({
+tests/e2e/mcp-initialize-list.spec.ts:94:      serverInfo: { name: "mina-mock-mcpserver", version: "1.0.0" },
+tests/e2e/mcp-initialize-list.spec.ts:98:  const initialized = await request.post("/mcp/none", {
+tests/e2e/mcp-initialize-list.spec.ts:101:      method: "notifications/initialized",
+tests/e2e/mcp-initialize-list.spec.ts:104:  expect(initialized.status()).toBe(202);
+tests/e2e/mcp-initialize-list.spec.ts:105:  expect(await initialized.text()).toBe("");
+tests/e2e/mcp-initialize-list.spec.ts:107:  const listResponse = await request.post("/mcp/none", {
+tests/e2e/mcp-initialize-list.spec.ts:111:      method: "tools/list",
+tests/e2e/mcp-initialize-list.spec.ts:125:    description: "Visible through MCP tools/list.",
+tests/e2e/mcp-initialize-list.spec.ts:141:  const getResponse = await request.get("/mcp/none");
+tests/e2e/mcp-initialize-list.spec.ts:145:  const deleteResponse = await request.delete("/mcp");
+app/mcp/route.ts:1:export { dynamic, handleNoAuthMcpPost as POST, unsupportedStreamableHttpMethod as DELETE, unsupportedStreamableHttpMethod as GET } from "@/lib/mcp/http";
+lib/mcp/protocol.ts:5:} from "@/lib/mcp/types";
+lib/mcp/protocol.ts:6:import type { McpJsonRpcId, McpJsonRpcRequest, McpJsonRpcResponse, McpTool } from "@/lib/mcp/types";
+lib/mcp/protocol.ts:63:    if (message.method === "notifications/initialized") {
+lib/mcp/protocol.ts:69:  if (message.method === "initialize") {
+lib/mcp/protocol.ts:89:  if (message.method === "tools/list") {
+tests/unit/endpoint-validation.test.ts:5:import { generateMcpInputSchema } from "@/lib/endpoints/schema";
+tests/unit/endpoint-validation.test.ts:107:  const schema = generateMcpInputSchema({
+lib/mcp/types.ts:4:  name: "mina-mock-mcpserver",
+tests/unit/reset-service.test.ts:13:  const directory = await mkdtemp(join(tmpdir(), "mcp-mock-reset-"));
+lib/mcp/http.ts:3:import { handleMcpJsonRpcMessage } from "@/lib/mcp/protocol";
+docs/FRONTEND.md:27:| /mcp, /mcp/none, /mcp/basic, /mcp/oauth | MCP JSON-RPC | Unified plus strict auth routes |
+app/endpoints/endpoint-manager.tsx:5:import { generateMcpInputSchema } from "@/lib/endpoints/schema";
+app/endpoints/endpoint-manager.tsx:261:      return generateMcpInputSchema(form);
+app/endpoints/endpoint-manager.tsx:263:      return generateMcpInputSchema({ parameters: form.parameters.map((parameter) => ({ ...parameter, defaultValueJson: null })) });
+app/endpoints/endpoint-manager.tsx:284:      route: authMode === "none" ? "/mcp/none" : authMode === "basic" ? "/mcp/basic" : "/mcp/oauth",
+tests/unit/db-prepare.test.ts:19:  const directory = await mkdtemp(join(tmpdir(), "mcp-mock-db-"));
+tests/unit/mcp-protocol.test.ts:3:import { handleMcpJsonRpcMessage } from "@/lib/mcp/protocol";
+tests/unit/mcp-protocol.test.ts:4:import type { McpTool } from "@/lib/mcp/types";
+tests/unit/mcp-protocol.test.ts:25:test("MCP initialize returns explicit no-auth MVP capabilities", async () => {
+tests/unit/mcp-protocol.test.ts:30:      method: "initialize",
+tests/unit/mcp-protocol.test.ts:49:      serverInfo: { name: "mina-mock-mcpserver", version: "1.0.0" },
+tests/unit/mcp-protocol.test.ts:54:test("MCP initialized notification is accepted without a JSON-RPC body", async () => {
+tests/unit/mcp-protocol.test.ts:58:      method: "notifications/initialized",
+tests/unit/mcp-protocol.test.ts:66:test("MCP tools/list returns loaded tools without executing them", async () => {
+tests/unit/mcp-protocol.test.ts:71:      method: "tools/list",
+lib/endpoints/service.ts:5:import { generateMcpInputSchema } from "@/lib/endpoints/schema";
+lib/endpoints/service.ts:55:    inputSchema: generateMcpInputSchema({ parameters }),
+lib/endpoints/service.ts:104:    inputSchema: generateMcpInputSchema({
+lib/endpoints/schema.ts:8:export function generateMcpInputSchema(endpoint: Pick<EndpointInput, "parameters">): McpInputSchema {
+docs/product-specs/mcp-json-rpc-runtime.md:4:Remote MCP routes implement initialize, initialized notification, tools/list, tools/call, strict auth aliases, and JSON-RPC error semantics.
+docs/product-specs/mcp-json-rpc-runtime.md:11:- Unified /mcp route
+docs/product-specs/mcp-json-rpc-runtime.md:12:- Strict /mcp/none, /mcp/basic, /mcp/oauth routes
+docs/product-specs/mcp-json-rpc-runtime.md:16:- `/mcp` without `Authorization` and `/mcp/none` share the no-auth runtime path.
+docs/product-specs/mcp-json-rpc-runtime.md:18:- `initialize` returns protocol version `2025-06-18` when requested, otherwise the newest MVP-supported version from `2025-06-18` and `2025-03-26`.
+docs/product-specs/mcp-json-rpc-runtime.md:19:- `initialize` advertises only the `tools` capability with `listChanged: false`; resources, prompts, logging, sampling, and SSE/session capabilities are not claimed.
+docs/product-specs/mcp-json-rpc-runtime.md:20:- `serverInfo` is `name: "mina-mock-mcpserver"` and `version: "1.0.0"`.
+docs/product-specs/mcp-json-rpc-runtime.md:21:- `notifications/initialized` is accepted as a JSON-RPC notification with HTTP `202` and no response body.
+docs/product-specs/mcp-json-rpc-runtime.md:22:- `tools/list` returns enabled endpoint tools only, with each tool's name, description, and generated endpoint-domain `inputSchema`.
+docs/product-specs/mcp-json-rpc-runtime.md:30:- Call initialize, list tools, call a configured tool, and observe route-specific auth behavior
+docs/RELIABILITY.md:25:- `/mcp` without credentials and `/mcp/none` must share the same no-auth MCP adapter so client examples do not drift.
+docs/RELIABILITY.md:26:- The first runtime slice is stateless: `initialize` does not create an MCP session, `notifications/initialized` returns `202` with no body, and unsupported SSE/session methods return `405` with `Allow: POST`.
+docs/RELIABILITY.md:27:- `tools/list` must read enabled endpoints from the endpoint domain service and use the shared generated MCP input schema helper; disabled endpoints must remain hidden.
+docs/exec-plans/active/018-oauth-discovery-metadata.md:9:  "next_task_on_success": "oauth-mcp-rest-permission-enforcement",
+docs/exec-plans/active/008-mcp-tools-call-and-errors.md:5:  "id": "mcp-tools-call-and-errors",
+docs/exec-plans/active/008-mcp-tools-call-and-errors.md:15:    "docs/product-specs/mcp-json-rpc-runtime.md"
+docs/exec-plans/active/008-mcp-tools-call-and-errors.md:19:    "npm run test:e2e -- --grep @mcp-tools-call",
+docs/exec-plans/active/008-mcp-tools-call-and-errors.md:38:- This task completes no-auth MCP tool execution after list/initialize already work.
+docs/exec-plans/active/008-mcp-tools-call-and-errors.md:48:- E2E coverage proves a configured tool can be called through `/mcp/none`.
+docs/exec-plans/active/008-mcp-tools-call-and-errors.md:62:- Add E2E coverage tagged `@mcp-tools-call` for success and negative cases.
+docs/exec-plans/active/008-mcp-tools-call-and-errors.md:82:- npm run test:e2e -- --grep @mcp-tools-call
+docs/exec-plans/active/008-mcp-tools-call-and-errors.md:99:Confirm that this task maps to the primary product spec `mcp-json-rpc-runtime.md` or is explicitly final hardening.
+docs/exec-plans/active/index.md:14:7. `007-mcp-initialize-and-tools-list.md` -> `mcp-initialize-and-tools-list` -> Implement no-auth MCP JSON-RPC initialization and tool discovery before adding tool execution.
+docs/exec-plans/active/index.md:15:8. `008-mcp-tools-call-and-errors.md` -> `mcp-tools-call-and-errors` -> Implement no-auth MCP `tools/call` execution and JSON-RPC error semantics using the endpoint matcher.
+docs/exec-plans/active/index.md:17:10. `010-basic-auth-mcp-runtime.md` -> `basic-auth-mcp-runtime` -> Enforce Basic Auth on `/mcp/basic` and Basic header precedence on `/mcp` using the existing Basic user service.
+docs/exec-plans/active/index.md:26:19. `019-oauth-mcp-rest-permission-enforcement.md` -> `oauth-mcp-rest-permission-enforcement` -> Validate Bearer tokens and enforce endpoint permissions on MCP and REST routes, with correct 401 versus 403 behavior.
+docs/PRODUCT_SENSE.md:27:- initialize no-auth MCP clients and list enabled tools before tool execution is wired
+docs/PRODUCT_SENSE.md:43:- a new endpoint can be created and edited through the public endpoint UI, then listed through tools/list, called through tools/call, and called through REST
+docs/product-specs/basic-auth-management.md:20:- Create a Basic user and call strict /mcp/basic and REST routes
+docs/product-specs/index.md:11:| `mcp-json-rpc-runtime.md` | confirmed | MCP JSON-RPC Runtime |
+docs/product-specs/oauth-consent-and-token-runtime.md:23:- Authorization-code browser flow selects endpoint permissions, exchanges code for token, calls /mcp/oauth successfully for allowed endpoint, receives 403 for denied endpoint, revokes token and receives 401
+docs/exec-plans/active/007-mcp-initialize-and-tools-list.md:5:  "id": "mcp-initialize-and-tools-list",
+docs/exec-plans/active/007-mcp-initialize-and-tools-list.md:9:  "next_task_on_success": "mcp-tools-call-and-errors",
+docs/exec-plans/active/007-mcp-initialize-and-tools-list.md:15:    "docs/product-specs/mcp-json-rpc-runtime.md"
+docs/exec-plans/active/007-mcp-initialize-and-tools-list.md:19:    "npm run test:e2e -- --grep @mcp-initialize-list",
+docs/exec-plans/active/007-mcp-initialize-and-tools-list.md:39:- `/mcp` without Authorization and `/mcp/none` should share the no-auth path.
+docs/exec-plans/active/007-mcp-initialize-and-tools-list.md:45:- MCP clients can call `initialize` and receive server info/capabilities.
+docs/exec-plans/active/007-mcp-initialize-and-tools-list.md:46:- MCP clients can send `notifications/initialized` and receive the expected no-body/accepted behavior.
+docs/exec-plans/active/007-mcp-initialize-and-tools-list.md:47:- `tools/list` returns enabled endpoint tools for no-auth callers.
+docs/exec-plans/active/007-mcp-initialize-and-tools-list.md:59:- Implement POST handling for `initialize`, `notifications/initialized`, and `tools/list` on `/mcp` and `/mcp/none`.
+docs/exec-plans/active/007-mcp-initialize-and-tools-list.md:62:- Add unit and E2E coverage tagged `@mcp-initialize-list`.
+docs/exec-plans/active/007-mcp-initialize-and-tools-list.md:73:1. `initialize` response matches documented protocol version/serverInfo/capability decisions.
+docs/exec-plans/active/007-mcp-initialize-and-tools-list.md:74:2. `notifications/initialized` returns accepted/no-body behavior.
+docs/exec-plans/active/007-mcp-initialize-and-tools-list.md:75:3. `tools/list` reflects enabled endpoints and hides disabled ones.
+docs/exec-plans/active/007-mcp-initialize-and-tools-list.md:76:4. `@mcp-initialize-list` passes.
+docs/exec-plans/active/007-mcp-initialize-and-tools-list.md:82:- npm run test:e2e -- --grep @mcp-initialize-list
+docs/exec-plans/active/007-mcp-initialize-and-tools-list.md:99:Confirm that this task maps to the primary product spec `mcp-json-rpc-runtime.md` or is explicitly final hardening.
+docs/exec-plans/active/007-mcp-initialize-and-tools-list.md:106:- 2026-05-05T10:33:14Z: found no existing MCP route implementation; reused the existing endpoint domain `generateMcpInputSchema` helper for tools/list rather than creating protocol-local schemas.
+docs/exec-plans/active/007-mcp-initialize-and-tools-list.md:107:- 2026-05-05T10:33:14Z: added stateless no-auth MCP handlers for `/mcp` and `/mcp/none`, documented MVP protocol/capability decisions, and added unit plus `@mcp-initialize-list` E2E coverage.
+docs/references/prd-analysis.md:3:Source: `PRD/mcp_mock_server_prd.md`
+docs/references/prd-analysis.md:16:- MCP JSON-RPC runtime for `initialize`, `notifications/initialized`, `tools/list`, and `tools/call`.
+docs/exec-plans/active/010-basic-auth-mcp-runtime.md:5:  "id": "basic-auth-mcp-runtime",
+docs/exec-plans/active/010-basic-auth-mcp-runtime.md:15:    "docs/product-specs/mcp-json-rpc-runtime.md",
+docs/exec-plans/active/010-basic-auth-mcp-runtime.md:20:    "npm run test:e2e -- --grep @basic-auth-mcp",
+docs/exec-plans/active/010-basic-auth-mcp-runtime.md:35:Enforce Basic Auth on `/mcp/basic` and Basic header precedence on `/mcp` using the existing Basic user service.
+docs/exec-plans/active/010-basic-auth-mcp-runtime.md:46:- `/mcp/basic` returns 401 for missing/invalid Basic credentials and succeeds for valid credentials.
+docs/exec-plans/active/010-basic-auth-mcp-runtime.md:47:- `/mcp` with a valid Basic header uses Basic principal behavior.
+docs/exec-plans/active/010-basic-auth-mcp-runtime.md:48:- `/mcp` with invalid Basic header returns 401 instead of anonymous behavior.
+docs/exec-plans/active/010-basic-auth-mcp-runtime.md:61:- Apply Basic resolver to `/mcp` and `/mcp/basic`.
+docs/exec-plans/active/010-basic-auth-mcp-runtime.md:63:- Add unit tests for parser/precedence and E2E tests tagged `@basic-auth-mcp`.
+docs/exec-plans/active/010-basic-auth-mcp-runtime.md:74:2. Unified `/mcp` auth precedence matches PRD.
+docs/exec-plans/active/010-basic-auth-mcp-runtime.md:82:- npm run test:e2e -- --grep @basic-auth-mcp
+docs/exec-plans/active/019-oauth-mcp-rest-permission-enforcement.md:5:  "id": "oauth-mcp-rest-permission-enforcement",
+docs/exec-plans/active/019-oauth-mcp-rest-permission-enforcement.md:15:    "docs/product-specs/mcp-json-rpc-runtime.md",
+docs/exec-plans/active/019-oauth-mcp-rest-permission-enforcement.md:47:- `/mcp/oauth` requires valid Bearer tokens.
+docs/exec-plans/active/019-oauth-mcp-rest-permission-enforcement.md:48:- `/mcp` uses Bearer precedence for Bearer headers and rejects invalid Bearer tokens.
+docs/exec-plans/active/009-basic-auth-users-domain-ui.md:9:  "next_task_on_success": "basic-auth-mcp-runtime",
+docs/exec-plans/active/009-basic-auth-users-domain-ui.md:53:- Do not implement `/mcp/basic` route behavior here.
+docs/exec-plans/completed/006-root-reset-defaults.md:9:  "next_task_on_success": "mcp-initialize-and-tools-list",
+docs/exec-plans/completed/004-endpoint-console-schema-preview-ui.md:68:- Actual `/mcp*` calls.
+
+exec
+/bin/zsh -lc 'git status --short' in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+git: warning: confstr() failed with code 5: couldn't get path of DARWIN_USER_TEMP_DIR; using /tmp instead
+git: error: couldn't create cache file '/tmp/xcrun_db-OuOTiZIV' (errno=Operation not permitted)
+git: warning: confstr() failed with code 5: couldn't get path of DARWIN_USER_TEMP_DIR; using /tmp instead
+git: error: couldn't create cache file '/tmp/xcrun_db-rRJgEXqQ' (errno=Operation not permitted)
+ M docs/PRODUCT_SENSE.md
+ M docs/RELIABILITY.md
+ D docs/exec-plans/active/006-root-reset-defaults.md
+ M docs/exec-plans/active/007-mcp-initialize-and-tools-list.md
+ M docs/product-specs/mcp-json-rpc-runtime.md
+ M lib/endpoints/service.ts
+ M lib/endpoints/types.ts
+ M scripts/ralph/generated/current-evaluator-prompt.txt
+ M scripts/ralph/generated/current-task-prompt.txt
+ M state/artifacts/20260505T192021-root-reset-defaults/commit.log
+ M state/backlog.md
+ M state/blocker-tracker.json
+ M state/current-cycle.json
+ M state/current-task.txt
+ M state/deterministic-checks.json
+ M state/last-result.txt
+ M state/run-log.md
+ M state/task-history.md
+?? app/mcp/
+?? docs/exec-plans/completed/006-root-reset-defaults.md
+?? lib/mcp/
+?? state/artifacts/20260505T192021-root-reset-defaults/backlog.log
+?? state/artifacts/20260505T192021-root-reset-defaults/promote.log
+?? state/artifacts/20260505T193136-mcp-initialize-and-tools-list/
+?? tests/e2e/mcp-initialize-list.spec.ts
+?? tests/unit/mcp-protocol.test.ts
+
+codex
+{"decision":"not_done","recommend_promotion":false,"confidence":0,"summary":"The implementation is concentrated in `lib/mcp`, the two App Router route files, endpoint service tool projection, and focused tests. I’m reading those now for protocol compliance and accidental scope expansion.","satisfied_exit_criteria":[],"missing_requirements":[],"human_review_triggers":[]}
+exec
+/bin/zsh -lc "sed -n '1,240p' lib/mcp/protocol.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+exec
+/bin/zsh -lc "sed -n '1,220p' lib/mcp/http.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import { NextResponse } from "next/server";
+import { listEnabledMcpTools } from "@/lib/endpoints/service";
+import { handleMcpJsonRpcMessage } from "@/lib/mcp/protocol";
+
+export const dynamic = "force-dynamic";
+
+export async function handleNoAuthMcpPost(request: Request) {
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json(
+      {
+        jsonrpc: "2.0",
+        id: null,
+        error: { code: -32700, message: "Parse error" },
+      },
+      { status: 400 },
+    );
+  }
+
+  const result = await handleMcpJsonRpcMessage(body, listEnabledMcpTools);
+  if (result.kind === "accepted") {
+    return new Response(null, { status: 202 });
+  }
+
+  return NextResponse.json(result.body, { status: result.status });
+}
+
+export function unsupportedStreamableHttpMethod() {
+  return NextResponse.json(
+    {
+      error: "method_not_allowed",
+      message: "This MVP MCP endpoint supports JSON-RPC over HTTP POST only; SSE streams and session termination are not implemented.",
+    },
+    {
+      status: 405,
+      headers: { Allow: "POST" },
+    },
+  );
+}
+
+ succeeded in 0ms:
+import {
+  DEFAULT_MCP_PROTOCOL_VERSION,
+  MCP_SERVER_INFO,
+  SUPPORTED_MCP_PROTOCOL_VERSIONS,
+} from "@/lib/mcp/types";
+import type { McpJsonRpcId, McpJsonRpcRequest, McpJsonRpcResponse, McpTool } from "@/lib/mcp/types";
+
+export type McpProtocolResult =
+  | {
+      kind: "json";
+      status: number;
+      body: McpJsonRpcResponse;
+    }
+  | {
+      kind: "accepted";
+    };
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function idFromMessage(message: unknown): McpJsonRpcId {
+  if (!isRecord(message)) return null;
+  return typeof message.id === "string" || typeof message.id === "number" || message.id === null ? message.id : null;
+}
+
+function errorResponse(id: McpJsonRpcId, code: number, message: string, status = 200): McpProtocolResult {
+  return {
+    kind: "json",
+    status,
+    body: {
+      jsonrpc: "2.0",
+      id,
+      error: { code, message },
+    },
+  };
+}
+
+function requestedProtocolVersion(params: unknown) {
+  if (!isRecord(params) || typeof params.protocolVersion !== "string") {
+    return DEFAULT_MCP_PROTOCOL_VERSION;
+  }
+  return SUPPORTED_MCP_PROTOCOL_VERSIONS.includes(
+    params.protocolVersion as (typeof SUPPORTED_MCP_PROTOCOL_VERSIONS)[number],
+  )
+    ? params.protocolVersion
+    : DEFAULT_MCP_PROTOCOL_VERSION;
+}
+
+function isJsonRpcRequest(message: unknown): message is McpJsonRpcRequest {
+  return isRecord(message) && message.jsonrpc === "2.0" && typeof message.method === "string";
+}
+
+export async function handleMcpJsonRpcMessage(
+  message: unknown,
+  loadTools: () => Promise<McpTool[]>,
+): Promise<McpProtocolResult> {
+  if (!isJsonRpcRequest(message)) {
+    return errorResponse(idFromMessage(message), -32600, "Invalid Request", 400);
+  }
+
+  if (message.id === undefined) {
+    if (message.method === "notifications/initialized") {
+      return { kind: "accepted" };
+    }
+    return { kind: "accepted" };
+  }
+
+  if (message.method === "initialize") {
+    return {
+      kind: "json",
+      status: 200,
+      body: {
+        jsonrpc: "2.0",
+        id: message.id,
+        result: {
+          protocolVersion: requestedProtocolVersion(message.params),
+          capabilities: {
+            tools: {
+              listChanged: false,
+            },
+          },
+          serverInfo: MCP_SERVER_INFO,
+        },
+      },
+    };
+  }
+
+  if (message.method === "tools/list") {
+    return {
+      kind: "json",
+      status: 200,
+      body: {
+        jsonrpc: "2.0",
+        id: message.id,
+        result: {
+          tools: await loadTools(),
+        },
+      },
+    };
+  }
+
+  return errorResponse(message.id, -32601, "Method not found");
+}
+
+exec
+/bin/zsh -lc "sed -n '1,220p' lib/mcp/types.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import type { EndpointMcpTool } from "@/lib/endpoints/types";
+
+export const MCP_SERVER_INFO = {
+  name: "mina-mock-mcpserver",
+  version: "1.0.0",
+} as const;
+
+export const SUPPORTED_MCP_PROTOCOL_VERSIONS = ["2025-06-18", "2025-03-26"] as const;
+export const DEFAULT_MCP_PROTOCOL_VERSION = SUPPORTED_MCP_PROTOCOL_VERSIONS[0];
+
+export type McpJsonRpcId = string | number | null;
+
+export type McpJsonRpcRequest = {
+  jsonrpc: "2.0";
+  id?: McpJsonRpcId;
+  method: string;
+  params?: unknown;
+};
+
+export type McpTool = EndpointMcpTool;
+
+export type McpInitializeResult = {
+  protocolVersion: string;
+  capabilities: {
+    tools: {
+      listChanged: false;
+    };
+  };
+  serverInfo: typeof MCP_SERVER_INFO;
+};
+
+export type McpJsonRpcResponse =
+  | {
+      jsonrpc: "2.0";
+      id: McpJsonRpcId;
+      result: McpInitializeResult | { tools: McpTool[] };
+    }
+  | {
+      jsonrpc: "2.0";
+      id: McpJsonRpcId;
+      error: {
+        code: number;
+        message: string;
+      };
+    };
+
+exec
+/bin/zsh -lc "sed -n '1,80p' app/mcp/route.ts && sed -n '1,80p' app/mcp/none/route.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+export { dynamic, handleNoAuthMcpPost as POST, unsupportedStreamableHttpMethod as DELETE, unsupportedStreamableHttpMethod as GET } from "@/lib/mcp/http";
+export { dynamic, handleNoAuthMcpPost as POST, unsupportedStreamableHttpMethod as DELETE, unsupportedStreamableHttpMethod as GET } from "@/lib/mcp/http";
+
+exec
+/bin/zsh -lc "sed -n '1,180p' lib/endpoints/service.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import { randomUUID } from "node:crypto";
+import type { Prisma, PrismaClient } from "@prisma/client";
+import { recordAuditEvent } from "@/lib/audit/service";
+import { createPrismaClient } from "@/lib/db/client";
+import { generateMcpInputSchema } from "@/lib/endpoints/schema";
+import { EndpointDeleteAuthorizationError, EndpointNotFoundError } from "@/lib/endpoints/types";
+import { validateEndpointInput } from "@/lib/endpoints/validation";
+import { verifyRootPassword } from "@/lib/security/root-password";
+import type {
+  EndpointDeleteInput,
+  EndpointDetail,
+  EndpointInput,
+  EndpointListResult,
+  EndpointMcpTool,
+  EndpointSummary,
+} from "@/lib/endpoints/types";
+
+const endpointInclude = {
+  parameters: { orderBy: { position: "asc" } },
+  responseCases: { orderBy: [{ isDefault: "desc" }, { priority: "asc" }, { name: "asc" }] },
+} satisfies Prisma.EndpointInclude;
+
+type EndpointRecord = Prisma.EndpointGetPayload<{ include: typeof endpointInclude }>;
+
+function toSummary(endpoint: EndpointRecord): EndpointSummary {
+  return {
+    id: endpoint.id,
+    name: endpoint.name,
+    title: endpoint.title,
+    description: endpoint.description,
+    enabled: endpoint.enabled,
+    protectedDefault: endpoint.protectedDefault,
+    parameterCount: endpoint.parameters.length,
+    responseCaseCount: endpoint.responseCases.length,
+    updatedAt: endpoint.updatedAt.toISOString(),
+  };
+}
+
+function toDetail(endpoint: EndpointRecord): EndpointDetail {
+  const parameters = endpoint.parameters.map((parameter) => ({
+    id: parameter.id,
+    position: parameter.position,
+    name: parameter.name,
+    label: parameter.label ?? "",
+    description: parameter.description,
+    type: parameter.type as EndpointDetail["parameters"][number]["type"],
+    required: parameter.required,
+    defaultValueJson: parameter.defaultValueJson,
+  }));
+
+  return {
+    ...toSummary(endpoint),
+    deleteCode: endpoint.deleteCode,
+    defaultResponseJson: endpoint.defaultResponseJson,
+    inputSchema: generateMcpInputSchema({ parameters }),
+    failureMode: endpoint.failureMode as EndpointDetail["failureMode"],
+    failureStatusCode: endpoint.failureStatusCode,
+    failureDelayMs: endpoint.failureDelayMs,
+    failureMessage: endpoint.failureMessage,
+    malformedResponseJson: endpoint.malformedResponseJson,
+    parameters,
+    responseCases: endpoint.responseCases.map((responseCase) => ({
+      id: responseCase.id,
+      name: responseCase.name,
+      priority: responseCase.priority,
+      matchArgsJson: responseCase.matchArgsJson,
+      responseJson: responseCase.responseJson,
+      statusCode: responseCase.statusCode,
+      delayMs: responseCase.delayMs,
+      errorMode: responseCase.errorMode as EndpointDetail["responseCases"][number]["errorMode"],
+      errorStatusCode: responseCase.errorStatusCode,
+      errorMessage: responseCase.errorMessage,
+      errorBodyJson: responseCase.errorBodyJson,
+      isDefault: responseCase.isDefault,
+    })),
+  };
+}
+
+export async function listEndpoints(client: PrismaClient = createPrismaClient()): Promise<EndpointListResult> {
+  const endpoints = await client.endpoint.findMany({
+    include: endpointInclude,
+    orderBy: [{ protectedDefault: "desc" }, { updatedAt: "desc" }, { name: "asc" }],
+  });
+
+  const summaries = endpoints.map(toSummary);
+  return {
+    total: summaries.length,
+    enabled: summaries.filter((endpoint) => endpoint.enabled).length,
+    disabled: summaries.filter((endpoint) => !endpoint.enabled).length,
+    endpoints: summaries,
+  };
+}
+
+export async function listEnabledMcpTools(client: PrismaClient = createPrismaClient()): Promise<EndpointMcpTool[]> {
+  const endpoints = await client.endpoint.findMany({
+    where: { enabled: true },
+    include: { parameters: { orderBy: { position: "asc" } } },
+    orderBy: [{ name: "asc" }],
+  });
+
+  return endpoints.map((endpoint) => ({
+    name: endpoint.name,
+    description: endpoint.description || endpoint.title,
+    inputSchema: generateMcpInputSchema({
+      parameters: endpoint.parameters.map((parameter) => ({
+        name: parameter.name,
+        label: parameter.label ?? "",
+        description: parameter.description ?? "",
+        type: parameter.type as EndpointDetail["parameters"][number]["type"],
+        required: parameter.required,
+        defaultValueJson: parameter.defaultValueJson,
+      })),
+    }),
+  }));
+}
+
+export async function getEndpoint(id: string, client: PrismaClient = createPrismaClient()) {
+  const endpoint = await client.endpoint.findUnique({ where: { id }, include: endpointInclude });
+  return endpoint ? toDetail(endpoint) : null;
+}
+
+export async function createEndpoint(input: EndpointInput, client: PrismaClient = createPrismaClient()) {
+  const validInput = validateEndpointInput(input);
+  const id = `endpoint_${randomUUID()}`;
+
+  const endpoint = await client.endpoint.create({
+    data: {
+      id,
+      name: validInput.name,
+      title: validInput.title ?? "",
+      description: validInput.description ?? "",
+      enabled: validInput.enabled,
+      protectedDefault: false,
+      deleteCode: validInput.deleteCode,
+      defaultResponseJson: validInput.defaultResponseJson,
+      failureMode: validInput.failureMode,
+      failureStatusCode: validInput.failureStatusCode,
+      failureDelayMs: validInput.failureDelayMs,
+      failureMessage: validInput.failureMessage,
+      malformedResponseJson: validInput.malformedResponseJson,
+      parameters: {
+        create: validInput.parameters.map((parameter, position) => ({
+          id: `${id}_param_${position}_${randomUUID()}`,
+          position,
+          name: parameter.name,
+          label: parameter.label || null,
+          description: parameter.description ?? "",
+          type: parameter.type,
+          required: parameter.required,
+          defaultValueJson: parameter.defaultValueJson,
+        })),
+      },
+      responseCases: {
+        create: validInput.responseCases.map((responseCase) => ({
+          id: `${id}_case_${randomUUID()}`,
+          ...responseCase,
+        })),
+      },
+    },
+    include: endpointInclude,
+  });
+
+  return toDetail(endpoint);
+}
+
+export async function updateEndpoint(
+  id: string,
+  input: EndpointInput,
+  client: PrismaClient = createPrismaClient(),
+) {
+  const validInput = validateEndpointInput(input);
+
+  const endpoint = await client.$transaction(async (tx) => {
+    await tx.endpointParam.deleteMany({ where: { endpointId: id } });
+    await tx.responseCase.deleteMany({ where: { endpointId: id } });
+
+    return tx.endpoint.update({
+      where: { id },
+      data: {
+        name: validInput.name,
+
+exec
+/bin/zsh -lc "sed -n '1,180p' lib/endpoints/types.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+export type EndpointParamType = "string" | "number" | "boolean";
+export type FailureMode = "none" | "delay" | "error" | "malformed";
+export type CaseErrorMode = "none" | "error";
+export type JsonPrimitive = string | number | boolean | null;
+export type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
+
+export type McpInputSchema = {
+  type: "object";
+  properties: Record<
+    string,
+    {
+      type: EndpointParamType;
+      title?: string;
+      description?: string;
+      default?: JsonValue;
+    }
+  >;
+  required: string[];
+  additionalProperties: false;
+};
+
+export type EndpointParamInput = {
+  name: string;
+  label?: string;
+  description?: string;
+  type: EndpointParamType;
+  required: boolean;
+  defaultValueJson?: string | null;
+};
+
+export type ResponseCaseInput = {
+  name: string;
+  priority: number;
+  matchArgsJson: string;
+  responseJson: string;
+  statusCode: number;
+  delayMs: number;
+  errorMode: CaseErrorMode;
+  errorStatusCode?: number | null;
+  errorMessage?: string | null;
+  errorBodyJson?: string | null;
+  isDefault: boolean;
+};
+
+export type EndpointInput = {
+  name: string;
+  title?: string;
+  description?: string;
+  enabled: boolean;
+  deleteCode?: string | null;
+  defaultResponseJson: string;
+  failureMode: FailureMode;
+  failureStatusCode?: number | null;
+  failureDelayMs: number;
+  failureMessage?: string | null;
+  malformedResponseJson?: string | null;
+  parameters: EndpointParamInput[];
+  responseCases: ResponseCaseInput[];
+};
+
+export type EndpointSummary = {
+  id: string;
+  name: string;
+  title: string;
+  description: string;
+  enabled: boolean;
+  protectedDefault: boolean;
+  parameterCount: number;
+  responseCaseCount: number;
+  updatedAt: string;
+};
+
+export type EndpointDetail = EndpointSummary & {
+  deleteCode: string | null;
+  defaultResponseJson: string;
+  inputSchema: McpInputSchema;
+  failureMode: FailureMode;
+  failureStatusCode: number | null;
+  failureDelayMs: number;
+  failureMessage: string | null;
+  malformedResponseJson: string | null;
+  parameters: Array<EndpointParamInput & { id: string; position: number }>;
+  responseCases: Array<ResponseCaseInput & { id: string }>;
+};
+
+export type EndpointListResult = {
+  total: number;
+  enabled: number;
+  disabled: number;
+  endpoints: EndpointSummary[];
+};
+
+export type EndpointMcpTool = {
+  name: string;
+  description: string;
+  inputSchema: McpInputSchema;
+};
+
+export type EndpointDeleteInput = {
+  deleteCode?: string | null;
+  rootPassword?: string | null;
+};
+
+export class EndpointValidationError extends Error {
+  constructor(public readonly fieldErrors: Record<string, string>) {
+    super("Endpoint validation failed");
+  }
+}
+
+export class EndpointDeleteAuthorizationError extends Error {
+  constructor(public readonly reason: "missing_confirmation" | "invalid_confirmation" | "protected_default") {
+    super("Endpoint delete authorization failed");
+  }
+}
+
+export class EndpointNotFoundError extends Error {
+  constructor() {
+    super("Endpoint not found");
+  }
+}
+
+exec
+/bin/zsh -lc "sed -n '1,180p' lib/endpoints/schema.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import type { EndpointInput, EndpointParamInput, JsonValue, McpInputSchema } from "@/lib/endpoints/types";
+
+function parseDefaultValue(value: string | null | undefined): JsonValue | undefined {
+  if (!value?.trim()) return undefined;
+  return JSON.parse(value) as JsonValue;
+}
+
+export function generateMcpInputSchema(endpoint: Pick<EndpointInput, "parameters">): McpInputSchema {
+  const properties: McpInputSchema["properties"] = {};
+  const required: string[] = [];
+
+  endpoint.parameters.forEach((parameter: EndpointParamInput) => {
+    const name = parameter.name.trim();
+    if (!name) return;
+
+    const property: McpInputSchema["properties"][string] = {
+      type: parameter.type,
+    };
+
+    const title = parameter.label?.trim();
+    const description = parameter.description?.trim();
+    const defaultValue = parseDefaultValue(parameter.defaultValueJson);
+
+    if (title) property.title = title;
+    if (description) property.description = description;
+    if (defaultValue !== undefined) property.default = defaultValue;
+    if (parameter.required) required.push(name);
+
+    properties[name] = property;
+  });
+
+  return {
+    type: "object",
+    properties,
+    required,
+    additionalProperties: false,
+  };
+}
+
+exec
+/bin/zsh -lc "sed -n '1,220p' tests/unit/mcp-protocol.test.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import assert from "node:assert/strict";
+import test from "node:test";
+import { handleMcpJsonRpcMessage } from "@/lib/mcp/protocol";
+import type { McpTool } from "@/lib/mcp/types";
+
+const tools: McpTool[] = [
+  {
+    name: "echo",
+    description: "Echo test tool.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        message: {
+          type: "string",
+          title: "Message",
+          description: "Message to echo.",
+        },
+      },
+      required: ["message"],
+      additionalProperties: false,
+    },
+  },
+];
+
+test("MCP initialize returns explicit no-auth MVP capabilities", async () => {
+  const result = await handleMcpJsonRpcMessage(
+    {
+      jsonrpc: "2.0",
+      id: 1,
+      method: "initialize",
+      params: {
+        protocolVersion: "2025-06-18",
+        capabilities: {},
+        clientInfo: { name: "unit-client", version: "1.0.0" },
+      },
+    },
+    async () => tools,
+  );
+
+  assert.equal(result.kind, "json");
+  if (result.kind !== "json") return;
+  assert.equal(result.status, 200);
+  assert.deepEqual(result.body, {
+    jsonrpc: "2.0",
+    id: 1,
+    result: {
+      protocolVersion: "2025-06-18",
+      capabilities: { tools: { listChanged: false } },
+      serverInfo: { name: "mina-mock-mcpserver", version: "1.0.0" },
+    },
+  });
+});
+
+test("MCP initialized notification is accepted without a JSON-RPC body", async () => {
+  const result = await handleMcpJsonRpcMessage(
+    {
+      jsonrpc: "2.0",
+      method: "notifications/initialized",
+    },
+    async () => tools,
+  );
+
+  assert.deepEqual(result, { kind: "accepted" });
+});
+
+test("MCP tools/list returns loaded tools without executing them", async () => {
+  const result = await handleMcpJsonRpcMessage(
+    {
+      jsonrpc: "2.0",
+      id: "list-1",
+      method: "tools/list",
+    },
+    async () => tools,
+  );
+
+  assert.equal(result.kind, "json");
+  if (result.kind !== "json") return;
+  assert.deepEqual(result.body, {
+    jsonrpc: "2.0",
+    id: "list-1",
+    result: { tools },
+  });
+});
+
+exec
+/bin/zsh -lc "sed -n '1,230p' tests/e2e/mcp-initialize-list.spec.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import { expect, test } from "@playwright/test";
+
+test("no-auth MCP initialize, initialized notification, and tools/list use enabled endpoint schemas @mcp-initialize-list", async ({
+  request,
+}) => {
+  const suffix = Date.now();
+  const enabledName = `mcp_list_enabled_${suffix}`;
+  const disabledName = `mcp_list_disabled_${suffix}`;
+
+  const enabledCreate = await request.post("/api/endpoints", {
+    data: {
+      name: enabledName,
+      title: "MCP list enabled",
+      description: "Visible through MCP tools/list.",
+      enabled: true,
+      deleteCode: "87654321",
+      defaultResponseJson: "{}",
+      failureMode: "none",
+      failureDelayMs: 0,
+      parameters: [
+        {
+          name: "city",
+          label: "City",
+          description: "City name for generated schema.",
+          type: "string",
+          required: true,
+          defaultValueJson: '"Seoul"',
+        },
+      ],
+      responseCases: [
+        {
+          name: "default",
+          priority: 0,
+          matchArgsJson: "{}",
+          responseJson: "{}",
+          statusCode: 200,
+          delayMs: 0,
+          errorMode: "none",
+          isDefault: true,
+        },
+      ],
+    },
+  });
+  expect(enabledCreate.status()).toBe(201);
+
+  const disabledCreate = await request.post("/api/endpoints", {
+    data: {
+      name: disabledName,
+      title: "MCP list disabled",
+      description: "Hidden from MCP tools/list.",
+      enabled: false,
+      deleteCode: "87654321",
+      defaultResponseJson: "{}",
+      failureMode: "none",
+      failureDelayMs: 0,
+      parameters: [],
+      responseCases: [
+        {
+          name: "default",
+          priority: 0,
+          matchArgsJson: "{}",
+          responseJson: "{}",
+          statusCode: 200,
+          delayMs: 0,
+          errorMode: "none",
+          isDefault: true,
+        },
+      ],
+    },
+  });
+  expect(disabledCreate.status()).toBe(201);
+
+  const initialize = await request.post("/mcp", {
+    data: {
+      jsonrpc: "2.0",
+      id: 1,
+      method: "initialize",
+      params: {
+        protocolVersion: "2025-06-18",
+        capabilities: {},
+        clientInfo: { name: "playwright", version: "1.0.0" },
+      },
+    },
+  });
+  expect(initialize.status()).toBe(200);
+  expect(initialize.headers()["content-type"]).toMatch(/application\/json/);
+  expect(initialize.headers()["mcp-session-id"]).toBeUndefined();
+  expect(await initialize.json()).toEqual({
+    jsonrpc: "2.0",
+    id: 1,
+    result: {
+      protocolVersion: "2025-06-18",
+      capabilities: { tools: { listChanged: false } },
+      serverInfo: { name: "mina-mock-mcpserver", version: "1.0.0" },
+    },
+  });
+
+  const initialized = await request.post("/mcp/none", {
+    data: {
+      jsonrpc: "2.0",
+      method: "notifications/initialized",
+    },
+  });
+  expect(initialized.status()).toBe(202);
+  expect(await initialized.text()).toBe("");
+
+  const listResponse = await request.post("/mcp/none", {
+    data: {
+      jsonrpc: "2.0",
+      id: "tools-1",
+      method: "tools/list",
+    },
+  });
+  expect(listResponse.status()).toBe(200);
+  const listBody = (await listResponse.json()) as {
+    result: { tools: Array<{ name: string; description: string; inputSchema: unknown }> };
+  };
+  const toolNames = listBody.result.tools.map((tool: { name: string }) => tool.name);
+  expect(toolNames).toContain(enabledName);
+  expect(toolNames).not.toContain(disabledName);
+
+  const enabledTool = listBody.result.tools.find((tool: { name: string }) => tool.name === enabledName);
+  expect(enabledTool).toMatchObject({
+    name: enabledName,
+    description: "Visible through MCP tools/list.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        city: {
+          type: "string",
+          title: "City",
+          description: "City name for generated schema.",
+          default: "Seoul",
+        },
+      },
+      required: ["city"],
+      additionalProperties: false,
+    },
+  });
+
+  const getResponse = await request.get("/mcp/none");
+  expect(getResponse.status()).toBe(405);
+  expect(getResponse.headers().allow).toBe("POST");
+
+  const deleteResponse = await request.delete("/mcp");
+  expect(deleteResponse.status()).toBe(405);
+  expect(deleteResponse.headers().allow).toBe("POST");
+});
+
+exec
+/bin/zsh -lc 'cat package.json' in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+{
+  "name": "mina-mock-mcpserver",
+  "version": "1.0.0",
+  "description": "Public remote MCP mock server and web UI for testing MCP auth and tool calls.",
+  "scripts": {
+    "dev": "next dev --hostname 127.0.0.1 --port 3100",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "db:prepare": "node scripts/db-prepare.mjs",
+    "test:unit": "node --import tsx --test \"tests/unit/**/*.test.ts\"",
+    "test:e2e": "playwright test",
+    "test": "npm run test:unit && npm run test:e2e",
+    "start:smoke": "node scripts/start-smoke.mjs",
+    "start:logged": "node scripts/start-logged.mjs",
+    "verify": "npm run lint && npm run typecheck && npm run build && npm run test:unit && npm run test:e2e && npm run start:smoke"
+  },
+  "dependencies": {
+    "@prisma/adapter-better-sqlite3": "^7.8.0",
+    "@prisma/client": "^7.8.0",
+    "better-sqlite3": "^12.9.0",
+    "next": "^15.3.2",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.26.0",
+    "@playwright/test": "^1.52.0",
+    "@types/node": "^22.15.3",
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.3",
+    "eslint": "^9.26.0",
+    "eslint-config-next": "^15.3.2",
+    "prisma": "^7.8.0",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.32.0"
+  },
+  "private": true
+}
+
+codex
+{"decision":"done","recommend_promotion":true,"confidence":0.91,"summary":"The task maps directly to docs/product-specs/mcp-json-rpc-runtime.md and the inspected implementation satisfies the scoped no-auth MCP initialize, initialized notification, and tools/list behavior on /mcp and /mcp/none. Tool listings are loaded from the endpoint service with shared generated input schemas and disabled endpoints are hidden. Required deterministic checks are reported passing, including the targeted @mcp-initialize-list E2E and full verify.","satisfied_exit_criteria":["initialize response includes documented protocol version negotiation, tools capability with listChanged false, and serverInfo name/version","notifications/initialized is accepted as a JSON-RPC notification with HTTP 202 and no response body","tools/list returns enabled endpoint names/descriptions/input schemas from the endpoint domain service and hides disabled endpoints","POST handlers are wired for both /mcp and /mcp/none through the same no-auth adapter","GET and DELETE return deterministic 405 responses with Allow: POST","Unit coverage and E2E coverage tagged @mcp-initialize-list are present","Required commands passed: npm run test:unit, npm run test:e2e -- --grep @mcp-initialize-list, npm run verify"],"missing_requirements":[],"human_review_triggers":[]}
+tokens used
+65,232
+{"decision":"done","recommend_promotion":true,"confidence":0.91,"summary":"The task maps directly to docs/product-specs/mcp-json-rpc-runtime.md and the inspected implementation satisfies the scoped no-auth MCP initialize, initialized notification, and tools/list behavior on /mcp and /mcp/none. Tool listings are loaded from the endpoint service with shared generated input schemas and disabled endpoints are hidden. Required deterministic checks are reported passing, including the targeted @mcp-initialize-list E2E and full verify.","satisfied_exit_criteria":["initialize response includes documented protocol version negotiation, tools capability with listChanged false, and serverInfo name/version","notifications/initialized is accepted as a JSON-RPC notification with HTTP 202 and no response body","tools/list returns enabled endpoint names/descriptions/input schemas from the endpoint domain service and hides disabled endpoints","POST handlers are wired for both /mcp and /mcp/none through the same no-auth adapter","GET and DELETE return deterministic 405 responses with Allow: POST","Unit coverage and E2E coverage tagged @mcp-initialize-list are present","Required commands passed: npm run test:unit, npm run test:e2e -- --grep @mcp-initialize-list, npm run verify"],"missing_requirements":[],"human_review_triggers":[]}
+evaluation: done promotion=true

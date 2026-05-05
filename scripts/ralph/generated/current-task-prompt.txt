@@ -2,74 +2,70 @@ Read the following repository documents before making changes:
 - AGENTS.md
 - ARCHITECTURE.md
 - docs/PRODUCT_SENSE.md
-- docs/FRONTEND.md
-- docs/SECURITY.md
 - docs/RELIABILITY.md
-- docs/product-specs/operator-configuration.md
-- docs/exec-plans/active/006-root-reset-defaults.md
+- docs/product-specs/mcp-json-rpc-runtime.md
+- docs/exec-plans/active/007-mcp-initialize-and-tools-list.md
 
-Current task id: root-reset-defaults
-Current task title: Root-Protected Reset to Defaults
+Current task id: mcp-initialize-and-tools-list
+Current task title: MCP Initialize and Tools List No-Auth Runtime
 
 Objective:
-Implement root-password-protected reset behavior that restores deterministic default state without harming runtime readiness.
+Implement no-auth MCP JSON-RPC initialization and tool discovery before adding tool execution.
 
 Clarity notes:
-- Reset is an operator recovery path for a public test service.
-- This task should reset endpoint data and any seeded defaults currently implemented; future auth slices can extend reset invariants as they add built-ins.
-- The reset UI should be explicit about destructive behavior.
-- The reset path must leave `db:prepare`, startup smoke, and later queue tasks usable.
+- This is the first MCP runtime slice and should not attempt to finish all MCP behavior.
+- `/mcp` without Authorization and `/mcp/none` should share the no-auth path.
+- Tool listing should read enabled endpoints and generated input schemas from existing domain services.
+- Unsupported Streamable HTTP methods can be explicit MVP responses.
 
 Expected result:
-- A reset screen/API requires root password and confirmation text.
-- Full reset removes user-created endpoint data and recreates current seed defaults.
-- Audit evidence records reset attempts and successful reset.
-- Tests prove reset recovery from modified public data.
+- MCP clients can call `initialize` and receive server info/capabilities.
+- MCP clients can send `notifications/initialized` and receive the expected no-body/accepted behavior.
+- `tools/list` returns enabled endpoint tools for no-auth callers.
+- GET/DELETE unsupported behavior is deterministic if SSE/session support is absent.
 
 Objections / risks to avoid:
-- Do not introduce login/session semantics for root password.
-- Do not reset by deleting the SQLite file in a way that bypasses migrations or seed invariants.
-- Do not leave stale in-memory data after reset.
-- Do not claim future Basic/OAuth built-ins are handled until those slices add their reset extensions.
+- Do not implement `tools/call` in this task.
+- Do not add Basic/OAuth auth handling beyond preserving no-auth behavior.
+- Do not handcraft schemas instead of using endpoint domain schema generation.
+- Do not claim SSE support if it is not implemented.
 
 Scope:
-- Implement root password verification for reset.
-- Create reset service that clears currently implemented mutable data and reruns seed preparation.
-- Build reset confirmation UI.
-- Write audit events for reset success/failure.
-- Add E2E coverage tagged `@root-reset`.
+- Implement POST handling for `initialize`, `notifications/initialized`, and `tools/list` on `/mcp` and `/mcp/none`.
+- Return JSON-RPC compliant responses and HTTP statuses for these methods.
+- Expose enabled endpoint names/descriptions/input schemas in tool listings.
+- Add unit and E2E coverage tagged `@mcp-initialize-list`.
 
 Out of scope:
-- Endpoint delete-by-code behavior already handled in previous task.
-- Future Basic/OAuth reset extensions before their domains exist.
-- Backup/restore or scheduled maintenance tooling.
+- `tools/call` execution.
+- Unknown tool/call errors.
+- Basic Auth and OAuth routes.
+- SSE streaming/session management.
 
 Exit criteria:
-1. Root password and confirmation are required for reset.
-2. Reset restores deterministic endpoint defaults after user-created data exists.
-3. Reset failure does not corrupt runtime state.
-4. `@root-reset` proves UI/API recovery behavior.
+1. `initialize` response matches documented protocol version/serverInfo/capability decisions.
+2. `notifications/initialized` returns accepted/no-body behavior.
+3. `tools/list` reflects enabled endpoints and hides disabled ones.
+4. `@mcp-initialize-list` passes.
 5. All required checks pass.
 
 Required checks:
-- npm run db:prepare
 - npm run test:unit
-- npm run test:e2e -- --grep @root-reset
+- npm run test:e2e -- --grep @mcp-initialize-list
 - npm run verify
 
 Evaluator notes:
 Required commands are mandatory promotion gates, not suggestions.
 Do not promote if any required check fails.
 Do not accept broad feature work outside this task.
-Confirm that this task maps to the primary product spec `operator-configuration.md` or is explicitly final hardening.
+Confirm that this task maps to the primary product spec `mcp-json-rpc-runtime.md` or is explicitly final hardening.
 
 Required repository artifacts for this task:
 - none
 
 Required commands for this task:
-- npm run db:prepare
 - npm run test:unit
-- npm run test:e2e -- --grep @root-reset
+- npm run test:e2e -- --grep @mcp-initialize-list
 - npm run verify
 
 Previous known gaps from the last evaluation:

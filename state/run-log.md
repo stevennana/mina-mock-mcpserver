@@ -541,3 +541,18 @@
 - evaluator: started
 - evaluator: status=done promotion=true The implementation satisfies the root-reset-defaults task in substance. Reset is gated by root password plus exact confirmation, failures record non-secret audit evidence without changing endpoint state, successful reset deletes current endpoint data and recreates deterministic seed defaults, the UI exposes the confirmation flow, and @root-reset covers API failure plus UI recovery/audit behavior. The task maps directly to docs/product-specs/operator-configuration.md, and the provided deterministic summary shows all required commands passed, including full verify. -> state/artifacts/20260505T192021-root-reset-defaults/evaluator.log
 - next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T192021-root-reset-defaults/npm-run-test-e2e-grep-root-reset-next-server.log
+- commit: commit: created
+- promote: Promoted root-reset-defaults -> mcp-initialize-and-tools-list
+- backlog: rendered current=mcp-initialize-and-tools-list
+- health: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxooooo
+- cycle: finished
+
+### cycle 2026-05-05T19:31:36+09:00 task=mcp-initialize-and-tools-list
+- artifacts: state/artifacts/20260505T193136-mcp-initialize-and-tools-list
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260505T193136-mcp-initialize-and-tools-list/worker.jsonl
+- worker-summary: Implemented `mcp-initialize-and-tools-list`.
+- evaluator: started
+- evaluator: status=done promotion=true The task maps directly to docs/product-specs/mcp-json-rpc-runtime.md and the inspected implementation satisfies the scoped no-auth MCP initialize, initialized notification, and tools/list behavior on /mcp and /mcp/none. Tool listings are loaded from the endpoint service with shared generated input schemas and disabled endpoints are hidden. Required deterministic checks are reported passing, including the targeted @mcp-initialize-list E2E and full verify. -> state/artifacts/20260505T193136-mcp-initialize-and-tools-list/evaluator.log
+- next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T193136-mcp-initialize-and-tools-list/npm-run-test-e2e-grep-mcp-initialize-list-next-server.log

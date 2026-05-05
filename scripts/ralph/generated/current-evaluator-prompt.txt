@@ -4,81 +4,74 @@ Read these documents before deciding:
 - AGENTS.md
 - ARCHITECTURE.md
 - docs/PRODUCT_SENSE.md
-- docs/FRONTEND.md
-- docs/SECURITY.md
 - docs/RELIABILITY.md
-- docs/product-specs/operator-configuration.md
-- docs/exec-plans/active/006-root-reset-defaults.md
+- docs/product-specs/mcp-json-rpc-runtime.md
+- docs/exec-plans/active/007-mcp-initialize-and-tools-list.md
 
-Current task id: root-reset-defaults
-Current task title: Root-Protected Reset to Defaults
+Current task id: mcp-initialize-and-tools-list
+Current task title: MCP Initialize and Tools List No-Auth Runtime
 
 Objective:
-Implement root-password-protected reset behavior that restores deterministic default state without harming runtime readiness.
+Implement no-auth MCP JSON-RPC initialization and tool discovery before adding tool execution.
 
 Scope:
-- Implement root password verification for reset.
-- Create reset service that clears currently implemented mutable data and reruns seed preparation.
-- Build reset confirmation UI.
-- Write audit events for reset success/failure.
-- Add E2E coverage tagged `@root-reset`.
+- Implement POST handling for `initialize`, `notifications/initialized`, and `tools/list` on `/mcp` and `/mcp/none`.
+- Return JSON-RPC compliant responses and HTTP statuses for these methods.
+- Expose enabled endpoint names/descriptions/input schemas in tool listings.
+- Add unit and E2E coverage tagged `@mcp-initialize-list`.
 
 Out of scope:
-- Endpoint delete-by-code behavior already handled in previous task.
-- Future Basic/OAuth reset extensions before their domains exist.
-- Backup/restore or scheduled maintenance tooling.
+- `tools/call` execution.
+- Unknown tool/call errors.
+- Basic Auth and OAuth routes.
+- SSE streaming/session management.
 
 Exit criteria:
-1. Root password and confirmation are required for reset.
-2. Reset restores deterministic endpoint defaults after user-created data exists.
-3. Reset failure does not corrupt runtime state.
-4. `@root-reset` proves UI/API recovery behavior.
+1. `initialize` response matches documented protocol version/serverInfo/capability decisions.
+2. `notifications/initialized` returns accepted/no-body behavior.
+3. `tools/list` reflects enabled endpoints and hides disabled ones.
+4. `@mcp-initialize-list` passes.
 5. All required checks pass.
 
 Evaluator notes:
 Required commands are mandatory promotion gates, not suggestions.
 Do not promote if any required check fails.
 Do not accept broad feature work outside this task.
-Confirm that this task maps to the primary product spec `operator-configuration.md` or is explicitly final hardening.
+Confirm that this task maps to the primary product spec `mcp-json-rpc-runtime.md` or is explicitly final hardening.
 
 Deterministic check summary:
 {
-  "checked_at": "2026-05-05T10:29:39.209Z",
-  "task_id": "root-reset-defaults",
+  "checked_at": "2026-05-05T10:37:49.890Z",
+  "task_id": "mcp-initialize-and-tools-list",
   "commands": [
-    {
-      "command": "npm run db:prepare",
-      "ok": true,
-      "output": "\n> mina-mock-mcpserver@1.0.0 db:prepare\n> node scripts/db-prepare.mjs\n\nDatasource \"db\": SQLite database \"runtime.sqlite\" at \"file:./data/runtime.sqlite\"\n\n3 migrations found in prisma/migrations\n\n\nNo pending migrations to apply.\n\n✔ Generated Prisma Client (v7.8.0) to ./node_modules/@prisma/client in 38ms\n\nStart by importing your Prisma Client (See: https://pris.ly/d/importing-client)\n\n\nPrepared SQLite runtime state with Prisma migrations and endpoint seed defaults.\n"
-    },
     {
       "command": "npm run test:unit",
       "ok": true,
-      "output": "\n> mina-mock-mcpserver@1.0.0 test:unit\n> node --import tsx --test \"tests/unit/**/*.test.ts\"\n\n✔ normalizeLogLevel accepts supported operator log levels (0.35825ms)\n✔ normalizeLogLevel defaults invalid input to info (0.057917ms)\n✔ getBootstrapStatus reports prepared foundation state (0.052542ms)\n✔ db:prepare is repeatable and keeps endpoint seed rows singular (2921.039458ms)\n✔ endpoint validation accepts the MVP editor field set (0.6355ms)\n✔ endpoint validation returns field-level errors for UI rendering (0.353959ms)\n✔ MCP input schema generation reflects endpoint parameters (0.386875ms)\n✔ Ralph promotion resolves ordered successor filenames by taskmeta id (37.506334ms)\n✔ reset requires confirmation and leaves endpoint state untouched on failure (706.897792ms)\n✔ reset clears mutable endpoint data and recreates current seed defaults (640.814916ms)\nℹ tests 10\nℹ suites 0\nℹ pass 10\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 3071.662458\n"
+      "output": "\n> mina-mock-mcpserver@1.0.0 test:unit\n> node --import tsx --test \"tests/unit/**/*.test.ts\"\n\n✔ normalizeLogLevel accepts supported operator log levels (0.353458ms)\n✔ normalizeLogLevel defaults invalid input to info (0.058666ms)\n✔ getBootstrapStatus reports prepared foundation state (0.053334ms)\n✔ db:prepare is repeatable and keeps endpoint seed rows singular (2984.748208ms)\n✔ endpoint validation accepts the MVP editor field set (0.630916ms)\n✔ endpoint validation returns field-level errors for UI rendering (0.354292ms)\n✔ MCP input schema generation reflects endpoint parameters (0.39125ms)\n✔ MCP initialize returns explicit no-auth MVP capabilities (1.129334ms)\n✔ MCP initialized notification is accepted without a JSON-RPC body (0.098667ms)\n✔ MCP tools/list returns loaded tools without executing them (0.081375ms)\n✔ Ralph promotion resolves ordered successor filenames by taskmeta id (46.081375ms)\n✔ reset requires confirmation and leaves endpoint state untouched on failure (875.62875ms)\n✔ reset clears mutable endpoint data and recreates current seed defaults (601.59125ms)\nℹ tests 13\nℹ suites 0\nℹ pass 13\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 3155.840916\n"
     },
     {
-      "command": "npm run test:e2e -- --grep @root-reset",
+      "command": "npm run test:e2e -- --grep @mcp-initialize-list",
       "ok": true,
-      "output": "\n> mina-mock-mcpserver@1.0.0 test:e2e\n> playwright test --grep @root-reset\n\n\nRunning 1 test using 1 worker\n\n  ✓  1 [chromium] › tests/e2e/root-reset.spec.ts:16:5 › root reset requires password and restores deterministic endpoint defaults @root-reset (4.0s)\n\n  1 passed (8.2s)\n",
+      "output": "\n> mina-mock-mcpserver@1.0.0 test:e2e\n> playwright test --grep @mcp-initialize-list\n\n\nRunning 1 test using 1 worker\n\n  ✓  1 [chromium] › tests/e2e/mcp-initialize-list.spec.ts:3:5 › no-auth MCP initialize, initialized notification, and tools/list use enabled endpoint schemas @mcp-initialize-list (551ms)\n\n  1 passed (4.6s)\n",
       "preflight": {
         "command": "ensure-e2e-port-free.sh 3100",
         "error": "",
         "ok": true,
         "output": "port-cleanup: 127.0.0.1:3100 already free\n"
       },
-      "next_server_log_path": "/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T192021-root-reset-defaults/npm-run-test-e2e-grep-root-reset-next-server.log"
+      "next_server_log_path": "/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T193136-mcp-initialize-and-tools-list/npm-run-test-e2e-grep-mcp-initialize-list-next-server.log"
     },
     {
       "command": "npm run verify",
       "ok": true,
-      "output": "\n> mina-mock-mcpserver@1.0.0 verify\n> npm run lint && npm run typecheck && npm run build && npm run test:unit && npm run test:e2e && npm run start:smoke\n\n\n> mina-mock-mcpserver@1.0.0 lint\n> eslint .\n\n\n> mina-mock-mcpserver@1.0.0 typecheck\n> tsc --noEmit\n\n\n> mina-mock-mcpserver@1.0.0 build\n> next build\n\n   ▲ Next.js 15.5.15\n\n   Creating an optimized production build ...\n ✓ Compiled successfully in 789ms\n   Linting and checking validity of types ...\n   Collecting page data ...\n   Generating static pages (0/11) ...\n   Generating static pages (2/11) \r\n   Generating static pages (5/11) \r\n   Generating static pages (8/11) \r\n ✓ Generating static pages (11/11)\n   Finalizing page optimization ...\n   Collecting build traces ...\n\nRoute (app)                                 Size  First Load JS\n┌ ○ /                                      164 B         106 kB\n├ ○ /_not-found                            999 B         103 kB\n├ ƒ /api/audit                             133 B         102 kB\n├ ƒ /api/endpoints                         133 B         102 kB\n├ ƒ /api/endpoints/[id]                    133 B         102 kB\n├ ƒ /api/health                            133 B         102 kB\n├ ƒ /api/reset                             133 B         102 kB\n├ ○ /audit                                 164 B         106 kB\n├ ○ /endpoints                           4.97 kB         110 kB\n└ ○ /reset                               1.02 kB         107 kB\n+ First Load JS shared by all             102 kB\n  ├ chunks/255-4f212684648fcab9.js         46 kB\n  ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB\n  └ other shared chunks (total)          1.89 kB\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n\n\n> mina-mock-mcpserver@1.0.0 test:unit\n> node --import tsx --test \"tests/unit/**/*.test.ts\"\n\n✔ normalizeLogLevel accepts supported operator log levels (0.375083ms)\n✔ normalizeLogLevel defaults invalid input to info (0.059375ms)\n✔ getBootstrapStatus reports prepared foundation state (0.055125ms)\n✔ db:prepare is repeatable and keeps endpoint seed rows singular (2878.278125ms)\n✔ endpoint validation accepts the MVP editor field set (0.630667ms)\n✔ endpoint validation returns field-level errors for UI rendering (0.374375ms)\n✔ MCP input schema generation reflects endpoint parameters (0.398291ms)\n✔ Ralph promotion resolves ordered successor filenames by taskmeta id (36.013542ms)\n✔ reset requires confirmation and leaves endpoint state untouched on failure (689.778583ms)\n✔ reset clears mutable endpoint data and recreates current seed defaults (593.659208ms)\nℹ tests 10\nℹ suites 0\nℹ pass 10\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 3021.817625\n\n> mina-mock-mcpserver@1.0.0 test:e2e\n> playwright test\n\n\nRunning 6 tests using 1 worker\n\n  ✓  1 [chromium] › tests/e2e/bootstrap.spec.ts:3:5 › foundation dashboard renders planned MCP mock server surfaces (344ms)\n  ✓  2 [chromium] › tests/e2e/bootstrap.spec.ts:11:5 › health endpoint reports ok status (406ms)\n  ✓  3 [chromium] › tests/e2e/endpoint-console.spec.ts:5:5 › endpoint schema preview and console shell stay stable on desktop and mobile @ui-endpoint-console (924ms)\n  ✓  4 [chromium] › tests/e2e/endpoint-delete-audit.spec.ts:17:5 › endpoint delete requires confirmation and writes non-secret audit evidence @endpoint-delete-audit (3.2s)\n  ✓  5 [chromium] › tests/e2e/endpoint-editor.spec.ts:5:5 › endpoint editor supports persisted create, edit, search, screenshots, and responsive checks @ui-endpoint-editor (1.3s)\n  ✓  6 [chromium] › tests/e2e/root-reset.spec.ts:16:5 › root reset requires password and restores deterministic endpoint defaults @root-reset (2.9s)\n\n  6 passed (13.0s)\n\n> mina-mock-mcpserver@1.0.0 start:smoke\n> node scripts/start-smoke.mjs\n\n\n> mina-mock-mcpserver@1.0.0 db:prepare\n> node scripts/db-prepare.mjs\n\nDatasource \"db\": SQLite database \"runtime.sqlite\" at \"file:./data/runtime.sqlite\"\n\n3 migrations found in prisma/migrations\n\n\nNo pending migrations to apply.\n\n✔ Generated Prisma Client (v7.8.0) to ./node_modules/@prisma/client in 48ms\n\nStart by importing your Prisma Client (See: https://pris.ly/d/importing-client)\n\n\nPrepared SQLite runtime state with Prisma migrations and endpoint seed defaults.\n\n> mina-mock-mcpserver@1.0.0 build\n> next build\n\n   ▲ Next.js 15.5.15\n\n   Creating an optimized production build ...\n ✓ Compiled successfully in 808ms\n   Linting and checking validity of types ...\n   Collecting page data ...\n   Generating static pages (0/11) ...\n   Generating static pages (2/11) \r\n   Generating static pages (5/11) \r\n   Generating static pages (8/11) \r\n ✓ Generating static pages (11/11)\n   Finalizing page optimization ...\n   Collecting build traces ...\n\nRoute (app)                                 Size  First Load JS\n┌ ○ /                                      164 B         106 kB\n├ ○ /_not-found                            999 B         103 kB\n├ ƒ /api/audit                             133 B         102 kB\n├ ƒ /api/endpoints                         133 B         102 kB\n├ ƒ /api/endpoints/[id]                    133 B         102 kB\n├ ƒ /api/health                            133 B         102 kB\n├ ƒ /api/reset                             133 B         102 kB\n├ ○ /audit                                 164 B         106 kB\n├ ○ /endpoints                           4.97 kB         110 kB\n└ ○ /reset                               1.02 kB         107 kB\n+ First Load JS shared by all             102 kB\n  ├ chunks/255-4f212684648fcab9.js         46 kB\n  ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB\n  └ other shared chunks (total)          1.89 kB\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n\n   ▲ Next.js 15.5.15\n   - Local:        http://localhost:3100\n   - Network:      http://192.168.100.125:3100\n\n ✓ Starting...\n ✓ Ready in 260ms\nProduction-style startup smoke passed at http://127.0.0.1:3100/api/health\n",
+      "output": "\n> mina-mock-mcpserver@1.0.0 verify\n> npm run lint && npm run typecheck && npm run build && npm run test:unit && npm run test:e2e && npm run start:smoke\n\n\n> mina-mock-mcpserver@1.0.0 lint\n> eslint .\n\n\n> mina-mock-mcpserver@1.0.0 typecheck\n> tsc --noEmit\n\n\n> mina-mock-mcpserver@1.0.0 build\n> next build\n\n   ▲ Next.js 15.5.15\n\n   Creating an optimized production build ...\n ✓ Compiled successfully in 822ms\n   Linting and checking validity of types ...\n   Collecting page data ...\n   Generating static pages (0/11) ...\n   Generating static pages (2/11) \r\n   Generating static pages (5/11) \r\n   Generating static pages (8/11) \r\n ✓ Generating static pages (11/11)\n   Finalizing page optimization ...\n   Collecting build traces ...\n\nRoute (app)                                 Size  First Load JS\n┌ ○ /                                      164 B         106 kB\n├ ○ /_not-found                            999 B         103 kB\n├ ƒ /api/audit                             140 B         102 kB\n├ ƒ /api/endpoints                         140 B         102 kB\n├ ƒ /api/endpoints/[id]                    140 B         102 kB\n├ ƒ /api/health                            140 B         102 kB\n├ ƒ /api/reset                             140 B         102 kB\n├ ○ /audit                                 164 B         106 kB\n├ ○ /endpoints                           4.97 kB         110 kB\n├ ƒ /mcp                                   140 B         102 kB\n├ ƒ /mcp/none                              140 B         102 kB\n└ ○ /reset                               1.02 kB         107 kB\n+ First Load JS shared by all             102 kB\n  ├ chunks/255-4f212684648fcab9.js         46 kB\n  ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB\n  └ other shared chunks (total)          1.89 kB\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n\n\n> mina-mock-mcpserver@1.0.0 test:unit\n> node --import tsx --test \"tests/unit/**/*.test.ts\"\n\n✔ normalizeLogLevel accepts supported operator log levels (0.354625ms)\n✔ normalizeLogLevel defaults invalid input to info (0.059041ms)\n✔ getBootstrapStatus reports prepared foundation state (0.053083ms)\n✔ db:prepare is repeatable and keeps endpoint seed rows singular (2880.056333ms)\n✔ endpoint validation accepts the MVP editor field set (0.642875ms)\n✔ endpoint validation returns field-level errors for UI rendering (0.361875ms)\n✔ MCP input schema generation reflects endpoint parameters (0.728417ms)\n✔ MCP initialize returns explicit no-auth MVP capabilities (0.755875ms)\n✔ MCP initialized notification is accepted without a JSON-RPC body (0.075166ms)\n✔ MCP tools/list returns loaded tools without executing them (0.072709ms)\n✔ Ralph promotion resolves ordered successor filenames by taskmeta id (41.224709ms)\n✔ reset requires confirmation and leaves endpoint state untouched on failure (690.774417ms)\n✔ reset clears mutable endpoint data and recreates current seed defaults (600.599ms)\nℹ tests 13\nℹ suites 0\nℹ pass 13\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 3040.508084\n\n> mina-mock-mcpserver@1.0.0 test:e2e\n> playwright test\n\n\nRunning 7 tests using 1 worker\n\n  ✓  1 [chromium] › tests/e2e/bootstrap.spec.ts:3:5 › foundation dashboard renders planned MCP mock server surfaces (494ms)\n  ✓  2 [chromium] › tests/e2e/bootstrap.spec.ts:11:5 › health endpoint reports ok status (206ms)\n  ✓  3 [chromium] › tests/e2e/endpoint-console.spec.ts:5:5 › endpoint schema preview and console shell stay stable on desktop and mobile @ui-endpoint-console (962ms)\n  ✓  4 [chromium] › tests/e2e/endpoint-delete-audit.spec.ts:17:5 › endpoint delete requires confirmation and writes non-secret audit evidence @endpoint-delete-audit (3.3s)\n  ✓  5 [chromium] › tests/e2e/endpoint-editor.spec.ts:5:5 › endpoint editor supports persisted create, edit, search, screenshots, and responsive checks @ui-endpoint-editor (1.4s)\n  ✓  6 [chromium] › tests/e2e/mcp-initialize-list.spec.ts:3:5 › no-auth MCP initialize, initialized notification, and tools/list use enabled endpoint schemas @mcp-initialize-list (272ms)\n  ✓  7 [chromium] › tests/e2e/root-reset.spec.ts:16:5 › root reset requires password and restores deterministic endpoint defaults @root-reset (3.1s)\n\n  7 passed (13.6s)\n\n> mina-mock-mcpserver@1.0.0 start:smoke\n> node scripts/start-smoke.mjs\n\n\n> mina-mock-mcpserver@1.0.0 db:prepare\n> node scripts/db-prepare.mjs\n\nDatasource \"db\": SQLite database \"runtime.sqlite\" at \"file:./data/runtime.sqlite\"\n\n3 migrations found in prisma/migrations\n\n\nNo pending migrations to apply.\n\n✔ Generated Prisma Client (v7.8.0) to ./node_modules/@prisma/client in 45ms\n\nStart by importing your Prisma Client (See: https://pris.ly/d/importing-client)\n\n\nPrepared SQLite runtime state with Prisma migrations and endpoint seed defaults.\n\n> mina-mock-mcpserver@1.0.0 build\n> next build\n\n   ▲ Next.js 15.5.15\n\n   Creating an optimized production build ...\n ✓ Compiled successfully in 826ms\n   Linting and checking validity of types ...\n   Collecting page data ...\n   Generating static pages (0/11) ...\n   Generating static pages (2/11) \r\n   Generating static pages (5/11) \r\n   Generating static pages (8/11) \r\n ✓ Generating static pages (11/11)\n   Finalizing page optimization ...\n   Collecting build traces ...\n\nRoute (app)                                 Size  First Load JS\n┌ ○ /                                      164 B         106 kB\n├ ○ /_not-found                            999 B         103 kB\n├ ƒ /api/audit                             140 B         102 kB\n├ ƒ /api/endpoints                         140 B         102 kB\n├ ƒ /api/endpoints/[id]                    140 B         102 kB\n├ ƒ /api/health                            140 B         102 kB\n├ ƒ /api/reset                             140 B         102 kB\n├ ○ /audit                                 164 B         106 kB\n├ ○ /endpoints                           4.97 kB         110 kB\n├ ƒ /mcp                                   140 B         102 kB\n├ ƒ /mcp/none                              140 B         102 kB\n└ ○ /reset                               1.02 kB         107 kB\n+ First Load JS shared by all             102 kB\n  ├ chunks/255-4f212684648fcab9.js         46 kB\n  ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB\n  └ other shared chunks (total)          1.89 kB\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n\n   ▲ Next.js 15.5.15\n   - Local:        http://localhost:3100\n   - Network:      http://192.168.100.125:3100\n\n ✓ Starting...\n ✓ Ready in 260ms\nProduction-style startup smoke passed at http://127.0.0.1:3100/api/health\n",
       "preflight": {
         "command": "ensure-e2e-port-free.sh 3100",
         "error": "",
         "ok": true,
         "output": "port-cleanup: 127.0.0.1:3100 already free\n"
       },
-      "next_server_log_path": "/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T192021-root-reset-defaults/npm-run-verify-next-server.log"
+      "next_server_log_path": "/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T193136-mcp-initialize-and-tools-list/npm-run-verify-next-server.log"
     }
   ],
   "missing_files": [],
@@ -86,23 +79,18 @@ Deterministic check summary:
 }
 
 Worker handoff summary from the last run:
-Implemented `root-reset-defaults`.
+Implemented `mcp-initialize-and-tools-list`.
 
-What changed:
-- Added root-protected reset API/UI at `/api/reset` and `/reset`.
-- Reset requires root password plus exact `RESET DEFAULTS` confirmation.
-- Reset clears current endpoint data, recreates deterministic endpoint seed defaults, and keeps audit history.
-- Added non-secret audit evidence for reset failures and success.
-- Added unit coverage and `@root-reset` E2E coverage.
-- Serialized Playwright E2E workers to avoid shared SQLite reset/mutation races.
+Added stateless no-auth MCP handlers for `/mcp` and `/mcp/none`, covering `initialize`, `notifications/initialized`, and `tools/list`. Tool listing now reads enabled endpoints through the endpoint domain service and uses the shared generated MCP `inputSchema`; disabled endpoints are hidden. GET/DELETE return deterministic `405` with `Allow: POST`.
 
-Required checks passed:
-- `npm run db:prepare`
+Updated docs and the task progress log, and wrote the operator handoff to `state/last-result.txt`.
+
+Checks passed:
 - `npm run test:unit`
-- `npm run test:e2e -- --grep @root-reset`
+- `npm run test:e2e -- --grep @mcp-initialize-list`
 - `npm run verify`
 
-I also updated `state/last-result.txt` with the operator handoff. Exit criteria appear satisfied; no known remaining work for this task.
+Reference used for unsupported Streamable HTTP GET/DELETE behavior: official MCP transport spec, https://modelcontextprotocol.io/specification/2025-06-18/basic/transports.
 
 Your job:
 - inspect the repository and current implementation

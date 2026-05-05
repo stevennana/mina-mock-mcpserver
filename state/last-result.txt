@@ -1,17 +1,12 @@
-Implemented `root-reset-defaults`.
+Implemented `mcp-initialize-and-tools-list`.
 
-What changed:
-- Added root-protected reset API/UI at `/api/reset` and `/reset`.
-- Reset requires root password plus exact `RESET DEFAULTS` confirmation.
-- Reset clears current endpoint data, recreates deterministic endpoint seed defaults, and keeps audit history.
-- Added non-secret audit evidence for reset failures and success.
-- Added unit coverage and `@root-reset` E2E coverage.
-- Serialized Playwright E2E workers to avoid shared SQLite reset/mutation races.
+Added stateless no-auth MCP handlers for `/mcp` and `/mcp/none`, covering `initialize`, `notifications/initialized`, and `tools/list`. Tool listing now reads enabled endpoints through the endpoint domain service and uses the shared generated MCP `inputSchema`; disabled endpoints are hidden. GET/DELETE return deterministic `405` with `Allow: POST`.
 
-Required checks passed:
-- `npm run db:prepare`
+Updated docs and the task progress log, and wrote the operator handoff to `state/last-result.txt`.
+
+Checks passed:
 - `npm run test:unit`
-- `npm run test:e2e -- --grep @root-reset`
+- `npm run test:e2e -- --grep @mcp-initialize-list`
 - `npm run verify`
 
-I also updated `state/last-result.txt` with the operator handoff. Exit criteria appear satisfied; no known remaining work for this task.
+Reference used for unsupported Streamable HTTP GET/DELETE behavior: official MCP transport spec, https://modelcontextprotocol.io/specification/2025-06-18/basic/transports.

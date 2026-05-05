@@ -5,7 +5,7 @@
   "id": "mcp-initialize-and-tools-list",
   "title": "MCP Initialize and Tools List No-Auth Runtime",
   "order": 7,
-  "status": "queued",
+  "status": "active",
   "next_task_on_success": "mcp-tools-call-and-errors",
   "prompt_docs": [
     "AGENTS.md",
@@ -102,3 +102,6 @@ Confirm that this task maps to the primary product spec `mcp-json-rpc-runtime.md
 
 - Start here. Append timestamped progress notes as work lands.
 - Note when existing partial implementations were found and reused instead of replaced.
+- 2026-05-05T10:31:06.589Z: restored as current task after root-reset-defaults promotion.
+- 2026-05-05T10:33:14Z: found no existing MCP route implementation; reused the existing endpoint domain `generateMcpInputSchema` helper for tools/list rather than creating protocol-local schemas.
+- 2026-05-05T10:33:14Z: added stateless no-auth MCP handlers for `/mcp` and `/mcp/none`, documented MVP protocol/capability decisions, and added unit plus `@mcp-initialize-list` E2E coverage.

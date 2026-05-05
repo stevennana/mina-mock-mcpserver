@@ -5,7 +5,7 @@
   "id": "root-reset-defaults",
   "title": "Root-Protected Reset to Defaults",
   "order": 6,
-  "status": "active",
+  "status": "completed",
   "next_task_on_success": "mcp-initialize-and-tools-list",
   "prompt_docs": [
     "AGENTS.md",
@@ -28,7 +28,8 @@
     "Required checks do not prove the claimed behavior.",
     "Implementation changes contradict the product spec or security/reliability docs."
   ],
-  "promotion_mode": "deterministic"
+  "promotion_mode": "deterministic",
+  "completed_at": "2026-05-05T10:31:06.589Z"
 }
 ```
 
@@ -112,3 +113,4 @@ Confirm that this task maps to the primary product spec `operator-configuration.
 - 2026-05-05T19:12:00+09:00 - Found existing endpoint seed preparation, root-password verifier, endpoint deletion API patterns, and audit service; reused those rather than adding sessions or deleting the SQLite file.
 - 2026-05-05T19:18:00+09:00 - Added root-password plus exact confirmation reset API/UI, endpoint-table reset service that reruns current seed defaults, non-secret reset audit events, and `@root-reset` UI/API E2E coverage.
 - 2026-05-05T19:28:05+09:00 - Required gates passed: `npm run db:prepare`, `npm run test:unit`, `npm run test:e2e -- --grep @root-reset`, and `npm run verify`; `verify` required serial Playwright workers because reset and endpoint mutation E2E share the same SQLite runtime database.
+- 2026-05-05T10:31:06.589Z: automatically promoted after deterministic checks and evaluator approval.
