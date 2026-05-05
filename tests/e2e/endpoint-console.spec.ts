@@ -31,10 +31,10 @@ test("endpoint schema preview and console shell stay stable on desktop and mobil
   await expect(consoleRegion.getByLabel("OAuth bearer token")).toBeVisible();
   await expect(consoleRegion.getByLabel("Arguments JSON")).toBeVisible();
   await expect(consoleRegion.getByRole("button", { name: /MCP call unavailable/ })).toBeDisabled();
-  await expect(consoleRegion.getByRole("button", { name: /REST call unavailable/ })).toBeDisabled();
+  await expect(consoleRegion.getByRole("button", { name: "Run REST call" })).toBeEnabled();
   await expect(consoleRegion.getByRole("region", { name: "Raw request" })).toContainText(endpointName);
-  await expect(consoleRegion.getByRole("region", { name: "Raw response" })).toContainText("intentionally disabled");
-  await expect(consoleRegion.getByRole("region", { name: "Matched case" })).toContainText("Pending runtime");
+  await expect(consoleRegion.getByRole("region", { name: "Raw response" })).toContainText("Run a REST call");
+  await expect(consoleRegion.getByRole("region", { name: "Matched case" })).toContainText("Not run");
   await expect(consoleRegion.getByRole("region", { name: "Principal" })).toContainText("anonymous preview");
   await expect(consoleRegion.getByRole("region", { name: "Elapsed time" })).toContainText("-- ms");
 
@@ -42,7 +42,7 @@ test("endpoint schema preview and console shell stay stable on desktop and mobil
   await expect(consoleRegion.getByText("Arguments must be valid JSON")).toBeVisible();
 
   await consoleRegion.getByLabel("Arguments JSON").fill('{"city":"Seoul","includeHumidity":true}');
-  await expect(consoleRegion.getByText("Validated locally for JSON syntax only.")).toBeVisible();
+  await expect(consoleRegion.getByText("Validated locally before REST execution.")).toBeVisible();
   await expect(consoleRegion.getByRole("region", { name: "Raw request" })).toContainText('"includeHumidity": true');
 
   await expect(page.getByRole("navigation", { name: "Primary" })).toBeVisible();

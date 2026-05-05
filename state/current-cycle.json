@@ -1,8 +1,8 @@
 {
-  "task_id": "rest-tools-list-runtime",
-  "started_at": "2026-05-05T20:06:29+09:00",
-  "artifact_dir": "state/artifacts/20260505T200629-rest-tools-list-runtime",
+  "task_id": "rest-tools-call-runtime",
+  "started_at": "2026-05-05T20:14:55+09:00",
+  "artifact_dir": "state/artifacts/20260505T201455-rest-tools-call-runtime",
   "phase": "commit",
   "status": "running",
-  "updated_at": "2026-05-05T11:14:25.122Z"
+  "updated_at": "2026-05-05T11:25:21.304Z"
 }

@@ -4,53 +4,53 @@ Read the following repository documents before making changes:
 - docs/PRODUCT_SENSE.md
 - docs/FRONTEND.md
 - docs/product-specs/rest-mock-api.md
-- docs/exec-plans/active/011-rest-tools-list-runtime.md
+- docs/exec-plans/active/012-rest-tools-call-runtime.md
 
-Current task id: rest-tools-list-runtime
-Current task title: REST Tool List Runtime
+Current task id: rest-tools-call-runtime
+Current task title: REST Tool Call Runtime and Console Wiring
 
 Objective:
-Expose configured enabled endpoints through `GET /rest/tools` with no-auth and Basic behavior.
+Implement `POST /rest/tools/:name/call` and wire endpoint console REST execution for no-auth and Basic modes.
 
 Clarity notes:
-- This task only lists REST tool metadata; REST calling is next.
-- No-auth and Basic are in scope because they are already implemented before REST.
-- OAuth REST filtering is deferred to the OAuth permissions task.
-- The response shape should be simple JSON, not MCP JSON-RPC.
+- This task executes REST calls using the shared endpoint matcher.
+- The endpoint console should now show real REST raw request/response evidence for no-auth and Basic.
+- REST error bodies are contract behavior for client negative-path testing.
+- OAuth REST behavior remains deferred.
 
 Expected result:
-- `GET /rest/tools` returns enabled endpoint metadata and parameters.
-- No-auth callers see all enabled endpoints.
-- Valid Basic callers see all enabled endpoints; invalid Basic headers return 401.
-- Endpoint console can display REST list examples if useful without call execution.
+- REST tool call route returns exact-match mock responses.
+- No-match, unknown tool, invalid auth, and forced-error placeholders map to documented REST errors.
+- Endpoint console can run REST no-auth and Basic calls.
+- E2E coverage proves successful call and negative cases.
 
 Objections / risks to avoid:
-- Do not implement REST tool calls here.
-- Do not return disabled endpoints.
-- Do not add OAuth bearer filtering here.
-- Do not use MCP response envelopes for REST.
+- Do not fork matching logic from MCP/domain.
+- Do not implement OAuth filtering here.
+- Do not return JSON-RPC envelopes from REST.
+- Do not hide raw request/response evidence in the console.
 
 Scope:
-- Implement `GET /rest/tools` route.
-- Apply no-auth/Basic auth resolver behavior.
-- Add unit tests for response mapping.
-- Add E2E tests tagged `@rest-tools-list`.
+- Implement REST tool call route.
+- Map matcher outcomes to REST success/error bodies.
+- Wire endpoint console REST execution for no-auth and Basic.
+- Add unit and E2E tests tagged `@rest-tools-call`.
 
 Out of scope:
-- `POST /rest/tools/:name/call`.
-- OAuth bearer permissions for REST.
-- Failure simulation runtime.
+- OAuth bearer permissions.
+- Malformed response modes not yet implemented.
+- MCP route changes.
 
 Exit criteria:
-1. REST list response matches PRD metadata shape.
-2. No-auth and Basic behavior is tested.
-3. Invalid Basic returns documented unauthorized response.
-4. `@rest-tools-list` passes.
+1. Configured endpoint can be called via REST.
+2. REST error responses match the product spec for scoped cases.
+3. Console displays raw request, raw response, matched case, auth principal, and elapsed time for REST calls.
+4. `@rest-tools-call` passes.
 5. All required checks pass.
 
 Required checks:
 - npm run test:unit
-- npm run test:e2e -- --grep @rest-tools-list
+- npm run test:e2e -- --grep @rest-tools-call
 - npm run verify
 
 Evaluator notes:
@@ -64,7 +64,7 @@ Required repository artifacts for this task:
 
 Required commands for this task:
 - npm run test:unit
-- npm run test:e2e -- --grep @rest-tools-list
+- npm run test:e2e -- --grep @rest-tools-call
 - npm run verify
 
 Previous known gaps from the last evaluation:

@@ -5,7 +5,7 @@
   "id": "rest-tools-list-runtime",
   "title": "REST Tool List Runtime",
   "order": 11,
-  "status": "active",
+  "status": "completed",
   "next_task_on_success": "rest-tools-call-runtime",
   "prompt_docs": [
     "AGENTS.md",
@@ -25,7 +25,8 @@
     "Required checks do not prove the claimed behavior.",
     "Implementation changes contradict the product spec or security/reliability docs."
   ],
-  "promotion_mode": "deterministic"
+  "promotion_mode": "deterministic",
+  "completed_at": "2026-05-05T11:14:25.340Z"
 }
 ```
 
@@ -105,3 +106,4 @@ Confirm that this task maps to the primary product spec `rest-mock-api.md` or is
 - 2026-05-05T11:07:35Z: found no existing REST route implementation; reused the endpoint catalog query shape, Basic Authorization resolver, and fail-closed 401 pattern from MCP instead of introducing separate auth behavior.
 - 2026-05-05T11:07:35Z: added explicit REST tool metadata mapping, GET /rest/tools, unit mapping coverage, and @rest-tools-list E2E coverage for no-auth, valid Basic, invalid Basic, unsupported Authorization, and disabled endpoint filtering.
 - 2026-05-05T11:11:04Z: required checks passed: `npm run test:unit`, `npm run test:e2e -- --grep @rest-tools-list`, and `npm run verify`.
+- 2026-05-05T11:14:25.340Z: automatically promoted after deterministic checks and evaluator approval.

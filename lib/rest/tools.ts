@@ -1,3 +1,4 @@
+import type { EndpointCallResult } from "@/lib/endpoints/runtime";
 import type { EndpointParamInput, EndpointRestTool, JsonValue } from "@/lib/endpoints/types";
 
 type RestToolEndpointInput = {
@@ -28,5 +29,52 @@ export function restToolFromEndpoint(endpoint: RestToolEndpointInput): EndpointR
         ...(defaultValue !== undefined ? { defaultValue } : {}),
       };
     }),
+  };
+}
+
+export type RestToolCallResponse = {
+  status: number;
+  body: JsonValue;
+  matchedCase?: string;
+};
+
+export function restToolCallResponseFromEndpointCall(callResult: EndpointCallResult): RestToolCallResponse {
+  if (callResult.kind === "matched") {
+    return {
+      status: callResult.statusCode,
+      body: callResult.body,
+      matchedCase: callResult.matchedCase.name,
+    };
+  }
+
+  if (callResult.kind === "case_error") {
+    return {
+      status: callResult.statusCode,
+      body:
+        callResult.body ?? {
+          error: "tool_error",
+          message: callResult.message,
+          matchedCase: callResult.matchedCase.name,
+        },
+      matchedCase: callResult.matchedCase.name,
+    };
+  }
+
+  if (callResult.kind === "invalid_arguments") {
+    return {
+      status: 422,
+      body: {
+        error: "invalid_arguments",
+        message: callResult.message,
+      },
+    };
+  }
+
+  return {
+    status: 404,
+    body: {
+      error: "tool_not_found",
+      message: "Tool was not found or is disabled.",
+    },
   };
 }

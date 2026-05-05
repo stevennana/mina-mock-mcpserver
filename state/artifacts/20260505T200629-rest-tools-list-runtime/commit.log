@@ -1,0 +1,15 @@
+[main 6668ad9] ralph: rest-tools-list-runtime 2026-05-05T20:14:25+09:00
+ 31 files changed, 2717 insertions(+), 113 deletions(-)
+ create mode 100644 app/rest/tools/route.ts
+ rename docs/exec-plans/{active => completed}/010-basic-auth-mcp-runtime.md (94%)
+ create mode 100644 lib/rest/http.ts
+ create mode 100644 lib/rest/tools.ts
+ create mode 100644 state/artifacts/20260505T195849-basic-auth-mcp-runtime/backlog.log
+ create mode 100644 state/artifacts/20260505T195849-basic-auth-mcp-runtime/promote.log
+ create mode 100644 state/artifacts/20260505T200629-rest-tools-list-runtime/commit.log
+ create mode 100644 state/artifacts/20260505T200629-rest-tools-list-runtime/evaluator.log
+ create mode 100644 state/artifacts/20260505T200629-rest-tools-list-runtime/task-prompt.log
+ create mode 100644 state/artifacts/20260505T200629-rest-tools-list-runtime/worker.jsonl
+ create mode 100644 tests/e2e/rest-tools-list.spec.ts
+ create mode 100644 tests/unit/rest-tools.test.ts
+commit: created

@@ -5,7 +5,7 @@
   "id": "rest-tools-call-runtime",
   "title": "REST Tool Call Runtime and Console Wiring",
   "order": 12,
-  "status": "queued",
+  "status": "active",
   "next_task_on_success": "oauth-users-management-ui",
   "prompt_docs": [
     "AGENTS.md",
@@ -101,3 +101,5 @@ Confirm that this task maps to the primary product spec `rest-mock-api.md` or is
 
 - Start here. Append timestamped progress notes as work lands.
 - Note when existing partial implementations were found and reused instead of replaced.
+- 2026-05-05T11:14:25.340Z: restored as current task after rest-tools-list-runtime promotion.
+- 2026-05-05T11:20:26.300Z: found and reused shared `callEndpointByName` / `executeEndpointDetail` matcher path; added REST call adapter, no-auth/Basic console execution evidence, REST call unit coverage, and `@rest-tools-call` E2E coverage.

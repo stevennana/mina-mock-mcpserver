@@ -20,6 +20,16 @@ type DeleteState = {
 
 type AuthMode = "none" | "basic" | "oauth";
 
+type ConsoleState = {
+  status: "idle" | "running" | "success" | "error";
+  message: string;
+  rawRequest: string;
+  rawResponse: string;
+  matchedCase: string;
+  principal: string;
+  elapsedMs: string;
+};
+
 const blankEndpoint: EndpointFormState = {
   name: "",
   title: "",
@@ -108,6 +118,15 @@ export function EndpointManager({ initialData }: { initialData: EndpointListResu
   const [basicPassword, setBasicPassword] = useState("");
   const [oauthToken, setOauthToken] = useState("");
   const [argumentsJson, setArgumentsJson] = useState("{}");
+  const [consoleState, setConsoleState] = useState<ConsoleState>({
+    status: "idle",
+    message: "",
+    rawRequest: "",
+    rawResponse: "No response yet. Run a REST call to collect raw HTTP evidence.",
+    matchedCase: "Not run",
+    principal: "anonymous preview",
+    elapsedMs: "-- ms",
+  });
 
   const filteredEndpoints = useMemo(() => {
     const normalized = query.trim().toLowerCase();
@@ -139,6 +158,15 @@ export function EndpointManager({ initialData }: { initialData: EndpointListResu
       const payload = (await response.json()) as { endpoint: EndpointDetail };
       setForm(detailToForm(payload.endpoint));
       setSelectedId(endpoint.id);
+      setConsoleState({
+        status: "idle",
+        message: "",
+        rawRequest: "",
+        rawResponse: "No response yet. Run a REST call to collect raw HTTP evidence.",
+        matchedCase: "Not run",
+        principal: "anonymous preview",
+        elapsedMs: "-- ms",
+      });
     } catch (error) {
       setSaveState({ status: "error", message: error instanceof Error ? error.message : "Load failed.", fieldErrors: {} });
     } finally {
@@ -149,6 +177,15 @@ export function EndpointManager({ initialData }: { initialData: EndpointListResu
   function startCreate() {
     setForm(blankEndpoint);
     setSelectedId(null);
+    setConsoleState({
+      status: "idle",
+      message: "",
+      rawRequest: "",
+      rawResponse: "No response yet. Run a REST call to collect raw HTTP evidence.",
+      matchedCase: "Not run",
+      principal: "anonymous preview",
+      elapsedMs: "-- ms",
+    });
     setSaveState({ status: "idle", message: "", fieldErrors: {} });
     setDeleteState({ status: "idle", message: "" });
     setDeleteCodeConfirm("");
@@ -281,20 +318,120 @@ export function EndpointManager({ initialData }: { initialData: EndpointListResu
   }, [argumentsError, argumentsJson]);
   const rawRequestPreview = JSON.stringify(
     {
-      route: authMode === "none" ? "/mcp/none" : authMode === "basic" ? "/mcp/basic" : "/mcp/oauth",
-      method: "tools/call",
+      route: `/rest/tools/${form.name || "unsaved_endpoint"}/call`,
+      method: "POST",
       authMode,
-      jsonrpc: "2.0",
-      id: "preview-only",
-      params: {
-        name: form.name || "unsaved_endpoint",
+      headers: {
+        "Content-Type": "application/json",
+        ...(authMode === "basic" ? { Authorization: "Basic <redacted>" } : {}),
+        ...(authMode === "oauth" ? { Authorization: "Bearer <deferred>" } : {}),
+      },
+      body: {
         arguments: parsedArguments,
       },
-      runtimeStatus: "disabled until MCP/REST runtime tasks land",
+      runtimeStatus: authMode === "oauth" ? "OAuth REST execution is deferred." : "ready",
     },
     null,
     2,
   );
+  const rawRequestEvidence = consoleState.rawRequest || rawRequestPreview;
+
+  function safePrettyJson(text: string) {
+    try {
+      return JSON.stringify(JSON.parse(text), null, 2);
+    } catch {
+      return text;
+    }
+  }
+
+  async function runRestCall() {
+    if (argumentsError) {
+      setConsoleState((current) => ({
+        ...current,
+        status: "error",
+        message: argumentsError,
+      }));
+      return;
+    }
+    if (authMode === "oauth") {
+      setConsoleState((current) => ({
+        ...current,
+        status: "error",
+        message: "OAuth REST execution is deferred to the OAuth permission task.",
+      }));
+      return;
+    }
+
+    const route = `/rest/tools/${encodeURIComponent(form.name || "unsaved_endpoint")}/call`;
+    const headers: Record<string, string> = { "Content-Type": "application/json" };
+    if (authMode === "basic") {
+      headers.Authorization = `Basic ${btoa(`${basicUsername}:${basicPassword}`)}`;
+    }
+    const requestEvidence = JSON.stringify(
+      {
+        route,
+        method: "POST",
+        authMode,
+        headers: {
+          "Content-Type": "application/json",
+          ...(headers.Authorization ? { Authorization: "Basic <redacted>" } : {}),
+        },
+        body: { arguments: parsedArguments },
+      },
+      null,
+      2,
+    );
+
+    setConsoleState({
+      status: "running",
+      message: "Running REST call.",
+      rawRequest: requestEvidence,
+      rawResponse: "Waiting for response.",
+      matchedCase: "Pending",
+      principal: "Pending",
+      elapsedMs: "-- ms",
+    });
+
+    const startedAt = performance.now();
+    try {
+      const response = await fetch(route, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ arguments: parsedArguments }),
+      });
+      const elapsedMs = `${Math.round(performance.now() - startedAt)} ms`;
+      const responseText = await response.text();
+      const matchedCase = response.headers.get("X-MCP-Mock-Matched-Case") ?? "No match";
+      const principal = response.headers.get("X-MCP-Mock-Principal") ?? (authMode === "none" ? "anonymous" : "unauthenticated");
+      setConsoleState({
+        status: response.ok ? "success" : "error",
+        message: response.ok ? "REST call completed." : `REST call returned HTTP ${response.status}.`,
+        rawRequest: requestEvidence,
+        rawResponse: [
+          `HTTP ${response.status}`,
+          `content-type: ${response.headers.get("content-type") ?? ""}`,
+          `www-authenticate: ${response.headers.get("www-authenticate") ?? ""}`,
+          `x-mcp-mock-matched-case: ${response.headers.get("X-MCP-Mock-Matched-Case") ?? ""}`,
+          `x-mcp-mock-principal: ${response.headers.get("X-MCP-Mock-Principal") ?? ""}`,
+          "",
+          safePrettyJson(responseText),
+        ].join("\n"),
+        matchedCase,
+        principal,
+        elapsedMs,
+      });
+    } catch (error) {
+      setConsoleState({
+        status: "error",
+        message: error instanceof Error ? error.message : "REST call failed.",
+        rawRequest: requestEvidence,
+        rawResponse: "No HTTP response was received.",
+        matchedCase: "No match",
+        principal: "unknown",
+        elapsedMs: `${Math.round(performance.now() - startedAt)} ms`,
+      });
+    }
+  }
 
   return (
     <div className="endpoint-layout">
@@ -618,20 +755,23 @@ export function EndpointManager({ initialData }: { initialData: EndpointListResu
               <label className="field-block wide">
                 <span>Arguments JSON</span>
                 <textarea className="text-area console-arguments" value={argumentsJson} onChange={(event) => setArgumentsJson(event.target.value)} />
-                {argumentsError ? <p className="field-error">{argumentsError}</p> : <p className="field-hint">Validated locally for JSON syntax only. No tool call is sent in this task.</p>}
+                {argumentsError ? <p className="field-error">{argumentsError}</p> : <p className="field-hint">Validated locally before REST execution.</p>}
               </label>
               <div className="console-actions">
                 <button className="secondary-button" type="button" disabled>MCP call unavailable until task 008</button>
-                <button className="secondary-button" type="button" disabled>REST call unavailable until task 012</button>
+                <button className="secondary-button" type="button" onClick={() => void runRestCall()} disabled={consoleState.status === "running" || authMode === "oauth" || Boolean(argumentsError)}>
+                  {consoleState.status === "running" ? "Running REST call" : "Run REST call"}
+                </button>
               </div>
+              {consoleState.message ? <p className={`form-message ${consoleState.status}`}>{consoleState.message}</p> : null}
             </div>
 
             <div className="console-evidence-grid" aria-label="Console evidence">
-              <EvidencePanel title="Raw request" value={rawRequestPreview} />
-              <EvidencePanel title="Raw response" value={"No response yet. Runtime execution is intentionally disabled in this UI shell."} />
-              <EvidencePanel title="Matched case" value={"Pending runtime matcher execution."} compact />
-              <EvidencePanel title="Principal" value={authMode === "none" ? "anonymous preview" : "Pending auth runtime validation."} compact />
-              <EvidencePanel title="Elapsed time" value={"-- ms"} compact />
+              <EvidencePanel title="Raw request" value={rawRequestEvidence} />
+              <EvidencePanel title="Raw response" value={consoleState.rawResponse} />
+              <EvidencePanel title="Matched case" value={consoleState.matchedCase} compact />
+              <EvidencePanel title="Principal" value={consoleState.principal} compact />
+              <EvidencePanel title="Elapsed time" value={consoleState.elapsedMs} compact />
             </div>
           </div>
         </EditorSection>
