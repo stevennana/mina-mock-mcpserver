@@ -1,10 +1,12 @@
-Completed `endpoint-domain-and-schema`.
+Revalidated `endpoint-domain-and-schema` without broadening scope. The Prisma/SQLite persistence foundation is already in place, including migrations, seed defaults, `db:prepare`, generated schema docs, and repeatability coverage.
 
-No implementation changes were needed. The existing Prisma/SQLite persistence foundation already satisfies the task, so I only updated the progress log in [001-endpoint-domain-and-schema.md](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/docs/exec-plans/active/001-endpoint-domain-and-schema.md) and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+Updated:
+- [001-endpoint-domain-and-schema.md](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/docs/exec-plans/active/001-endpoint-domain-and-schema.md)
+- [last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt)
 
-Required gates passed:
+Required gates all passed:
 - `npm run db:prepare`
 - `npm run test:unit`
 - `npm run verify`
 
-Exit criteria appear satisfied. Nothing remains for this task. Existing dirty `state/` artifacts from prior Ralph/evaluation runs were left untouched except for `state/last-result.txt`.
+Exit criteria appear satisfied. Nothing remains for this task based on the current contract. Note: the worktree also has pre-existing Ralph state artifact changes unrelated to my source/doc validation edits.
