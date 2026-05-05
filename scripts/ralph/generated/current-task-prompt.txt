@@ -2,56 +2,58 @@ Read the following repository documents before making changes:
 - AGENTS.md
 - ARCHITECTURE.md
 - docs/PRODUCT_SENSE.md
+- docs/FRONTEND.md
 - docs/DESIGN.md
-- docs/references/prd-analysis.md
 - docs/product-specs/endpoint-tool-management.md
-- docs/exec-plans/active/002-endpoint-validation-and-matching.md
+- docs/exec-plans/active/003-endpoint-management-list-editor-ui.md
 
-Current task id: endpoint-validation-and-matching
-Current task title: Endpoint Validation, Schema Preview, and Response Matching
+Current task id: endpoint-management-list-editor-ui
+Current task title: Endpoint List, Search, and Editor UI
 
 Objective:
-Create reusable endpoint domain services for validation, MCP inputSchema generation, and exact-match response-case selection.
+Build the first public endpoint-management UI for listing, searching, creating, and editing endpoint definitions.
 
 Clarity notes:
-- This is pure domain behavior that later UI, MCP, and REST tasks will call.
-- All parameter and response-case rules should be enforced here, not independently reimplemented in route handlers.
-- The matcher should be testable without HTTP, React, or Prisma setup beyond repository fixtures.
-- Malformed response configuration is allowed only when explicitly configured as a negative-test mode.
+- This is the endpoint CRUD UI slice, not the test console slice.
+- Use domain/API validation from earlier tasks and surface errors clearly in the form.
+- The UI should be operational and dense, suitable for repeated test setup.
+- This is UI-focused and can promote deterministically if the tagged UI proof passes.
 
 Expected result:
-- Endpoint validation rejects invalid definitions before persistence or runtime exposure.
-- Input schema generation produces MCP-compatible object schemas for zero to three parameters.
-- Exact-match response selection handles string, number, and boolean values consistently.
-- Unit tests pin no-match/default/priority behavior for later MCP and REST use.
+- Dashboard/list views show persisted endpoint counts and rows.
+- A user can create and edit endpoint basic info, parameters, response cases, default response, enabled state, delete code, and failure config fields.
+- Search filters by name or description without layout shift.
+- Desktop/mobile screenshot and accessibility coverage exists under `@ui-endpoint-editor`.
 
 Objections / risks to avoid:
-- Do not build UI in this task.
-- Do not produce MCP JSON-RPC envelopes here; only generate schema/data used by protocol adapters later.
-- Do not add future matcher types such as regex, enum, object, array, date, or custom JavaScript.
-- Do not silently accept invalid JSON unless the endpoint is intentionally configured for malformed output.
+- Do not implement endpoint deletion, reset, or audit here.
+- Do not wire fake MCP/REST call success into the editor.
+- Do not duplicate server validation with incompatible client rules.
+- Do not build a decorative landing page before the usable management UI.
 
 Scope:
-- Implement domain types and validation for endpoint name, parameter count, parameter names, parameter types, delete code, enabled state, response JSON, default case, and error/delay config bounds.
-- Implement MCP `inputSchema` generation from endpoint parameters.
-- Implement argument normalization and exact-match response-case selection with priority/default/no-match outcomes.
-- Add focused unit tests for validators, schema generation, normalization, matching, and no-match/default behavior.
+- Create endpoint list and search UI.
+- Create endpoint create/edit flow backed by persisted endpoint APIs.
+- Render validation errors and empty/loading/error states.
+- Update dashboard counts from persisted endpoint state.
+- Add Playwright UI test coverage tagged `@ui-endpoint-editor` with desktop and mobile assertions.
 
 Out of scope:
-- Prisma schema changes unless required by discovered validation gaps.
-- Endpoint UI forms.
-- MCP `tools/call` runtime formatting.
-- REST route error bodies.
+- Endpoint test console execution.
+- Delete/reset/audit behavior.
+- MCP and REST runtime routes.
+- OAuth or Basic Auth screens.
 
 Exit criteria:
-1. Validation rules are centralized in a reusable domain module.
-2. Matcher behavior is deterministic and covered for string, number, and boolean parameters.
-3. Generated input schemas match the PRD example shape, including required parameter names and `additionalProperties` behavior.
-4. No route handler needs to invent endpoint validation rules.
+1. A public user can create and edit endpoint definitions through the UI.
+2. List/search and dashboard counts reflect persisted endpoint data.
+3. The form captures all MVP endpoint fields without layout overflow on mobile.
+4. `@ui-endpoint-editor` proves screenshot, responsive, and accessibility expectations.
 5. All required checks pass.
 
 Required checks:
 - npm run test:unit
+- npm run test:e2e -- --grep @ui-endpoint-editor
 - npm run verify
 
 Evaluator notes:
@@ -65,6 +67,7 @@ Required repository artifacts for this task:
 
 Required commands for this task:
 - npm run test:unit
+- npm run test:e2e -- --grep @ui-endpoint-editor
 - npm run verify
 
 Previous known gaps from the last evaluation:

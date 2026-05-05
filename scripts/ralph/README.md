@@ -13,6 +13,11 @@ reliably decide when to advance. This version adds:
 - deterministic-only promotion for tasks whose quality is fully proven by required commands
 - automatic promotion to the next task when the current task is truly complete
 
+Task filenames are for operator readability. The stable task identifier is
+`taskmeta.id`, and `taskmeta.next_task_on_success` must point to that id even
+when the active plan file uses an ordered or custom filename such as
+`002-endpoint-validation-and-matching.md`.
+
 ## Why this matches the OpenAI harness pattern
 
 OpenAI’s harness engineering article describes a system where:
@@ -135,6 +140,7 @@ If no reason is supplied, the override records the default reason `operator manu
 - Port cleanup is executed automatically only by the evaluator path for `npm run verify`, `npm run test:e2e`, or other Playwright-bearing commands. Manual local runs do not get that cleanup for free.
 - `ensure-e2e-port-free.sh` is intentionally aggressive and may terminate unrelated processes bound to `127.0.0.1:3100`.
 - `state/current-task.txt` must point at a task that still exists in `docs/exec-plans/active/` with status `active` or `queued`, or be `NONE` only when the runnable queue is exhausted.
+- `state/current-task.txt` stores the stable `taskmeta.id`, not the markdown filename. Promotion resolves successors by scanning active task metadata first, then writes updates to the resolved task file.
 - `docs/exec-plans/completed/` is history only. Plans in that directory are never runnable current tasks.
 - `ensure-state.mjs` repairs obvious drift before status/loop runs by rewriting `state/current-task.txt` to the current runnable task or `NONE`, and it refreshes `state/backlog.md`.
 - if prompt rendering fails, `run-once.sh` stops immediately, records the prompt-phase failure in `state/current-cycle.json` and `state/last-result.txt`, appends `x` to the health line, and does not launch the worker/evaluator/promotion phases.

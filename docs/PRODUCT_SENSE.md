@@ -37,7 +37,7 @@ Remote MCP adoption is moving auth, transport, and permission bugs into client i
 - replacing a real authorization server
 
 ## v1 Success Signals
-- a new endpoint can be created, listed through tools/list, called through tools/call, and called through REST
+- a new endpoint can be created and edited through the public endpoint UI, then listed through tools/list, called through tools/call, and called through REST
 - Basic default/default and additional users work on strict Basic routes while invalid credentials return 401
 - OAuth consent can select endpoints, exchange a code for a JWT, allow selected tools, deny unselected tools with 403, and return 401 after revocation
 - token and audit screens show enough evidence to debug a client test

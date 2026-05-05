@@ -5,7 +5,7 @@
   "id": "endpoint-management-list-editor-ui",
   "title": "Endpoint List, Search, and Editor UI",
   "order": 3,
-  "status": "queued",
+  "status": "active",
   "next_task_on_success": "endpoint-console-schema-preview-ui",
   "prompt_docs": [
     "AGENTS.md",
@@ -106,3 +106,5 @@ Confirm that this task maps to the primary product spec `endpoint-tool-managemen
 
 - Start here. Append timestamped progress notes as work lands.
 - Note when existing partial implementations were found and reused instead of replaced.
+- 2026-05-05T09:44:50.444Z: restored as current task after endpoint-validation-and-matching promotion.
+- 2026-05-05T10:01:36Z: reused existing partial endpoint API/UI/test slice, completed missing editor fields for parameter descriptions and response-case error body/message, synced list/header counts after saves, and tightened tagged UI proof for accessible controls, screenshots, and mobile overflow.

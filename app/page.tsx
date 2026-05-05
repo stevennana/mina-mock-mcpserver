@@ -1,4 +1,6 @@
 import { getBootstrapStatus } from "@/lib/bootstrap-status";
+import { listEndpoints } from "@/lib/endpoints/service";
+import Link from "next/link";
 
 const plannedSurfaces = [
   "Endpoint and tool management",
@@ -10,13 +12,18 @@ const plannedSurfaces = [
   "Operator configuration and startup proof",
 ];
 
-export default function Home() {
+export default async function Home() {
   const status = getBootstrapStatus();
+  const endpointData = await listEndpoints();
 
   return (
-    <main className="shell">
+    <main className="shell app-shell">
+      <nav className="top-nav" aria-label="Primary">
+        <Link href="/" aria-current="page">Dashboard</Link>
+        <Link href="/endpoints">Endpoints</Link>
+      </nav>
       <section className="hero" aria-labelledby="page-title">
-        <p className="eyebrow">Foundation scaffold</p>
+        <p className="eyebrow">Public test bench</p>
         <h1 id="page-title">MCP Mock Server</h1>
         <p className="lede">
           Public remote MCP mock server for testing no-auth, Basic Auth, mock OAuth bearer tokens,
@@ -36,6 +43,18 @@ export default function Home() {
         <div>
           <span>Health route</span>
           <strong>/api/health</strong>
+        </div>
+        <div>
+          <span>Persisted endpoints</span>
+          <strong>{endpointData.total}</strong>
+        </div>
+        <div>
+          <span>Enabled tools</span>
+          <strong>{endpointData.enabled}</strong>
+        </div>
+        <div>
+          <span>Disabled tools</span>
+          <strong>{endpointData.disabled}</strong>
         </div>
       </section>
 

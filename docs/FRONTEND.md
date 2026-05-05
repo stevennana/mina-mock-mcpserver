@@ -32,7 +32,7 @@ Describe the user-facing structure of MCP Mock Server so an agent can implement 
 | Screen | Primary jobs |
 |---|---|
 | Dashboard | Summarize service state and show connection examples |
-| Endpoints | Manage mock tools, response cases, failure simulation, delete protection |
+| Endpoints | List, search, create, and edit mock tools, response cases, failure simulation, and delete protection |
 | Endpoint console | Run MCP and REST calls with selected auth mode and inspect raw evidence |
 | Basic Auth users | Manage Basic test identities and built-in lock state |
 | OAuth users | Manage login identities and token TTLs |
@@ -49,6 +49,7 @@ Describe the user-facing structure of MCP Mock Server so an agent can implement 
 - every destructive action has a confirmation path and explains whether delete code or root password is accepted
 - show protocol/auth warnings inline on malformed-response and public-admin controls
 - tables must support search/filter states without layout shift
+- endpoint editor forms must surface API/domain validation errors next to the affected fields
 - console outputs must preserve raw JSON formatting and elapsed/auth/match metadata
 - UI-focused tasks must include desktop and mobile screenshots plus accessibility checks
 

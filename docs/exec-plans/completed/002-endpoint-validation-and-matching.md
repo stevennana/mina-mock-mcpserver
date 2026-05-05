@@ -5,7 +5,7 @@
   "id": "endpoint-validation-and-matching",
   "title": "Endpoint Validation, Schema Preview, and Response Matching",
   "order": 2,
-  "status": "active",
+  "status": "completed",
   "next_task_on_success": "endpoint-management-list-editor-ui",
   "prompt_docs": [
     "AGENTS.md",
@@ -25,7 +25,8 @@
     "Required checks do not prove the claimed behavior.",
     "Implementation changes contradict the product spec or security/reliability docs."
   ],
-  "promotion_mode": "deterministic"
+  "promotion_mode": "deterministic",
+  "completed_at": "2026-05-05T09:44:50.444Z"
 }
 ```
 
@@ -103,3 +104,4 @@ Confirm that this task maps to the primary product spec `endpoint-tool-managemen
 - Start here. Append timestamped progress notes as work lands.
 - Note when existing partial implementations were found and reused instead of replaced.
 - 2026-05-05T09:43:16.706Z: restored as current task after endpoint-domain-and-schema promotion.
+- 2026-05-05T09:44:50.444Z: automatically promoted after deterministic checks and evaluator approval.

@@ -9,6 +9,7 @@ Capture the top-level design direction for MCP Mock Server and point to the deep
 - fail-closed auth: invalid Basic/Bearer headers never silently downgrade to no-auth
 - recoverable public service: root reset and audit evidence are first-class operator tools
 - extensible mock behavior: exact matching, failure simulation, and future parameter types should fit the same model
+- dense endpoint setup: public endpoint management should prioritize fast repeated create/edit/search workflows over decorative framing
 
 ## Source of Truth
 Detailed rules belong in:

@@ -1,0 +1,10 @@
+[main 51b6fb4] ralph: endpoint-validation-and-matching 2026-05-05T18:44:50+09:00
+ 22 files changed, 1893 insertions(+), 75 deletions(-)
+ rename docs/exec-plans/{active => completed}/001-endpoint-domain-and-schema.md (96%)
+ create mode 100644 state/artifacts/20260505T183444-endpoint-domain-and-schema/backlog.log
+ create mode 100644 state/artifacts/20260505T183444-endpoint-domain-and-schema/promote.log
+ create mode 100644 state/artifacts/20260505T183939-endpoint-domain-and-schema/commit.log
+ create mode 100644 state/artifacts/20260505T183939-endpoint-domain-and-schema/evaluator.log
+ create mode 100644 state/artifacts/20260505T183939-endpoint-domain-and-schema/task-prompt.log
+ create mode 100644 state/artifacts/20260505T183939-endpoint-domain-and-schema/worker.jsonl
+commit: created
