@@ -9,3 +9,4 @@
 - 2026-05-05T10:31:06.589Z: promoted root-reset-defaults -> mcp-initialize-and-tools-list
 - 2026-05-05T10:39:05.356Z: promoted mcp-initialize-and-tools-list -> mcp-tools-call-and-errors
 - 2026-05-05T10:49:01.250Z: promoted mcp-tools-call-and-errors -> basic-auth-users-domain-ui
+- 2026-05-05T10:58:19.153Z: promoted basic-auth-users-domain-ui -> basic-auth-mcp-runtime

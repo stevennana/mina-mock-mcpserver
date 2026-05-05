@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
 import test from "node:test";
+import { parseBasicAuthorizationHeader, resolveBasicAuthorizationHeader } from "@/lib/auth/basic";
 import { hashBasicPassword, verifyBasicPassword } from "@/lib/basic-auth/passwords";
 import {
   createBasicUser,
@@ -46,6 +47,52 @@ test("Basic passwords are hashed and verified without plaintext storage", async 
   assert.match(hash, /^scrypt\$/);
   assert.equal(await verifyBasicPassword("secret-value", hash), true);
   assert.equal(await verifyBasicPassword("wrong-value", hash), false);
+});
+
+test("Basic Authorization parser handles missing, valid, unsupported, and malformed headers", () => {
+  const encoded = Buffer.from("default:default", "utf8").toString("base64");
+
+  assert.deepEqual(parseBasicAuthorizationHeader(null), { kind: "missing" });
+  assert.deepEqual(parseBasicAuthorizationHeader(`Basic ${encoded}`), {
+    kind: "basic",
+    username: "default",
+    password: "default",
+  });
+  assert.deepEqual(parseBasicAuthorizationHeader(`bAsIc ${encoded}`), {
+    kind: "basic",
+    username: "default",
+    password: "default",
+  });
+  assert.deepEqual(parseBasicAuthorizationHeader("Bearer token-value"), { kind: "unsupported", scheme: "Bearer" });
+  assert.deepEqual(parseBasicAuthorizationHeader("Basic"), { kind: "invalid", reason: "malformed" });
+  assert.deepEqual(parseBasicAuthorizationHeader("Basic !!!"), { kind: "invalid", reason: "malformed" });
+  assert.deepEqual(parseBasicAuthorizationHeader(`Basic ${Buffer.from("missing-colon", "utf8").toString("base64")}`), {
+    kind: "invalid",
+    reason: "malformed",
+  });
+});
+
+test("Basic Authorization resolver authenticates enabled users and fails closed otherwise", async () => {
+  await withIsolatedDb(async (client) => {
+    const valid = Buffer.from("default:default", "utf8").toString("base64");
+    const invalidPassword = Buffer.from("default:wrong", "utf8").toString("base64");
+
+    const authenticated = await resolveBasicAuthorizationHeader(`Basic ${valid}`, client);
+    assert.equal(authenticated.kind, "authenticated");
+    if (authenticated.kind === "authenticated") {
+      assert.equal(authenticated.principal.username, "default");
+    }
+
+    assert.deepEqual(await resolveBasicAuthorizationHeader(null, client), { kind: "missing" });
+    assert.deepEqual(await resolveBasicAuthorizationHeader(`Basic ${invalidPassword}`, client), {
+      kind: "unauthorized",
+      reason: "invalid",
+    });
+    assert.deepEqual(await resolveBasicAuthorizationHeader("Bearer token-value", client), {
+      kind: "unauthorized",
+      reason: "unsupported",
+    });
+  });
 });
 
 test("Basic credential verification uses stored hashes and enabled state", async () => {

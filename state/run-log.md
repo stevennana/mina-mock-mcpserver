@@ -586,3 +586,18 @@
 - evaluator: started
 - evaluator: status=done promotion=true Deterministic checks passed; task is eligible for automatic promotion. -> state/artifacts/20260505T194931-basic-auth-users-domain-ui/evaluator.log
 - next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T194931-basic-auth-users-domain-ui/npm-run-test-e2e-grep-ui-basic-users-next-server.log
+- commit: commit: created
+- promote: Promoted basic-auth-users-domain-ui -> basic-auth-mcp-runtime
+- backlog: rendered current=basic-auth-mcp-runtime
+- health: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxoooooooo
+- cycle: finished
+
+### cycle 2026-05-05T19:58:49+09:00 task=basic-auth-mcp-runtime
+- artifacts: state/artifacts/20260505T195849-basic-auth-mcp-runtime
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260505T195849-basic-auth-mcp-runtime/worker.jsonl
+- worker-summary: Implemented `basic-auth-mcp-runtime` and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+- evaluator: started
+- evaluator: status=done promotion=true The implementation satisfies the Basic Auth MCP runtime task in substance. `/mcp/basic` fails closed with 401 and `WWW-Authenticate`, `/mcp` gives Basic/unsupported Authorization headers precedence over anonymous handling, valid Basic credentials can list and call enabled MCP tools, and invalid credentials do not fall back to no-auth. The task maps directly to `basic-auth-management.md`, and the required deterministic checks are reported passing. -> state/artifacts/20260505T195849-basic-auth-mcp-runtime/evaluator.log
+- next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T195849-basic-auth-mcp-runtime/npm-run-test-e2e-grep-basic-auth-mcp-next-server.log

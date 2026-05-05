@@ -11,6 +11,8 @@ Basic users list
 - Create/edit/disable/delete Basic users
 - Locked built-in user state
 - Basic credentials in test console
+- Strict `/mcp/basic` requires valid Basic credentials.
+- Unified `/mcp` treats Basic `Authorization` headers as credentialed calls and fails closed when those headers are invalid.
 
 ## Validation
 - Password hashing

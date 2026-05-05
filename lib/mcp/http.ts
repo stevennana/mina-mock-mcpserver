@@ -1,10 +1,26 @@
 import { NextResponse } from "next/server";
+import { resolveBasicAuthorizationHeader } from "@/lib/auth/basic";
 import { callEndpointByName, listEnabledMcpTools } from "@/lib/endpoints/service";
 import { handleMcpJsonRpcMessage } from "@/lib/mcp/protocol";
 
 export const dynamic = "force-dynamic";
 
-export async function handleNoAuthMcpPost(request: Request) {
+function unauthorizedBasicResponse(message = "Valid Basic credentials are required.") {
+  return NextResponse.json(
+    {
+      error: "unauthorized",
+      message,
+    },
+    {
+      status: 401,
+      headers: {
+        "WWW-Authenticate": 'Basic realm="MCP Mock Server"',
+      },
+    },
+  );
+}
+
+async function handleMcpJsonRpcPost(request: Request) {
   let body: unknown;
   try {
     body = await request.json();
@@ -25,6 +41,33 @@ export async function handleNoAuthMcpPost(request: Request) {
   }
 
   return NextResponse.json(result.body, { status: result.status });
+}
+
+export async function handleNoAuthMcpPost(request: Request) {
+  return handleMcpJsonRpcPost(request);
+}
+
+export async function handleUnifiedMcpPost(request: Request) {
+  const authorization = request.headers.get("Authorization");
+  const resolution = await resolveBasicAuthorizationHeader(authorization);
+
+  if (resolution.kind === "unauthorized") {
+    return unauthorizedBasicResponse("Authorization header was invalid.");
+  }
+  if (resolution.kind === "authenticated" || resolution.kind === "missing") {
+    return handleMcpJsonRpcPost(request);
+  }
+
+  return unauthorizedBasicResponse();
+}
+
+export async function handleStrictBasicMcpPost(request: Request) {
+  const resolution = await resolveBasicAuthorizationHeader(request.headers.get("Authorization"));
+  if (resolution.kind !== "authenticated") {
+    return unauthorizedBasicResponse();
+  }
+
+  return handleMcpJsonRpcPost(request);
 }
 
 export function unsupportedStreamableHttpMethod() {

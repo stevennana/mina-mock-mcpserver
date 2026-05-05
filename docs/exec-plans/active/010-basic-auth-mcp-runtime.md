@@ -5,7 +5,7 @@
   "id": "basic-auth-mcp-runtime",
   "title": "Basic Auth MCP Runtime and Auth Precedence",
   "order": 10,
-  "status": "queued",
+  "status": "active",
   "next_task_on_success": "rest-tools-list-runtime",
   "prompt_docs": [
     "AGENTS.md",
@@ -102,3 +102,6 @@ Confirm that this task maps to the primary product spec `basic-auth-management.m
 
 - Start here. Append timestamped progress notes as work lands.
 - Note when existing partial implementations were found and reused instead of replaced.
+- 2026-05-05T10:58:19.153Z: restored as current task after basic-auth-users-domain-ui promotion.
+- 2026-05-05T11:01:31Z: found existing no-auth MCP adapter and Basic user verification service; reused both by adding a shared Basic Authorization parser/resolver, wiring `/mcp/basic`, and changing only `/mcp` Authorization-header precedence.
+- 2026-05-05T11:03:00Z: added parser/resolver unit coverage and `@basic-auth-mcp` E2E coverage for default/default, a user-created credential, strict 401 behavior, malformed headers, and unified `/mcp` invalid-header precedence; required `npm run test:unit`, `npm run test:e2e -- --grep @basic-auth-mcp`, and `npm run verify` passed.

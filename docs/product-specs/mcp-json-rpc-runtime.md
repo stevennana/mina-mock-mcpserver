@@ -14,6 +14,8 @@ MCP connection guide examples
 
 ## No-Auth Initialize and Tool Listing
 - `/mcp` without `Authorization` and `/mcp/none` share the no-auth runtime path.
+- `/mcp` with valid Basic credentials uses the Basic runtime path; invalid or malformed Basic headers and unsupported authorization schemes return HTTP `401` and never downgrade to no-auth.
+- `/mcp/basic` is a strict Basic route: missing, malformed, or invalid Basic credentials return HTTP `401` with `WWW-Authenticate`, while valid Basic credentials may list and call all enabled endpoint tools.
 - The MVP server supports JSON-RPC over Streamable HTTP `POST`; it does not assign MCP sessions or expose SSE streams.
 - `initialize` returns protocol version `2025-06-18` when requested, otherwise the newest MVP-supported version from `2025-06-18` and `2025-03-26`.
 - `initialize` advertises only the `tools` capability with `listChanged: false`; resources, prompts, logging, sampling, and SSE/session capabilities are not claimed.

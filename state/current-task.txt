@@ -1,1 +1,1 @@
-basic-auth-users-domain-ui
+basic-auth-mcp-runtime

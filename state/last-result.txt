@@ -1,14 +1,14 @@
-Implemented `basic-auth-users-domain-ui` and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+Implemented `basic-auth-mcp-runtime` and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
 
 Changed:
-- Added `BasicUser` persistence, migration, seed/reset support for locked `default/default`.
-- Added scrypt password hashing and credential verification service.
-- Added `/api/basic-users` CRUD and `/basic-users` management UI.
-- Added unit tests and `@ui-basic-users` Playwright coverage with desktop/mobile screenshots.
+- Added reusable Basic `Authorization` parsing/resolution in `lib/auth/basic.ts`.
+- Wired `/mcp/basic` strict Basic Auth and `/mcp` Basic header precedence.
+- Added unit and `@basic-auth-mcp` E2E coverage.
+- Updated related MCP/Basic specs and the active task progress log.
 
 Required checks passed:
 - `npm run test:unit`
-- `npm run test:e2e -- --grep @ui-basic-users`
+- `npm run test:e2e -- --grep @basic-auth-mcp`
 - `npm run verify`
 
 Exit criteria appear satisfied. Remaining work: none for this task.

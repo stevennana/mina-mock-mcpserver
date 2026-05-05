@@ -1,0 +1,22 @@
+[main 6da37e6] ralph: basic-auth-users-domain-ui 2026-05-05T19:58:19+09:00
+ 46 files changed, 1260 insertions(+), 92 deletions(-)
+ create mode 100644 app/api/basic-users/[id]/route.ts
+ create mode 100644 app/api/basic-users/route.ts
+ create mode 100644 app/basic-users/basic-users-manager.tsx
+ create mode 100644 app/basic-users/page.tsx
+ rename docs/exec-plans/{active => completed}/008-mcp-tools-call-and-errors.md (94%)
+ create mode 100644 lib/basic-auth/api.ts
+ create mode 100644 lib/basic-auth/passwords.ts
+ create mode 100644 lib/basic-auth/service.ts
+ create mode 100644 lib/basic-auth/types.ts
+ create mode 100644 lib/basic-auth/validation.ts
+ create mode 100644 prisma/migrations/202605050004_basic_users/migration.sql
+ create mode 100644 state/artifacts/20260505T193935-mcp-tools-call-and-errors/backlog.log
+ create mode 100644 state/artifacts/20260505T193935-mcp-tools-call-and-errors/promote.log
+ create mode 100644 state/artifacts/20260505T194931-basic-auth-users-domain-ui/commit.log
+ create mode 100644 state/artifacts/20260505T194931-basic-auth-users-domain-ui/evaluator.log
+ create mode 100644 state/artifacts/20260505T194931-basic-auth-users-domain-ui/task-prompt.log
+ create mode 100644 state/artifacts/20260505T194931-basic-auth-users-domain-ui/worker.jsonl
+ create mode 100644 tests/e2e/basic-users.spec.ts
+ create mode 100644 tests/unit/basic-auth.test.ts
+commit: created
