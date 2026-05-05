@@ -1,14 +1,15 @@
-Implemented `basic-auth-mcp-runtime` and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+Implemented `rest-tools-list-runtime` and wrote the handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
 
 Changed:
-- Added reusable Basic `Authorization` parsing/resolution in `lib/auth/basic.ts`.
-- Wired `/mcp/basic` strict Basic Auth and `/mcp` Basic header precedence.
-- Added unit and `@basic-auth-mcp` E2E coverage.
-- Updated related MCP/Basic specs and the active task progress log.
+- Added `GET /rest/tools` via [app/rest/tools/route.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/app/rest/tools/route.ts), backed by explicit REST metadata mapping in `lib/rest`.
+- Lists enabled endpoints only, with `name`, `title`, `description`, and parameter metadata.
+- Reuses Basic auth resolution: no-auth and valid Basic pass; invalid/unsupported `Authorization` returns `401`.
+- Added unit coverage and `@rest-tools-list` E2E coverage.
+- Updated REST/product/frontend docs and the active task progress log.
 
 Required checks passed:
 - `npm run test:unit`
-- `npm run test:e2e -- --grep @basic-auth-mcp`
+- `npm run test:e2e -- --grep @rest-tools-list`
 - `npm run verify`
 
-Exit criteria appear satisfied. Remaining work: none for this task.
+Exit criteria appear satisfied. Remaining work for this task: none.

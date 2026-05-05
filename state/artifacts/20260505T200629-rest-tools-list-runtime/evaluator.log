@@ -1,0 +1,2076 @@
+/Users/stevenna/WebstormProjects/mina-mock-mcpserver/scripts/ralph/generated/current-evaluator-prompt.txt
+OpenAI Codex v0.128.0 (research preview)
+--------
+workdir: /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 019df7d7-a0e8-7391-b00b-2cae2da2baff
+--------
+user
+You are the promotion evaluator for a repository-local Ralph loop.
+
+Read these documents before deciding:
+- AGENTS.md
+- ARCHITECTURE.md
+- docs/PRODUCT_SENSE.md
+- docs/FRONTEND.md
+- docs/product-specs/rest-mock-api.md
+- docs/exec-plans/active/011-rest-tools-list-runtime.md
+
+Current task id: rest-tools-list-runtime
+Current task title: REST Tool List Runtime
+
+Objective:
+Expose configured enabled endpoints through `GET /rest/tools` with no-auth and Basic behavior.
+
+Scope:
+- Implement `GET /rest/tools` route.
+- Apply no-auth/Basic auth resolver behavior.
+- Add unit tests for response mapping.
+- Add E2E tests tagged `@rest-tools-list`.
+
+Out of scope:
+- `POST /rest/tools/:name/call`.
+- OAuth bearer permissions for REST.
+- Failure simulation runtime.
+
+Exit criteria:
+1. REST list response matches PRD metadata shape.
+2. No-auth and Basic behavior is tested.
+3. Invalid Basic returns documented unauthorized response.
+4. `@rest-tools-list` passes.
+5. All required checks pass.
+
+Evaluator notes:
+Required commands are mandatory promotion gates, not suggestions.
+Do not promote if any required check fails.
+Do not accept broad feature work outside this task.
+Confirm that this task maps to the primary product spec `rest-mock-api.md` or is explicitly final hardening.
+
+Deterministic check summary:
+{
+  "checked_at": "2026-05-05T11:13:16.885Z",
+  "task_id": "rest-tools-list-runtime",
+  "commands": [
+    {
+      "command": "npm run test:unit",
+      "ok": true,
+      "output": "\n> mina-mock-mcpserver@1.0.0 test:unit\n> node --import tsx --test \"tests/unit/**/*.test.ts\"\n\n✔ Basic passwords are hashed and verified without plaintext storage (82.235ms)\n✔ Basic Authorization parser handles missing, valid, unsupported, and malformed headers (0.603542ms)\n✔ Basic Authorization resolver authenticates enabled users and fails closed otherwise (775.141458ms)\n✔ Basic credential verification uses stored hashes and enabled state (738.022125ms)\n✔ built-in default Basic user cannot be disabled, changed, or deleted (675.374791ms)\n✔ normalizeLogLevel accepts supported operator log levels (0.396042ms)\n✔ normalizeLogLevel defaults invalid input to info (0.061709ms)\n✔ getBootstrapStatus reports prepared foundation state (0.056875ms)\n✔ db:prepare is repeatable and keeps seed rows singular (3066.696292ms)\n✔ endpoint runtime selects exact response cases after applying defaults (0.849292ms)\n✔ endpoint runtime falls back to the configured default case on no exact match (0.145959ms)\n✔ endpoint runtime reports disabled endpoints and invalid arguments deterministically (0.0765ms)\n✔ endpoint validation accepts the MVP editor field set (0.640375ms)\n✔ endpoint validation returns field-level errors for UI rendering (0.397792ms)\n✔ MCP input schema generation reflects endpoint parameters (0.416292ms)\n✔ MCP initialize returns explicit no-auth MVP capabilities (0.757ms)\n✔ MCP initialized notification is accepted without a JSON-RPC body (0.069042ms)\n✔ MCP tools/list returns loaded tools without executing them (0.076125ms)\n✔ MCP tools/call converts endpoint success to content and structuredContent (0.1355ms)\n✔ MCP tools/call maps unknown tools and invalid params to JSON-RPC invalid params (0.100667ms)\n✔ MCP unknown methods return JSON-RPC method not found (0.062875ms)\n✔ Ralph promotion resolves ordered successor filenames by taskmeta id (45.118625ms)\n✔ reset requires confirmation and leaves endpoint state untouched on failure (778.002333ms)\n✔ reset clears mutable endpoint data and recreates current seed defaults (689.264125ms)\n✔ REST tool metadata maps endpoint parameters without MCP JSON-RPC envelope (0.658375ms)\nℹ tests 25\nℹ suites 0\nℹ pass 25\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 3283.295\n"
+    },
+    {
+      "command": "npm run test:e2e -- --grep @rest-tools-list",
+      "ok": true,
+      "output": "\n> mina-mock-mcpserver@1.0.0 test:e2e\n> playwright test --grep @rest-tools-list\n\n\nRunning 1 test using 1 worker\n\n  ✓  1 [chromium] › tests/e2e/rest-tools-list.spec.ts:7:5 › REST tools list exposes enabled metadata for no-auth and Basic callers @rest-tools-list (523ms)\n\n  1 passed (4.7s)\n",
+      "preflight": {
+        "command": "ensure-e2e-port-free.sh 3100",
+        "error": "",
+        "ok": true,
+        "output": "port-cleanup: 127.0.0.1:3100 already free\n"
+      },
+      "next_server_log_path": "/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T200629-rest-tools-list-runtime/npm-run-test-e2e-grep-rest-tools-list-next-server.log"
+    },
+    {
+      "command": "npm run verify",
+      "ok": true,
+      "output": "\n> mina-mock-mcpserver@1.0.0 verify\n> npm run lint && npm run typecheck && npm run build && npm run test:unit && npm run test:e2e && npm run start:smoke\n\n\n> mina-mock-mcpserver@1.0.0 lint\n> eslint .\n\n\n> mina-mock-mcpserver@1.0.0 typecheck\n> tsc --noEmit\n\n\n> mina-mock-mcpserver@1.0.0 build\n> next build\n\n   ▲ Next.js 15.5.15\n\n   Creating an optimized production build ...\n ✓ Compiled successfully in 875ms\n   Linting and checking validity of types ...\n   Collecting page data ...\n   Generating static pages (0/13) ...\n   Generating static pages (3/13) \r\n   Generating static pages (6/13) \r\n   Generating static pages (9/13) \r\n ✓ Generating static pages (13/13)\n   Finalizing page optimization ...\n   Collecting build traces ...\n\nRoute (app)                                 Size  First Load JS\n┌ ○ /                                      164 B         106 kB\n├ ○ /_not-found                            999 B         103 kB\n├ ƒ /api/audit                             149 B         102 kB\n├ ƒ /api/basic-users                       149 B         102 kB\n├ ƒ /api/basic-users/[id]                  149 B         102 kB\n├ ƒ /api/endpoints                         149 B         102 kB\n├ ƒ /api/endpoints/[id]                    149 B         102 kB\n├ ƒ /api/health                            149 B         102 kB\n├ ƒ /api/reset                             149 B         102 kB\n├ ○ /audit                                 164 B         106 kB\n├ ○ /basic-users                         2.22 kB         108 kB\n├ ○ /endpoints                              5 kB         111 kB\n├ ƒ /mcp                                   149 B         102 kB\n├ ƒ /mcp/basic                             149 B         102 kB\n├ ƒ /mcp/none                              149 B         102 kB\n├ ○ /reset                               1.02 kB         107 kB\n└ ƒ /rest/tools                            149 B         102 kB\n+ First Load JS shared by all             102 kB\n  ├ chunks/255-4f212684648fcab9.js         46 kB\n  ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB\n  └ other shared chunks (total)          1.92 kB\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n\n\n> mina-mock-mcpserver@1.0.0 test:unit\n> node --import tsx --test \"tests/unit/**/*.test.ts\"\n\n✔ Basic passwords are hashed and verified without plaintext storage (82.326625ms)\n✔ Basic Authorization parser handles missing, valid, unsupported, and malformed headers (0.611917ms)\n✔ Basic Authorization resolver authenticates enabled users and fails closed otherwise (998.430416ms)\n✔ Basic credential verification uses stored hashes and enabled state (749.9735ms)\n✔ built-in default Basic user cannot be disabled, changed, or deleted (667.409708ms)\n✔ normalizeLogLevel accepts supported operator log levels (0.367375ms)\n✔ normalizeLogLevel defaults invalid input to info (0.06225ms)\n✔ getBootstrapStatus reports prepared foundation state (0.053834ms)\n✔ db:prepare is repeatable and keeps seed rows singular (3261.813375ms)\n✔ endpoint runtime selects exact response cases after applying defaults (0.799708ms)\n✔ endpoint runtime falls back to the configured default case on no exact match (0.119375ms)\n✔ endpoint runtime reports disabled endpoints and invalid arguments deterministically (0.072292ms)\n✔ endpoint validation accepts the MVP editor field set (0.643708ms)\n✔ endpoint validation returns field-level errors for UI rendering (0.348334ms)\n✔ MCP input schema generation reflects endpoint parameters (0.404292ms)\n✔ MCP initialize returns explicit no-auth MVP capabilities (0.739584ms)\n✔ MCP initialized notification is accepted without a JSON-RPC body (0.0725ms)\n✔ MCP tools/list returns loaded tools without executing them (0.074458ms)\n✔ MCP tools/call converts endpoint success to content and structuredContent (0.133625ms)\n✔ MCP tools/call maps unknown tools and invalid params to JSON-RPC invalid params (0.093ms)\n✔ MCP unknown methods return JSON-RPC method not found (0.060958ms)\n✔ Ralph promotion resolves ordered successor filenames by taskmeta id (54.440166ms)\n✔ reset requires confirmation and leaves endpoint state untouched on failure (1060.380042ms)\n✔ reset clears mutable endpoint data and recreates current seed defaults (697.582084ms)\n✔ REST tool metadata maps endpoint parameters without MCP JSON-RPC envelope (0.653541ms)\nℹ tests 25\nℹ suites 0\nℹ pass 25\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 3480.419625\n\n> mina-mock-mcpserver@1.0.0 test:e2e\n> playwright test\n\n\nRunning 11 tests using 1 worker\n\n  ✓   1 [chromium] › tests/e2e/basic-auth-mcp.spec.ts:7:5 › Basic Auth MCP strict route and unified precedence fail closed and allow valid callers @basic-auth-mcp (703ms)\n  ✓   2 [chromium] › tests/e2e/basic-users.spec.ts:5:5 › Basic users management UI protects default and manages editable users @ui-basic-users (1.8s)\n  ✓   3 [chromium] › tests/e2e/bootstrap.spec.ts:3:5 › foundation dashboard renders planned MCP mock server surfaces (486ms)\n  ✓   4 [chromium] › tests/e2e/bootstrap.spec.ts:11:5 › health endpoint reports ok status (149ms)\n  ✓   5 [chromium] › tests/e2e/endpoint-console.spec.ts:5:5 › endpoint schema preview and console shell stay stable on desktop and mobile @ui-endpoint-console (1.0s)\n  ✓   6 [chromium] › tests/e2e/endpoint-delete-audit.spec.ts:17:5 › endpoint delete requires confirmation and writes non-secret audit evidence @endpoint-delete-audit (2.9s)\n  ✓   7 [chromium] › tests/e2e/endpoint-editor.spec.ts:5:5 › endpoint editor supports persisted create, edit, search, screenshots, and responsive checks @ui-endpoint-editor (1.4s)\n  ✓   8 [chromium] › tests/e2e/mcp-initialize-list.spec.ts:3:5 › no-auth MCP initialize, initialized notification, and tools/list use enabled endpoint schemas @mcp-initialize-list (193ms)\n  ✓   9 [chromium] › tests/e2e/mcp-tools-call.spec.ts:3:5 › no-auth MCP tools/call executes enabled endpoint cases and deterministic errors @mcp-tools-call (46ms)\n  ✓  10 [chromium] › tests/e2e/rest-tools-list.spec.ts:7:5 › REST tools list exposes enabled metadata for no-auth and Basic callers @rest-tools-list (242ms)\n  ✓  11 [chromium] › tests/e2e/root-reset.spec.ts:16:5 › root reset requires password and restores deterministic endpoint defaults @root-reset (3.1s)\n\n  11 passed (16.1s)\n\n> mina-mock-mcpserver@1.0.0 start:smoke\n> node scripts/start-smoke.mjs\n\n\n> mina-mock-mcpserver@1.0.0 db:prepare\n> node scripts/db-prepare.mjs\n\nDatasource \"db\": SQLite database \"runtime.sqlite\" at \"file:./data/runtime.sqlite\"\n\n4 migrations found in prisma/migrations\n\n\nNo pending migrations to apply.\n\n✔ Generated Prisma Client (v7.8.0) to ./node_modules/@prisma/client in 41ms\n\nStart by importing your Prisma Client (See: https://pris.ly/d/importing-client)\n\n\nPrepared SQLite runtime state with Prisma migrations and seed defaults.\n\n> mina-mock-mcpserver@1.0.0 build\n> next build\n\n   ▲ Next.js 15.5.15\n\n   Creating an optimized production build ...\n ✓ Compiled successfully in 890ms\n   Linting and checking validity of types ...\n   Collecting page data ...\n   Generating static pages (0/13) ...\n   Generating static pages (3/13) \r\n   Generating static pages (6/13) \r\n   Generating static pages (9/13) \r\n ✓ Generating static pages (13/13)\n   Finalizing page optimization ...\n   Collecting build traces ...\n\nRoute (app)                                 Size  First Load JS\n┌ ○ /                                      164 B         106 kB\n├ ○ /_not-found                            999 B         103 kB\n├ ƒ /api/audit                             149 B         102 kB\n├ ƒ /api/basic-users                       149 B         102 kB\n├ ƒ /api/basic-users/[id]                  149 B         102 kB\n├ ƒ /api/endpoints                         149 B         102 kB\n├ ƒ /api/endpoints/[id]                    149 B         102 kB\n├ ƒ /api/health                            149 B         102 kB\n├ ƒ /api/reset                             149 B         102 kB\n├ ○ /audit                                 164 B         106 kB\n├ ○ /basic-users                         2.22 kB         108 kB\n├ ○ /endpoints                              5 kB         111 kB\n├ ƒ /mcp                                   149 B         102 kB\n├ ƒ /mcp/basic                             149 B         102 kB\n├ ƒ /mcp/none                              149 B         102 kB\n├ ○ /reset                               1.02 kB         107 kB\n└ ƒ /rest/tools                            149 B         102 kB\n+ First Load JS shared by all             102 kB\n  ├ chunks/255-4f212684648fcab9.js         46 kB\n  ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB\n  └ other shared chunks (total)          1.92 kB\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n\n   ▲ Next.js 15.5.15\n   - Local:        http://localhost:3100\n   - Network:      http://192.168.100.125:3100\n\n ✓ Starting...\n ✓ Ready in 263ms\nProduction-style startup smoke passed at http://127.0.0.1:3100/api/health\n",
+      "preflight": {
+        "command": "ensure-e2e-port-free.sh 3100",
+        "error": "",
+        "ok": true,
+        "output": "port-cleanup: 127.0.0.1:3100 already free\n"
+      },
+      "next_server_log_path": "/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T200629-rest-tools-list-runtime/npm-run-verify-next-server.log"
+    }
+  ],
+  "missing_files": [],
+  "pass": true
+}
+
+Worker handoff summary from the last run:
+Implemented `rest-tools-list-runtime` and wrote the handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+
+Changed:
+- Added `GET /rest/tools` via [app/rest/tools/route.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/app/rest/tools/route.ts), backed by explicit REST metadata mapping in `lib/rest`.
+- Lists enabled endpoints only, with `name`, `title`, `description`, and parameter metadata.
+- Reuses Basic auth resolution: no-auth and valid Basic pass; invalid/unsupported `Authorization` returns `401`.
+- Added unit coverage and `@rest-tools-list` E2E coverage.
+- Updated REST/product/frontend docs and the active task progress log.
+
+Required checks passed:
+- `npm run test:unit`
+- `npm run test:e2e -- --grep @rest-tools-list`
+- `npm run verify`
+
+Exit criteria appear satisfied. Remaining work for this task: none.
+
+Your job:
+- inspect the repository and current implementation
+- determine whether the current task is actually complete
+- mark `done` only if the exit criteria are satisfied in substance, not just approximately
+- prefer conservative decisions
+- recommend promotion only if the task is truly ready
+
+Return JSON only using the provided schema.
+
+codex
+{"decision":"not_done","recommend_promotion":false,"confidence":0,"summary":"Inspecting the required docs and implementation before making the promotion call.","satisfied_exit_criteria":[],"missing_requirements":[],"human_review_triggers":[]}
+exec
+/bin/zsh -lc "sed -n '1,220p' docs/FRONTEND.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+exec
+/bin/zsh -lc "sed -n '1,220p' AGENTS.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+exec
+/bin/zsh -lc "sed -n '1,220p' docs/PRODUCT_SENSE.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+exec
+/bin/zsh -lc "sed -n '1,240p' ARCHITECTURE.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# FRONTEND.md
+
+## Goal
+Describe the user-facing structure of MCP Mock Server so an agent can implement the UI without guessing the product model.
+
+## Tech Direction
+- Next.js application
+- TypeScript
+- App Router
+- server-backed data flows where appropriate
+
+## Route Map
+| Route | Surface | Notes |
+|---|---|---|
+| / | Dashboard | Counts, URL examples, public UI warning |
+| /endpoints | Endpoint tools | List/search/create/edit/delete/test |
+| /basic-users | Basic Auth users | Built-in default locked |
+| /oauth-users | OAuth users | Built-in default locked |
+| /oauth-clients | OAuth clients | Redirect URIs and allowed endpoints |
+| /tokens | Issued tokens | Claims, permissions, revoke, filters |
+| /config | Server config | Base URL, MCP/REST/OAuth examples, Nginx guide |
+| /reset | Reset | Root-password protected reset |
+| /audit | Audit log | Public mutation, protected delete, and token evidence |
+| /oauth/login | OAuth login | Separate from admin UI |
+| /oauth/consent | OAuth consent | Endpoint permission checklist |
+| /api/* | Admin/API | Health, CRUD, config, reset, audit |
+| /mcp, /mcp/none, /mcp/basic, /mcp/oauth | MCP JSON-RPC | Unified plus strict auth routes |
+| /rest/tools, /rest/tools/:name/call | REST mock API | Same tool catalog through REST |
+| /.well-known/*, /oauth/jwks, /oauth/token, /oauth/revoke | OAuth metadata/runtime | Discovery, token, revocation |
+
+## Primary Screens
+| Screen | Primary jobs |
+|---|---|
+| Dashboard | Summarize service state and show connection examples |
+| Endpoints | List, search, create, and edit mock tools, response cases, failure simulation, and delete protection |
+| Endpoint console | Preview MCP/REST call shape with selected auth mode, then run calls once runtime tasks wire execution |
+| Basic Auth users | List/search/create/password-edit/disable/delete Basic test identities and show the built-in default/default lock state |
+| OAuth users | Manage login identities and token TTLs |
+| OAuth clients | Manage client secrets, redirect URIs, and allowed endpoint set |
+| OAuth login/consent | Complete authorization-code flow and select endpoint permissions |
+| Issued tokens | Inspect claims, permissions, expiration, and revoke tokens |
+| Config/guide | Show base URL, MCP/REST/OAuth URLs, sample client config, curl, Nginx |
+| Reset | Root-protected reset to current seed defaults with exact confirmation text |
+| Audit | Review mutation and security-relevant event history without exposing submitted secrets |
+
+## UI Rules
+- favor quiet, dense, operational layouts over marketing composition
+- use icons for copy, edit, delete, revoke, reset, refresh, and external-link actions where available
+- every destructive action has a confirmation path and explains whether delete code or root password is accepted
+- endpoint deletion keeps confirmation inputs separate from the endpoint editor values and clears submitted secrets after attempts
+- show protocol/auth warnings inline on malformed-response and public-admin controls
+- tables must support search/filter states without layout shift
+- endpoint editor forms must surface API/domain validation errors next to the affected fields
+- endpoint editor forms must show generated MCP `inputSchema` from the shared endpoint domain schema helper
+- endpoint console REST examples can point to `GET /rest/tools` for metadata discovery before REST call execution is wired
+- Basic user forms must not display password hashes and must disable mutation controls for built-in rows
+- console outputs must preserve raw JSON formatting and elapsed/auth/match metadata
+- console shell states must clearly mark unavailable runtime actions instead of faking calls
+- UI-focused tasks must include desktop and mobile screenshots plus accessibility checks
+
+## Search / Share / Admin Notes
+- the admin UI is intentionally public, so copy must avoid implying enterprise security
+- root-password fields are used only for protected actions and must not be logged
+- reset confirmation must make clear that currently implemented endpoint data is deleted and seed defaults are recreated
+- copy buttons should exist for MCP URLs, REST URLs, client config, curl examples, client secrets at issuance, and JWTs at issuance
+- OAuth consent should make selected endpoint permissions unambiguous
+
+## Frontend Non-Goals for v1
+- no marketing landing page before the usable dashboard
+- no enterprise account settings or RBAC screens
+- no hidden destructive operations without confirmation
+- no decorative UI that obscures raw request/response evidence
+
+ succeeded in 0ms:
+# AGENTS.md
+
+## Purpose
+MCP Mock Server is a public remote MCP mock server and web UI for testing no-auth, Basic Auth, and mock OAuth bearer tool calls.
+
+This repository is optimized for agent-legible development and a Ralph-style task-promotion loop.
+
+## Read Order
+Before changing code or plans, read these files in order:
+
+1. `ARCHITECTURE.md`
+2. `docs/PRODUCT_SENSE.md`
+3. `docs/design-docs/core-beliefs.md`
+4. `docs/product-specs/index.md`
+5. `docs/FRONTEND.md`
+6. `docs/PLANS.md`
+7. active plans in `docs/exec-plans/active/`
+
+## Scope Guardrails
+### In scope for v1
+- Next.js App Router web gateway and route handlers
+- TypeScript domain/services with Prisma SQLite persistence
+- endpoint/tool management with up to three parameters and exact-match response cases
+- no-auth, Basic, and OAuth bearer MCP/REST runtime paths
+- OAuth user/client/token administration, authorization code flow, client credentials flow, discovery metadata, and JWKS
+- failure simulation, audit log, server config, reset, logging, Docker/Nginx guidance, and Ralph harness
+
+### Explicitly out of scope for v1
+- production-grade identity management
+- external OAuth provider integration
+- true multi-tenant isolation
+- enterprise RBAC for the public admin UI
+- handling sensitive customer data
+- full MCP resources, prompts, sampling, elicitation, or task-augmented execution in MVP
+- replacing a real authorization server
+
+## Product Shape
+- public admin UI for mock endpoint, auth, token, config, reset, and audit management
+- MCP Streamable HTTP-style JSON-RPC endpoints at /mcp and strict auth aliases
+- REST tool list/call API for curl and Postman style testing
+- mock OAuth authorization server with login, consent, token, revocation, and discovery metadata
+- SQLite-backed persistence with deterministic seed defaults
+
+## Technical Shape
+- Next.js App Router and TypeScript with npm scripts
+- Prisma plus SQLite for migrations, seed defaults, and persistent runtime state
+- layered domain shape: types, config, repo, service, runtime, UI
+- Playwright for E2E and UI verification, node --import tsx --test for unit tests
+- logs/ plus LOG_LEVEL and start:logged for operator-visible server flow
+
+## Validation Strategy
+Use layered checks:
+- unit tests for domain rules
+- integration tests for repository/runtime boundaries where needed
+- small E2E coverage for the required user journeys only
+
+Promotion is blocked when required checks fail. Required test commands in active task contracts are hard gates, not suggestions.
+While iterating, prefer the smallest targeted check for the code you just changed. Use the full required command set before considering the task done.
+If a feature depends on an outside resource such as AI chat or another remote service, keep it in the required E2E flows before allowing promotion.
+If a task is mainly UI or UX work, require a dedicated `@ui-*` Playwright command with screenshot, responsive, and accessibility checks before allowing promotion.
+If `taskmeta.promotion_mode` is `deterministic_only`, passing the required commands is sufficient for promotion without human review.
+For manual server inspection, prefer `npm run start:logged` and set `LOG_LEVEL` intentionally instead of relying only on ephemeral terminal output.
+
+### Required E2E flows
+- endpoint create/edit/delete and console call flow
+- MCP initialize, tools/list, and tools/call in no-auth mode
+- Basic user creation and strict /mcp/basic success/failure
+- REST tools list/call across auth modes
+- OAuth browser consent, token exchange, allowed tool call, denied tool call, and revocation
+- failure simulation and audit evidence
+- config/health/reset/startup smoke
+
+## Documentation Discipline
+- If behavior changes, update the related spec or design doc in the same cycle.
+- Prefer small, executable plans over vague TODOs.
+- When a repeated mistake appears, first document it; if it keeps recurring, promote it into tests or lint rules.
+- Keep the documented test strategy current; do not leave promotion gates implied.
+- When adding or editing tests, explain what behavior the test protects if that intent would otherwise be easy to lose.
+
+## Search Discipline
+- Search the codebase before concluding that a thing is unimplemented.
+- Prefer multiple targeted searches over one broad assumption.
+- If you find a partial implementation, adapt or complete it instead of duplicating it blindly.
+
+## Optional Companion Skills
+- If the customer allows them and they are installed, consider relevant companion skills before planning or implementation.
+- Good candidates include database, Next.js pattern, UI design, responsive UI, and clean-architecture skills.
+
+## Done Definition
+A task is done only when its scoped behavior works in substance, docs and tests match the implementation, required deterministic commands pass, and promotion rules in taskmeta are satisfied.
+
+ succeeded in 0ms:
+# PRODUCT_SENSE.md
+
+## One-Line Product Definition
+MCP Mock Server is a public remote MCP mock server and web UI for testing no-auth, Basic Auth, and mock OAuth bearer tool calls.
+
+## Who It Is For
+### Primary user
+MCP client developers, AI agent developers, demo/QA users, and the server operator.
+
+## User Problem
+MCP client and AI-agent developers need a configurable remote server that behaves enough like a real MCP server to prove connection, auth, token, permission, and tool-call behavior before integrating with production systems.
+
+## Why This Product Exists
+Remote MCP adoption is moving auth, transport, and permission bugs into client integration work. A public mock server gives teams a repeatable target for manual testing, automated E2E checks, demos, and negative-path validation.
+
+## Product Principles
+- realistic MCP and OAuth behavior over decorative admin features
+- public-by-design administration with light destructive-operation protection
+- destructive endpoint deletion requires a delete code or root-password override and leaves non-secret audit evidence
+- deterministic mocks: exact-match cases, explicit defaults, and observable failures
+- endpoint permissions are visible, selectable, and enforced
+- operator recovery paths must be simple and root-password protected
+
+## Core Value in v1
+- create a mock endpoint once and exercise it through MCP and REST
+- inspect the generated MCP input schema and planned console evidence before runtime calls are wired
+- initialize no-auth MCP clients, list enabled tools, and execute exact-match tool calls
+- manage Basic Auth test users while keeping the built-in default/default fixture locked
+- list enabled tools through a simple REST metadata route for curl and Postman style discovery
+- prove no-auth, Basic, and OAuth bearer client behavior against strict routes
+- issue mock OAuth tokens with endpoint-level permissions through browser consent or client credentials
+- simulate failure cases that clients often mishandle
+- persist configuration and provide root-password-protected reset/recovery for a public test service
+
+## Non-Goals for v1
+- production-grade identity management
+- external OAuth provider integration
+- true multi-tenant isolation
+- enterprise RBAC for the public admin UI
+- handling sensitive customer data
+- full MCP resources, prompts, sampling, elicitation, or task-augmented execution in MVP
+- replacing a real authorization server
+
+## v1 Success Signals
+- a new endpoint can be created and edited through the public endpoint UI, then listed through tools/list and GET /rest/tools, called through tools/call, and called through REST
+- Basic default/default and additional users work on strict Basic routes while invalid credentials return 401
+- OAuth consent can select endpoints, exchange a code for a JWT, allow selected tools, deny unselected tools with 403, and return 401 after revocation
+- token and audit screens show enough evidence to debug a client test, including endpoint delete success/failure without stored secrets
+- SQLite state survives restart and root reset restores currently implemented built-in endpoint and Basic user defaults
+- npm run verify and npm run start:smoke pass before task promotion
+
+## Product Risks
+- public UI can be abused or reset if root/delete-code handling is weak
+- OAuth semantics can drift into unrealistic behavior unless routes and E2E checks pin 401/403/token claims
+- MCP spec details may change, so the implementation must isolate protocol formatting
+- failure simulation can intentionally violate protocol behavior and needs visible warnings
+- persistent SQLite state can make tests flaky unless seeded and isolated deterministically
+
+ succeeded in 0ms:
+# ARCHITECTURE.md
+
+## Goal
+Build MCP Mock Server as an agent-legible codebase with strong boundaries, a short instruction surface, and enough extension seams to support future change without overbuilding v1.
+
+## System Overview
+MCP Mock Server is a web application with:
+- a public Next.js UI served on port 3000
+- server-side route handlers for admin APIs, MCP, REST, OAuth, and discovery metadata
+- SQLite persistence prepared by npm run db:prepare
+- operator logs under logs/ with LOG_LEVEL selection
+- Ralph scripts under scripts/ralph/ driving active task promotion
+
+## Architectural Priorities
+- isolate MCP protocol formatting from endpoint matching and auth decisions
+- keep auth mode resolution explicit and fail closed for invalid Basic/Bearer headers
+- store immutable endpoint IDs and treat names as external labels
+- make seeded built-in users/clients impossible to delete or disable through normal flows
+- prove persistence and production-style startup with deterministic commands
+
+## Layered Domain Model
+Use a strict forward-only dependency shape inside each domain:
+
+`Types -> Config -> Repo -> Service -> Runtime -> UI`
+
+### Why this matters
+The repository is intended to work well with long-running agent loops. Strict boundaries reduce accidental coupling and make failure analysis easier.
+
+## Primary Domains
+| Domain | Responsibility |
+|---|---|
+| Endpoint catalog | Endpoint CRUD, parameters, response cases, delete code, enabled state |
+| Matcher/runtime | Argument normalization, exact match, default/no-match, delay/error/malformed behavior |
+| MCP protocol | JSON-RPC request handling, initialize, tools/list, tools/call, MCP errors |
+| REST API | Tool list/call responses and REST error mapping |
+| Basic auth | Basic users, password hashing, built-in default protection, 401 behavior |
+| OAuth | Users, clients, codes, JWTs, permissions, revocation, discovery metadata |
+| Admin UI | Dashboards, editors, console, config, reset, audit screens |
+| Operations | SQLite prep, seed defaults, base URL, Docker/Nginx docs, logs, health |
+
+## Frontend / Backend Shape
+### Frontend
+- App Router screens should be dense, operational, and optimized for repeated testing
+- UI routes read and mutate through server-backed APIs, not local-only state
+- route-level loading and error states are required for public mutation surfaces
+- test console shows raw request, raw response, principal, matched case, and elapsed time
+- OAuth login and consent UI is separate from the admin navigation
+
+### Server
+- Next.js route handlers own HTTP surfaces for MVP
+- domain services own validation, matching, auth, token, and reset logic
+- repositories isolate Prisma access
+- protocol adapters convert domain outcomes into MCP JSON-RPC or REST responses
+- startup code prepares runtime state before production-style serving
+
+## Persistence Strategy
+- SQLite is the source of truth for endpoints, parameters, cases, users, clients, codes, tokens, audit events, and settings
+- Prisma migrations define the schema and db:prepare applies migrations plus idempotent seed defaults
+- built-in default/default Basic user, OAuth user, and OAuth client are recreated and protected
+- issued token records store jti and metadata; raw tokens are shown only at issuance unless explicitly configured
+- tests use isolated temporary databases or resettable seed state
+
+## Verification Shape
+- unit tests cover validators, matching, auth precedence, JWT claims, permissions, reset, and protocol formatting
+- Playwright proves browser-visible workflows and external-client-like OAuth/MCP/REST flows
+- start:smoke builds, prepares runtime state, starts the production server, probes health, and shuts down
+- verify runs lint, typecheck, build, unit, E2E, and startup smoke
+- failing required checks block Ralph promotion
+
+## Long-Running Agent Readiness
+- docs are the system of record
+- plans are executable, not aspirational
+- domain boundaries are explicit
+- repeated issues should be upgraded into tests or static checks
+
+codex
+{"decision":"not_done","recommend_promotion":false,"confidence":0,"summary":"I have the high-level contract now. Next I’m checking the REST spec, active plan, and the exact route/tests to confirm the behavior matches the required metadata and auth semantics.","satisfied_exit_criteria":[],"missing_requirements":[],"human_review_triggers":[]}
+exec
+/bin/zsh -lc "sed -n '1,260p' docs/product-specs/rest-mock-api.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# REST Mock API
+
+## Goal
+REST routes expose the same configured tools for simple curl/Postman/browser testing with consistent auth and error behavior.
+
+## Trigger / Entry
+REST example copy
+
+## User-Visible Behavior
+- REST example copy
+- REST call from test console
+- REST list and call routes
+- `GET /rest/tools` returns simple JSON, not an MCP JSON-RPC envelope:
+  - `tools`: enabled tools sorted by name
+  - each tool includes `name`, `title`, `description`, and `parameters`
+  - each parameter includes `name`, `label`, `description`, `type`, `required`, and `defaultValue` when configured
+- `GET /rest/tools` allows no-auth callers and valid Basic callers to see all enabled endpoints.
+- Invalid or unsupported `Authorization` headers return `401` with `WWW-Authenticate`; OAuth bearer filtering is handled by a later permissions slice.
+
+## Validation
+- REST error mapping
+- Argument normalization
+- Auth principal propagation
+- List tools and call a tool via REST in no-auth, Basic, and OAuth modes
+
+exec
+/bin/zsh -lc "sed -n '1,260p' docs/exec-plans/active/011-rest-tools-list-runtime.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# REST Tool List Runtime
+
+```json taskmeta
+{
+  "id": "rest-tools-list-runtime",
+  "title": "REST Tool List Runtime",
+  "order": 11,
+  "status": "active",
+  "next_task_on_success": "rest-tools-call-runtime",
+  "prompt_docs": [
+    "AGENTS.md",
+    "ARCHITECTURE.md",
+    "docs/PRODUCT_SENSE.md",
+    "docs/FRONTEND.md",
+    "docs/product-specs/rest-mock-api.md"
+  ],
+  "required_commands": [
+    "npm run test:unit",
+    "npm run test:e2e -- --grep @rest-tools-list",
+    "npm run verify"
+  ],
+  "required_files": [],
+  "human_review_triggers": [
+    "The task broadens into unrelated feature fronts.",
+    "Required checks do not prove the claimed behavior.",
+    "Implementation changes contradict the product spec or security/reliability docs."
+  ],
+  "promotion_mode": "deterministic"
+}
+```
+
+## Objective
+
+Expose configured enabled endpoints through `GET /rest/tools` with no-auth and Basic behavior.
+
+## Clarity notes
+
+- This task only lists REST tool metadata; REST calling is next.
+- No-auth and Basic are in scope because they are already implemented before REST.
+- OAuth REST filtering is deferred to the OAuth permissions task.
+- The response shape should be simple JSON, not MCP JSON-RPC.
+
+## Expected result
+
+- `GET /rest/tools` returns enabled endpoint metadata and parameters.
+- No-auth callers see all enabled endpoints.
+- Valid Basic callers see all enabled endpoints; invalid Basic headers return 401.
+- Endpoint console can display REST list examples if useful without call execution.
+
+## Objections / risks to avoid
+
+- Do not implement REST tool calls here.
+- Do not return disabled endpoints.
+- Do not add OAuth bearer filtering here.
+- Do not use MCP response envelopes for REST.
+
+## Scope
+
+- Implement `GET /rest/tools` route.
+- Apply no-auth/Basic auth resolver behavior.
+- Add unit tests for response mapping.
+- Add E2E tests tagged `@rest-tools-list`.
+
+## Out of scope
+
+- `POST /rest/tools/:name/call`.
+- OAuth bearer permissions for REST.
+- Failure simulation runtime.
+
+## Exit criteria
+
+1. REST list response matches PRD metadata shape.
+2. No-auth and Basic behavior is tested.
+3. Invalid Basic returns documented unauthorized response.
+4. `@rest-tools-list` passes.
+5. All required checks pass.
+
+## Required checks
+
+- npm run test:unit
+- npm run test:e2e -- --grep @rest-tools-list
+- npm run verify
+
+## Implementation notes
+
+- Keep response DTOs explicit for client testing.
+
+## Docs to update
+
+- docs/PRODUCT_SENSE.md
+- docs/FRONTEND.md
+
+## Evaluator notes
+
+Required commands are mandatory promotion gates, not suggestions.
+Do not promote if any required check fails.
+Do not accept broad feature work outside this task.
+Confirm that this task maps to the primary product spec `rest-mock-api.md` or is explicitly final hardening.
+
+## Progress log
+
+- Start here. Append timestamped progress notes as work lands.
+- Note when existing partial implementations were found and reused instead of replaced.
+- 2026-05-05T11:05:59.758Z: restored as current task after basic-auth-mcp-runtime promotion.
+- 2026-05-05T11:07:35Z: found no existing REST route implementation; reused the endpoint catalog query shape, Basic Authorization resolver, and fail-closed 401 pattern from MCP instead of introducing separate auth behavior.
+- 2026-05-05T11:07:35Z: added explicit REST tool metadata mapping, GET /rest/tools, unit mapping coverage, and @rest-tools-list E2E coverage for no-auth, valid Basic, invalid Basic, unsupported Authorization, and disabled endpoint filtering.
+- 2026-05-05T11:11:04Z: required checks passed: `npm run test:unit`, `npm run test:e2e -- --grep @rest-tools-list`, and `npm run verify`.
+
+exec
+/bin/zsh -lc "find app lib tests -path '*rest*' -o -path '*basic*' | sort" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+app/api/basic-users
+app/api/basic-users/[id]
+app/api/basic-users/[id]/route.ts
+app/api/basic-users/route.ts
+app/basic-users
+app/basic-users/basic-users-manager.tsx
+app/basic-users/page.tsx
+app/mcp/basic
+app/mcp/basic/route.ts
+app/rest
+app/rest/tools
+app/rest/tools/route.ts
+lib/auth/basic.ts
+lib/basic-auth
+lib/basic-auth/api.ts
+lib/basic-auth/passwords.ts
+lib/basic-auth/service.ts
+lib/basic-auth/types.ts
+lib/basic-auth/validation.ts
+lib/rest
+lib/rest/http.ts
+lib/rest/tools.ts
+tests/e2e/basic-auth-mcp.spec.ts
+tests/e2e/basic-users.spec.ts
+tests/e2e/rest-tools-list.spec.ts
+tests/unit/basic-auth.test.ts
+tests/unit/rest-tools.test.ts
+
+exec
+/bin/zsh -lc 'rg -n "rest-tools-list|REST tool|/rest/tools|map.*Rest|rest/tools" app lib tests docs -S' in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+docs/SECURITY.md:28:- REST mock routes /rest/tools and /rest/tools/:name/call
+tests/e2e/rest-tools-list.spec.ts:7:test("REST tools list exposes enabled metadata for no-auth and Basic callers @rest-tools-list", async ({ request }) => {
+tests/e2e/rest-tools-list.spec.ts:18:      description: "Visible through REST tools list.",
+tests/e2e/rest-tools-list.spec.ts:54:      description: "Hidden from REST tools list.",
+tests/e2e/rest-tools-list.spec.ts:82:  const noAuthList = await request.get("/rest/tools");
+tests/e2e/rest-tools-list.spec.ts:95:    description: "Visible through REST tools list.",
+tests/e2e/rest-tools-list.spec.ts:108:  const basicList = await request.get("/rest/tools", {
+tests/e2e/rest-tools-list.spec.ts:116:  const invalidBasic = await request.get("/rest/tools", {
+tests/e2e/rest-tools-list.spec.ts:126:  const unsupportedAuthorization = await request.get("/rest/tools", {
+docs/FRONTEND.md:28:| /rest/tools, /rest/tools/:name/call | REST mock API | Same tool catalog through REST |
+docs/FRONTEND.md:55:- endpoint console REST examples can point to `GET /rest/tools` for metadata discovery before REST call execution is wired
+docs/product-specs/rest-mock-api.md:13:- `GET /rest/tools` returns simple JSON, not an MCP JSON-RPC envelope:
+docs/product-specs/rest-mock-api.md:17:- `GET /rest/tools` allows no-auth callers and valid Basic callers to see all enabled endpoints.
+docs/PRODUCT_SENSE.md:45:- a new endpoint can be created and edited through the public endpoint UI, then listed through tools/list and GET /rest/tools, called through tools/call, and called through REST
+tests/unit/rest-tools.test.ts:3:import { restToolFromEndpoint } from "@/lib/rest/tools";
+tests/unit/rest-tools.test.ts:5:test("REST tool metadata maps endpoint parameters without MCP JSON-RPC envelope", () => {
+docs/references/prd-analysis.md:17:- REST tool list and call routes sharing the same endpoint catalog.
+docs/exec-plans/active/index.md:18:11. `011-rest-tools-list-runtime.md` -> `rest-tools-list-runtime` -> Expose configured enabled endpoints through `GET /rest/tools` with no-auth and Basic behavior.
+docs/exec-plans/active/index.md:19:12. `012-rest-tools-call-runtime.md` -> `rest-tools-call-runtime` -> Implement `POST /rest/tools/:name/call` and wire endpoint console REST execution for no-auth and Basic modes.
+docs/exec-plans/active/011-rest-tools-list-runtime.md:5:  "id": "rest-tools-list-runtime",
+docs/exec-plans/active/011-rest-tools-list-runtime.md:19:    "npm run test:e2e -- --grep @rest-tools-list",
+docs/exec-plans/active/011-rest-tools-list-runtime.md:34:Expose configured enabled endpoints through `GET /rest/tools` with no-auth and Basic behavior.
+docs/exec-plans/active/011-rest-tools-list-runtime.md:38:- This task only lists REST tool metadata; REST calling is next.
+docs/exec-plans/active/011-rest-tools-list-runtime.md:45:- `GET /rest/tools` returns enabled endpoint metadata and parameters.
+docs/exec-plans/active/011-rest-tools-list-runtime.md:52:- Do not implement REST tool calls here.
+docs/exec-plans/active/011-rest-tools-list-runtime.md:59:- Implement `GET /rest/tools` route.
+docs/exec-plans/active/011-rest-tools-list-runtime.md:62:- Add E2E tests tagged `@rest-tools-list`.
+docs/exec-plans/active/011-rest-tools-list-runtime.md:66:- `POST /rest/tools/:name/call`.
+docs/exec-plans/active/011-rest-tools-list-runtime.md:75:4. `@rest-tools-list` passes.
+docs/exec-plans/active/011-rest-tools-list-runtime.md:81:- npm run test:e2e -- --grep @rest-tools-list
+docs/exec-plans/active/011-rest-tools-list-runtime.md:106:- 2026-05-05T11:07:35Z: added explicit REST tool metadata mapping, GET /rest/tools, unit mapping coverage, and @rest-tools-list E2E coverage for no-auth, valid Basic, invalid Basic, unsupported Authorization, and disabled endpoint filtering.
+docs/exec-plans/active/011-rest-tools-list-runtime.md:107:- 2026-05-05T11:11:04Z: required checks passed: `npm run test:unit`, `npm run test:e2e -- --grep @rest-tools-list`, and `npm run verify`.
+lib/endpoints/service.ts:9:import { restToolFromEndpoint } from "@/lib/rest/tools";
+docs/exec-plans/active/012-rest-tools-call-runtime.md:34:Implement `POST /rest/tools/:name/call` and wire endpoint console REST execution for no-auth and Basic modes.
+docs/exec-plans/active/012-rest-tools-call-runtime.md:45:- REST tool call route returns exact-match mock responses.
+docs/exec-plans/active/012-rest-tools-call-runtime.md:59:- Implement REST tool call route.
+docs/exec-plans/completed/010-basic-auth-mcp-runtime.md:9:  "next_task_on_success": "rest-tools-list-runtime",
+
+exec
+/bin/zsh -lc "sed -n '1,220p' lib/rest/tools.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+exec
+/bin/zsh -lc "sed -n '1,220p' app/rest/tools/route.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import type { EndpointParamInput, EndpointRestTool, JsonValue } from "@/lib/endpoints/types";
+
+type RestToolEndpointInput = {
+  name: string;
+  title: string;
+  description: string;
+  parameters: EndpointParamInput[];
+};
+
+function parseDefaultValue(value: string | null | undefined): JsonValue | undefined {
+  if (!value?.trim()) return undefined;
+  return JSON.parse(value) as JsonValue;
+}
+
+export function restToolFromEndpoint(endpoint: RestToolEndpointInput): EndpointRestTool {
+  return {
+    name: endpoint.name,
+    title: endpoint.title,
+    description: endpoint.description,
+    parameters: endpoint.parameters.map((parameter) => {
+      const defaultValue = parseDefaultValue(parameter.defaultValueJson);
+      return {
+        name: parameter.name,
+        label: parameter.label ?? "",
+        description: parameter.description ?? "",
+        type: parameter.type,
+        required: parameter.required,
+        ...(defaultValue !== undefined ? { defaultValue } : {}),
+      };
+    }),
+  };
+}
+
+ succeeded in 0ms:
+export {
+  dynamic,
+  handleRestToolsGet as GET,
+  unsupportedRestToolsMethod as DELETE,
+  unsupportedRestToolsMethod as PATCH,
+  unsupportedRestToolsMethod as POST,
+  unsupportedRestToolsMethod as PUT,
+} from "@/lib/rest/http";
+
+exec
+/bin/zsh -lc "sed -n '1,260p' tests/e2e/rest-tools-list.spec.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+exec
+/bin/zsh -lc "sed -n '1,220p' lib/rest/http.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import { NextResponse } from "next/server";
+import { resolveBasicAuthorizationHeader } from "@/lib/auth/basic";
+import { listEnabledRestTools } from "@/lib/endpoints/service";
+
+export const dynamic = "force-dynamic";
+
+function unauthorizedRestResponse(message = "Authorization header was invalid.") {
+  return NextResponse.json(
+    {
+      error: "unauthorized",
+      message,
+    },
+    {
+      status: 401,
+      headers: {
+        "WWW-Authenticate": 'Basic realm="MCP Mock Server"',
+      },
+    },
+  );
+}
+
+export async function handleRestToolsGet(request: Request) {
+  const resolution = await resolveBasicAuthorizationHeader(request.headers.get("Authorization"));
+  if (resolution.kind === "unauthorized") {
+    return unauthorizedRestResponse();
+  }
+
+  return NextResponse.json(await listEnabledRestTools());
+}
+
+export function unsupportedRestToolsMethod() {
+  return NextResponse.json(
+    {
+      error: "method_not_allowed",
+      message: "This REST endpoint supports tool metadata listing with GET only.",
+    },
+    {
+      status: 405,
+      headers: { Allow: "GET" },
+    },
+  );
+}
+
+ succeeded in 0ms:
+import { expect, test } from "@playwright/test";
+
+function basic(username: string, password: string) {
+  return `Basic ${Buffer.from(`${username}:${password}`, "utf8").toString("base64")}`;
+}
+
+test("REST tools list exposes enabled metadata for no-auth and Basic callers @rest-tools-list", async ({ request }) => {
+  const suffix = Date.now();
+  const enabledName = `rest_list_enabled_${suffix}`;
+  const disabledName = `rest_list_disabled_${suffix}`;
+  const username = `rest_basic_${suffix}`;
+  const password = "created-secret";
+
+  const enabledCreate = await request.post("/api/endpoints", {
+    data: {
+      name: enabledName,
+      title: "REST list enabled",
+      description: "Visible through REST tools list.",
+      enabled: true,
+      deleteCode: "87654321",
+      defaultResponseJson: "{}",
+      failureMode: "none",
+      failureDelayMs: 0,
+      parameters: [
+        {
+          name: "city",
+          label: "City",
+          description: "City name for REST metadata.",
+          type: "string",
+          required: true,
+          defaultValueJson: '"Seoul"',
+        },
+      ],
+      responseCases: [
+        {
+          name: "default",
+          priority: 0,
+          matchArgsJson: "{}",
+          responseJson: "{}",
+          statusCode: 200,
+          delayMs: 0,
+          errorMode: "none",
+          isDefault: true,
+        },
+      ],
+    },
+  });
+  expect(enabledCreate.status()).toBe(201);
+
+  const disabledCreate = await request.post("/api/endpoints", {
+    data: {
+      name: disabledName,
+      title: "REST list disabled",
+      description: "Hidden from REST tools list.",
+      enabled: false,
+      deleteCode: "87654321",
+      defaultResponseJson: "{}",
+      failureMode: "none",
+      failureDelayMs: 0,
+      parameters: [],
+      responseCases: [
+        {
+          name: "default",
+          priority: 0,
+          matchArgsJson: "{}",
+          responseJson: "{}",
+          statusCode: 200,
+          delayMs: 0,
+          errorMode: "none",
+          isDefault: true,
+        },
+      ],
+    },
+  });
+  expect(disabledCreate.status()).toBe(201);
+
+  const userCreate = await request.post("/api/basic-users", {
+    data: { username, password, enabled: true },
+  });
+  expect(userCreate.status()).toBe(201);
+
+  const noAuthList = await request.get("/rest/tools");
+  expect(noAuthList.status()).toBe(200);
+  expect(noAuthList.headers()["content-type"]).toMatch(/application\/json/);
+  const noAuthBody = (await noAuthList.json()) as {
+    tools: Array<{ name: string; title: string; description: string; parameters: unknown[] }>;
+  };
+  expect(noAuthBody).not.toHaveProperty("jsonrpc");
+  const toolNames = noAuthBody.tools.map((tool) => tool.name);
+  expect(toolNames).toContain(enabledName);
+  expect(toolNames).not.toContain(disabledName);
+  expect(noAuthBody.tools.find((tool) => tool.name === enabledName)).toEqual({
+    name: enabledName,
+    title: "REST list enabled",
+    description: "Visible through REST tools list.",
+    parameters: [
+      {
+        name: "city",
+        label: "City",
+        description: "City name for REST metadata.",
+        type: "string",
+        required: true,
+        defaultValue: "Seoul",
+      },
+    ],
+  });
+
+  const basicList = await request.get("/rest/tools", {
+    headers: { Authorization: basic(username, password) },
+  });
+  expect(basicList.status()).toBe(200);
+  const basicBody = (await basicList.json()) as typeof noAuthBody;
+  expect(basicBody.tools.map((tool) => tool.name)).toContain(enabledName);
+  expect(basicBody.tools.map((tool) => tool.name)).not.toContain(disabledName);
+
+  const invalidBasic = await request.get("/rest/tools", {
+    headers: { Authorization: basic(username, "wrong-password") },
+  });
+  expect(invalidBasic.status()).toBe(401);
+  expect(invalidBasic.headers()["www-authenticate"]).toContain("Basic");
+  await expect(invalidBasic.json()).resolves.toEqual({
+    error: "unauthorized",
+    message: "Authorization header was invalid.",
+  });
+
+  const unsupportedAuthorization = await request.get("/rest/tools", {
+    headers: { Authorization: "Bearer deferred" },
+  });
+  expect(unsupportedAuthorization.status()).toBe(401);
+});
+
+exec
+/bin/zsh -lc "sed -n '1,220p' tests/unit/rest-tools.test.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import assert from "node:assert/strict";
+import test from "node:test";
+import { restToolFromEndpoint } from "@/lib/rest/tools";
+
+test("REST tool metadata maps endpoint parameters without MCP JSON-RPC envelope", () => {
+  const tool = restToolFromEndpoint({
+    name: "weather_lookup",
+    title: "Weather lookup",
+    description: "Returns deterministic weather data.",
+    parameters: [
+      {
+        name: "city",
+        label: "City",
+        description: "City to look up.",
+        type: "string",
+        required: true,
+        defaultValueJson: '"Seoul"',
+      },
+      {
+        name: "metric",
+        label: "",
+        description: "",
+        type: "boolean",
+        required: false,
+        defaultValueJson: "true",
+      },
+      {
+        name: "days",
+        label: "Days",
+        description: "",
+        type: "number",
+        required: false,
+        defaultValueJson: null,
+      },
+    ],
+  });
+
+  assert.deepEqual(tool, {
+    name: "weather_lookup",
+    title: "Weather lookup",
+    description: "Returns deterministic weather data.",
+    parameters: [
+      {
+        name: "city",
+        label: "City",
+        description: "City to look up.",
+        type: "string",
+        required: true,
+        defaultValue: "Seoul",
+      },
+      {
+        name: "metric",
+        label: "",
+        description: "",
+        type: "boolean",
+        required: false,
+        defaultValue: true,
+      },
+      {
+        name: "days",
+        label: "Days",
+        description: "",
+        type: "number",
+        required: false,
+      },
+    ],
+  });
+});
+
+exec
+/bin/zsh -lc "sed -n '1,260p' lib/endpoints/types.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+exec
+/bin/zsh -lc "sed -n '1,260p' lib/endpoints/service.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+export type EndpointParamType = "string" | "number" | "boolean";
+export type FailureMode = "none" | "delay" | "error" | "malformed";
+export type CaseErrorMode = "none" | "error";
+export type JsonPrimitive = string | number | boolean | null;
+export type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
+
+export type McpInputSchema = {
+  type: "object";
+  properties: Record<
+    string,
+    {
+      type: EndpointParamType;
+      title?: string;
+      description?: string;
+      default?: JsonValue;
+    }
+  >;
+  required: string[];
+  additionalProperties: false;
+};
+
+export type EndpointParamInput = {
+  name: string;
+  label?: string;
+  description?: string;
+  type: EndpointParamType;
+  required: boolean;
+  defaultValueJson?: string | null;
+};
+
+export type ResponseCaseInput = {
+  name: string;
+  priority: number;
+  matchArgsJson: string;
+  responseJson: string;
+  statusCode: number;
+  delayMs: number;
+  errorMode: CaseErrorMode;
+  errorStatusCode?: number | null;
+  errorMessage?: string | null;
+  errorBodyJson?: string | null;
+  isDefault: boolean;
+};
+
+export type EndpointInput = {
+  name: string;
+  title?: string;
+  description?: string;
+  enabled: boolean;
+  deleteCode?: string | null;
+  defaultResponseJson: string;
+  failureMode: FailureMode;
+  failureStatusCode?: number | null;
+  failureDelayMs: number;
+  failureMessage?: string | null;
+  malformedResponseJson?: string | null;
+  parameters: EndpointParamInput[];
+  responseCases: ResponseCaseInput[];
+};
+
+export type EndpointSummary = {
+  id: string;
+  name: string;
+  title: string;
+  description: string;
+  enabled: boolean;
+  protectedDefault: boolean;
+  parameterCount: number;
+  responseCaseCount: number;
+  updatedAt: string;
+};
+
+export type EndpointDetail = EndpointSummary & {
+  deleteCode: string | null;
+  defaultResponseJson: string;
+  inputSchema: McpInputSchema;
+  failureMode: FailureMode;
+  failureStatusCode: number | null;
+  failureDelayMs: number;
+  failureMessage: string | null;
+  malformedResponseJson: string | null;
+  parameters: Array<EndpointParamInput & { id: string; position: number }>;
+  responseCases: Array<ResponseCaseInput & { id: string }>;
+};
+
+export type EndpointListResult = {
+  total: number;
+  enabled: number;
+  disabled: number;
+  endpoints: EndpointSummary[];
+};
+
+export type EndpointMcpTool = {
+  name: string;
+  description: string;
+  inputSchema: McpInputSchema;
+};
+
+export type EndpointRestToolParameter = {
+  name: string;
+  label: string;
+  description: string;
+  type: EndpointParamType;
+  required: boolean;
+  defaultValue?: JsonValue;
+};
+
+export type EndpointRestTool = {
+  name: string;
+  title: string;
+  description: string;
+  parameters: EndpointRestToolParameter[];
+};
+
+export type EndpointRestToolListResult = {
+  tools: EndpointRestTool[];
+};
+
+export type EndpointDeleteInput = {
+  deleteCode?: string | null;
+  rootPassword?: string | null;
+};
+
+export class EndpointValidationError extends Error {
+  constructor(public readonly fieldErrors: Record<string, string>) {
+    super("Endpoint validation failed");
+  }
+}
+
+export class EndpointDeleteAuthorizationError extends Error {
+  constructor(public readonly reason: "missing_confirmation" | "invalid_confirmation" | "protected_default") {
+    super("Endpoint delete authorization failed");
+  }
+}
+
+export class EndpointNotFoundError extends Error {
+  constructor() {
+    super("Endpoint not found");
+  }
+}
+
+ succeeded in 0ms:
+import { randomUUID } from "node:crypto";
+import type { Prisma, PrismaClient } from "@prisma/client";
+import { recordAuditEvent } from "@/lib/audit/service";
+import { createPrismaClient } from "@/lib/db/client";
+import { executeEndpointDetail } from "@/lib/endpoints/runtime";
+import { generateMcpInputSchema } from "@/lib/endpoints/schema";
+import { EndpointDeleteAuthorizationError, EndpointNotFoundError } from "@/lib/endpoints/types";
+import { validateEndpointInput } from "@/lib/endpoints/validation";
+import { restToolFromEndpoint } from "@/lib/rest/tools";
+import { verifyRootPassword } from "@/lib/security/root-password";
+import type { EndpointCallResult } from "@/lib/endpoints/runtime";
+import type {
+  EndpointDeleteInput,
+  EndpointDetail,
+  EndpointInput,
+  EndpointListResult,
+  EndpointMcpTool,
+  EndpointRestToolListResult,
+  EndpointSummary,
+} from "@/lib/endpoints/types";
+
+const endpointInclude = {
+  parameters: { orderBy: { position: "asc" } },
+  responseCases: { orderBy: [{ isDefault: "desc" }, { priority: "asc" }, { name: "asc" }] },
+} satisfies Prisma.EndpointInclude;
+
+type EndpointRecord = Prisma.EndpointGetPayload<{ include: typeof endpointInclude }>;
+
+function toSummary(endpoint: EndpointRecord): EndpointSummary {
+  return {
+    id: endpoint.id,
+    name: endpoint.name,
+    title: endpoint.title,
+    description: endpoint.description,
+    enabled: endpoint.enabled,
+    protectedDefault: endpoint.protectedDefault,
+    parameterCount: endpoint.parameters.length,
+    responseCaseCount: endpoint.responseCases.length,
+    updatedAt: endpoint.updatedAt.toISOString(),
+  };
+}
+
+function toDetail(endpoint: EndpointRecord): EndpointDetail {
+  const parameters = endpoint.parameters.map((parameter) => ({
+    id: parameter.id,
+    position: parameter.position,
+    name: parameter.name,
+    label: parameter.label ?? "",
+    description: parameter.description,
+    type: parameter.type as EndpointDetail["parameters"][number]["type"],
+    required: parameter.required,
+    defaultValueJson: parameter.defaultValueJson,
+  }));
+
+  return {
+    ...toSummary(endpoint),
+    deleteCode: endpoint.deleteCode,
+    defaultResponseJson: endpoint.defaultResponseJson,
+    inputSchema: generateMcpInputSchema({ parameters }),
+    failureMode: endpoint.failureMode as EndpointDetail["failureMode"],
+    failureStatusCode: endpoint.failureStatusCode,
+    failureDelayMs: endpoint.failureDelayMs,
+    failureMessage: endpoint.failureMessage,
+    malformedResponseJson: endpoint.malformedResponseJson,
+    parameters,
+    responseCases: endpoint.responseCases.map((responseCase) => ({
+      id: responseCase.id,
+      name: responseCase.name,
+      priority: responseCase.priority,
+      matchArgsJson: responseCase.matchArgsJson,
+      responseJson: responseCase.responseJson,
+      statusCode: responseCase.statusCode,
+      delayMs: responseCase.delayMs,
+      errorMode: responseCase.errorMode as EndpointDetail["responseCases"][number]["errorMode"],
+      errorStatusCode: responseCase.errorStatusCode,
+      errorMessage: responseCase.errorMessage,
+      errorBodyJson: responseCase.errorBodyJson,
+      isDefault: responseCase.isDefault,
+    })),
+  };
+}
+
+export async function listEndpoints(client: PrismaClient = createPrismaClient()): Promise<EndpointListResult> {
+  const endpoints = await client.endpoint.findMany({
+    include: endpointInclude,
+    orderBy: [{ protectedDefault: "desc" }, { updatedAt: "desc" }, { name: "asc" }],
+  });
+
+  const summaries = endpoints.map(toSummary);
+  return {
+    total: summaries.length,
+    enabled: summaries.filter((endpoint) => endpoint.enabled).length,
+    disabled: summaries.filter((endpoint) => !endpoint.enabled).length,
+    endpoints: summaries,
+  };
+}
+
+export async function listEnabledMcpTools(client: PrismaClient = createPrismaClient()): Promise<EndpointMcpTool[]> {
+  const endpoints = await client.endpoint.findMany({
+    where: { enabled: true },
+    include: { parameters: { orderBy: { position: "asc" } } },
+    orderBy: [{ name: "asc" }],
+  });
+
+  return endpoints.map((endpoint) => ({
+    name: endpoint.name,
+    description: endpoint.description || endpoint.title,
+    inputSchema: generateMcpInputSchema({
+      parameters: endpoint.parameters.map((parameter) => ({
+        name: parameter.name,
+        label: parameter.label ?? "",
+        description: parameter.description ?? "",
+        type: parameter.type as EndpointDetail["parameters"][number]["type"],
+        required: parameter.required,
+        defaultValueJson: parameter.defaultValueJson,
+      })),
+    }),
+  }));
+}
+
+export async function listEnabledRestTools(client: PrismaClient = createPrismaClient()): Promise<EndpointRestToolListResult> {
+  const endpoints = await client.endpoint.findMany({
+    where: { enabled: true },
+    include: { parameters: { orderBy: { position: "asc" } } },
+    orderBy: [{ name: "asc" }],
+  });
+
+  return {
+    tools: endpoints.map((endpoint) =>
+      restToolFromEndpoint({
+        name: endpoint.name,
+        title: endpoint.title,
+        description: endpoint.description,
+        parameters: endpoint.parameters.map((parameter) => ({
+          name: parameter.name,
+          label: parameter.label ?? "",
+          description: parameter.description ?? "",
+          type: parameter.type as EndpointDetail["parameters"][number]["type"],
+          required: parameter.required,
+          defaultValueJson: parameter.defaultValueJson,
+        })),
+      }),
+    ),
+  };
+}
+
+export async function getEndpoint(id: string, client: PrismaClient = createPrismaClient()) {
+  const endpoint = await client.endpoint.findUnique({ where: { id }, include: endpointInclude });
+  return endpoint ? toDetail(endpoint) : null;
+}
+
+export async function callEndpointByName(
+  name: string,
+  rawArguments: unknown,
+  client: PrismaClient = createPrismaClient(),
+): Promise<EndpointCallResult> {
+  const endpoint = await client.endpoint.findUnique({ where: { name }, include: endpointInclude });
+  return executeEndpointDetail(endpoint ? toDetail(endpoint) : null, rawArguments);
+}
+
+export async function createEndpoint(input: EndpointInput, client: PrismaClient = createPrismaClient()) {
+  const validInput = validateEndpointInput(input);
+  const id = `endpoint_${randomUUID()}`;
+
+  const endpoint = await client.endpoint.create({
+    data: {
+      id,
+      name: validInput.name,
+      title: validInput.title ?? "",
+      description: validInput.description ?? "",
+      enabled: validInput.enabled,
+      protectedDefault: false,
+      deleteCode: validInput.deleteCode,
+      defaultResponseJson: validInput.defaultResponseJson,
+      failureMode: validInput.failureMode,
+      failureStatusCode: validInput.failureStatusCode,
+      failureDelayMs: validInput.failureDelayMs,
+      failureMessage: validInput.failureMessage,
+      malformedResponseJson: validInput.malformedResponseJson,
+      parameters: {
+        create: validInput.parameters.map((parameter, position) => ({
+          id: `${id}_param_${position}_${randomUUID()}`,
+          position,
+          name: parameter.name,
+          label: parameter.label || null,
+          description: parameter.description ?? "",
+          type: parameter.type,
+          required: parameter.required,
+          defaultValueJson: parameter.defaultValueJson,
+        })),
+      },
+      responseCases: {
+        create: validInput.responseCases.map((responseCase) => ({
+          id: `${id}_case_${randomUUID()}`,
+          ...responseCase,
+        })),
+      },
+    },
+    include: endpointInclude,
+  });
+
+  return toDetail(endpoint);
+}
+
+export async function updateEndpoint(
+  id: string,
+  input: EndpointInput,
+  client: PrismaClient = createPrismaClient(),
+) {
+  const validInput = validateEndpointInput(input);
+
+  const endpoint = await client.$transaction(async (tx) => {
+    await tx.endpointParam.deleteMany({ where: { endpointId: id } });
+    await tx.responseCase.deleteMany({ where: { endpointId: id } });
+
+    return tx.endpoint.update({
+      where: { id },
+      data: {
+        name: validInput.name,
+        title: validInput.title ?? "",
+        description: validInput.description ?? "",
+        enabled: validInput.enabled,
+        deleteCode: validInput.deleteCode,
+        defaultResponseJson: validInput.defaultResponseJson,
+        failureMode: validInput.failureMode,
+        failureStatusCode: validInput.failureStatusCode,
+        failureDelayMs: validInput.failureDelayMs,
+        failureMessage: validInput.failureMessage,
+        malformedResponseJson: validInput.malformedResponseJson,
+        parameters: {
+          create: validInput.parameters.map((parameter, position) => ({
+            id: `${id}_param_${position}_${randomUUID()}`,
+            position,
+            name: parameter.name,
+            label: parameter.label || null,
+            description: parameter.description ?? "",
+            type: parameter.type,
+            required: parameter.required,
+            defaultValueJson: parameter.defaultValueJson,
+          })),
+        },
+        responseCases: {
+          create: validInput.responseCases.map((responseCase) => ({
+            id: `${id}_case_${randomUUID()}`,
+            ...responseCase,
+          })),
+        },
+      },
+      include: endpointInclude,
+    });
+  });
+
+  return toDetail(endpoint);
+}
+
+function deleteMethodFor(endpoint: EndpointRecord, input: EndpointDeleteInput) {
+  const deleteCode = input.deleteCode?.trim() ?? "";
+  const rootPassword = input.rootPassword ?? "";
+
+  if (deleteCode && endpoint.deleteCode && deleteCode === endpoint.deleteCode) {
+
+exec
+/bin/zsh -lc "sed -n '1,260p' lib/auth/basic.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+exec
+/bin/zsh -lc "sed -n '1,260p' lib/basic-auth/service.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import type { PrismaClient } from "@prisma/client";
+import { verifyBasicCredentials } from "@/lib/basic-auth/service";
+import type { BasicUserSummary } from "@/lib/basic-auth/types";
+
+export type ParsedBasicAuthorization =
+  | { kind: "missing" }
+  | { kind: "basic"; username: string; password: string }
+  | { kind: "invalid"; reason: "malformed" }
+  | { kind: "unsupported"; scheme: string };
+
+export type BasicAuthorizationResolution =
+  | { kind: "missing" }
+  | { kind: "authenticated"; principal: BasicUserSummary }
+  | { kind: "unauthorized"; reason: "invalid" | "unsupported" };
+
+function decodeBasicCredentials(encoded: string) {
+  if (!/^[A-Za-z0-9+/]*={0,2}$/.test(encoded) || encoded.length % 4 === 1) {
+    return null;
+  }
+
+  try {
+    const decoded = Buffer.from(encoded, "base64").toString("utf8");
+    const separatorIndex = decoded.indexOf(":");
+    if (separatorIndex <= 0) {
+      return null;
+    }
+
+    return {
+      username: decoded.slice(0, separatorIndex),
+      password: decoded.slice(separatorIndex + 1),
+    };
+  } catch {
+    return null;
+  }
+}
+
+export function parseBasicAuthorizationHeader(header: string | null): ParsedBasicAuthorization {
+  if (!header) {
+    return { kind: "missing" };
+  }
+
+  const match = header.match(/^(\S+)\s+(\S+)$/);
+  if (!match) {
+    return { kind: "invalid", reason: "malformed" };
+  }
+
+  const [, scheme, encoded] = match;
+  if (scheme.toLowerCase() !== "basic") {
+    return { kind: "unsupported", scheme };
+  }
+
+  const credentials = decodeBasicCredentials(encoded);
+  return credentials ? { kind: "basic", ...credentials } : { kind: "invalid", reason: "malformed" };
+}
+
+export async function resolveBasicAuthorizationHeader(
+  header: string | null,
+  client?: PrismaClient,
+): Promise<BasicAuthorizationResolution> {
+  const parsed = parseBasicAuthorizationHeader(header);
+  if (parsed.kind === "missing") {
+    return { kind: "missing" };
+  }
+  if (parsed.kind === "invalid" || parsed.kind === "unsupported") {
+    return { kind: "unauthorized", reason: parsed.kind };
+  }
+
+  const principal = await verifyBasicCredentials(parsed.username, parsed.password, client);
+  return principal ? { kind: "authenticated", principal } : { kind: "unauthorized", reason: "invalid" };
+}
+
+ succeeded in 0ms:
+import { randomUUID } from "node:crypto";
+import type { Prisma, PrismaClient } from "@prisma/client";
+import { recordAuditEvent } from "@/lib/audit/service";
+import { createPrismaClient } from "@/lib/db/client";
+import { hashBasicPassword, verifyBasicPassword } from "@/lib/basic-auth/passwords";
+import {
+  BasicUserBuiltInError,
+  BasicUserNotFoundError,
+  DEFAULT_BASIC_PASSWORD,
+  DEFAULT_BASIC_USER_ID,
+  DEFAULT_BASIC_USERNAME,
+} from "@/lib/basic-auth/types";
+import { validateBasicUserCreateInput, validateBasicUserUpdateInput } from "@/lib/basic-auth/validation";
+import type { BasicUserCreateInput, BasicUserListResult, BasicUserSummary, BasicUserUpdateInput } from "@/lib/basic-auth/types";
+
+type BasicUserRecord = Prisma.BasicUserGetPayload<object>;
+type BasicUserSeedClient = Pick<PrismaClient, "basicUser">;
+
+function toSummary(user: BasicUserRecord): BasicUserSummary {
+  return {
+    id: user.id,
+    username: user.username,
+    enabled: user.enabled,
+    builtIn: user.builtIn,
+    createdAt: user.createdAt.toISOString(),
+    updatedAt: user.updatedAt.toISOString(),
+  };
+}
+
+export async function seedBasicUserDefaults(client: BasicUserSeedClient = createPrismaClient()) {
+  const passwordHash = await hashBasicPassword(DEFAULT_BASIC_PASSWORD);
+  await client.basicUser.upsert({
+    where: { id: DEFAULT_BASIC_USER_ID },
+    update: {
+      username: DEFAULT_BASIC_USERNAME,
+      passwordHash,
+      enabled: true,
+      builtIn: true,
+    },
+    create: {
+      id: DEFAULT_BASIC_USER_ID,
+      username: DEFAULT_BASIC_USERNAME,
+      passwordHash,
+      enabled: true,
+      builtIn: true,
+    },
+  });
+}
+
+export async function listBasicUsers(client: PrismaClient = createPrismaClient()): Promise<BasicUserListResult> {
+  const users = await client.basicUser.findMany({
+    orderBy: [{ builtIn: "desc" }, { username: "asc" }],
+  });
+  const summaries = users.map(toSummary);
+
+  return {
+    total: summaries.length,
+    enabled: summaries.filter((user) => user.enabled).length,
+    disabled: summaries.filter((user) => !user.enabled).length,
+    users: summaries,
+  };
+}
+
+export async function createBasicUser(input: BasicUserCreateInput, client: PrismaClient = createPrismaClient()) {
+  const validInput = validateBasicUserCreateInput(input);
+  const user = await client.basicUser.create({
+    data: {
+      id: `basic_user_${randomUUID()}`,
+      username: validInput.username,
+      passwordHash: await hashBasicPassword(validInput.password),
+      enabled: validInput.enabled,
+      builtIn: false,
+    },
+  });
+
+  await recordAuditEvent(
+    {
+      eventType: "basic_user.create",
+      subjectType: "basic_user",
+      subjectId: user.id,
+      subjectName: user.username,
+      outcome: "success",
+      metadata: { enabled: user.enabled },
+    },
+    client,
+  );
+
+  return toSummary(user);
+}
+
+export async function updateBasicUser(
+  id: string,
+  input: BasicUserUpdateInput,
+  client: PrismaClient = createPrismaClient(),
+) {
+  const existing = await client.basicUser.findUnique({ where: { id } });
+  if (!existing) {
+    throw new BasicUserNotFoundError();
+  }
+  if (existing.builtIn) {
+    throw new BasicUserBuiltInError("update");
+  }
+
+  const validInput = validateBasicUserUpdateInput(input);
+  const data: Prisma.BasicUserUpdateInput = {};
+  if (typeof validInput.enabled === "boolean") {
+    data.enabled = validInput.enabled;
+  }
+  if (validInput.password) {
+    data.passwordHash = await hashBasicPassword(validInput.password);
+  }
+
+  const user = await client.basicUser.update({
+    where: { id },
+    data,
+  });
+
+  await recordAuditEvent(
+    {
+      eventType: "basic_user.update",
+      subjectType: "basic_user",
+      subjectId: user.id,
+      subjectName: user.username,
+      outcome: "success",
+      metadata: { enabled: user.enabled, passwordChanged: Boolean(validInput.password) },
+    },
+    client,
+  );
+
+  return toSummary(user);
+}
+
+export async function deleteBasicUser(id: string, client: PrismaClient = createPrismaClient()) {
+  const existing = await client.basicUser.findUnique({ where: { id } });
+  if (!existing) {
+    throw new BasicUserNotFoundError();
+  }
+  if (existing.builtIn) {
+    throw new BasicUserBuiltInError("delete");
+  }
+
+  await client.$transaction(async (tx) => {
+    await tx.basicUser.delete({ where: { id } });
+    await recordAuditEvent(
+      {
+        eventType: "basic_user.delete",
+        subjectType: "basic_user",
+        subjectId: existing.id,
+        subjectName: existing.username,
+        outcome: "success",
+      },
+      tx,
+    );
+  });
+
+  return toSummary(existing);
+}
+
+export async function verifyBasicCredentials(
+  username: string,
+  password: string,
+  client: PrismaClient = createPrismaClient(),
+) {
+  const user = await client.basicUser.findUnique({ where: { username } });
+  if (!user || !user.enabled) {
+    return null;
+  }
+  const verified = await verifyBasicPassword(password, user.passwordHash);
+  return verified ? toSummary(user) : null;
+}
+
+codex
+{"decision":"not_done","recommend_promotion":false,"confidence":0,"summary":"The implementation path looks scoped so far: a thin route, explicit REST DTO mapping, existing Basic resolver, and targeted tests. I’m checking the actual diff and related docs to catch accidental broad work or missing contract updates before I decide.","satisfied_exit_criteria":[],"missing_requirements":[],"human_review_triggers":[]}
+exec
+/bin/zsh -lc 'git diff -- app/rest/tools/route.ts lib/rest/tools.ts lib/rest/http.ts lib/endpoints/service.ts lib/endpoints/types.ts tests/unit/rest-tools.test.ts tests/e2e/rest-tools-list.spec.ts docs/PRODUCT_SENSE.md docs/FRONTEND.md docs/product-specs/rest-mock-api.md docs/exec-plans/active/011-rest-tools-list-runtime.md' in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+git: warning: confstr() failed with code 5: couldn't get path of DARWIN_USER_TEMP_DIR; using /tmp instead
+git: error: couldn't create cache file '/tmp/xcrun_db-hbmJPhl0' (errno=Operation not permitted)
+git: warning: confstr() failed with code 5: couldn't get path of DARWIN_USER_TEMP_DIR; using /tmp instead
+git: error: couldn't create cache file '/tmp/xcrun_db-NwAHsMjF' (errno=Operation not permitted)
+diff --git a/docs/FRONTEND.md b/docs/FRONTEND.md
+index 1d48424..ba9cc73 100644
+--- a/docs/FRONTEND.md
++++ b/docs/FRONTEND.md
+@@ -52,6 +52,7 @@ Describe the user-facing structure of MCP Mock Server so an agent can implement
+ - tables must support search/filter states without layout shift
+ - endpoint editor forms must surface API/domain validation errors next to the affected fields
+ - endpoint editor forms must show generated MCP `inputSchema` from the shared endpoint domain schema helper
++- endpoint console REST examples can point to `GET /rest/tools` for metadata discovery before REST call execution is wired
+ - Basic user forms must not display password hashes and must disable mutation controls for built-in rows
+ - console outputs must preserve raw JSON formatting and elapsed/auth/match metadata
+ - console shell states must clearly mark unavailable runtime actions instead of faking calls
+diff --git a/docs/PRODUCT_SENSE.md b/docs/PRODUCT_SENSE.md
+index d203fd3..f466f74 100644
+--- a/docs/PRODUCT_SENSE.md
++++ b/docs/PRODUCT_SENSE.md
+@@ -26,6 +26,7 @@ Remote MCP adoption is moving auth, transport, and permission bugs into client i
+ - inspect the generated MCP input schema and planned console evidence before runtime calls are wired
+ - initialize no-auth MCP clients, list enabled tools, and execute exact-match tool calls
+ - manage Basic Auth test users while keeping the built-in default/default fixture locked
++- list enabled tools through a simple REST metadata route for curl and Postman style discovery
+ - prove no-auth, Basic, and OAuth bearer client behavior against strict routes
+ - issue mock OAuth tokens with endpoint-level permissions through browser consent or client credentials
+ - simulate failure cases that clients often mishandle
+@@ -41,7 +42,7 @@ Remote MCP adoption is moving auth, transport, and permission bugs into client i
+ - replacing a real authorization server
+ 
+ ## v1 Success Signals
+-- a new endpoint can be created and edited through the public endpoint UI, then listed through tools/list, called through tools/call, and called through REST
++- a new endpoint can be created and edited through the public endpoint UI, then listed through tools/list and GET /rest/tools, called through tools/call, and called through REST
+ - Basic default/default and additional users work on strict Basic routes while invalid credentials return 401
+ - OAuth consent can select endpoints, exchange a code for a JWT, allow selected tools, deny unselected tools with 403, and return 401 after revocation
+ - token and audit screens show enough evidence to debug a client test, including endpoint delete success/failure without stored secrets
+diff --git a/docs/exec-plans/active/011-rest-tools-list-runtime.md b/docs/exec-plans/active/011-rest-tools-list-runtime.md
+index 9c0ff0f..af0bbaf 100644
+--- a/docs/exec-plans/active/011-rest-tools-list-runtime.md
++++ b/docs/exec-plans/active/011-rest-tools-list-runtime.md
+@@ -5,7 +5,7 @@
+   "id": "rest-tools-list-runtime",
+   "title": "REST Tool List Runtime",
+   "order": 11,
+-  "status": "queued",
++  "status": "active",
+   "next_task_on_success": "rest-tools-call-runtime",
+   "prompt_docs": [
+     "AGENTS.md",
+@@ -101,3 +101,7 @@ Confirm that this task maps to the primary product spec `rest-mock-api.md` or is
+ 
+ - Start here. Append timestamped progress notes as work lands.
+ - Note when existing partial implementations were found and reused instead of replaced.
++- 2026-05-05T11:05:59.758Z: restored as current task after basic-auth-mcp-runtime promotion.
++- 2026-05-05T11:07:35Z: found no existing REST route implementation; reused the endpoint catalog query shape, Basic Authorization resolver, and fail-closed 401 pattern from MCP instead of introducing separate auth behavior.
++- 2026-05-05T11:07:35Z: added explicit REST tool metadata mapping, GET /rest/tools, unit mapping coverage, and @rest-tools-list E2E coverage for no-auth, valid Basic, invalid Basic, unsupported Authorization, and disabled endpoint filtering.
++- 2026-05-05T11:11:04Z: required checks passed: `npm run test:unit`, `npm run test:e2e -- --grep @rest-tools-list`, and `npm run verify`.
+diff --git a/docs/product-specs/rest-mock-api.md b/docs/product-specs/rest-mock-api.md
+index 8fafa83..fc3ca88 100644
+--- a/docs/product-specs/rest-mock-api.md
++++ b/docs/product-specs/rest-mock-api.md
+@@ -10,6 +10,12 @@ REST example copy
+ - REST example copy
+ - REST call from test console
+ - REST list and call routes
++- `GET /rest/tools` returns simple JSON, not an MCP JSON-RPC envelope:
++  - `tools`: enabled tools sorted by name
++  - each tool includes `name`, `title`, `description`, and `parameters`
++  - each parameter includes `name`, `label`, `description`, `type`, `required`, and `defaultValue` when configured
++- `GET /rest/tools` allows no-auth callers and valid Basic callers to see all enabled endpoints.
++- Invalid or unsupported `Authorization` headers return `401` with `WWW-Authenticate`; OAuth bearer filtering is handled by a later permissions slice.
+ 
+ ## Validation
+ - REST error mapping
+diff --git a/lib/endpoints/service.ts b/lib/endpoints/service.ts
+index 6cd10a0..400a7d2 100644
+--- a/lib/endpoints/service.ts
++++ b/lib/endpoints/service.ts
+@@ -6,6 +6,7 @@ import { executeEndpointDetail } from "@/lib/endpoints/runtime";
+ import { generateMcpInputSchema } from "@/lib/endpoints/schema";
+ import { EndpointDeleteAuthorizationError, EndpointNotFoundError } from "@/lib/endpoints/types";
+ import { validateEndpointInput } from "@/lib/endpoints/validation";
++import { restToolFromEndpoint } from "@/lib/rest/tools";
+ import { verifyRootPassword } from "@/lib/security/root-password";
+ import type { EndpointCallResult } from "@/lib/endpoints/runtime";
+ import type {
+@@ -14,6 +15,7 @@ import type {
+   EndpointInput,
+   EndpointListResult,
+   EndpointMcpTool,
++  EndpointRestToolListResult,
+   EndpointSummary,
+ } from "@/lib/endpoints/types";
+ 
+@@ -116,6 +118,32 @@ export async function listEnabledMcpTools(client: PrismaClient = createPrismaCli
+   }));
+ }
+ 
++export async function listEnabledRestTools(client: PrismaClient = createPrismaClient()): Promise<EndpointRestToolListResult> {
++  const endpoints = await client.endpoint.findMany({
++    where: { enabled: true },
++    include: { parameters: { orderBy: { position: "asc" } } },
++    orderBy: [{ name: "asc" }],
++  });
++
++  return {
++    tools: endpoints.map((endpoint) =>
++      restToolFromEndpoint({
++        name: endpoint.name,
++        title: endpoint.title,
++        description: endpoint.description,
++        parameters: endpoint.parameters.map((parameter) => ({
++          name: parameter.name,
++          label: parameter.label ?? "",
++          description: parameter.description ?? "",
++          type: parameter.type as EndpointDetail["parameters"][number]["type"],
++          required: parameter.required,
++          defaultValueJson: parameter.defaultValueJson,
++        })),
++      }),
++    ),
++  };
++}
++
+ export async function getEndpoint(id: string, client: PrismaClient = createPrismaClient()) {
+   const endpoint = await client.endpoint.findUnique({ where: { id }, include: endpointInclude });
+   return endpoint ? toDetail(endpoint) : null;
+diff --git a/lib/endpoints/types.ts b/lib/endpoints/types.ts
+index f03cfa0..156dcd0 100644
+--- a/lib/endpoints/types.ts
++++ b/lib/endpoints/types.ts
+@@ -96,6 +96,26 @@ export type EndpointMcpTool = {
+   inputSchema: McpInputSchema;
+ };
+ 
++export type EndpointRestToolParameter = {
++  name: string;
++  label: string;
++  description: string;
++  type: EndpointParamType;
++  required: boolean;
++  defaultValue?: JsonValue;
++};
++
++export type EndpointRestTool = {
++  name: string;
++  title: string;
++  description: string;
++  parameters: EndpointRestToolParameter[];
++};
++
++export type EndpointRestToolListResult = {
++  tools: EndpointRestTool[];
++};
++
+ export type EndpointDeleteInput = {
+   deleteCode?: string | null;
+   rootPassword?: string | null;
+
+exec
+/bin/zsh -lc 'git status --short' in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+git: warning: confstr() failed with code 5: couldn't get path of DARWIN_USER_TEMP_DIR; using /tmp instead
+git: error: couldn't create cache file '/tmp/xcrun_db-O7OgMUQO' (errno=Operation not permitted)
+git: warning: confstr() failed with code 5: couldn't get path of DARWIN_USER_TEMP_DIR; using /tmp instead
+git: error: couldn't create cache file '/tmp/xcrun_db-sEc0oi4c' (errno=Operation not permitted)
+ M docs/FRONTEND.md
+ M docs/PRODUCT_SENSE.md
+ D docs/exec-plans/active/010-basic-auth-mcp-runtime.md
+ M docs/exec-plans/active/011-rest-tools-list-runtime.md
+ M docs/product-specs/rest-mock-api.md
+ M lib/endpoints/service.ts
+ M lib/endpoints/types.ts
+ M scripts/ralph/generated/current-evaluator-prompt.txt
+ M scripts/ralph/generated/current-task-prompt.txt
+ M state/artifacts/20260505T195849-basic-auth-mcp-runtime/commit.log
+ M state/backlog.md
+ M state/blocker-tracker.json
+ M state/current-cycle.json
+ M state/current-task.txt
+ M state/deterministic-checks.json
+ M state/last-result.txt
+ M state/run-log.md
+ M state/task-history.md
+?? app/rest/
+?? docs/exec-plans/completed/010-basic-auth-mcp-runtime.md
+?? lib/rest/
+?? state/artifacts/20260505T195849-basic-auth-mcp-runtime/backlog.log
+?? state/artifacts/20260505T195849-basic-auth-mcp-runtime/promote.log
+?? state/artifacts/20260505T200629-rest-tools-list-runtime/
+?? tests/e2e/rest-tools-list.spec.ts
+?? tests/unit/rest-tools.test.ts
+
+exec
+/bin/zsh -lc 'git diff --stat' in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+git: warning: confstr() failed with code 5: couldn't get path of DARWIN_USER_TEMP_DIR; using /tmp instead
+git: error: couldn't create cache file '/tmp/xcrun_db-XzMSYkAq' (errno=Operation not permitted)
+git: warning: confstr() failed with code 5: couldn't get path of DARWIN_USER_TEMP_DIR; using /tmp instead
+git: error: couldn't create cache file '/tmp/xcrun_db-PuPHKTmH' (errno=Operation not permitted)
+ docs/FRONTEND.md                                   |   1 +
+ docs/PRODUCT_SENSE.md                              |   3 +-
+ .../active/010-basic-auth-mcp-runtime.md           | 107 ---------------------
+ .../active/011-rest-tools-list-runtime.md          |   6 +-
+ docs/product-specs/rest-mock-api.md                |   6 ++
+ lib/endpoints/service.ts                           |  28 ++++++
+ lib/endpoints/types.ts                             |  20 ++++
+ .../ralph/generated/current-evaluator-prompt.txt   |  68 ++++++-------
+ scripts/ralph/generated/current-task-prompt.txt    |  65 ++++++-------
+ .../commit.log                                     |  13 +++
+ state/backlog.md                                   |   4 +-
+ state/blocker-tracker.json                         |   2 +-
+ state/current-cycle.json                           |  10 +-
+ state/current-task.txt                             |   2 +-
+ state/deterministic-checks.json                    |  16 +--
+ state/last-result.txt                              |  15 +--
+ state/run-log.md                                   |  13 +++
+ state/task-history.md                              |   1 +
+ 18 files changed, 180 insertions(+), 200 deletions(-)
+
+exec
+/bin/zsh -lc 'find app/rest -maxdepth 4 -type f -print' in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+app/rest/tools/route.ts
+
+exec
+/bin/zsh -lc "sed -n '1,220p' state/last-result.txt" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+exec
+/bin/zsh -lc "sed -n '1,260p' state/deterministic-checks.json" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+exec
+/bin/zsh -lc "sed -n '1,160p' docs/exec-plans/active/index.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+Implemented `rest-tools-list-runtime` and wrote the handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+
+Changed:
+- Added `GET /rest/tools` via [app/rest/tools/route.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/app/rest/tools/route.ts), backed by explicit REST metadata mapping in `lib/rest`.
+- Lists enabled endpoints only, with `name`, `title`, `description`, and parameter metadata.
+- Reuses Basic auth resolution: no-auth and valid Basic pass; invalid/unsupported `Authorization` returns `401`.
+- Added unit coverage and `@rest-tools-list` E2E coverage.
+- Updated REST/product/frontend docs and the active task progress log.
+
+Required checks passed:
+- `npm run test:unit`
+- `npm run test:e2e -- --grep @rest-tools-list`
+- `npm run verify`
+
+Exit criteria appear satisfied. Remaining work for this task: none.
+ succeeded in 0ms:
+# Ralph Loop Task Queue
+
+This directory contains only runnable feature and hardening tasks. The completed bootstrap/foundation task is preserved under `docs/exec-plans/completed/` and must not be re-added here.
+
+Task filenames are ordered for human scanning, while Ralph state and promotion use the stable `taskmeta.id` values. Keep both the filename sequence and `taskmeta.order` aligned whenever this queue changes.
+
+## Current recommended sequence
+1. `001-endpoint-domain-and-schema.md` -> `endpoint-domain-and-schema` -> Replace the bootstrap runtime placeholder with durable SQLite/Prisma persistence for endpoint/tool data and deterministic seed defaults.
+2. `002-endpoint-validation-and-matching.md` -> `endpoint-validation-and-matching` -> Create reusable endpoint domain services for validation, MCP inputSchema generation, and exact-match response-case selection.
+3. `003-endpoint-management-list-editor-ui.md` -> `endpoint-management-list-editor-ui` -> Build the first public endpoint-management UI for listing, searching, creating, and editing endpoint definitions.
+4. `004-endpoint-console-schema-preview-ui.md` -> `endpoint-console-schema-preview-ui` -> Add generated MCP schema preview and a stable endpoint test-console shell without implementing external MCP or REST calls yet.
+5. `005-endpoint-protected-delete-audit.md` -> `endpoint-protected-delete-audit` -> Implement endpoint deletion guarded by delete code or root password, with audit evidence for successful and failed delete attempts.
+6. `006-root-reset-defaults.md` -> `root-reset-defaults` -> Implement root-password-protected reset behavior that restores deterministic default state without harming runtime readiness.
+7. `007-mcp-initialize-and-tools-list.md` -> `mcp-initialize-and-tools-list` -> Implement no-auth MCP JSON-RPC initialization and tool discovery before adding tool execution.
+8. `008-mcp-tools-call-and-errors.md` -> `mcp-tools-call-and-errors` -> Implement no-auth MCP `tools/call` execution and JSON-RPC error semantics using the endpoint matcher.
+9. `009-basic-auth-users-domain-ui.md` -> `basic-auth-users-domain-ui` -> Implement Basic Auth user persistence, hashing, built-in protection, and public management UI before strict route enforcement.
+10. `010-basic-auth-mcp-runtime.md` -> `basic-auth-mcp-runtime` -> Enforce Basic Auth on `/mcp/basic` and Basic header precedence on `/mcp` using the existing Basic user service.
+11. `011-rest-tools-list-runtime.md` -> `rest-tools-list-runtime` -> Expose configured enabled endpoints through `GET /rest/tools` with no-auth and Basic behavior.
+12. `012-rest-tools-call-runtime.md` -> `rest-tools-call-runtime` -> Implement `POST /rest/tools/:name/call` and wire endpoint console REST execution for no-auth and Basic modes.
+13. `013-oauth-users-management-ui.md` -> `oauth-users-management-ui` -> Implement OAuth login-user persistence, built-in protection, TTL settings, and public management UI.
+14. `014-oauth-clients-management-ui.md` -> `oauth-clients-management-ui` -> Implement OAuth client persistence, secret generation, redirect URI management, allowed endpoint selection, and client UI.
+15. `015-oauth-authorize-login-consent.md` -> `oauth-authorize-login-consent` -> Implement the browser authorization entry, mock login, consent screen, endpoint selection, and authorization code creation.
+16. `016-oauth-code-token-jwt.md` -> `oauth-code-token-jwt` -> Implement `/oauth/token` authorization_code exchange and signed JWT access tokens with endpoint permission claims.
+17. `017-oauth-client-credentials-grant.md` -> `oauth-client-credentials-grant` -> Implement non-interactive client_credentials token issuance with endpoint scope intersection.
+18. `018-oauth-discovery-metadata.md` -> `oauth-discovery-metadata` -> Expose OAuth protected-resource, authorization-server, OIDC configuration, and JWKS metadata aligned with the mock server runtime.
+19. `019-oauth-mcp-rest-permission-enforcement.md` -> `oauth-mcp-rest-permission-enforcement` -> Validate Bearer tokens and enforce endpoint permissions on MCP and REST routes, with correct 401 versus 403 behavior.
+20. `020-issued-token-ui-revocation.md` -> `issued-token-ui-revocation` -> Build issued-token inspection/filtering UI and token revocation behavior that affects subsequent OAuth runtime calls.
+21. `021-failure-delay-forced-error-runtime.md` -> `failure-delay-forced-error-runtime` -> Implement artificial delay, timeout shortcut, and forced error behavior for MCP and REST calls.
+22. `022-malformed-response-console-audit.md` -> `malformed-response-console-audit` -> Implement intentionally malformed response modes with visible warnings, console evidence, and audit logging for failure-simulation changes.
+23. `023-operator-config-health-logs.md` -> `operator-config-health-logs` -> Complete operator-facing health, public config, base URL behavior, connection guide, root-protected config changes, and server logging.
+24. `024-docker-nginx-final-hardening.md` -> `docker-nginx-final-hardening` -> Package and reconcile the MVP for operator handoff with Docker/Nginx examples, final docs, debt tracking, and full deterministic proof.
+
+## Split Rationale
+
+The queue is intentionally finer-grained than one task per product spec. Larger PRD areas were split where a single task would otherwise mix persistence, UI, protocol runtime, auth enforcement, token operations, failure modes, or deployment hardening.
+
+## Operating rule
+
+A task may be promoted only when all of the following are true:
+
+- deterministic checks pass
+- the evaluator marks the task as `done`, unless the task uses `promotion_mode = deterministic_only`
+- the evaluator recommends promotion when evaluator review is required
+- the task metadata declares a valid `next_task_on_success`, or explicitly declares that the queue ends here
+
+## Required Detail Sections
+
+Every active task page should include these decision-complete sections before implementation starts:
+
+- `Clarity notes`: what the task means, what assumptions are already decided, and how it relates to surrounding slices
+- `Expected result`: the concrete repo/user/operator state that should exist after the task lands
+- `Objections / risks to avoid`: common wrong turns, scope creep, or implementation shortcuts that should block promotion
+
+## Queue Maintenance Rules
+
+- keep every non-hardening task focused on one primary product spec
+- do not leave completed task contracts in this directory
+- review supporting product, frontend, architecture, and design docs before adding or revising task pages
+- add UI screenshot, responsive, and accessibility checks to UI-heavy tasks before promotion work starts
+- external-client behavior such as MCP, REST, Basic Auth, or OAuth must have E2E proof before promotion
+
+## When this queue ends
+
+When the active sequence is exhausted, do not continue with ad hoc prompts alone.
+Update the relevant product specs and design docs first, then seed the next active queue for the next feature wave.
+
+
+ succeeded in 0ms:
+{
+  "checked_at": "2026-05-05T11:13:16.885Z",
+  "task_id": "rest-tools-list-runtime",
+  "commands": [
+    {
+      "command": "npm run test:unit",
+      "ok": true,
+      "output": "\n> mina-mock-mcpserver@1.0.0 test:unit\n> node --import tsx --test \"tests/unit/**/*.test.ts\"\n\n✔ Basic passwords are hashed and verified without plaintext storage (82.235ms)\n✔ Basic Authorization parser handles missing, valid, unsupported, and malformed headers (0.603542ms)\n✔ Basic Authorization resolver authenticates enabled users and fails closed otherwise (775.141458ms)\n✔ Basic credential verification uses stored hashes and enabled state (738.022125ms)\n✔ built-in default Basic user cannot be disabled, changed, or deleted (675.374791ms)\n✔ normalizeLogLevel accepts supported operator log levels (0.396042ms)\n✔ normalizeLogLevel defaults invalid input to info (0.061709ms)\n✔ getBootstrapStatus reports prepared foundation state (0.056875ms)\n✔ db:prepare is repeatable and keeps seed rows singular (3066.696292ms)\n✔ endpoint runtime selects exact response cases after applying defaults (0.849292ms)\n✔ endpoint runtime falls back to the configured default case on no exact match (0.145959ms)\n✔ endpoint runtime reports disabled endpoints and invalid arguments deterministically (0.0765ms)\n✔ endpoint validation accepts the MVP editor field set (0.640375ms)\n✔ endpoint validation returns field-level errors for UI rendering (0.397792ms)\n✔ MCP input schema generation reflects endpoint parameters (0.416292ms)\n✔ MCP initialize returns explicit no-auth MVP capabilities (0.757ms)\n✔ MCP initialized notification is accepted without a JSON-RPC body (0.069042ms)\n✔ MCP tools/list returns loaded tools without executing them (0.076125ms)\n✔ MCP tools/call converts endpoint success to content and structuredContent (0.1355ms)\n✔ MCP tools/call maps unknown tools and invalid params to JSON-RPC invalid params (0.100667ms)\n✔ MCP unknown methods return JSON-RPC method not found (0.062875ms)\n✔ Ralph promotion resolves ordered successor filenames by taskmeta id (45.118625ms)\n✔ reset requires confirmation and leaves endpoint state untouched on failure (778.002333ms)\n✔ reset clears mutable endpoint data and recreates current seed defaults (689.264125ms)\n✔ REST tool metadata maps endpoint parameters without MCP JSON-RPC envelope (0.658375ms)\nℹ tests 25\nℹ suites 0\nℹ pass 25\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 3283.295\n"
+    },
+    {
+      "command": "npm run test:e2e -- --grep @rest-tools-list",
+      "ok": true,
+      "output": "\n> mina-mock-mcpserver@1.0.0 test:e2e\n> playwright test --grep @rest-tools-list\n\n\nRunning 1 test using 1 worker\n\n  ✓  1 [chromium] › tests/e2e/rest-tools-list.spec.ts:7:5 › REST tools list exposes enabled metadata for no-auth and Basic callers @rest-tools-list (523ms)\n\n  1 passed (4.7s)\n",
+      "preflight": {
+        "command": "ensure-e2e-port-free.sh 3100",
+        "error": "",
+        "ok": true,
+        "output": "port-cleanup: 127.0.0.1:3100 already free\n"
+      },
+      "next_server_log_path": "/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T200629-rest-tools-list-runtime/npm-run-test-e2e-grep-rest-tools-list-next-server.log"
+    },
+    {
+      "command": "npm run verify",
+      "ok": true,
+      "output": "\n> mina-mock-mcpserver@1.0.0 verify\n> npm run lint && npm run typecheck && npm run build && npm run test:unit && npm run test:e2e && npm run start:smoke\n\n\n> mina-mock-mcpserver@1.0.0 lint\n> eslint .\n\n\n> mina-mock-mcpserver@1.0.0 typecheck\n> tsc --noEmit\n\n\n> mina-mock-mcpserver@1.0.0 build\n> next build\n\n   ▲ Next.js 15.5.15\n\n   Creating an optimized production build ...\n ✓ Compiled successfully in 875ms\n   Linting and checking validity of types ...\n   Collecting page data ...\n   Generating static pages (0/13) ...\n   Generating static pages (3/13) \r\n   Generating static pages (6/13) \r\n   Generating static pages (9/13) \r\n ✓ Generating static pages (13/13)\n   Finalizing page optimization ...\n   Collecting build traces ...\n\nRoute (app)                                 Size  First Load JS\n┌ ○ /                                      164 B         106 kB\n├ ○ /_not-found                            999 B         103 kB\n├ ƒ /api/audit                             149 B         102 kB\n├ ƒ /api/basic-users                       149 B         102 kB\n├ ƒ /api/basic-users/[id]                  149 B         102 kB\n├ ƒ /api/endpoints                         149 B         102 kB\n├ ƒ /api/endpoints/[id]                    149 B         102 kB\n├ ƒ /api/health                            149 B         102 kB\n├ ƒ /api/reset                             149 B         102 kB\n├ ○ /audit                                 164 B         106 kB\n├ ○ /basic-users                         2.22 kB         108 kB\n├ ○ /endpoints                              5 kB         111 kB\n├ ƒ /mcp                                   149 B         102 kB\n├ ƒ /mcp/basic                             149 B         102 kB\n├ ƒ /mcp/none                              149 B         102 kB\n├ ○ /reset                               1.02 kB         107 kB\n└ ƒ /rest/tools                            149 B         102 kB\n+ First Load JS shared by all             102 kB\n  ├ chunks/255-4f212684648fcab9.js         46 kB\n  ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB\n  └ other shared chunks (total)          1.92 kB\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n\n\n> mina-mock-mcpserver@1.0.0 test:unit\n> node --import tsx --test \"tests/unit/**/*.test.ts\"\n\n✔ Basic passwords are hashed and verified without plaintext storage (82.326625ms)\n✔ Basic Authorization parser handles missing, valid, unsupported, and malformed headers (0.611917ms)\n✔ Basic Authorization resolver authenticates enabled users and fails closed otherwise (998.430416ms)\n✔ Basic credential verification uses stored hashes and enabled state (749.9735ms)\n✔ built-in default Basic user cannot be disabled, changed, or deleted (667.409708ms)\n✔ normalizeLogLevel accepts supported operator log levels (0.367375ms)\n✔ normalizeLogLevel defaults invalid input to info (0.06225ms)\n✔ getBootstrapStatus reports prepared foundation state (0.053834ms)\n✔ db:prepare is repeatable and keeps seed rows singular (3261.813375ms)\n✔ endpoint runtime selects exact response cases after applying defaults (0.799708ms)\n✔ endpoint runtime falls back to the configured default case on no exact match (0.119375ms)\n✔ endpoint runtime reports disabled endpoints and invalid arguments deterministically (0.072292ms)\n✔ endpoint validation accepts the MVP editor field set (0.643708ms)\n✔ endpoint validation returns field-level errors for UI rendering (0.348334ms)\n✔ MCP input schema generation reflects endpoint parameters (0.404292ms)\n✔ MCP initialize returns explicit no-auth MVP capabilities (0.739584ms)\n✔ MCP initialized notification is accepted without a JSON-RPC body (0.0725ms)\n✔ MCP tools/list returns loaded tools without executing them (0.074458ms)\n✔ MCP tools/call converts endpoint success to content and structuredContent (0.133625ms)\n✔ MCP tools/call maps unknown tools and invalid params to JSON-RPC invalid params (0.093ms)\n✔ MCP unknown methods return JSON-RPC method not found (0.060958ms)\n✔ Ralph promotion resolves ordered successor filenames by taskmeta id (54.440166ms)\n✔ reset requires confirmation and leaves endpoint state untouched on failure (1060.380042ms)\n✔ reset clears mutable endpoint data and recreates current seed defaults (697.582084ms)\n✔ REST tool metadata maps endpoint parameters without MCP JSON-RPC envelope (0.653541ms)\nℹ tests 25\nℹ suites 0\nℹ pass 25\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 3480.419625\n\n> mina-mock-mcpserver@1.0.0 test:e2e\n> playwright test\n\n\nRunning 11 tests using 1 worker\n\n  ✓   1 [chromium] › tests/e2e/basic-auth-mcp.spec.ts:7:5 › Basic Auth MCP strict route and unified precedence fail closed and allow valid callers @basic-auth-mcp (703ms)\n  ✓   2 [chromium] › tests/e2e/basic-users.spec.ts:5:5 › Basic users management UI protects default and manages editable users @ui-basic-users (1.8s)\n  ✓   3 [chromium] › tests/e2e/bootstrap.spec.ts:3:5 › foundation dashboard renders planned MCP mock server surfaces (486ms)\n  ✓   4 [chromium] › tests/e2e/bootstrap.spec.ts:11:5 › health endpoint reports ok status (149ms)\n  ✓   5 [chromium] › tests/e2e/endpoint-console.spec.ts:5:5 › endpoint schema preview and console shell stay stable on desktop and mobile @ui-endpoint-console (1.0s)\n  ✓   6 [chromium] › tests/e2e/endpoint-delete-audit.spec.ts:17:5 › endpoint delete requires confirmation and writes non-secret audit evidence @endpoint-delete-audit (2.9s)\n  ✓   7 [chromium] › tests/e2e/endpoint-editor.spec.ts:5:5 › endpoint editor supports persisted create, edit, search, screenshots, and responsive checks @ui-endpoint-editor (1.4s)\n  ✓   8 [chromium] › tests/e2e/mcp-initialize-list.spec.ts:3:5 › no-auth MCP initialize, initialized notification, and tools/list use enabled endpoint schemas @mcp-initialize-list (193ms)\n  ✓   9 [chromium] › tests/e2e/mcp-tools-call.spec.ts:3:5 › no-auth MCP tools/call executes enabled endpoint cases and deterministic errors @mcp-tools-call (46ms)\n  ✓  10 [chromium] › tests/e2e/rest-tools-list.spec.ts:7:5 › REST tools list exposes enabled metadata for no-auth and Basic callers @rest-tools-list (242ms)\n  ✓  11 [chromium] › tests/e2e/root-reset.spec.ts:16:5 › root reset requires password and restores deterministic endpoint defaults @root-reset (3.1s)\n\n  11 passed (16.1s)\n\n> mina-mock-mcpserver@1.0.0 start:smoke\n> node scripts/start-smoke.mjs\n\n\n> mina-mock-mcpserver@1.0.0 db:prepare\n> node scripts/db-prepare.mjs\n\nDatasource \"db\": SQLite database \"runtime.sqlite\" at \"file:./data/runtime.sqlite\"\n\n4 migrations found in prisma/migrations\n\n\nNo pending migrations to apply.\n\n✔ Generated Prisma Client (v7.8.0) to ./node_modules/@prisma/client in 41ms\n\nStart by importing your Prisma Client (See: https://pris.ly/d/importing-client)\n\n\nPrepared SQLite runtime state with Prisma migrations and seed defaults.\n\n> mina-mock-mcpserver@1.0.0 build\n> next build\n\n   ▲ Next.js 15.5.15\n\n   Creating an optimized production build ...\n ✓ Compiled successfully in 890ms\n   Linting and checking validity of types ...\n   Collecting page data ...\n   Generating static pages (0/13) ...\n   Generating static pages (3/13) \r\n   Generating static pages (6/13) \r\n   Generating static pages (9/13) \r\n ✓ Generating static pages (13/13)\n   Finalizing page optimization ...\n   Collecting build traces ...\n\nRoute (app)                                 Size  First Load JS\n┌ ○ /                                      164 B         106 kB\n├ ○ /_not-found                            999 B         103 kB\n├ ƒ /api/audit                             149 B         102 kB\n├ ƒ /api/basic-users                       149 B         102 kB\n├ ƒ /api/basic-users/[id]                  149 B         102 kB\n├ ƒ /api/endpoints                         149 B         102 kB\n├ ƒ /api/endpoints/[id]                    149 B         102 kB\n├ ƒ /api/health                            149 B         102 kB\n├ ƒ /api/reset                             149 B         102 kB\n├ ○ /audit                                 164 B         106 kB\n├ ○ /basic-users                         2.22 kB         108 kB\n├ ○ /endpoints                              5 kB         111 kB\n├ ƒ /mcp                                   149 B         102 kB\n├ ƒ /mcp/basic                             149 B         102 kB\n├ ƒ /mcp/none                              149 B         102 kB\n├ ○ /reset                               1.02 kB         107 kB\n└ ƒ /rest/tools                            149 B         102 kB\n+ First Load JS shared by all             102 kB\n  ├ chunks/255-4f212684648fcab9.js         46 kB\n  ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB\n  └ other shared chunks (total)          1.92 kB\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n\n   ▲ Next.js 15.5.15\n   - Local:        http://localhost:3100\n   - Network:      http://192.168.100.125:3100\n\n ✓ Starting...\n ✓ Ready in 263ms\nProduction-style startup smoke passed at http://127.0.0.1:3100/api/health\n",
+      "preflight": {
+        "command": "ensure-e2e-port-free.sh 3100",
+        "error": "",
+        "ok": true,
+        "output": "port-cleanup: 127.0.0.1:3100 already free\n"
+      },
+      "next_server_log_path": "/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T200629-rest-tools-list-runtime/npm-run-verify-next-server.log"
+    }
+  ],
+  "missing_files": [],
+  "pass": true
+}
+exec
+/bin/zsh -lc "sed -n '1,140p' docs/exec-plans/completed/010-basic-auth-mcp-runtime.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# Basic Auth MCP Runtime and Auth Precedence
+
+```json taskmeta
+{
+  "id": "basic-auth-mcp-runtime",
+  "title": "Basic Auth MCP Runtime and Auth Precedence",
+  "order": 10,
+  "status": "completed",
+  "next_task_on_success": "rest-tools-list-runtime",
+  "prompt_docs": [
+    "AGENTS.md",
+    "ARCHITECTURE.md",
+    "docs/PRODUCT_SENSE.md",
+    "docs/SECURITY.md",
+    "docs/product-specs/mcp-json-rpc-runtime.md",
+    "docs/product-specs/basic-auth-management.md"
+  ],
+  "required_commands": [
+    "npm run test:unit",
+    "npm run test:e2e -- --grep @basic-auth-mcp",
+    "npm run verify"
+  ],
+  "required_files": [],
+  "human_review_triggers": [
+    "The task broadens into unrelated feature fronts.",
+    "Required checks do not prove the claimed behavior.",
+    "Implementation changes contradict the product spec or security/reliability docs."
+  ],
+  "promotion_mode": "deterministic",
+  "completed_at": "2026-05-05T11:05:59.758Z"
+}
+```
+
+## Objective
+
+Enforce Basic Auth on `/mcp/basic` and Basic header precedence on `/mcp` using the existing Basic user service.
+
+## Clarity notes
+
+- This task wires Basic credentials into MCP routes after no-auth MCP behavior exists.
+- Valid Basic credentials grant all enabled endpoints.
+- Invalid Basic headers fail closed with 401 and never downgrade to no-auth.
+- The same auth resolver should be reusable by REST later.
+
+## Expected result
+
+- `/mcp/basic` returns 401 for missing/invalid Basic credentials and succeeds for valid credentials.
+- `/mcp` with a valid Basic header uses Basic principal behavior.
+- `/mcp` with invalid Basic header returns 401 instead of anonymous behavior.
+- E2E coverage proves default/default and a user-created Basic credential path.
+
+## Objections / risks to avoid
+
+- Do not add OAuth bearer behavior here.
+- Do not modify no-auth behavior except for explicit Authorization header precedence.
+- Do not weaken built-in Basic user invariants.
+- Do not let malformed Basic headers throw unhandled errors.
+
+## Scope
+
+- Implement Authorization header parser for Basic.
+- Apply Basic resolver to `/mcp` and `/mcp/basic`.
+- Return proper 401 responses and `WWW-Authenticate` where appropriate.
+- Add unit tests for parser/precedence and E2E tests tagged `@basic-auth-mcp`.
+
+## Out of scope
+
+- REST Basic behavior unless trivial shared resolver reuse.
+- OAuth bearer handling.
+- Basic user management UI already handled.
+
+## Exit criteria
+
+1. Strict Basic route behavior matches PRD.
+2. Unified `/mcp` auth precedence matches PRD.
+3. Valid Basic callers can list and call all enabled endpoints.
+4. Invalid Basic callers cannot fall back to no-auth.
+5. All required checks pass.
+
+## Required checks
+
+- npm run test:unit
+- npm run test:e2e -- --grep @basic-auth-mcp
+- npm run verify
+
+## Implementation notes
+
+- Keep auth principal visible enough for later console evidence.
+
+## Docs to update
+
+- docs/PRODUCT_SENSE.md
+- docs/SECURITY.md
+
+## Evaluator notes
+
+Required commands are mandatory promotion gates, not suggestions.
+Do not promote if any required check fails.
+Do not accept broad feature work outside this task.
+Confirm that this task maps to the primary product spec `basic-auth-management.md` or is explicitly final hardening.
+
+## Progress log
+
+- Start here. Append timestamped progress notes as work lands.
+- Note when existing partial implementations were found and reused instead of replaced.
+- 2026-05-05T10:58:19.153Z: restored as current task after basic-auth-users-domain-ui promotion.
+- 2026-05-05T11:01:31Z: found existing no-auth MCP adapter and Basic user verification service; reused both by adding a shared Basic Authorization parser/resolver, wiring `/mcp/basic`, and changing only `/mcp` Authorization-header precedence.
+- 2026-05-05T11:03:00Z: added parser/resolver unit coverage and `@basic-auth-mcp` E2E coverage for default/default, a user-created credential, strict 401 behavior, malformed headers, and unified `/mcp` invalid-header precedence; required `npm run test:unit`, `npm run test:e2e -- --grep @basic-auth-mcp`, and `npm run verify` passed.
+- 2026-05-05T11:05:59.758Z: automatically promoted after deterministic checks and evaluator approval.
+
+codex
+{"decision":"done","recommend_promotion":true,"confidence":0.93,"summary":"The task is complete in substance. GET /rest/tools is implemented as a scoped Next.js route, uses the existing Basic auth resolver with no-auth allowed and invalid/unsupported Authorization failing closed, returns enabled endpoint metadata in the documented REST shape, and does not implement out-of-scope REST calls or OAuth filtering. The task maps directly to docs/product-specs/rest-mock-api.md, related docs were updated, and recorded required checks all passed.","satisfied_exit_criteria":["REST list response matches PRD metadata shape: tools are enabled-only, sorted by name, and include name, title, description, and parameter metadata with defaultValue when configured.","No-auth and valid Basic behavior are covered by @rest-tools-list E2E tests.","Invalid Basic returns the documented 401 response with WWW-Authenticate and unauthorized JSON body; unsupported Authorization also returns 401.","The @rest-tools-list Playwright command passed.","All required checks passed: npm run test:unit, npm run test:e2e -- --grep @rest-tools-list, and npm run verify."],"missing_requirements":[],"human_review_triggers":[]}
+tokens used
+73,037
+{"decision":"done","recommend_promotion":true,"confidence":0.93,"summary":"The task is complete in substance. GET /rest/tools is implemented as a scoped Next.js route, uses the existing Basic auth resolver with no-auth allowed and invalid/unsupported Authorization failing closed, returns enabled endpoint metadata in the documented REST shape, and does not implement out-of-scope REST calls or OAuth filtering. The task maps directly to docs/product-specs/rest-mock-api.md, related docs were updated, and recorded required checks all passed.","satisfied_exit_criteria":["REST list response matches PRD metadata shape: tools are enabled-only, sorted by name, and include name, title, description, and parameter metadata with defaultValue when configured.","No-auth and valid Basic behavior are covered by @rest-tools-list E2E tests.","Invalid Basic returns the documented 401 response with WWW-Authenticate and unauthorized JSON body; unsupported Authorization also returns 401.","The @rest-tools-list Playwright command passed.","All required checks passed: npm run test:unit, npm run test:e2e -- --grep @rest-tools-list, and npm run verify."],"missing_requirements":[],"human_review_triggers":[]}
+evaluation: done promotion=true

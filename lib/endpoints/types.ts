@@ -96,6 +96,26 @@ export type EndpointMcpTool = {
   inputSchema: McpInputSchema;
 };
 
+export type EndpointRestToolParameter = {
+  name: string;
+  label: string;
+  description: string;
+  type: EndpointParamType;
+  required: boolean;
+  defaultValue?: JsonValue;
+};
+
+export type EndpointRestTool = {
+  name: string;
+  title: string;
+  description: string;
+  parameters: EndpointRestToolParameter[];
+};
+
+export type EndpointRestToolListResult = {
+  tools: EndpointRestTool[];
+};
+
 export type EndpointDeleteInput = {
   deleteCode?: string | null;
   rootPassword?: string | null;

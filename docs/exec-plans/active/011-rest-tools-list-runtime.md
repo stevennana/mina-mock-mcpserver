@@ -5,7 +5,7 @@
   "id": "rest-tools-list-runtime",
   "title": "REST Tool List Runtime",
   "order": 11,
-  "status": "queued",
+  "status": "active",
   "next_task_on_success": "rest-tools-call-runtime",
   "prompt_docs": [
     "AGENTS.md",
@@ -101,3 +101,7 @@ Confirm that this task maps to the primary product spec `rest-mock-api.md` or is
 
 - Start here. Append timestamped progress notes as work lands.
 - Note when existing partial implementations were found and reused instead of replaced.
+- 2026-05-05T11:05:59.758Z: restored as current task after basic-auth-mcp-runtime promotion.
+- 2026-05-05T11:07:35Z: found no existing REST route implementation; reused the endpoint catalog query shape, Basic Authorization resolver, and fail-closed 401 pattern from MCP instead of introducing separate auth behavior.
+- 2026-05-05T11:07:35Z: added explicit REST tool metadata mapping, GET /rest/tools, unit mapping coverage, and @rest-tools-list E2E coverage for no-auth, valid Basic, invalid Basic, unsupported Authorization, and disabled endpoint filtering.
+- 2026-05-05T11:11:04Z: required checks passed: `npm run test:unit`, `npm run test:e2e -- --grep @rest-tools-list`, and `npm run verify`.

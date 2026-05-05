@@ -52,6 +52,7 @@ Describe the user-facing structure of MCP Mock Server so an agent can implement 
 - tables must support search/filter states without layout shift
 - endpoint editor forms must surface API/domain validation errors next to the affected fields
 - endpoint editor forms must show generated MCP `inputSchema` from the shared endpoint domain schema helper
+- endpoint console REST examples can point to `GET /rest/tools` for metadata discovery before REST call execution is wired
 - Basic user forms must not display password hashes and must disable mutation controls for built-in rows
 - console outputs must preserve raw JSON formatting and elapsed/auth/match metadata
 - console shell states must clearly mark unavailable runtime actions instead of faking calls

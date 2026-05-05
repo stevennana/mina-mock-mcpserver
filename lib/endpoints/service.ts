@@ -6,6 +6,7 @@ import { executeEndpointDetail } from "@/lib/endpoints/runtime";
 import { generateMcpInputSchema } from "@/lib/endpoints/schema";
 import { EndpointDeleteAuthorizationError, EndpointNotFoundError } from "@/lib/endpoints/types";
 import { validateEndpointInput } from "@/lib/endpoints/validation";
+import { restToolFromEndpoint } from "@/lib/rest/tools";
 import { verifyRootPassword } from "@/lib/security/root-password";
 import type { EndpointCallResult } from "@/lib/endpoints/runtime";
 import type {
@@ -14,6 +15,7 @@ import type {
   EndpointInput,
   EndpointListResult,
   EndpointMcpTool,
+  EndpointRestToolListResult,
   EndpointSummary,
 } from "@/lib/endpoints/types";
 
@@ -114,6 +116,32 @@ export async function listEnabledMcpTools(client: PrismaClient = createPrismaCli
       })),
     }),
   }));
+}
+
+export async function listEnabledRestTools(client: PrismaClient = createPrismaClient()): Promise<EndpointRestToolListResult> {
+  const endpoints = await client.endpoint.findMany({
+    where: { enabled: true },
+    include: { parameters: { orderBy: { position: "asc" } } },
+    orderBy: [{ name: "asc" }],
+  });
+
+  return {
+    tools: endpoints.map((endpoint) =>
+      restToolFromEndpoint({
+        name: endpoint.name,
+        title: endpoint.title,
+        description: endpoint.description,
+        parameters: endpoint.parameters.map((parameter) => ({
+          name: parameter.name,
+          label: parameter.label ?? "",
+          description: parameter.description ?? "",
+          type: parameter.type as EndpointDetail["parameters"][number]["type"],
+          required: parameter.required,
+          defaultValueJson: parameter.defaultValueJson,
+        })),
+      }),
+    ),
+  };
 }
 
 export async function getEndpoint(id: string, client: PrismaClient = createPrismaClient()) {

@@ -2,70 +2,69 @@ Read the following repository documents before making changes:
 - AGENTS.md
 - ARCHITECTURE.md
 - docs/PRODUCT_SENSE.md
-- docs/SECURITY.md
-- docs/product-specs/mcp-json-rpc-runtime.md
-- docs/product-specs/basic-auth-management.md
-- docs/exec-plans/active/010-basic-auth-mcp-runtime.md
+- docs/FRONTEND.md
+- docs/product-specs/rest-mock-api.md
+- docs/exec-plans/active/011-rest-tools-list-runtime.md
 
-Current task id: basic-auth-mcp-runtime
-Current task title: Basic Auth MCP Runtime and Auth Precedence
+Current task id: rest-tools-list-runtime
+Current task title: REST Tool List Runtime
 
 Objective:
-Enforce Basic Auth on `/mcp/basic` and Basic header precedence on `/mcp` using the existing Basic user service.
+Expose configured enabled endpoints through `GET /rest/tools` with no-auth and Basic behavior.
 
 Clarity notes:
-- This task wires Basic credentials into MCP routes after no-auth MCP behavior exists.
-- Valid Basic credentials grant all enabled endpoints.
-- Invalid Basic headers fail closed with 401 and never downgrade to no-auth.
-- The same auth resolver should be reusable by REST later.
+- This task only lists REST tool metadata; REST calling is next.
+- No-auth and Basic are in scope because they are already implemented before REST.
+- OAuth REST filtering is deferred to the OAuth permissions task.
+- The response shape should be simple JSON, not MCP JSON-RPC.
 
 Expected result:
-- `/mcp/basic` returns 401 for missing/invalid Basic credentials and succeeds for valid credentials.
-- `/mcp` with a valid Basic header uses Basic principal behavior.
-- `/mcp` with invalid Basic header returns 401 instead of anonymous behavior.
-- E2E coverage proves default/default and a user-created Basic credential path.
+- `GET /rest/tools` returns enabled endpoint metadata and parameters.
+- No-auth callers see all enabled endpoints.
+- Valid Basic callers see all enabled endpoints; invalid Basic headers return 401.
+- Endpoint console can display REST list examples if useful without call execution.
 
 Objections / risks to avoid:
-- Do not add OAuth bearer behavior here.
-- Do not modify no-auth behavior except for explicit Authorization header precedence.
-- Do not weaken built-in Basic user invariants.
-- Do not let malformed Basic headers throw unhandled errors.
+- Do not implement REST tool calls here.
+- Do not return disabled endpoints.
+- Do not add OAuth bearer filtering here.
+- Do not use MCP response envelopes for REST.
 
 Scope:
-- Implement Authorization header parser for Basic.
-- Apply Basic resolver to `/mcp` and `/mcp/basic`.
-- Return proper 401 responses and `WWW-Authenticate` where appropriate.
-- Add unit tests for parser/precedence and E2E tests tagged `@basic-auth-mcp`.
+- Implement `GET /rest/tools` route.
+- Apply no-auth/Basic auth resolver behavior.
+- Add unit tests for response mapping.
+- Add E2E tests tagged `@rest-tools-list`.
 
 Out of scope:
-- REST Basic behavior unless trivial shared resolver reuse.
-- OAuth bearer handling.
-- Basic user management UI already handled.
+- `POST /rest/tools/:name/call`.
+- OAuth bearer permissions for REST.
+- Failure simulation runtime.
 
 Exit criteria:
-1. Strict Basic route behavior matches PRD.
-2. Unified `/mcp` auth precedence matches PRD.
-3. Valid Basic callers can list and call all enabled endpoints.
-4. Invalid Basic callers cannot fall back to no-auth.
+1. REST list response matches PRD metadata shape.
+2. No-auth and Basic behavior is tested.
+3. Invalid Basic returns documented unauthorized response.
+4. `@rest-tools-list` passes.
 5. All required checks pass.
 
 Required checks:
 - npm run test:unit
-- npm run test:e2e -- --grep @basic-auth-mcp
+- npm run test:e2e -- --grep @rest-tools-list
 - npm run verify
 
 Evaluator notes:
 Required commands are mandatory promotion gates, not suggestions.
 Do not promote if any required check fails.
 Do not accept broad feature work outside this task.
-Confirm that this task maps to the primary product spec `basic-auth-management.md` or is explicitly final hardening.
+Confirm that this task maps to the primary product spec `rest-mock-api.md` or is explicitly final hardening.
 
 Required repository artifacts for this task:
 - none
 
 Required commands for this task:
 - npm run test:unit
-- npm run test:e2e -- --grep @basic-auth-mcp
+- npm run test:e2e -- --grep @rest-tools-list
 - npm run verify
 
 Previous known gaps from the last evaluation:

@@ -1,1 +1,1 @@
-basic-auth-mcp-runtime
+rest-tools-list-runtime

@@ -601,3 +601,18 @@
 - evaluator: started
 - evaluator: status=done promotion=true The implementation satisfies the Basic Auth MCP runtime task in substance. `/mcp/basic` fails closed with 401 and `WWW-Authenticate`, `/mcp` gives Basic/unsupported Authorization headers precedence over anonymous handling, valid Basic credentials can list and call enabled MCP tools, and invalid credentials do not fall back to no-auth. The task maps directly to `basic-auth-management.md`, and the required deterministic checks are reported passing. -> state/artifacts/20260505T195849-basic-auth-mcp-runtime/evaluator.log
 - next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T195849-basic-auth-mcp-runtime/npm-run-test-e2e-grep-basic-auth-mcp-next-server.log
+- commit: commit: created
+- promote: Promoted basic-auth-mcp-runtime -> rest-tools-list-runtime
+- backlog: rendered current=rest-tools-list-runtime
+- health: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxooooooooo
+- cycle: finished
+
+### cycle 2026-05-05T20:06:29+09:00 task=rest-tools-list-runtime
+- artifacts: state/artifacts/20260505T200629-rest-tools-list-runtime
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260505T200629-rest-tools-list-runtime/worker.jsonl
+- worker-summary: Implemented `rest-tools-list-runtime` and wrote the handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+- evaluator: started
+- evaluator: status=done promotion=true The task is complete in substance. GET /rest/tools is implemented as a scoped Next.js route, uses the existing Basic auth resolver with no-auth allowed and invalid/unsupported Authorization failing closed, returns enabled endpoint metadata in the documented REST shape, and does not implement out-of-scope REST calls or OAuth filtering. The task maps directly to docs/product-specs/rest-mock-api.md, related docs were updated, and recorded required checks all passed. -> state/artifacts/20260505T200629-rest-tools-list-runtime/evaluator.log
+- next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T200629-rest-tools-list-runtime/npm-run-test-e2e-grep-rest-tools-list-next-server.log

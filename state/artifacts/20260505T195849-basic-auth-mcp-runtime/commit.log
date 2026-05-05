@@ -1,0 +1,13 @@
+[main 2a34c0f] ralph: basic-auth-mcp-runtime 2026-05-05T20:05:59+09:00
+ 29 files changed, 2580 insertions(+), 102 deletions(-)
+ create mode 100644 app/mcp/basic/route.ts
+ rename docs/exec-plans/{active => completed}/009-basic-auth-users-domain-ui.md (94%)
+ create mode 100644 lib/auth/basic.ts
+ create mode 100644 state/artifacts/20260505T194931-basic-auth-users-domain-ui/backlog.log
+ create mode 100644 state/artifacts/20260505T194931-basic-auth-users-domain-ui/promote.log
+ create mode 100644 state/artifacts/20260505T195849-basic-auth-mcp-runtime/commit.log
+ create mode 100644 state/artifacts/20260505T195849-basic-auth-mcp-runtime/evaluator.log
+ create mode 100644 state/artifacts/20260505T195849-basic-auth-mcp-runtime/task-prompt.log
+ create mode 100644 state/artifacts/20260505T195849-basic-auth-mcp-runtime/worker.jsonl
+ create mode 100644 tests/e2e/basic-auth-mcp.spec.ts
+commit: created
