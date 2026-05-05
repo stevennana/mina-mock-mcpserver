@@ -1,17 +1,12 @@
 Completed `docker-nginx-final-hardening`.
 
-Added packaging and handoff artifacts: [Dockerfile](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/Dockerfile), [docker-compose.yml](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/docker-compose.yml), [deploy/nginx.conf](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/deploy/nginx.conf), [.dockerignore](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/.dockerignore), and [docs/OPERATOR_HANDOFF.md](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/docs/OPERATOR_HANDOFF.md). Reconciled the operator spec, quality/reliability/security docs, generated DB schema, PRD analysis, tech debt tracker, and active task progress log. I also wrote the requested operator handoff summary to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+I fixed the evaluator-reported doc drift:
+- [docs/SECURITY.md](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/docs/SECURITY.md) now lists `/mcp/oauth`.
+- [docs/FRONTEND.md](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/docs/FRONTEND.md) now lists `/mcp/oauth` and the implemented revocation route `/api/oauth/tokens/[jti]/revoke`.
+- [docs/exec-plans/active/024-docker-nginx-final-hardening.md](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/docs/exec-plans/active/024-docker-nginx-final-hardening.md) has a concrete progress note.
+- [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt) contains the requested operator handoff summary.
 
 All required gates passed:
+`npm run lint`, `npm run typecheck`, `npm run build`, `npm run test:unit`, `npm run test:e2e`, `npm run start:smoke`, and `npm run verify`.
 
-```bash
-npm run lint
-npm run typecheck
-npm run build
-npm run test:unit
-npm run test:e2e
-npm run start:smoke
-npm run verify
-```
-
-Exit criteria appear satisfied. Remaining non-blocking items are explicitly tracked as debt: Docker image optimization, SQLite backup/restore policy, public abuse controls, audit privacy policy, and a future container smoke check if Docker becomes a release artifact.
+Exit criteria appear satisfied. No blocking work remains; remaining non-blocking debt is tracked in the debt docs.

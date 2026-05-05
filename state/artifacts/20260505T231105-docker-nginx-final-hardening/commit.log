@@ -1,0 +1,15 @@
+[main 48ecd85] ralph: docker-nginx-final-hardening 2026-05-05T23:24:35+09:00
+ 33 files changed, 4328 insertions(+), 148 deletions(-)
+ create mode 100644 .dockerignore
+ create mode 100644 Dockerfile
+ create mode 100644 deploy/nginx.conf
+ create mode 100644 docker-compose.yml
+ create mode 100644 docs/OPERATOR_HANDOFF.md
+ rename docs/exec-plans/{active => completed}/023-operator-config-health-logs.md (95%)
+ create mode 100644 state/artifacts/20260505T230112-operator-config-health-logs/backlog.log
+ create mode 100644 state/artifacts/20260505T230112-operator-config-health-logs/promote.log
+ create mode 100644 state/artifacts/20260505T231105-docker-nginx-final-hardening/commit.log
+ create mode 100644 state/artifacts/20260505T231105-docker-nginx-final-hardening/evaluator.log
+ create mode 100644 state/artifacts/20260505T231105-docker-nginx-final-hardening/task-prompt.log
+ create mode 100644 state/artifacts/20260505T231105-docker-nginx-final-hardening/worker.jsonl
+commit: created

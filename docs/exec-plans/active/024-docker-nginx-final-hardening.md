@@ -119,3 +119,4 @@ Confirm that this task maps to the primary product spec `operator-configuration.
 - Note when existing partial implementations were found and reused instead of replaced.
 - 2026-05-05T14:10:35.380Z: restored as current task after operator-config-health-logs promotion.
 - 2026-05-05T14:13:08Z: found no existing Docker/Nginx artifacts; added Dockerfile, docker-compose, Nginx example, operator handoff doc, and reconciled quality/reliability/security/schema/debt docs without adding new product features.
+- 2026-05-05T14:26:10Z: reconciled evaluator-found route doc drift by adding `/mcp/oauth` to frontend/security route maps and replacing stale `/oauth/revoke` documentation with implemented `/api/oauth/tokens/[jti]/revoke`.

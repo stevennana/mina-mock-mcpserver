@@ -81,7 +81,8 @@ Required commands for this task:
 - npm run verify
 
 Previous known gaps from the last evaluation:
-- none
+- Docs do not fully match actual routes/auth modes: docs/SECURITY.md public surfaces omit /mcp/oauth.
+- Docs do not fully match actual routes: docs/FRONTEND.md route map omits /mcp/oauth and references /oauth/revoke despite the implemented revocation route being /api/oauth/tokens/[jti]/revoke.
 
 
 

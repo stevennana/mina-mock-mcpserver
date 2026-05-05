@@ -871,3 +871,18 @@
 - evaluator: started
 - evaluator: status=not_done promotion=false The implementation has the expected Dockerfile, docker-compose.yml, Nginx example, operator handoff doc, explicit debt tracker, and recorded deterministic gates passing. However, final documentation is not fully reconciled with implemented routes/auth modes: SECURITY.md omits the implemented /mcp/oauth public MCP surface, and FRONTEND.md still lists MCP routes without /mcp/oauth while also naming /oauth/revoke even though the build/routes show token revocation under /api/oauth/tokens/[jti]/revoke rather than /oauth/revoke. Because this task is specifically final docs and route/auth reconciliation, I would not promote yet. -> state/artifacts/20260505T231105-docker-nginx-final-hardening/evaluator.log
 - next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T231105-docker-nginx-final-hardening/npm-run-test-e2e-next-server.log
+- commit: commit: created
+- promote: Task docker-nginx-final-hardening not eligible for promotion.
+- backlog: rendered current=docker-nginx-final-hardening
+- health: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxooooooooooooooooxooxoxooxox
+- cycle: finished
+
+### cycle 2026-05-05T23:25:06+09:00 task=docker-nginx-final-hardening
+- artifacts: state/artifacts/20260505T232506-docker-nginx-final-hardening
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260505T232506-docker-nginx-final-hardening/worker.jsonl
+- worker-summary: Completed `docker-nginx-final-hardening`.
+- evaluator: started
+- evaluator: status=done promotion=true The task is complete in substance. Dockerfile, docker-compose.yml, and deploy/nginx.conf align with port 3000, /app/data SQLite persistence, and /app/logs logging. The operator/config/security/reliability/frontend docs now match the implemented routes, auth modes, commands, logging behavior, and revocation route. Remaining non-blocking deployment debt is explicit in the tech debt tracker. The recorded mandatory deterministic gates all passed, including npm run verify and npm run start:smoke. -> state/artifacts/20260505T232506-docker-nginx-final-hardening/evaluator.log
+- next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T232506-docker-nginx-final-hardening/npm-run-test-e2e-next-server.log

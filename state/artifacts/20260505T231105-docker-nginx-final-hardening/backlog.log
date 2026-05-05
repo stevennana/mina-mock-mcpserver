@@ -1,0 +1,27 @@
+# Backlog
+
+- [x] bootstrap-foundation — Bootstrap Next.js TypeScript Harness
+- [x] endpoint-domain-and-schema — Endpoint Persistence Schema and Seed Defaults
+- [x] endpoint-validation-and-matching — Endpoint Validation, Schema Preview, and Response Matching
+- [x] endpoint-management-list-editor-ui — Endpoint List, Search, and Editor UI
+- [x] endpoint-console-schema-preview-ui — Endpoint Schema Preview and Test Console Shell
+- [x] endpoint-protected-delete-audit — Endpoint Protected Delete and Audit Evidence
+- [x] root-reset-defaults — Root-Protected Reset to Defaults
+- [x] mcp-initialize-and-tools-list — MCP Initialize and Tools List No-Auth Runtime
+- [x] mcp-tools-call-and-errors — MCP Tools Call and Error Semantics
+- [x] basic-auth-users-domain-ui — Basic Auth Users Domain and Management UI
+- [x] basic-auth-mcp-runtime — Basic Auth MCP Runtime and Auth Precedence
+- [x] rest-tools-list-runtime — REST Tool List Runtime
+- [x] rest-tools-call-runtime — REST Tool Call Runtime and Console Wiring
+- [x] oauth-users-management-ui — OAuth Users Management UI and Built-In Protection
+- [x] oauth-clients-management-ui — OAuth Clients Management UI and Allowed Endpoints
+- [x] oauth-authorize-login-consent — OAuth Authorize, Login, and Consent UI
+- [x] oauth-code-token-jwt — Authorization Code Token Exchange and JWT Claims
+- [x] oauth-client-credentials-grant — OAuth Client Credentials Grant
+- [x] oauth-discovery-metadata — OAuth Discovery Metadata and JWKS
+- [x] oauth-mcp-rest-permission-enforcement — OAuth Bearer Enforcement for MCP and REST
+- [x] issued-token-ui-revocation — Issued Token UI and Revocation
+- [x] failure-delay-forced-error-runtime — Delay and Forced Error Simulation Runtime
+- [x] malformed-response-console-audit — Malformed Response Modes, Console Evidence, and Audit
+- [x] operator-config-health-logs — Operator Config, Health, Connection Guide, and Logs
+- [ ] docker-nginx-final-hardening — Docker, Nginx, Final Docs, and Queue Completion Hardening ← current
