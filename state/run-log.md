@@ -295,3 +295,18 @@
 - evaluator: started
 - evaluator: status=done promotion=true The task is complete in substance. The implementation adds Prisma/SQLite persistence, migrations, repo-local DB configuration, deterministic db preparation, idempotent protected endpoint seed defaults, generated schema documentation, and repeatability coverage. It maps to endpoint-tool-management.md and stays within the persistence foundation scope without adding UI, MCP, REST, auth, or reset behavior. -> state/artifacts/20260505T174347-endpoint-domain-and-schema/evaluator.log
 - next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T174347-endpoint-domain-and-schema/npm-run-verify-next-server.log
+- commit: commit: created
+- promote: failed -> state/artifacts/20260505T174347-endpoint-domain-and-schema/promote.log
+- backlog: rendered current=endpoint-domain-and-schema
+- health: xxxxxxxxxxxxxxxxxxxx
+- cycle: finished
+
+### cycle 2026-05-05T17:48:18+09:00 task=endpoint-domain-and-schema
+- artifacts: state/artifacts/20260505T174818-endpoint-domain-and-schema
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260505T174818-endpoint-domain-and-schema/worker.jsonl
+- worker-summary: Completed `endpoint-domain-and-schema`.
+- evaluator: started
+- evaluator: status=done promotion=true The task is complete in substance. The Prisma/SQLite persistence foundation is present, scoped to endpoint/tool schema and deterministic seed defaults, maps to endpoint-tool-management, and does not appear to broaden into UI/runtime/auth work. The provided deterministic check summary shows all mandatory gates passed. -> state/artifacts/20260505T174818-endpoint-domain-and-schema/evaluator.log
+- next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T174818-endpoint-domain-and-schema/npm-run-verify-next-server.log
