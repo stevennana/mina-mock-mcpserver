@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
 import { resolveBasicAuthorizationHeader } from "@/lib/auth/basic";
 import { parseBearerAuthorizationHeader, resolveOAuthBearerAuthorizationHeader } from "@/lib/auth/oauth";
-import { callEndpointByName, callPermittedEndpointByName, listEnabledRestTools } from "@/lib/endpoints/service";
+import {
+  callEndpointByName,
+  callPermittedEndpointByName,
+  listEnabledRestTools,
+  resolvePermittedEndpointByName,
+} from "@/lib/endpoints/service";
 import { restToolCallResponseFromEndpointCall } from "@/lib/rest/tools";
 
 export const dynamic = "force-dynamic";
@@ -77,12 +82,12 @@ export async function handleRestToolCallPost(request: Request, name: string) {
       return unauthorizedBearerRestResponse();
     }
 
-    const callResult = await callPermittedEndpointByName(name, {}, resolution.principal.endpointIds);
-    if (callResult.kind === "forbidden") {
+    const permission = await resolvePermittedEndpointByName(name, resolution.principal.endpointIds);
+    if (permission.kind === "forbidden") {
       return NextResponse.json(
         {
           error: "forbidden",
-          message: callResult.message,
+          message: permission.message,
           tool: name,
         },
         {
@@ -91,8 +96,8 @@ export async function handleRestToolCallPost(request: Request, name: string) {
         },
       );
     }
-    if (callResult.kind === "not_found" || callResult.kind === "disabled") {
-      const response = restToolCallResponseFromEndpointCall(callResult);
+    if (permission.kind === "not_found" || permission.kind === "disabled") {
+      const response = restToolCallResponseFromEndpointCall(permission);
       return NextResponse.json(response.body, {
         status: response.status,
         headers: { "X-MCP-Mock-Principal": bearerPrincipal(resolution.principal.clientId) },

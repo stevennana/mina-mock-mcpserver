@@ -107,3 +107,5 @@ Confirm that this task maps to the primary product spec `failure-simulation-and-
 - 2026-05-05T13:10:29.907Z: restored as current task after issued-token-ui-revocation promotion.
 - 2026-05-05T22:42:00+09:00: found existing persistence/UI placeholders for delay and forced-error fields; reused them and added shared runtime resolution plus bounded service-level delay execution for REST and MCP.
 - 2026-05-05T22:42:00+09:00: added protocol-specific forced-error mapping, timeout shortcut UI, focused unit coverage, and `@failure-delay-error` E2E coverage without adding malformed response behavior.
+- 2026-05-05T22:26:12+09:00: fixed the delayed REST OAuth precheck gap by adding a permission-only endpoint resolver, so bearer REST calls no longer execute or sleep before parsing the real body.
+- 2026-05-05T22:26:12+09:00: extended `@failure-delay-error` E2E coverage with a delayed REST OAuth bearer call that proves one bounded delay, then reran `npm run test:unit`, `npm run test:e2e -- --grep @failure-delay-error`, and `npm run verify` successfully.

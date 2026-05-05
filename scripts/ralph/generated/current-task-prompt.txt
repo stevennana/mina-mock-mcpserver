@@ -70,7 +70,8 @@ Required commands for this task:
 - npm run verify
 
 Previous known gaps from the last evaluation:
-- none
+- REST OAuth bearer tool calls need to avoid executing callPermittedEndpointByName twice now that endpoint calls can sleep. The current lib/rest/http.ts pre-check can add an extra configured delay before the actual body is parsed and executed.
+- Add or adjust coverage for delayed REST OAuth calls, or refactor the permission/not-found pre-check so it does not execute runtime behavior before the real call.
 
 
 

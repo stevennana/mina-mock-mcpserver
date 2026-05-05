@@ -796,3 +796,18 @@
 - evaluator: started
 - evaluator: status=not_done promotion=false Implementation covers the main no-auth/Basic REST and MCP paths, but REST OAuth tool calls can execute the endpoint runtime twice before returning. Because delay is now applied inside callPermittedEndpointByName, a permitted OAuth REST call can incur the configured delay twice, and a 30000 ms timeout shortcut can become roughly a 60000 ms call. That contradicts the reliability/spec requirement that artificial delays are bounded to 30000 ms per configured endpoint call. The required checks passed, but they do not cover this OAuth REST delay path. -> state/artifacts/20260505T221100-failure-delay-forced-error-runtime/evaluator.log
 - next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T221100-failure-delay-forced-error-runtime/npm-run-test-e2e-grep-failure-delay-error-next-server.log
+- commit: commit: created
+- promote: Task failure-delay-forced-error-runtime not eligible for promotion.
+- backlog: rendered current=failure-delay-forced-error-runtime
+- health: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxooooooooooooooooxooxox
+- cycle: finished
+
+### cycle 2026-05-05T22:22:48+09:00 task=failure-delay-forced-error-runtime
+- artifacts: state/artifacts/20260505T222248-failure-delay-forced-error-runtime
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260505T222248-failure-delay-forced-error-runtime/worker.jsonl
+- worker-summary: Implemented the remaining REST OAuth delay gap and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+- evaluator: started
+- evaluator: status=done promotion=true The task maps directly to docs/product-specs/failure-simulation-and-audit.md. Current implementation resolves bounded endpoint/case delays, applies delay execution in shared endpoint service paths for MCP and REST, maps forced errors into protocol-specific REST and MCP responses, preserves OAuth REST permission checks without double-running delayed endpoint behavior, and includes visible/tested timeout shortcut behavior. Required deterministic checks passed in state/deterministic-checks.json. -> state/artifacts/20260505T222248-failure-delay-forced-error-runtime/evaluator.log
+- next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T222248-failure-delay-forced-error-runtime/npm-run-test-e2e-grep-failure-delay-error-next-server.log

@@ -1,10 +1,10 @@
-Implemented `failure-delay-forced-error-runtime` and wrote the handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+Implemented the remaining REST OAuth delay gap and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
 
-What changed: shared bounded delay execution for REST/MCP, forced REST error mapping, MCP `tool_error` vs `protocol_error` mapping, endpoint editor timeout shortcut, docs updates, and focused unit/E2E coverage with `@failure-delay-error`.
+Changed [lib/endpoints/service.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/lib/endpoints/service.ts) to add a permission-only resolver, then updated [lib/rest/http.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/lib/rest/http.ts) so Bearer REST calls no longer execute endpoint runtime behavior during the precheck. Added delayed REST OAuth coverage in [tests/e2e/failure-delay-error.spec.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/tests/e2e/failure-delay-error.spec.ts), and updated the active task progress log.
 
 Required checks passed:
 - `npm run test:unit`
 - `npm run test:e2e -- --grep @failure-delay-error`
 - `npm run verify`
 
-Exit criteria appear satisfied. Malformed response behavior remains untouched for the next task.
+Exit criteria appear satisfied. Nothing remains for this task; malformed response modes were left untouched for the next task.

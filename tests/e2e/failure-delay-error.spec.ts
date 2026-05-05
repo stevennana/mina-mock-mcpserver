@@ -39,7 +39,7 @@ test("delay and forced error runtime behavior stays protocol-specific @failure-d
   const delayedCreate = await request.post("/api/endpoints", {
     data: endpointInput(delayedName, {
       failureMode: "delay",
-      failureDelayMs: 120,
+      failureDelayMs: 300,
       responseCases: [
         {
           name: "default",
@@ -126,8 +126,44 @@ test("delay and forced error runtime behavior stays protocol-specific @failure-d
   expect(fastRest.status()).toBe(200);
   expect(delayedRest.status()).toBe(200);
   expect(fastElapsedMs).toBeLessThan(delayedElapsedMs);
-  expect(delayedElapsedMs).toBeGreaterThanOrEqual(90);
+  expect(delayedElapsedMs).toBeGreaterThanOrEqual(240);
   await expect(delayedRest.json()).resolves.toEqual({ ok: true, delayed: true });
+
+  const clientId = `failure-delay-client-${suffix}`;
+  const createClientResponse = await request.post("/api/oauth-clients", {
+    data: {
+      clientId,
+      displayName: "Failure Delay E2E",
+      enabled: true,
+      redirectUris: ["http://localhost:3000/oauth/callback"],
+      clientCredentialsTtlSeconds: 900,
+      allowedEndpointIds: [delayedEndpoint.id],
+    },
+  });
+  expect(createClientResponse.status()).toBe(201);
+  const createdClient = await createClientResponse.json();
+  const tokenResponse = await request.post("/oauth/token", {
+    form: {
+      grant_type: "client_credentials",
+      client_id: clientId,
+      client_secret: createdClient.clientSecret,
+      resource: "https://resource.example/failure-delay",
+    },
+  });
+  expect(tokenResponse.status()).toBe(200);
+  const tokenPayload = await tokenResponse.json();
+
+  const oauthDelayedStart = Date.now();
+  const oauthDelayedRest = await request.post(`/rest/tools/${delayedName}/call`, {
+    headers: { Authorization: `Bearer ${tokenPayload.access_token}` },
+    data: { arguments: {} },
+  });
+  const oauthDelayedElapsedMs = Date.now() - oauthDelayedStart;
+  expect(oauthDelayedRest.status()).toBe(200);
+  expect(oauthDelayedRest.headers()["x-mcp-mock-principal"]).toBe(`oauth:${clientId}`);
+  expect(oauthDelayedElapsedMs).toBeGreaterThanOrEqual(240);
+  expect(oauthDelayedElapsedMs).toBeLessThan(550);
+  await expect(oauthDelayedRest.json()).resolves.toEqual({ ok: true, delayed: true });
 
   const delayedMcpStart = Date.now();
   const delayedMcp = await request.post("/mcp/none", {
@@ -138,7 +174,7 @@ test("delay and forced error runtime behavior stays protocol-specific @failure-d
       params: { name: delayedName, arguments: {} },
     },
   });
-  expect(Date.now() - delayedMcpStart).toBeGreaterThanOrEqual(90);
+  expect(Date.now() - delayedMcpStart).toBeGreaterThanOrEqual(240);
   expect(delayedMcp.status()).toBe(200);
   expect((await delayedMcp.json()).result.structuredContent).toEqual({ ok: true, delayed: true });
 

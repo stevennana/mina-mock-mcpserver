@@ -175,6 +175,28 @@ export async function callEndpointByName(
   return applyEndpointCallDelay(executeEndpointDetail(endpoint ? toDetail(endpoint) : null, rawArguments));
 }
 
+export async function resolvePermittedEndpointByName(
+  name: string,
+  endpointIds: string[],
+  client: PrismaClient = createPrismaClient(),
+): Promise<{ kind: "allowed" } | Extract<EndpointCallResult, { kind: "not_found" | "disabled" | "forbidden" }>> {
+  const endpoint = await client.endpoint.findUnique({
+    where: { name },
+    select: { id: true, enabled: true },
+  });
+  if (!endpoint) {
+    return { kind: "not_found" };
+  }
+  if (!endpoint.enabled) {
+    return { kind: "disabled" };
+  }
+  if (!new Set(endpointIds).has(endpoint.id)) {
+    return { kind: "forbidden", message: "Bearer token does not grant permission for this endpoint." };
+  }
+
+  return { kind: "allowed" };
+}
+
 export async function callPermittedEndpointByName(
   name: string,
   rawArguments: unknown,
