@@ -8,6 +8,7 @@ import {
   resolvePermittedEndpointByName,
 } from "@/lib/endpoints/service";
 import { restToolCallResponseFromEndpointCall } from "@/lib/rest/tools";
+import type { RestToolCallResponse } from "@/lib/rest/tools";
 
 export const dynamic = "force-dynamic";
 
@@ -74,6 +75,28 @@ function argumentsFromBody(body: unknown) {
   return body;
 }
 
+function restToolCallHttpResponse(response: RestToolCallResponse, principal: string) {
+  const headers = {
+    "X-MCP-Mock-Principal": principal,
+    ...(response.matchedCase ? { "X-MCP-Mock-Matched-Case": response.matchedCase } : {}),
+  };
+  if (response.malformed) {
+    return new Response(typeof response.body === "string" ? response.body : JSON.stringify(response.body), {
+      status: response.status,
+      headers: {
+        ...headers,
+        "X-MCP-Mock-Malformed-Mode": response.malformed.mode,
+        ...(response.malformed.contentType ? { "content-type": response.malformed.contentType } : {}),
+      },
+    });
+  }
+
+  return NextResponse.json(response.body, {
+    status: response.status,
+    headers,
+  });
+}
+
 export async function handleRestToolCallPost(request: Request, name: string) {
   const bearer = parseBearerAuthorizationHeader(request.headers.get("Authorization"));
   if (bearer.kind === "bearer" || bearer.kind === "invalid") {
@@ -123,13 +146,7 @@ export async function handleRestToolCallPost(request: Request, name: string) {
       resolution.principal.endpointIds,
     );
     const response = restToolCallResponseFromEndpointCall(authorizedCallResult);
-    return NextResponse.json(response.body, {
-      status: response.status,
-      headers: {
-        "X-MCP-Mock-Principal": bearerPrincipal(resolution.principal.clientId),
-        ...(response.matchedCase ? { "X-MCP-Mock-Matched-Case": response.matchedCase } : {}),
-      },
-    });
+    return restToolCallHttpResponse(response, bearerPrincipal(resolution.principal.clientId));
   }
 
   const authorization = await resolveBasicAuthorizationHeader(request.headers.get("Authorization"));
@@ -152,15 +169,7 @@ export async function handleRestToolCallPost(request: Request, name: string) {
 
   const callResult = await callEndpointByName(name, argumentsFromBody(body));
   const response = restToolCallResponseFromEndpointCall(callResult);
-  const headers = {
-    "X-MCP-Mock-Principal": principalForResolution(authorization),
-    ...(response.matchedCase ? { "X-MCP-Mock-Matched-Case": response.matchedCase } : {}),
-  };
-
-  return NextResponse.json(response.body, {
-    status: response.status,
-    headers,
-  });
+  return restToolCallHttpResponse(response, principalForResolution(authorization));
 }
 
 export function unsupportedRestToolsMethod() {

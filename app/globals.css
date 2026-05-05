@@ -351,6 +351,18 @@ h1 {
   color: var(--muted);
 }
 
+.warning-callout {
+  border: 1px solid #f0c36d;
+  border-radius: 8px;
+  margin: 0 0 14px;
+  padding: 10px 12px;
+  background: #fff8e7;
+  color: #7a4a00;
+  font-size: 0.9rem;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
 .form-grid,
 .case-grid {
   display: grid;

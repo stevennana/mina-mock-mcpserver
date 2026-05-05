@@ -66,6 +66,15 @@ async function handleMcpJsonRpcPost(
   if (result.kind === "accepted") {
     return new Response(null, { status: 202 });
   }
+  if (result.kind === "raw") {
+    return new Response(result.body, {
+      status: result.status,
+      headers: {
+        ...(result.contentType ? { "content-type": result.contentType } : {}),
+        ...(result.matchedCase ? { "X-MCP-Mock-Matched-Case": result.matchedCase } : {}),
+      },
+    });
+  }
 
   return NextResponse.json(result.body, { status: result.status });
 }

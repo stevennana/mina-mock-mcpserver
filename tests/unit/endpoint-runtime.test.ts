@@ -179,3 +179,45 @@ test("endpoint runtime maps forced endpoint and case protocol errors", () => {
   assert.equal(caseProtocolError.statusCode, 529);
   assert.equal(caseProtocolError.message, "Case forced protocol break.");
 });
+
+test("endpoint runtime emits malformed response modes only after a case matches", () => {
+  const invalidJson = executeEndpointDetail(
+    endpointFixture({
+      failureMode: "invalid_json",
+      failureStatusCode: 218,
+    }),
+    { city: "Seoul" },
+  );
+  assert.equal(invalidJson.kind, "malformed");
+  if (invalidJson.kind !== "malformed") return;
+  assert.equal(invalidJson.mode, "invalid_json");
+  assert.equal(invalidJson.statusCode, 218);
+  assert.equal(invalidJson.contentType, "application/json");
+  assert.equal(invalidJson.matchedCase.name, "seoul");
+  assert.throws(() => JSON.parse(invalidJson.body));
+
+  const wrongContentType = executeEndpointDetail(
+    endpointFixture({
+      failureMode: "wrong_content_type",
+      malformedResponseJson: JSON.stringify({ ok: true, protocolBroken: true }),
+    }),
+    { city: "Seoul" },
+  );
+  assert.equal(wrongContentType.kind, "malformed");
+  if (wrongContentType.kind !== "malformed") return;
+  assert.equal(wrongContentType.mode, "wrong_content_type");
+  assert.equal(wrongContentType.contentType, "text/plain; charset=utf-8");
+  assert.equal(wrongContentType.body, '{"ok":true,"protocolBroken":true}');
+
+  const emptyBody = executeEndpointDetail(endpointFixture({ failureMode: "empty_body" }), { city: "Seoul" });
+  assert.equal(emptyBody.kind, "malformed");
+  if (emptyBody.kind !== "malformed") return;
+  assert.equal(emptyBody.mode, "empty_body");
+  assert.equal(emptyBody.body, "");
+  assert.equal(emptyBody.matchedCase.name, "seoul");
+
+  assert.deepEqual(executeEndpointDetail(endpointFixture({ failureMode: "empty_body" }), { city: 123 }), {
+    kind: "invalid_arguments",
+    message: 'Argument "city" must be string.',
+  });
+});

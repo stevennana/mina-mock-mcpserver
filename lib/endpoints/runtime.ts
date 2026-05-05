@@ -1,4 +1,4 @@
-import type { EndpointDetail, JsonValue } from "@/lib/endpoints/types";
+import type { EndpointDetail, JsonValue, MalformedResponseMode } from "@/lib/endpoints/types";
 
 export type EndpointRuntimeCase = EndpointDetail["responseCases"][number];
 export type EndpointRuntimeParam = EndpointDetail["parameters"][number];
@@ -30,6 +30,20 @@ export type EndpointCallProtocolError = {
   delayMs: number;
 };
 
+export type EndpointCallMalformed = {
+  kind: "malformed";
+  mode: MalformedResponseMode;
+  matchedCase: {
+    id: string;
+    name: string;
+    isDefault: boolean;
+  };
+  statusCode: number;
+  body: string;
+  contentType: string | null;
+  delayMs: number;
+};
+
 export type EndpointCallError =
   | {
       kind: "not_found";
@@ -57,7 +71,8 @@ export type EndpointCallError =
       message: string;
       delayMs: number;
     }
-  | EndpointCallProtocolError;
+  | EndpointCallProtocolError
+  | EndpointCallMalformed;
 
 export type EndpointCallResult = EndpointCallSuccess | EndpointCallError;
 
@@ -149,6 +164,51 @@ function endpointForcedErrorDelayMs(endpoint: EndpointDetail) {
   return boundedDelayMs(endpoint.failureDelayMs);
 }
 
+function isMalformedResponseMode(value: EndpointDetail["failureMode"]): value is MalformedResponseMode {
+  return value === "invalid_json" || value === "wrong_content_type" || value === "empty_body";
+}
+
+function malformedResponseForMode(
+  mode: MalformedResponseMode,
+  endpoint: EndpointDetail,
+  responseCase: EndpointRuntimeCase,
+  matchedCase: EndpointCallMalformed["matchedCase"],
+): EndpointCallMalformed {
+  const validBody = endpoint.malformedResponseJson?.trim() || responseCase.responseJson;
+  if (mode === "empty_body") {
+    return {
+      kind: "malformed",
+      mode,
+      matchedCase,
+      statusCode: endpoint.failureStatusCode ?? responseCase.statusCode,
+      body: "",
+      contentType: "application/json",
+      delayMs: resolvedDelayMs(endpoint, responseCase),
+    };
+  }
+  if (mode === "wrong_content_type") {
+    return {
+      kind: "malformed",
+      mode,
+      matchedCase,
+      statusCode: endpoint.failureStatusCode ?? responseCase.statusCode,
+      body: validBody,
+      contentType: "text/plain; charset=utf-8",
+      delayMs: resolvedDelayMs(endpoint, responseCase),
+    };
+  }
+
+  return {
+    kind: "malformed",
+    mode,
+    matchedCase,
+    statusCode: endpoint.failureStatusCode ?? responseCase.statusCode,
+    body: '{"error":"intentionally malformed response",',
+    contentType: "application/json",
+    delayMs: resolvedDelayMs(endpoint, responseCase),
+  };
+}
+
 export async function applyEndpointCallDelay(
   callResult: EndpointCallResult,
   sleep: (delayMs: number) => Promise<void> = (delayMs) => new Promise((resolve) => setTimeout(resolve, delayMs)),
@@ -209,6 +269,10 @@ export function executeEndpointDetail(endpoint: EndpointDetail | null, rawArgume
       message: endpoint.failureMessage ?? "Endpoint forced error.",
       delayMs: endpointForcedErrorDelayMs(endpoint),
     };
+  }
+
+  if (isMalformedResponseMode(endpoint.failureMode)) {
+    return malformedResponseForMode(endpoint.failureMode, endpoint, selected.value, matchedCase);
   }
 
   if (selected.value.errorMode === "error") {

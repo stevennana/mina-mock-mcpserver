@@ -5,7 +5,7 @@
   "id": "failure-delay-forced-error-runtime",
   "title": "Delay and Forced Error Simulation Runtime",
   "order": 21,
-  "status": "active",
+  "status": "completed",
   "next_task_on_success": "malformed-response-console-audit",
   "prompt_docs": [
     "AGENTS.md",
@@ -26,7 +26,8 @@
     "Required checks do not prove the claimed behavior.",
     "Implementation changes contradict the product spec or security/reliability docs."
   ],
-  "promotion_mode": "deterministic"
+  "promotion_mode": "deterministic",
+  "completed_at": "2026-05-05T13:29:38.585Z"
 }
 ```
 
@@ -109,3 +110,4 @@ Confirm that this task maps to the primary product spec `failure-simulation-and-
 - 2026-05-05T22:42:00+09:00: added protocol-specific forced-error mapping, timeout shortcut UI, focused unit coverage, and `@failure-delay-error` E2E coverage without adding malformed response behavior.
 - 2026-05-05T22:26:12+09:00: fixed the delayed REST OAuth precheck gap by adding a permission-only endpoint resolver, so bearer REST calls no longer execute or sleep before parsing the real body.
 - 2026-05-05T22:26:12+09:00: extended `@failure-delay-error` E2E coverage with a delayed REST OAuth bearer call that proves one bounded delay, then reran `npm run test:unit`, `npm run test:e2e -- --grep @failure-delay-error`, and `npm run verify` successfully.
+- 2026-05-05T13:29:38.585Z: automatically promoted after deterministic checks and evaluator approval.

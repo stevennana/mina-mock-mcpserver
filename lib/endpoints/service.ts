@@ -26,6 +26,11 @@ const endpointInclude = {
 
 type EndpointRecord = Prisma.EndpointGetPayload<{ include: typeof endpointInclude }>;
 
+type FailureSimulationSnapshot = Pick<
+  EndpointInput,
+  "failureMode" | "failureStatusCode" | "failureDelayMs" | "failureMessage" | "malformedResponseJson"
+>;
+
 function toSummary(endpoint: EndpointRecord): EndpointSummary {
   return {
     id: endpoint.id,
@@ -77,6 +82,36 @@ function toDetail(endpoint: EndpointRecord): EndpointDetail {
       errorBodyJson: responseCase.errorBodyJson,
       isDefault: responseCase.isDefault,
     })),
+  };
+}
+
+function failureSimulationSnapshot(input: FailureSimulationSnapshot) {
+  return {
+    failureMode: input.failureMode,
+    failureStatusCode: input.failureStatusCode ?? null,
+    failureDelayMs: input.failureDelayMs,
+    failureMessage: input.failureMessage ?? null,
+    malformedResponseJson: input.malformedResponseJson ?? null,
+  };
+}
+
+function failureSimulationChanged(previous: FailureSimulationSnapshot, next: FailureSimulationSnapshot) {
+  return JSON.stringify(failureSimulationSnapshot(previous)) !== JSON.stringify(failureSimulationSnapshot(next));
+}
+
+function failureSimulationAuditMetadata(
+  action: "create" | "update",
+  previous: FailureSimulationSnapshot | null,
+  next: FailureSimulationSnapshot,
+) {
+  return {
+    action,
+    previousMode: previous?.failureMode ?? null,
+    mode: next.failureMode,
+    statusCode: next.failureStatusCode ?? null,
+    delayMs: next.failureDelayMs,
+    hasFailureMessage: Boolean(next.failureMessage),
+    hasMalformedResponseBody: Boolean(next.malformedResponseJson),
   };
 }
 
@@ -258,6 +293,20 @@ export async function createEndpoint(input: EndpointInput, client: PrismaClient 
     include: endpointInclude,
   });
 
+  if (validInput.failureMode !== "none" || validInput.failureDelayMs > 0 || validInput.failureStatusCode !== null) {
+    await recordAuditEvent(
+      {
+        eventType: "endpoint.failure_simulation.update",
+        subjectType: "endpoint",
+        subjectId: endpoint.id,
+        subjectName: endpoint.name,
+        outcome: "success",
+        metadata: failureSimulationAuditMetadata("create", null, validInput),
+      },
+      client,
+    );
+  }
+
   return toDetail(endpoint);
 }
 
@@ -269,10 +318,21 @@ export async function updateEndpoint(
   const validInput = validateEndpointInput(input);
 
   const endpoint = await client.$transaction(async (tx) => {
+    const previous = await tx.endpoint.findUnique({
+      where: { id },
+      select: {
+        failureMode: true,
+        failureStatusCode: true,
+        failureDelayMs: true,
+        failureMessage: true,
+        malformedResponseJson: true,
+      },
+    });
+
     await tx.endpointParam.deleteMany({ where: { endpointId: id } });
     await tx.responseCase.deleteMany({ where: { endpointId: id } });
 
-    return tx.endpoint.update({
+    const updated = await tx.endpoint.update({
       where: { id },
       data: {
         name: validInput.name,
@@ -307,6 +367,22 @@ export async function updateEndpoint(
       },
       include: endpointInclude,
     });
+
+    if (previous && failureSimulationChanged(previous as FailureSimulationSnapshot, validInput)) {
+      await recordAuditEvent(
+        {
+          eventType: "endpoint.failure_simulation.update",
+          subjectType: "endpoint",
+          subjectId: updated.id,
+          subjectName: updated.name,
+          outcome: "success",
+          metadata: failureSimulationAuditMetadata("update", previous as FailureSimulationSnapshot, validInput),
+        },
+        tx,
+      );
+    }
+
+    return updated;
   });
 
   return toDetail(endpoint);

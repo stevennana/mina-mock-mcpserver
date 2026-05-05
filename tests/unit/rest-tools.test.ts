@@ -144,4 +144,25 @@ test("REST tool call mapper preserves success bodies and maps deterministic erro
       matchedCase: "protocol-error",
     },
   );
+
+  assert.deepEqual(
+    restToolCallResponseFromEndpointCall({
+      kind: "malformed",
+      mode: "wrong_content_type",
+      matchedCase: { id: "case_default", name: "default", isDefault: true },
+      statusCode: 200,
+      body: '{"ok":true}',
+      contentType: "text/plain; charset=utf-8",
+      delayMs: 0,
+    }),
+    {
+      status: 200,
+      body: '{"ok":true}',
+      matchedCase: "default",
+      malformed: {
+        mode: "wrong_content_type",
+        contentType: "text/plain; charset=utf-8",
+      },
+    },
+  );
 });

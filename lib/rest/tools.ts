@@ -34,8 +34,12 @@ export function restToolFromEndpoint(endpoint: RestToolEndpointInput): EndpointR
 
 export type RestToolCallResponse = {
   status: number;
-  body: JsonValue;
+  body: JsonValue | string;
   matchedCase?: string;
+  malformed?: {
+    mode: "invalid_json" | "wrong_content_type" | "empty_body";
+    contentType: string | null;
+  };
 };
 
 export function restToolCallResponseFromEndpointCall(callResult: EndpointCallResult): RestToolCallResponse {
@@ -70,6 +74,18 @@ export function restToolCallResponseFromEndpointCall(callResult: EndpointCallRes
           matchedCase: callResult.matchedCase.name,
         },
       matchedCase: callResult.matchedCase.name,
+    };
+  }
+
+  if (callResult.kind === "malformed") {
+    return {
+      status: callResult.statusCode,
+      body: callResult.body,
+      matchedCase: callResult.matchedCase.name,
+      malformed: {
+        mode: callResult.mode,
+        contentType: callResult.contentType,
+      },
     };
   }
 

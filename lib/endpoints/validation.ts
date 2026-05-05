@@ -10,7 +10,7 @@ import { EndpointValidationError } from "@/lib/endpoints/types";
 const endpointNamePattern = /^[A-Za-z0-9_-]{1,64}$/;
 const paramNamePattern = /^[A-Za-z_][A-Za-z0-9_]{0,63}$/;
 const paramTypes = new Set<EndpointParamType>(["string", "number", "boolean"]);
-const failureModes = new Set<FailureMode>(["none", "delay", "error", "malformed"]);
+const failureModes = new Set<FailureMode>(["none", "delay", "error", "invalid_json", "wrong_content_type", "empty_body"]);
 const caseErrorModes = new Set<CaseErrorMode>(["none", "error", "protocol_error"]);
 
 function addError(errors: Record<string, string>, field: string, message: string) {
@@ -97,11 +97,7 @@ export function validateEndpointInput(rawInput: EndpointInput): EndpointInput {
   if (input.failureMode === "error" && input.failureStatusCode == null) {
     addError(errors, "failureStatusCode", "Required when forced error mode is selected.");
   }
-  if (input.failureMode === "malformed") {
-    if (!input.malformedResponseJson) {
-      addError(errors, "malformedResponseJson", "Required when malformed response mode is selected.");
-    }
-  } else if (input.malformedResponseJson) {
+  if (input.malformedResponseJson) {
     parseJson(errors, "malformedResponseJson", input.malformedResponseJson);
   }
 

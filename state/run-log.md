@@ -811,3 +811,18 @@
 - evaluator: started
 - evaluator: status=done promotion=true The task maps directly to docs/product-specs/failure-simulation-and-audit.md. Current implementation resolves bounded endpoint/case delays, applies delay execution in shared endpoint service paths for MCP and REST, maps forced errors into protocol-specific REST and MCP responses, preserves OAuth REST permission checks without double-running delayed endpoint behavior, and includes visible/tested timeout shortcut behavior. Required deterministic checks passed in state/deterministic-checks.json. -> state/artifacts/20260505T222248-failure-delay-forced-error-runtime/evaluator.log
 - next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T222248-failure-delay-forced-error-runtime/npm-run-test-e2e-grep-failure-delay-error-next-server.log
+- commit: commit: created
+- promote: Promoted failure-delay-forced-error-runtime -> malformed-response-console-audit
+- backlog: rendered current=malformed-response-console-audit
+- health: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxooooooooooooooooxooxoxo
+- cycle: finished
+
+### cycle 2026-05-05T22:30:08+09:00 task=malformed-response-console-audit
+- artifacts: state/artifacts/20260505T223008-malformed-response-console-audit
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260505T223008-malformed-response-console-audit/worker.jsonl
+- worker-summary: Implemented `malformed-response-console-audit`.
+- evaluator: started
+- evaluator: status=done promotion=true The task maps directly to docs/product-specs/failure-simulation-and-audit.md. The implementation adds explicit invalid_json, wrong_content_type, and empty_body modes after endpoint auth/enablement/argument validation and response-case selection, exposes REST/MCP raw malformed behavior, shows UI warnings and REST console evidence, records non-secret failure-simulation audit events, and includes focused unit plus @malformed-audit E2E coverage. The provided mandatory checks all passed, including full npm run verify. -> state/artifacts/20260505T223008-malformed-response-console-audit/evaluator.log
+- next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T223008-malformed-response-console-audit/npm-run-test-e2e-grep-malformed-audit-next-server.log

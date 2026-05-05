@@ -5,54 +5,54 @@ Read the following repository documents before making changes:
 - docs/FRONTEND.md
 - docs/RELIABILITY.md
 - docs/product-specs/failure-simulation-and-audit.md
-- docs/exec-plans/active/021-failure-delay-forced-error-runtime.md
+- docs/exec-plans/active/022-malformed-response-console-audit.md
 
-Current task id: failure-delay-forced-error-runtime
-Current task title: Delay and Forced Error Simulation Runtime
+Current task id: malformed-response-console-audit
+Current task title: Malformed Response Modes, Console Evidence, and Audit
 
 Objective:
-Implement artificial delay, timeout shortcut, and forced error behavior for MCP and REST calls.
+Implement intentionally malformed response modes with visible warnings, console evidence, and audit logging for failure-simulation changes.
 
 Clarity notes:
-- This task covers normal JSON responses that are delayed or intentionally erroring; malformed response modes are next.
-- Delay/error config may exist at endpoint and response-case level and should resolve predictably.
-- Tests should avoid long waits except where timeout shortcut behavior is explicitly proven safely.
-- MCP and REST should share config resolution while mapping errors to their own protocol shapes.
+- Malformed responses intentionally break normal protocol expectations and must be clearly marked in UI.
+- This task should not make malformed behavior global or accidental.
+- Console evidence helps developers understand exactly what a client will see.
+- Audit should record public changes to failure-simulation settings without leaking sensitive values.
 
 Expected result:
-- Configured `delayMs` delays success or error responses.
-- Timeout shortcut sets or applies a 30-second delay option in UI/config.
-- Forced REST errors return configured status/body/message.
-- Forced MCP errors return tool_error or protocol_error according to config.
+- `invalid_json`, `wrong_content_type`, and `empty_body` modes work where feasible for MCP and REST routes.
+- UI warns before saving or running malformed response modes.
+- Endpoint console shows raw response evidence, elapsed time, matched case, and principal for malformed/failure cases.
+- Audit log records failure-simulation config changes and relevant protected events.
 
 Objections / risks to avoid:
-- Do not implement malformed invalid JSON/wrong content type here.
-- Do not block unrelated requests globally when one endpoint has a delay.
-- Do not add future matcher types.
-- Do not make tests slow/flaky with excessive real waits.
+- Do not accidentally apply malformed output to every endpoint.
+- Do not hide warnings for protocol-breaking behavior.
+- Do not broaden into new failure types or matchers.
+- Do not log secrets or raw tokens in audit evidence.
 
 Scope:
-- Implement delay resolution and bounded delay execution.
-- Implement forced error config resolution and protocol-specific mapping.
-- Update endpoint UI/console controls if needed for delay/error execution evidence.
-- Add unit and E2E tests tagged `@failure-delay-error`.
+- Implement malformed response mode execution.
+- Add UI warnings and console evidence for malformed modes.
+- Expand audit events for failure-simulation configuration changes.
+- Add unit and E2E tests tagged `@malformed-audit`.
 
 Out of scope:
-- Malformed response modes.
-- Audit event expansion unless directly tied to config changes already present.
-- New matching types.
-- Operational rate limiting.
+- Delay/forced error behavior already handled.
+- Rate limiting or public abuse controls.
+- New matcher types.
+- External observability dashboards.
 
 Exit criteria:
-1. Delay behavior works for MCP and REST without corrupting other calls.
-2. Forced REST/MCP errors match configured behavior.
-3. Timeout shortcut is visible and tested without destabilizing the suite.
-4. `@failure-delay-error` passes.
+1. Malformed modes produce the documented raw HTTP/protocol behavior only when configured.
+2. UI warnings are visible and tested.
+3. Console evidence accurately shows malformed outputs.
+4. Audit records failure-simulation changes.
 5. All required checks pass.
 
 Required checks:
 - npm run test:unit
-- npm run test:e2e -- --grep @failure-delay-error
+- npm run test:e2e -- --grep @malformed-audit
 - npm run verify
 
 Evaluator notes:
@@ -66,12 +66,11 @@ Required repository artifacts for this task:
 
 Required commands for this task:
 - npm run test:unit
-- npm run test:e2e -- --grep @failure-delay-error
+- npm run test:e2e -- --grep @malformed-audit
 - npm run verify
 
 Previous known gaps from the last evaluation:
-- REST OAuth bearer tool calls need to avoid executing callPermittedEndpointByName twice now that endpoint calls can sleep. The current lib/rest/http.ts pre-check can add an extra configured delay before the actual body is parsed and executed.
-- Add or adjust coverage for delayed REST OAuth calls, or refactor the permission/not-found pre-check so it does not execute runtime behavior before the real call.
+- none
 
 
 

@@ -53,7 +53,8 @@ Describe the user-facing structure of MCP Mock Server so an agent can implement 
 - endpoint editor forms must surface API/domain validation errors next to the affected fields
 - endpoint editor forms must show generated MCP `inputSchema` from the shared endpoint domain schema helper
 - endpoint console REST execution is available for no-auth and Basic modes and shows raw request, raw response, principal, matched case, and elapsed time
-- endpoint failure simulation controls must make endpoint-level delay/error settings and case-level tool/protocol errors explicit
+- endpoint failure simulation controls must make endpoint-level delay/error/malformed settings and case-level tool/protocol errors explicit
+- malformed-response modes must show inline warnings before save and console execution because they intentionally break normal client parsing expectations
 - Basic user forms must not display password hashes and must disable mutation controls for built-in rows
 - OAuth user forms must not display password hashes, must use bounded token TTL presets, and must disable mutation controls for the built-in row
 - OAuth client forms must not display stored secret hashes, must show generated raw client secrets only at creation or regeneration, and must disable mutation controls for the built-in row

@@ -21,3 +21,4 @@
 - 2026-05-05T12:38:08.891Z: promoted oauth-discovery-metadata -> oauth-mcp-rest-permission-enforcement
 - 2026-05-05T12:49:29.501Z: promoted oauth-mcp-rest-permission-enforcement -> issued-token-ui-revocation
 - 2026-05-05T13:10:29.907Z: promoted issued-token-ui-revocation -> failure-delay-forced-error-runtime
+- 2026-05-05T13:29:38.585Z: promoted failure-delay-forced-error-runtime -> malformed-response-console-audit

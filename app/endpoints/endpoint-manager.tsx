@@ -335,6 +335,13 @@ export function EndpointManager({ initialData }: { initialData: EndpointListResu
     2,
   );
   const rawRequestEvidence = consoleState.rawRequest || rawRequestPreview;
+  const malformedModeLabels: Record<string, string> = {
+    invalid_json: "invalid JSON",
+    wrong_content_type: "wrong content type",
+    empty_body: "empty body",
+  };
+  const malformedModeLabel = malformedModeLabels[form.failureMode] ?? "";
+  const isMalformedMode = Boolean(malformedModeLabel);
 
   function safePrettyJson(text: string) {
     try {
@@ -413,6 +420,7 @@ export function EndpointManager({ initialData }: { initialData: EndpointListResu
           `www-authenticate: ${response.headers.get("www-authenticate") ?? ""}`,
           `x-mcp-mock-matched-case: ${response.headers.get("X-MCP-Mock-Matched-Case") ?? ""}`,
           `x-mcp-mock-principal: ${response.headers.get("X-MCP-Mock-Principal") ?? ""}`,
+          `x-mcp-mock-malformed-mode: ${response.headers.get("X-MCP-Mock-Malformed-Mode") ?? ""}`,
           "",
           safePrettyJson(responseText),
         ].join("\n"),
@@ -504,6 +512,11 @@ export function EndpointManager({ initialData }: { initialData: EndpointListResu
 
         {saveState.message ? (
           <p className={`form-message ${saveState.status}`}>{saveState.message}</p>
+        ) : null}
+        {isMalformedMode ? (
+          <p className="warning-callout" role="alert">
+            Malformed response mode is intentionally protocol-breaking. Saving this endpoint will make only this endpoint return {malformedModeLabel} responses after a tool call matches.
+          </p>
         ) : null}
 
         <div className="form-grid">
@@ -659,7 +672,9 @@ export function EndpointManager({ initialData }: { initialData: EndpointListResu
                 <option value="none">none</option>
                 <option value="delay">delay</option>
                 <option value="error">error</option>
-                <option value="malformed">malformed</option>
+                <option value="invalid_json">invalid_json</option>
+                <option value="wrong_content_type">wrong_content_type</option>
+                <option value="empty_body">empty_body</option>
               </select>
               {errorFor(fieldErrors, "failureMode")}
             </label>
@@ -686,6 +701,7 @@ export function EndpointManager({ initialData }: { initialData: EndpointListResu
             <label className="field-block wide">
               <span>Malformed response JSON</span>
               <textarea className="text-area short" value={form.malformedResponseJson ?? ""} onChange={(event) => updateForm("malformedResponseJson", event.target.value)} />
+              <p className="field-hint">Optional body used by wrong_content_type; invalid_json and empty_body use fixed malformed evidence.</p>
               {errorFor(fieldErrors, "malformedResponseJson")}
             </label>
           </div>
@@ -739,6 +755,11 @@ export function EndpointManager({ initialData }: { initialData: EndpointListResu
         <EditorSection title="Endpoint test console">
           <div className="console-shell">
             <div className="console-controls" aria-label="Console controls">
+              {isMalformedMode ? (
+                <p className="warning-callout" role="alert">
+                  Running the console will show the raw {malformedModeLabel} HTTP response. JSON parsing may fail by design.
+                </p>
+              ) : null}
               <label className="field-block">
                 <span>Auth mode</span>
                 <select className="text-input" value={authMode} onChange={(event) => setAuthMode(event.target.value as AuthMode)}>

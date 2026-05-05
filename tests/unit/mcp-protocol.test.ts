@@ -230,6 +230,35 @@ test("MCP tools/call maps forced tool and protocol errors distinctly", async () 
   });
 });
 
+test("MCP tools/call can intentionally return raw malformed HTTP evidence", async () => {
+  const result = await handleMcpJsonRpcMessage(
+    {
+      jsonrpc: "2.0",
+      id: "malformed-call",
+      method: "tools/call",
+      params: { name: "echo", arguments: { message: "fail" } },
+    },
+    async () => tools,
+    async () => ({
+      kind: "malformed",
+      mode: "invalid_json",
+      matchedCase: { id: "case_malformed", name: "malformed-json", isDefault: false },
+      statusCode: 200,
+      body: '{"error":"intentionally malformed response",',
+      contentType: "application/json",
+      delayMs: 0,
+    }),
+  );
+
+  assert.deepEqual(result, {
+    kind: "raw",
+    status: 200,
+    body: '{"error":"intentionally malformed response",',
+    contentType: "application/json",
+    matchedCase: "malformed-json",
+  });
+});
+
 test("MCP tools/call maps OAuth permission denial to HTTP 403 with error data", async () => {
   const result = await handleMcpJsonRpcMessage(
     {

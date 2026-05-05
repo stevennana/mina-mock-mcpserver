@@ -20,6 +20,13 @@ export type McpProtocolResult =
       body: McpJsonRpcResponse;
     }
   | {
+      kind: "raw";
+      status: number;
+      body: string;
+      contentType: string | null;
+      matchedCase?: string;
+    }
+  | {
       kind: "accepted";
     };
 
@@ -182,6 +189,15 @@ export async function handleMcpJsonRpcMessage(
         matchedCase: callResult.matchedCase.name,
         ...(callResult.body ? { body: callResult.body } : {}),
       });
+    }
+    if (callResult.kind === "malformed") {
+      return {
+        kind: "raw",
+        status: callResult.statusCode,
+        body: callResult.body,
+        contentType: callResult.contentType,
+        matchedCase: callResult.matchedCase.name,
+      };
     }
 
     return {

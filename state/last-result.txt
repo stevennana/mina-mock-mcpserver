@@ -1,10 +1,15 @@
-Implemented the remaining REST OAuth delay gap and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+Implemented `malformed-response-console-audit`.
 
-Changed [lib/endpoints/service.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/lib/endpoints/service.ts) to add a permission-only resolver, then updated [lib/rest/http.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/lib/rest/http.ts) so Bearer REST calls no longer execute endpoint runtime behavior during the precheck. Added delayed REST OAuth coverage in [tests/e2e/failure-delay-error.spec.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/tests/e2e/failure-delay-error.spec.ts), and updated the active task progress log.
+Changed:
+- Added endpoint-scoped `invalid_json`, `wrong_content_type`, and `empty_body` modes for matched MCP/REST tool calls.
+- Added UI warnings before saving/running malformed modes and console evidence for raw response, status/content type, malformed mode, matched case, principal, and elapsed time.
+- Added non-secret audit events for failure-simulation config changes.
+- Updated docs and the active task progress log.
+- Wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
 
 Required checks passed:
 - `npm run test:unit`
-- `npm run test:e2e -- --grep @failure-delay-error`
+- `npm run test:e2e -- --grep @malformed-audit`
 - `npm run verify`
 
-Exit criteria appear satisfied. Nothing remains for this task; malformed response modes were left untouched for the next task.
+Exit criteria appear satisfied. Nothing remains for this task.

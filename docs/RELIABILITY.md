@@ -9,6 +9,7 @@ Define the reliability expectations and failure-handling rules for MCP Mock Serv
 - reset must leave the service operational with default users/client/endpoints
 - current reset invariants cover endpoint data and current endpoint seed defaults; later Basic/OAuth slices must add their own reset extensions when those built-ins land
 - long delays and malformed responses are intentional per endpoint/case and must not corrupt other requests
+- malformed `invalid_json`, `wrong_content_type`, and `empty_body` modes apply only after a specific endpoint call matches and must not affect auth failures, unknown tools, or other endpoints
 - artificial delays are bounded to 30000 ms, apply only to the configured endpoint call, and must not stall unrelated requests globally
 - worker stalls in Ralph are detected through worker.jsonl heartbeat evidence
 
