@@ -32,14 +32,20 @@ function idFromMessage(message: unknown): McpJsonRpcId {
   return typeof message.id === "string" || typeof message.id === "number" || message.id === null ? message.id : null;
 }
 
-function errorResponse(id: McpJsonRpcId, code: number, message: string, status = 200): McpProtocolResult {
+function errorResponse(
+  id: McpJsonRpcId,
+  code: number,
+  message: string,
+  status = 200,
+  data?: Record<string, JsonValue>,
+): McpProtocolResult {
   return {
     kind: "json",
     status,
     body: {
       jsonrpc: "2.0",
       id,
-      error: { code, message },
+      error: { code, message, ...(data ? { data } : {}) },
     },
   };
 }
@@ -155,6 +161,13 @@ export async function handleMcpJsonRpcMessage(
     const callResult = await callTool(message.params.name, message.params.arguments ?? {});
     if (callResult.kind === "not_found" || callResult.kind === "disabled") {
       return errorResponse(message.id, -32602, "Unknown tool");
+    }
+    if (callResult.kind === "forbidden") {
+      return errorResponse(message.id, -32003, "Forbidden", 403, {
+        error: "forbidden",
+        message: callResult.message,
+        tool: message.params.name,
+      });
     }
     if (callResult.kind === "invalid_arguments") {
       return errorResponse(message.id, -32602, callResult.message);

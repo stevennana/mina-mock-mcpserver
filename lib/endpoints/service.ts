@@ -95,9 +95,23 @@ export async function listEndpoints(client: PrismaClient = createPrismaClient())
   };
 }
 
-export async function listEnabledMcpTools(client: PrismaClient = createPrismaClient()): Promise<EndpointMcpTool[]> {
+type EndpointPermissionFilter = {
+  endpointIds?: string[];
+};
+
+function enabledEndpointWhere(filter?: EndpointPermissionFilter): Prisma.EndpointWhereInput {
+  return {
+    enabled: true,
+    ...(filter?.endpointIds ? { id: { in: filter.endpointIds } } : {}),
+  };
+}
+
+export async function listEnabledMcpTools(
+  client: PrismaClient = createPrismaClient(),
+  filter?: EndpointPermissionFilter,
+): Promise<EndpointMcpTool[]> {
   const endpoints = await client.endpoint.findMany({
-    where: { enabled: true },
+    where: enabledEndpointWhere(filter),
     include: { parameters: { orderBy: { position: "asc" } } },
     orderBy: [{ name: "asc" }],
   });
@@ -118,9 +132,12 @@ export async function listEnabledMcpTools(client: PrismaClient = createPrismaCli
   }));
 }
 
-export async function listEnabledRestTools(client: PrismaClient = createPrismaClient()): Promise<EndpointRestToolListResult> {
+export async function listEnabledRestTools(
+  client: PrismaClient = createPrismaClient(),
+  filter?: EndpointPermissionFilter,
+): Promise<EndpointRestToolListResult> {
   const endpoints = await client.endpoint.findMany({
-    where: { enabled: true },
+    where: enabledEndpointWhere(filter),
     include: { parameters: { orderBy: { position: "asc" } } },
     orderBy: [{ name: "asc" }],
   });
@@ -156,6 +173,26 @@ export async function callEndpointByName(
 ): Promise<EndpointCallResult> {
   const endpoint = await client.endpoint.findUnique({ where: { name }, include: endpointInclude });
   return executeEndpointDetail(endpoint ? toDetail(endpoint) : null, rawArguments);
+}
+
+export async function callPermittedEndpointByName(
+  name: string,
+  rawArguments: unknown,
+  endpointIds: string[],
+  client: PrismaClient = createPrismaClient(),
+): Promise<EndpointCallResult> {
+  const endpoint = await client.endpoint.findUnique({ where: { name }, include: endpointInclude });
+  if (!endpoint) {
+    return { kind: "not_found" };
+  }
+  if (!endpoint.enabled) {
+    return { kind: "disabled" };
+  }
+  if (!new Set(endpointIds).has(endpoint.id)) {
+    return { kind: "forbidden", message: "Bearer token does not grant permission for this endpoint." };
+  }
+
+  return executeEndpointDetail(toDetail(endpoint), rawArguments);
 }
 
 export async function createEndpoint(input: EndpointInput, client: PrismaClient = createPrismaClient()) {

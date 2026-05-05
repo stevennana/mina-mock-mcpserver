@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { resolveBasicAuthorizationHeader } from "@/lib/auth/basic";
-import { callEndpointByName, listEnabledRestTools } from "@/lib/endpoints/service";
+import { parseBearerAuthorizationHeader, resolveOAuthBearerAuthorizationHeader } from "@/lib/auth/oauth";
+import { callEndpointByName, callPermittedEndpointByName, listEnabledRestTools } from "@/lib/endpoints/service";
 import { restToolCallResponseFromEndpointCall } from "@/lib/rest/tools";
 
 export const dynamic = "force-dynamic";
@@ -20,7 +21,31 @@ function unauthorizedRestResponse(message = "Authorization header was invalid.")
   );
 }
 
+function unauthorizedBearerRestResponse(message = "Authorization header was invalid.") {
+  return NextResponse.json(
+    {
+      error: "unauthorized",
+      message,
+    },
+    {
+      status: 401,
+      headers: {
+        "WWW-Authenticate": 'Bearer realm="MCP Mock Server"',
+      },
+    },
+  );
+}
+
 export async function handleRestToolsGet(request: Request) {
+  const bearer = parseBearerAuthorizationHeader(request.headers.get("Authorization"));
+  if (bearer.kind === "bearer" || bearer.kind === "invalid") {
+    const resolution = await resolveOAuthBearerAuthorizationHeader(request.headers.get("Authorization"), request.url);
+    if (resolution.kind !== "authenticated") {
+      return unauthorizedBearerRestResponse();
+    }
+    return NextResponse.json(await listEnabledRestTools(undefined, { endpointIds: resolution.principal.endpointIds }));
+  }
+
   const resolution = await resolveBasicAuthorizationHeader(request.headers.get("Authorization"));
   if (resolution.kind === "unauthorized") {
     return unauthorizedRestResponse();
@@ -33,6 +58,10 @@ function principalForResolution(resolution: Awaited<ReturnType<typeof resolveBas
   return resolution.kind === "authenticated" ? `basic:${resolution.principal.username}` : "anonymous";
 }
 
+function bearerPrincipal(clientId: string) {
+  return `oauth:${clientId}`;
+}
+
 function argumentsFromBody(body: unknown) {
   if (body !== null && typeof body === "object" && !Array.isArray(body) && "arguments" in body) {
     return (body as { arguments?: unknown }).arguments ?? {};
@@ -41,6 +70,63 @@ function argumentsFromBody(body: unknown) {
 }
 
 export async function handleRestToolCallPost(request: Request, name: string) {
+  const bearer = parseBearerAuthorizationHeader(request.headers.get("Authorization"));
+  if (bearer.kind === "bearer" || bearer.kind === "invalid") {
+    const resolution = await resolveOAuthBearerAuthorizationHeader(request.headers.get("Authorization"), request.url);
+    if (resolution.kind !== "authenticated") {
+      return unauthorizedBearerRestResponse();
+    }
+
+    const callResult = await callPermittedEndpointByName(name, {}, resolution.principal.endpointIds);
+    if (callResult.kind === "forbidden") {
+      return NextResponse.json(
+        {
+          error: "forbidden",
+          message: callResult.message,
+          tool: name,
+        },
+        {
+          status: 403,
+          headers: { "X-MCP-Mock-Principal": bearerPrincipal(resolution.principal.clientId) },
+        },
+      );
+    }
+    if (callResult.kind === "not_found" || callResult.kind === "disabled") {
+      const response = restToolCallResponseFromEndpointCall(callResult);
+      return NextResponse.json(response.body, {
+        status: response.status,
+        headers: { "X-MCP-Mock-Principal": bearerPrincipal(resolution.principal.clientId) },
+      });
+    }
+
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return NextResponse.json(
+        {
+          error: "invalid_json",
+          message: "Request body must be valid JSON.",
+        },
+        { status: 400 },
+      );
+    }
+
+    const authorizedCallResult = await callPermittedEndpointByName(
+      name,
+      argumentsFromBody(body),
+      resolution.principal.endpointIds,
+    );
+    const response = restToolCallResponseFromEndpointCall(authorizedCallResult);
+    return NextResponse.json(response.body, {
+      status: response.status,
+      headers: {
+        "X-MCP-Mock-Principal": bearerPrincipal(resolution.principal.clientId),
+        ...(response.matchedCase ? { "X-MCP-Mock-Matched-Case": response.matchedCase } : {}),
+      },
+    });
+  }
+
   const authorization = await resolveBasicAuthorizationHeader(request.headers.get("Authorization"));
   if (authorization.kind === "unauthorized") {
     return unauthorizedRestResponse();

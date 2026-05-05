@@ -5,7 +5,7 @@
   "id": "oauth-mcp-rest-permission-enforcement",
   "title": "OAuth Bearer Enforcement for MCP and REST",
   "order": 19,
-  "status": "queued",
+  "status": "active",
   "next_task_on_success": "issued-token-ui-revocation",
   "prompt_docs": [
     "AGENTS.md",
@@ -104,3 +104,5 @@ Confirm that this task maps to the primary product spec `oauth-consent-and-token
 
 - Start here. Append timestamped progress notes as work lands.
 - Note when existing partial implementations were found and reused instead of replaced.
+- 2026-05-05T12:38:08.891Z: restored as current task after oauth-discovery-metadata promotion.
+- 2026-05-05T12:44:43.000Z: found existing OAuth issuance, token metadata, Basic auth, MCP, and REST runtime paths; reused them and added Bearer validation plus shared endpoint permission enforcement for MCP/REST.

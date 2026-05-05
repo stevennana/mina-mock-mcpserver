@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { resolveBasicAuthorizationHeader } from "@/lib/auth/basic";
-import { callEndpointByName, listEnabledMcpTools } from "@/lib/endpoints/service";
+import { parseBearerAuthorizationHeader, resolveOAuthBearerAuthorizationHeader } from "@/lib/auth/oauth";
+import { callEndpointByName, callPermittedEndpointByName, listEnabledMcpTools } from "@/lib/endpoints/service";
 import { handleMcpJsonRpcMessage } from "@/lib/mcp/protocol";
 
 export const dynamic = "force-dynamic";
@@ -20,7 +21,27 @@ function unauthorizedBasicResponse(message = "Valid Basic credentials are requir
   );
 }
 
-async function handleMcpJsonRpcPost(request: Request) {
+function unauthorizedBearerResponse(message = "Valid Bearer token is required.") {
+  return NextResponse.json(
+    {
+      error: "unauthorized",
+      message,
+    },
+    {
+      status: 401,
+      headers: {
+        "WWW-Authenticate": 'Bearer realm="MCP Mock Server"',
+      },
+    },
+  );
+}
+
+async function handleMcpJsonRpcPost(
+  request: Request,
+  runtime: {
+    endpointIds?: string[];
+  } = {},
+) {
   let body: unknown;
   try {
     body = await request.json();
@@ -35,7 +56,13 @@ async function handleMcpJsonRpcPost(request: Request) {
     );
   }
 
-  const result = await handleMcpJsonRpcMessage(body, listEnabledMcpTools, callEndpointByName);
+  const result = await handleMcpJsonRpcMessage(
+    body,
+    () => listEnabledMcpTools(undefined, runtime.endpointIds ? { endpointIds: runtime.endpointIds } : undefined),
+    runtime.endpointIds
+      ? (name, rawArguments) => callPermittedEndpointByName(name, rawArguments, runtime.endpointIds ?? [])
+      : callEndpointByName,
+  );
   if (result.kind === "accepted") {
     return new Response(null, { status: 202 });
   }
@@ -49,6 +76,15 @@ export async function handleNoAuthMcpPost(request: Request) {
 
 export async function handleUnifiedMcpPost(request: Request) {
   const authorization = request.headers.get("Authorization");
+  const bearer = parseBearerAuthorizationHeader(authorization);
+  if (bearer.kind === "bearer" || bearer.kind === "invalid") {
+    const resolution = await resolveOAuthBearerAuthorizationHeader(authorization, request.url);
+    if (resolution.kind !== "authenticated") {
+      return unauthorizedBearerResponse("Authorization header was invalid.");
+    }
+    return handleMcpJsonRpcPost(request, { endpointIds: resolution.principal.endpointIds });
+  }
+
   const resolution = await resolveBasicAuthorizationHeader(authorization);
 
   if (resolution.kind === "unauthorized") {
@@ -59,6 +95,15 @@ export async function handleUnifiedMcpPost(request: Request) {
   }
 
   return unauthorizedBasicResponse();
+}
+
+export async function handleStrictOAuthMcpPost(request: Request) {
+  const resolution = await resolveOAuthBearerAuthorizationHeader(request.headers.get("Authorization"), request.url);
+  if (resolution.kind !== "authenticated") {
+    return unauthorizedBearerResponse();
+  }
+
+  return handleMcpJsonRpcPost(request, { endpointIds: resolution.principal.endpointIds });
 }
 
 export async function handleStrictBasicMcpPost(request: Request) {

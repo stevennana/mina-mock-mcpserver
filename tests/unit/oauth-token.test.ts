@@ -6,6 +6,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
 import test from "node:test";
+import { parseBearerAuthorizationHeader, resolveOAuthBearerAuthorizationHeader } from "@/lib/auth/oauth";
 import { createPrismaClient } from "@/lib/db/client";
 import { seedAllDefaults } from "@/lib/db/seed";
 import {
@@ -124,6 +125,77 @@ test("authorization_code exchange issues RS256 JWT claims and stores token metad
     assert.equal(storedToken.resource, "https://resource.example/mcp");
     assert.equal(storedToken.endpointPermissionsJson, JSON.stringify(["endpoint_default_echo"]));
     assert.equal(storedToken.revokedAt, null);
+  });
+});
+
+test("Bearer token resolver verifies signature, issuer, audience, expiry, revocation, and permissions", async () => {
+  await withIsolatedDb(async (client) => {
+    assert.deepEqual(parseBearerAuthorizationHeader(null), { kind: "missing" });
+    assert.deepEqual(parseBearerAuthorizationHeader("Bearer"), { kind: "invalid", reason: "malformed" });
+    assert.deepEqual(parseBearerAuthorizationHeader("Basic abc"), { kind: "unsupported", scheme: "Basic" });
+
+    const issued = await issueOAuthClientCredentialsToken(
+      {
+        grantType: "client_credentials",
+        clientId: "default",
+        clientSecret: "default",
+        resource: "https://resource.example/runtime",
+        issuer: "https://issuer.example",
+        now: new Date("2026-05-05T00:00:00.000Z"),
+        code: "",
+        redirectUri: "",
+      },
+      client,
+    );
+
+    const valid = await resolveOAuthBearerAuthorizationHeader(
+      `Bearer ${issued.access_token}`,
+      "https://issuer.example/mcp/oauth",
+      client,
+      new Date("2026-05-05T00:10:00.000Z"),
+    );
+    assert.equal(valid.kind, "authenticated");
+    assert.deepEqual(valid.kind === "authenticated" ? valid.principal.endpointIds : [], ["endpoint_default_echo"]);
+
+    assert.equal(
+      (
+        await resolveOAuthBearerAuthorizationHeader(
+          `Bearer ${issued.access_token}`,
+          "https://wrong-issuer.example/mcp/oauth",
+          client,
+          new Date("2026-05-05T00:10:00.000Z"),
+        )
+      ).kind,
+      "unauthorized",
+    );
+    assert.equal(
+      (
+        await resolveOAuthBearerAuthorizationHeader(
+          `Bearer ${issued.access_token}`,
+          "https://issuer.example/mcp/oauth",
+          client,
+          new Date("2026-05-05T02:00:00.000Z"),
+        )
+      ).kind,
+      "unauthorized",
+    );
+
+    const claims = decodeJwt(issued.access_token).payload;
+    await client.oAuthIssuedToken.update({
+      where: { jti: claims.jti },
+      data: { revokedAt: new Date("2026-05-05T00:20:00.000Z") },
+    });
+    assert.equal(
+      (
+        await resolveOAuthBearerAuthorizationHeader(
+          `Bearer ${issued.access_token}`,
+          "https://issuer.example/mcp/oauth",
+          client,
+          new Date("2026-05-05T00:30:00.000Z"),
+        )
+      ).kind,
+      "unauthorized",
+    );
   });
 });
 

@@ -25,6 +25,10 @@ export type EndpointCallError =
       kind: "disabled";
     }
   | {
+      kind: "forbidden";
+      message: string;
+    }
+  | {
       kind: "invalid_arguments";
       message: string;
     }

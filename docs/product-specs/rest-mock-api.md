@@ -15,7 +15,8 @@ REST example copy
   - each tool includes `name`, `title`, `description`, and `parameters`
   - each parameter includes `name`, `label`, `description`, `type`, `required`, and `defaultValue` when configured
 - `GET /rest/tools` allows no-auth callers and valid Basic callers to see all enabled endpoints.
-- Invalid or unsupported `Authorization` headers return `401` with `WWW-Authenticate`; OAuth bearer filtering is handled by a later permissions slice.
+- `GET /rest/tools` with a valid OAuth Bearer token returns only enabled endpoints included in the token's endpoint permissions.
+- Invalid or unsupported `Authorization` headers return `401` with `WWW-Authenticate`; invalid, expired, revoked, or unverifiable Bearer tokens return `401` and never downgrade to no-auth or Basic.
 - `POST /rest/tools/:name/call` accepts `{ "arguments": { ... } }` and executes the same endpoint matcher used by MCP tool calls.
 - Successful REST calls return the configured mock response body directly with the configured status code, not a JSON-RPC envelope.
 - REST call responses include same-origin evidence headers for the admin console:
@@ -23,6 +24,7 @@ REST example copy
   - `X-MCP-Mock-Principal` as `anonymous` or `basic:<username>`
 - REST call errors use simple JSON bodies:
   - `401 { "error": "unauthorized", "message": "Authorization header was invalid." }`
+  - `403 { "error": "forbidden", "message": "Bearer token does not grant permission for this endpoint.", "tool": "<tool name>" }`
   - `400 { "error": "invalid_json", "message": "Request body must be valid JSON." }`
   - `404 { "error": "tool_not_found", "message": "Tool was not found or is disabled." }`
   - `422 { "error": "invalid_arguments", "message": "<matcher validation message>" }`

@@ -1,1 +1,1 @@
-oauth-discovery-metadata
+oauth-mcp-rest-permission-enforcement

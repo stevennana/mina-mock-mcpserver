@@ -50,5 +50,6 @@ export type McpJsonRpcResponse =
       error: {
         code: number;
         message: string;
+        data?: Record<string, JsonValue>;
       };
     };

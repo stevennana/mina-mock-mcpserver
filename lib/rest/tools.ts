@@ -70,6 +70,16 @@ export function restToolCallResponseFromEndpointCall(callResult: EndpointCallRes
     };
   }
 
+  if (callResult.kind === "forbidden") {
+    return {
+      status: 403,
+      body: {
+        error: "forbidden",
+        message: callResult.message,
+      },
+    };
+  }
+
   return {
     status: 404,
     body: {

@@ -8,6 +8,7 @@ Define the security posture for MCP Mock Server's current shipped slice.
 - unsupported Authorization schemes return 401
 - invalid Basic/Bearer credentials never downgrade to no-auth
 - OAuth tokens must verify signature, issuer, audience, expiry, jti revocation, and endpoint permissions
+- Valid OAuth Bearer tokens with insufficient endpoint permissions return 403; failed Bearer authentication returns 401 and must not fall back to another auth mode
 - built-in identities and clients cannot be disabled or deleted through normal UI/API flows
 - built-in Basic Auth identities also cannot have passwords changed through normal UI/API flows
 - built-in OAuth login identities also cannot have passwords or token TTLs changed through normal UI/API flows

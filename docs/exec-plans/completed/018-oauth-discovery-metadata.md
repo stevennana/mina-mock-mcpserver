@@ -5,7 +5,7 @@
   "id": "oauth-discovery-metadata",
   "title": "OAuth Discovery Metadata and JWKS",
   "order": 18,
-  "status": "active",
+  "status": "completed",
   "next_task_on_success": "oauth-mcp-rest-permission-enforcement",
   "prompt_docs": [
     "AGENTS.md",
@@ -26,7 +26,8 @@
     "Required checks do not prove the claimed behavior.",
     "Implementation changes contradict the product spec or security/reliability docs."
   ],
-  "promotion_mode": "deterministic"
+  "promotion_mode": "deterministic",
+  "completed_at": "2026-05-05T12:38:08.891Z"
 }
 ```
 
@@ -106,3 +107,4 @@ Confirm that this task maps to the primary product spec `oauth-consent-and-token
 - 2026-05-05T12:19:37.153Z: restored as current task after oauth-client-credentials-grant promotion.
 - 2026-05-05T12:26:34Z: found existing RS256 JWT issuance and request-origin issuer handling; added shared discovery/JWKS helpers, well-known route handlers, `/oauth/jwks`, a `/config` connection guide, docs updates, and unit/E2E coverage for metadata consistency and JWKS token verification.
 - 2026-05-05T12:33:03Z: removed unsupported `/mcp/oauth` advertisement from protected-resource metadata and the config guide because bearer MCP enforcement is the next task; tightened unit/E2E checks to assert discovery does not publish unimplemented route URLs.
+- 2026-05-05T12:38:08.891Z: automatically promoted after deterministic checks and evaluator approval.

@@ -1,0 +1,11 @@
+[main d4443ef] ralph: oauth-discovery-metadata 2026-05-05T21:38:08+09:00
+ 25 files changed, 3363 insertions(+), 62 deletions(-)
+ create mode 100644 state/artifacts/20260505T212007-oauth-discovery-metadata/backlog.log
+ create mode 100644 state/artifacts/20260505T212007-oauth-discovery-metadata/blocker-evaluation.json
+ create mode 100644 state/artifacts/20260505T212007-oauth-discovery-metadata/blocker-evaluation.json.log
+ create mode 100644 state/artifacts/20260505T212007-oauth-discovery-metadata/promote.log
+ create mode 100644 state/artifacts/20260505T213127-oauth-discovery-metadata/commit.log
+ create mode 100644 state/artifacts/20260505T213127-oauth-discovery-metadata/evaluator.log
+ create mode 100644 state/artifacts/20260505T213127-oauth-discovery-metadata/task-prompt.log
+ create mode 100644 state/artifacts/20260505T213127-oauth-discovery-metadata/worker.jsonl
+commit: created

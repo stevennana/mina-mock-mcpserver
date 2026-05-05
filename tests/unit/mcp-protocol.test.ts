@@ -155,6 +155,40 @@ test("MCP tools/call maps unknown tools and invalid params to JSON-RPC invalid p
   });
 });
 
+test("MCP tools/call maps OAuth permission denial to HTTP 403 with error data", async () => {
+  const result = await handleMcpJsonRpcMessage(
+    {
+      jsonrpc: "2.0",
+      id: 8,
+      method: "tools/call",
+      params: { name: "denied-tool", arguments: {} },
+    },
+    async () => [],
+    async () => ({
+      kind: "forbidden",
+      message: "Bearer token does not grant permission for this endpoint.",
+    }),
+  );
+
+  assert.equal(result.kind, "json");
+  if (result.kind === "json") {
+    assert.equal(result.status, 403);
+    assert.deepEqual(result.body, {
+      jsonrpc: "2.0",
+      id: 8,
+      error: {
+        code: -32003,
+        message: "Forbidden",
+        data: {
+          error: "forbidden",
+          message: "Bearer token does not grant permission for this endpoint.",
+          tool: "denied-tool",
+        },
+      },
+    });
+  }
+});
+
 test("MCP unknown methods return JSON-RPC method not found", async () => {
   const result = await handleMcpJsonRpcMessage(
     {

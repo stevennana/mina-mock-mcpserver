@@ -1,10 +1,15 @@
-Implemented the hardening for `oauth-discovery-metadata`.
+Implemented OAuth Bearer enforcement for MCP and REST.
 
-Changed discovery/config so they no longer advertise unsupported `/mcp/oauth`; updated tests to assert that absence; aligned docs and the active task progress log. Wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+What changed:
+- Added Bearer JWT parsing/validation in `lib/auth/oauth.ts`.
+- Added `/mcp/oauth`, Bearer precedence on `/mcp`, and Bearer-filtered MCP/REST tool lists.
+- Denied permitted-token calls now return `403`; invalid/expired/revoked Bearer tokens return `401`.
+- Added unit coverage and `@oauth-permissions` E2E coverage.
+- Updated specs, security/product docs, active task progress log, and `state/last-result.txt`.
 
 Required checks passed:
 - `npm run test:unit`
-- `npm run test:e2e -- --grep @oauth-discovery`
+- `npm run test:e2e -- --grep @oauth-permissions`
 - `npm run verify`
 
-Exit criteria appear satisfied. Nothing remains for this task; OAuth-protected MCP runtime enforcement remains in the next queued permission task.
+Exit criteria appear satisfied. Nothing remains for this task.

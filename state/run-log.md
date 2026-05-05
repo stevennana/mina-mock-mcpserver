@@ -736,3 +736,18 @@
 - evaluator: started
 - evaluator: status=done promotion=true The task maps directly to docs/product-specs/oauth-consent-and-token-runtime.md and is complete in substance. Discovery route handlers and /oauth/jwks are implemented, metadata avoids unsupported refresh/PKCE/revocation/OAuth MCP route claims, JWKS exposes only public RS256 verification material matching issued token kid/alg, the config guide lists actual metadata/JWKS routes, and the required deterministic checks passed per state/deterministic-checks.json. -> state/artifacts/20260505T213127-oauth-discovery-metadata/evaluator.log
 - next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T213127-oauth-discovery-metadata/npm-run-test-e2e-grep-oauth-discovery-next-server.log
+- commit: commit: created
+- promote: Promoted oauth-discovery-metadata -> oauth-mcp-rest-permission-enforcement
+- backlog: rendered current=oauth-mcp-rest-permission-enforcement
+- health: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxooooooooooooooooxo
+- cycle: finished
+
+### cycle 2026-05-05T21:38:39+09:00 task=oauth-mcp-rest-permission-enforcement
+- artifacts: state/artifacts/20260505T213839-oauth-mcp-rest-permission-enforcement
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260505T213839-oauth-mcp-rest-permission-enforcement/worker.jsonl
+- worker-summary: Implemented OAuth Bearer enforcement for MCP and REST.
+- evaluator: started
+- evaluator: status=done promotion=true OAuth Bearer enforcement is complete in substance. The implementation adds Bearer parsing and JWT validation, verifies issuer/resource/expiry/stored jti revocation and stored endpoint permissions, applies permission filtering to MCP and REST list routes, maps valid-token permission denials to 403, maps invalid/missing/expired/revoked Bearer auth to 401, and keeps no-auth/Basic behavior covered by existing flows. The task maps directly to oauth-consent-and-token-runtime.md, and the required deterministic gates are recorded as passing. -> state/artifacts/20260505T213839-oauth-mcp-rest-permission-enforcement/evaluator.log
+- next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T213839-oauth-mcp-rest-permission-enforcement/npm-run-test-e2e-grep-oauth-permissions-next-server.log
