@@ -1,8 +1,8 @@
 Completed `endpoint-domain-and-schema`.
 
-I revalidated the existing Prisma/SQLite endpoint persistence foundation, updated the progress log, and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt). No product-code changes were needed.
+I re-read the required docs, verified the existing Prisma/SQLite endpoint persistence slice, updated the active task progress log, and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt). No product-code changes were needed.
 
-Checks passed:
+Required checks passed:
 - `npm run db:prepare`
 - `npm run test:unit`
 - `npm run verify`
