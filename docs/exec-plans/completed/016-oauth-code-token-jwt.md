@@ -5,7 +5,7 @@
   "id": "oauth-code-token-jwt",
   "title": "Authorization Code Token Exchange and JWT Claims",
   "order": 16,
-  "status": "active",
+  "status": "completed",
   "next_task_on_success": "oauth-client-credentials-grant",
   "prompt_docs": [
     "AGENTS.md",
@@ -25,7 +25,8 @@
     "Required checks do not prove the claimed behavior.",
     "Implementation changes contradict the product spec or security/reliability docs."
   ],
-  "promotion_mode": "deterministic"
+  "promotion_mode": "deterministic",
+  "completed_at": "2026-05-05T12:10:54.414Z"
 }
 ```
 
@@ -105,3 +106,4 @@ Confirm that this task maps to the primary product spec `oauth-consent-and-token
 - 2026-05-05T12:00:21.257Z: restored as current task after oauth-authorize-login-consent promotion.
 - 2026-05-05T21:23:00+09:00: found existing authorization-code creation path with client, redirect URI, user, resource, and selected endpoint bindings; reused it for token exchange instead of duplicating consent state.
 - 2026-05-05T21:23:00+09:00: added `OAuthIssuedToken` persistence, RS256 JWT claim creation, `/oauth/token` authorization_code handling, and focused unit/E2E coverage for single-use exchange and invalid cases.
+- 2026-05-05T12:10:54.414Z: automatically promoted after deterministic checks and evaluator approval.

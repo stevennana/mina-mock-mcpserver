@@ -225,6 +225,8 @@ export type OAuthTokenExchangeInput = {
   redirectUri: string;
   clientId: string;
   clientSecret: string;
+  scope?: string;
+  resource?: string;
   issuer?: string;
   now?: Date;
 };
@@ -235,7 +237,7 @@ export type OAuthAccessTokenClaims = {
   resource: string;
   sub: string;
   client_id: string;
-  grant_type: "authorization_code";
+  grant_type: "authorization_code" | "client_credentials";
   iat: number;
   exp: number;
   jti: string;

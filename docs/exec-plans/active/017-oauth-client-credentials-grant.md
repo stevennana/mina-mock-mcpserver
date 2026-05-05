@@ -5,7 +5,7 @@
   "id": "oauth-client-credentials-grant",
   "title": "OAuth Client Credentials Grant",
   "order": 17,
-  "status": "queued",
+  "status": "active",
   "next_task_on_success": "oauth-discovery-metadata",
   "prompt_docs": [
     "AGENTS.md",
@@ -102,3 +102,5 @@ Confirm that this task maps to the primary product spec `oauth-consent-and-token
 
 - Start here. Append timestamped progress notes as work lands.
 - Note when existing partial implementations were found and reused instead of replaced.
+- 2026-05-05T12:10:54.414Z: restored as current task after oauth-code-token-jwt promotion.
+- 2026-05-05T12:38:00.000Z: found authorization-code JWT issuance and token persistence helpers already implemented; reused the route error mapping/signing approach while adding a client_credentials token branch and focused unit/E2E coverage.

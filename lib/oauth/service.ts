@@ -189,6 +189,21 @@ function endpointScope(endpointIds: string[]) {
   return endpointIds.map((endpointId) => `endpoint:${endpointId}`).join(" ");
 }
 
+function endpointPermissionsFromRequestedScope(scope: string, allowedEndpointIds: string[]) {
+  if (!scope.trim()) {
+    return [...allowedEndpointIds].sort();
+  }
+  const allowed = new Set(allowedEndpointIds);
+  const requested = scope
+    .split(/\s+/)
+    .map((value) => value.trim())
+    .filter((value) => value.startsWith("endpoint:"))
+    .map((value) => value.slice("endpoint:".length))
+    .filter((endpointId) => endpointId && allowed.has(endpointId));
+
+  return Array.from(new Set(requested)).sort();
+}
+
 async function assertAllowedEndpointsExist(endpointIds: string[], client: OAuthClientEndpointLookupClient) {
   if (endpointIds.length === 0) {
     return;
@@ -895,4 +910,116 @@ export async function exchangeOAuthAuthorizationCode(
     expires_in: result.expiresIn,
     scope: result.scope,
   };
+}
+
+export async function issueOAuthClientCredentialsToken(
+  input: OAuthTokenExchangeInput,
+  client: OAuthTokenExchangeClient = createPrismaClient(),
+): Promise<OAuthTokenExchangeResult> {
+  if (input.grantType !== "client_credentials") {
+    throw new OAuthTokenError("unsupported_grant_type", "Only grant_type=client_credentials is supported.");
+  }
+  if (!input.clientId || !input.clientSecret) {
+    throw new OAuthTokenError("invalid_request", "client_id and client_secret are required.");
+  }
+
+  const now = input.now ?? new Date();
+  const result = await client.$transaction(async (tx) => {
+    const oauthClient = await tx.oAuthClient.findUnique({
+      where: { clientId: input.clientId },
+      include: { allowedEndpoints: true },
+    });
+    if (!oauthClient?.enabled) {
+      throw new OAuthTokenError("invalid_client", "OAuth client is invalid.");
+    }
+    if (!(await verifyBasicPassword(input.clientSecret, oauthClient.secretHash))) {
+      throw new OAuthTokenError("invalid_client", "OAuth client is invalid.");
+    }
+
+    const endpointPermissions = endpointPermissionsFromRequestedScope(
+      input.scope ?? "",
+      oauthClient.allowedEndpoints.map((endpoint) => endpoint.endpointId),
+    );
+    const iat = Math.floor(now.getTime() / 1000);
+    const expiresIn = oauthClient.clientCredentialsTtlSeconds;
+    const exp = iat + expiresIn;
+    const jti = `oauth_token_${randomUUID()}`;
+    const scope = endpointScope(endpointPermissions);
+    const resource = input.resource || oauthIssuer(input.issuer);
+    const claims: OAuthAccessTokenClaims = {
+      iss: oauthIssuer(input.issuer),
+      aud: resource,
+      resource,
+      sub: `client:${oauthClient.clientId}`,
+      client_id: oauthClient.clientId,
+      grant_type: "client_credentials",
+      iat,
+      exp,
+      jti,
+      scope,
+      endpoint_permissions: endpointPermissions,
+    };
+
+    await tx.oAuthIssuedToken.create({
+      data: {
+        id: `oauth_issued_token_${randomUUID()}`,
+        jti,
+        oauthClientId: oauthClient.id,
+        oauthUserId: null,
+        grantType: "client_credentials",
+        scope,
+        resource,
+        endpointPermissionsJson: JSON.stringify(endpointPermissions),
+        issuedAt: new Date(iat * 1000),
+        expiresAt: new Date(exp * 1000),
+      },
+    });
+    await recordAuditEvent(
+      {
+        eventType: "oauth_token.issue",
+        subjectType: "oauth_issued_token",
+        subjectId: jti,
+        subjectName: oauthClient.clientId,
+        outcome: "success",
+        metadata: {
+          grantType: "client_credentials",
+          oauthClientId: oauthClient.id,
+          oauthUserId: null,
+          resource,
+          endpointPermissionCount: endpointPermissions.length,
+          expiresAt: new Date(exp * 1000).toISOString(),
+        },
+      },
+      tx,
+    );
+
+    return {
+      accessToken: signJwt({ alg: OAUTH_JWT_ALGORITHM, typ: "JWT", kid: OAUTH_JWT_KEY_ID }, claims),
+      expiresIn,
+      scope,
+    };
+  });
+
+  return {
+    access_token: result.accessToken,
+    token_type: "Bearer",
+    expires_in: result.expiresIn,
+    scope: result.scope,
+  };
+}
+
+export async function exchangeOAuthToken(
+  input: OAuthTokenExchangeInput,
+  client: OAuthTokenExchangeClient = createPrismaClient(),
+): Promise<OAuthTokenExchangeResult> {
+  if (input.grantType === "authorization_code") {
+    return exchangeOAuthAuthorizationCode(input, client);
+  }
+  if (input.grantType === "client_credentials") {
+    return issueOAuthClientCredentialsToken(input, client);
+  }
+  throw new OAuthTokenError(
+    "unsupported_grant_type",
+    "Only grant_type=authorization_code and grant_type=client_credentials are supported.",
+  );
 }

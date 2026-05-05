@@ -691,3 +691,18 @@
 - evaluator: started
 - evaluator: status=done promotion=true Repository inspection supports promotion. The task maps directly to docs/product-specs/oauth-consent-and-token-runtime.md, implements the scoped authorization_code token exchange without client_credentials, signs RS256 JWTs with the required claims, persists issued-token metadata by jti with revocation-ready fields, and has passing required deterministic gates in state/deterministic-checks.json. -> state/artifacts/20260505T210051-oauth-code-token-jwt/evaluator.log
 - next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T210051-oauth-code-token-jwt/npm-run-test-e2e-grep-oauth-code-token-next-server.log
+- commit: commit: created
+- promote: Promoted oauth-code-token-jwt -> oauth-client-credentials-grant
+- backlog: rendered current=oauth-client-credentials-grant
+- health: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxooooooooooooooo
+- cycle: finished
+
+### cycle 2026-05-05T21:11:24+09:00 task=oauth-client-credentials-grant
+- artifacts: state/artifacts/20260505T211124-oauth-client-credentials-grant
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260505T211124-oauth-client-credentials-grant/worker.jsonl
+- worker-summary: Implemented `oauth-client-credentials-grant` and wrote the handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+- evaluator: started
+- evaluator: status=done promotion=true The implementation matches the oauth-consent-and-token-runtime spec for this task. /oauth/token dispatches client_credentials, validates enabled client credentials, issues client-subject RS256 JWTs with grant_type=client_credentials, uses client credentials TTL, persists machine tokens with nullable oauthUserId, and computes endpoint permissions as all allowed endpoints or the requested endpoint-scope intersection. Unit and E2E coverage exercise valid issuance, scope narrowing, no-scope full allowed permissions, invalid credentials, and disabled clients. The mandatory deterministic checks are reported passing. -> state/artifacts/20260505T211124-oauth-client-credentials-grant/evaluator.log
+- next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T211124-oauth-client-credentials-grant/npm-run-test-e2e-grep-oauth-client-credentials-next-server.log

@@ -22,6 +22,8 @@ OAuth users and clients management
 - Token issuance
 - `/oauth/token` supports the `authorization_code` grant with form-encoded `grant_type`, `code`, `redirect_uri`, `client_id`, and `client_secret`
 - valid code exchange marks the code used, returns `access_token`, `token_type`, `expires_in`, and `scope`, and stores issued token metadata by JWT `jti`
+- `/oauth/token` supports the `client_credentials` grant with form-encoded `grant_type`, `client_id`, `client_secret`, optional `scope`, and optional `resource`; no login or consent UI is involved
+- client-credentials tokens use the client credentials TTL, subject `client:<client_id>`, `grant_type=client_credentials`, and endpoint permissions equal to all client-allowed endpoints when no scope is requested or the intersection of requested `endpoint:<endpoint_id>` scopes and client-allowed endpoints when scope is present
 - access tokens are RS256 JWTs with issuer, audience/resource, subject, client ID, grant type, issued/expiry times, `jti`, scope, and `endpoint_permissions`
 - expired, reused, unknown, redirect-mismatched, client-mismatched, or client-secret-invalid authorization-code exchanges fail with deterministic OAuth-style errors
 - Token list/detail/revoke
@@ -35,6 +37,7 @@ OAuth users and clients management
 - Authorization code lifetime/single-use
 - Client redirect validation
 - Consent endpoint selection must be a subset of the registered OAuth client's allowed endpoint IDs
+- Client-credentials requested scopes must never expand beyond the registered OAuth client's allowed endpoint IDs
 - JWT claims/signature/expiry
 - Permission filtering
 - Revocation lookup

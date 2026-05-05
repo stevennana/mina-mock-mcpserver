@@ -109,7 +109,7 @@ test("OAuth token endpoint rejects invalid authorization_code exchanges @oauth-c
   const redirectUri = "http://localhost:3000/oauth/callback";
   const unsupported = await request.post("/oauth/token", {
     form: {
-      grant_type: "client_credentials",
+      grant_type: "password",
       client_id: "default",
       client_secret: "default",
     },

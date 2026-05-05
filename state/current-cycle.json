@@ -1,8 +1,8 @@
 {
-  "task_id": "oauth-code-token-jwt",
-  "started_at": "2026-05-05T21:00:51+09:00",
-  "artifact_dir": "state/artifacts/20260505T210051-oauth-code-token-jwt",
+  "task_id": "oauth-client-credentials-grant",
+  "started_at": "2026-05-05T21:11:24+09:00",
+  "artifact_dir": "state/artifacts/20260505T211124-oauth-client-credentials-grant",
   "phase": "commit",
   "status": "running",
-  "updated_at": "2026-05-05T12:10:54.221Z"
+  "updated_at": "2026-05-05T12:19:36.963Z"
 }

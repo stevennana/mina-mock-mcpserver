@@ -1,0 +1,14 @@
+[main 0d4b38b] ralph: oauth-code-token-jwt 2026-05-05T21:10:54+09:00
+ 34 files changed, 5312 insertions(+), 107 deletions(-)
+ create mode 100644 app/oauth/token/route.ts
+ rename docs/exec-plans/{active => completed}/015-oauth-authorize-login-consent.md (94%)
+ create mode 100644 prisma/migrations/202605050008_oauth_issued_tokens/migration.sql
+ create mode 100644 state/artifacts/20260505T204812-oauth-authorize-login-consent/backlog.log
+ create mode 100644 state/artifacts/20260505T204812-oauth-authorize-login-consent/promote.log
+ create mode 100644 state/artifacts/20260505T210051-oauth-code-token-jwt/commit.log
+ create mode 100644 state/artifacts/20260505T210051-oauth-code-token-jwt/evaluator.log
+ create mode 100644 state/artifacts/20260505T210051-oauth-code-token-jwt/task-prompt.log
+ create mode 100644 state/artifacts/20260505T210051-oauth-code-token-jwt/worker.jsonl
+ create mode 100644 tests/e2e/oauth-code-token.spec.ts
+ create mode 100644 tests/unit/oauth-token.test.ts
+commit: created

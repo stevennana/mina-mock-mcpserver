@@ -4,54 +4,54 @@ Read the following repository documents before making changes:
 - docs/PRODUCT_SENSE.md
 - docs/SECURITY.md
 - docs/product-specs/oauth-consent-and-token-runtime.md
-- docs/exec-plans/active/016-oauth-code-token-jwt.md
+- docs/exec-plans/active/017-oauth-client-credentials-grant.md
 
-Current task id: oauth-code-token-jwt
-Current task title: Authorization Code Token Exchange and JWT Claims
+Current task id: oauth-client-credentials-grant
+Current task title: OAuth Client Credentials Grant
 
 Objective:
-Implement `/oauth/token` authorization_code exchange and signed JWT access tokens with endpoint permission claims.
+Implement non-interactive client_credentials token issuance with endpoint scope intersection.
 
 Clarity notes:
-- This task consumes codes created by the previous task.
-- Tokens must include claims required by later permission enforcement.
-- Code exchange must be single-use and bound to the same client and redirect URI.
-- RS256 is preferred; if HS256 is used temporarily, the fallback must be explicit and tested.
+- This task is only the grant behavior, not metadata discovery.
+- Client credentials tokens use subject `client:<client_id>` and client TTL settings.
+- Requested scopes narrow access and must never expand beyond client allowed endpoints.
+- No user login is involved.
 
 Expected result:
-- Valid code exchange returns access_token, token_type, expires_in, and scope.
-- JWT claims include issuer, audience/resource, subject, client_id, grant_type, iat, exp, jti, scope, and endpoint_permissions.
-- Expired, reused, mismatched, or invalid codes are rejected.
-- Issued token metadata is stored by `jti` for later revocation.
+- Valid clients can request client_credentials tokens.
+- No scope grants all client-allowed endpoints; requested scopes grant the intersection only.
+- Invalid client credentials or disabled clients are rejected.
+- Issued token records are stored consistently with authorization-code tokens.
 
 Objections / risks to avoid:
-- Do not implement client_credentials in this task.
-- Do not ignore redirect_uri or client binding during exchange.
-- Do not omit endpoint_permissions from the token.
-- Do not log full token values.
+- Do not allow requested scopes to exceed allowed endpoints.
+- Do not require browser login for this grant.
+- Do not leak client secrets in errors or logs.
+- Do not implement discovery metadata here.
 
 Scope:
-- Implement token endpoint authorization_code branch.
-- Implement JWT signing and claim creation.
-- Persist issued token metadata.
-- Add unit and E2E tests tagged `@oauth-code-token`.
+- Add client_credentials branch to `/oauth/token`.
+- Validate client ID/secret and enabled state.
+- Compute endpoint permission set from requested scopes and allowed endpoints.
+- Add unit and E2E tests tagged `@oauth-client-credentials`.
 
 Out of scope:
-- Client credentials grant.
-- Token management UI/revocation controls.
+- OAuth discovery metadata.
 - MCP bearer enforcement.
-- Discovery/JWKS unless needed minimally for signing key exposure later.
+- Token UI/revocation.
+- Refresh tokens.
 
 Exit criteria:
-1. Authorization codes exchange exactly once.
-2. JWT claims match the PRD contract.
-3. Invalid exchange cases return deterministic OAuth-style errors.
-4. Issued token records are ready for revocation enforcement later.
+1. Client credentials tokens can be issued for valid clients.
+2. Scope intersection behavior is tested.
+3. Invalid/disabled clients fail safely.
+4. Token claims distinguish grant_type and subject from authorization-code tokens.
 5. All required checks pass.
 
 Required checks:
 - npm run test:unit
-- npm run test:e2e -- --grep @oauth-code-token
+- npm run test:e2e -- --grep @oauth-client-credentials
 - npm run verify
 
 Evaluator notes:
@@ -65,7 +65,7 @@ Required repository artifacts for this task:
 
 Required commands for this task:
 - npm run test:unit
-- npm run test:e2e -- --grep @oauth-code-token
+- npm run test:e2e -- --grep @oauth-client-credentials
 - npm run verify
 
 Previous known gaps from the last evaluation:

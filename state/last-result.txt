@@ -1,11 +1,12 @@
-Implemented `oauth-code-token-jwt` and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+Implemented `oauth-client-credentials-grant` and wrote the handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
 
-What changed: added issued-token persistence/migration, `/oauth/token` authorization-code exchange, RS256 JWT signing with endpoint permission claims, single-use code consumption, token metadata storage by `jti`, OAuth-style token errors, unit/E2E coverage, and scoped docs/progress updates.
+What changed: `/oauth/token` now dispatches both `authorization_code` and `client_credentials`; client credentials validate enabled client ID/secret, issue `sub=client:<client_id>` JWTs with `grant_type=client_credentials`, use the client credentials TTL, and compute endpoint permissions from all allowed endpoints or the requested scope intersection. Issued token storage now supports machine tokens with nullable `oauthUserId`.
+
+Added coverage in [tests/unit/oauth-token.test.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/tests/unit/oauth-token.test.ts) and [tests/e2e/oauth-client-credentials.spec.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/tests/e2e/oauth-client-credentials.spec.ts), plus the Prisma migration and scoped docs/progress updates.
 
 Required checks passed:
-
 - `npm run test:unit`
-- `npm run test:e2e -- --grep @oauth-code-token`
+- `npm run test:e2e -- --grep @oauth-client-credentials`
 - `npm run verify`
 
-Exit criteria appear satisfied. Remaining OAuth work is deferred to later tasks: client credentials, token UI/revocation, bearer enforcement, and discovery/JWKS.
+Exit criteria appear satisfied. Nothing remains for this task. Note: there were pre-existing Ralph/state worktree changes before my edits; I left those unrelated changes in place.

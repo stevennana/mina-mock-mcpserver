@@ -8,7 +8,14 @@ import { promisify } from "node:util";
 import test from "node:test";
 import { createPrismaClient } from "@/lib/db/client";
 import { seedAllDefaults } from "@/lib/db/seed";
-import { createOAuthAuthorizationCode, exchangeOAuthAuthorizationCode, loginOAuthUserForConsent } from "@/lib/oauth/service";
+import {
+  createOAuthAuthorizationCode,
+  createOAuthClient,
+  exchangeOAuthAuthorizationCode,
+  exchangeOAuthToken,
+  issueOAuthClientCredentialsToken,
+  loginOAuthUserForConsent,
+} from "@/lib/oauth/service";
 import { DEFAULT_OAUTH_CLIENT_REDIRECT_URI, DEFAULT_OAUTH_PRIVATE_KEY_PEM, OAuthTokenError } from "@/lib/oauth/types";
 
 const execFileAsync = promisify(execFile);
@@ -120,6 +127,140 @@ test("authorization_code exchange issues RS256 JWT claims and stores token metad
   });
 });
 
+test("client_credentials exchange issues client-subject JWT with scoped endpoint intersection", async () => {
+  await withIsolatedDb(async (client) => {
+    await client.endpoint.create({
+      data: {
+        id: "endpoint_client_extra",
+        name: "client-extra",
+        title: "Client Extra",
+        defaultResponseJson: JSON.stringify({ ok: true }),
+      },
+    });
+    const created = await createOAuthClient(
+      {
+        clientId: "machine-client",
+        displayName: "Machine Client",
+        enabled: true,
+        redirectUris: ["http://localhost:3000/callback"],
+        clientCredentialsTtlSeconds: 900,
+        allowedEndpointIds: ["endpoint_default_echo", "endpoint_client_extra"],
+      },
+      client,
+    );
+
+    const narrowed = await issueOAuthClientCredentialsToken(
+      {
+        grantType: "client_credentials",
+        clientId: "machine-client",
+        clientSecret: created.clientSecret,
+        scope: "endpoint:endpoint_client_extra endpoint:missing profile endpoint:endpoint_client_extra",
+        resource: "https://resource.example/machine",
+        issuer: "https://issuer.example",
+        now: new Date("2026-05-05T00:00:00.000Z"),
+        code: "",
+        redirectUri: "",
+      },
+      client,
+    );
+    const narrowedClaims = decodeJwt(narrowed.access_token).payload;
+
+    assert.equal(narrowed.token_type, "Bearer");
+    assert.equal(narrowed.expires_in, 900);
+    assert.equal(narrowed.scope, "endpoint:endpoint_client_extra");
+    assert.equal(narrowedClaims.iss, "https://issuer.example");
+    assert.equal(narrowedClaims.aud, "https://resource.example/machine");
+    assert.equal(narrowedClaims.resource, "https://resource.example/machine");
+    assert.equal(narrowedClaims.sub, "client:machine-client");
+    assert.equal(narrowedClaims.client_id, "machine-client");
+    assert.equal(narrowedClaims.grant_type, "client_credentials");
+    assert.deepEqual(narrowedClaims.endpoint_permissions, ["endpoint_client_extra"]);
+
+    const storedNarrowed = await client.oAuthIssuedToken.findUniqueOrThrow({ where: { jti: narrowedClaims.jti } });
+    assert.equal(storedNarrowed.oauthClientId, created.client.id);
+    assert.equal(storedNarrowed.oauthUserId, null);
+    assert.equal(storedNarrowed.grantType, "client_credentials");
+    assert.equal(storedNarrowed.scope, "endpoint:endpoint_client_extra");
+    assert.equal(storedNarrowed.resource, "https://resource.example/machine");
+    assert.equal(storedNarrowed.endpointPermissionsJson, JSON.stringify(["endpoint_client_extra"]));
+
+    const full = await exchangeOAuthToken(
+      {
+        grantType: "client_credentials",
+        clientId: "machine-client",
+        clientSecret: created.clientSecret,
+        issuer: "https://issuer.example",
+        code: "",
+        redirectUri: "",
+      },
+      client,
+    );
+    const fullClaims = decodeJwt(full.access_token).payload;
+    assert.equal(full.scope, "endpoint:endpoint_client_extra endpoint:endpoint_default_echo");
+    assert.deepEqual(fullClaims.endpoint_permissions, ["endpoint_client_extra", "endpoint_default_echo"]);
+  });
+});
+
+test("client_credentials exchange rejects invalid credentials and disabled clients", async () => {
+  await withIsolatedDb(async (client) => {
+    const created = await createOAuthClient(
+      {
+        clientId: "disabled-machine",
+        displayName: "Disabled Machine",
+        enabled: false,
+        redirectUris: ["http://localhost:3000/callback"],
+        clientCredentialsTtlSeconds: 3600,
+        allowedEndpointIds: ["endpoint_default_echo"],
+      },
+      client,
+    );
+
+    await assert.rejects(
+      () =>
+        issueOAuthClientCredentialsToken(
+          {
+            grantType: "client_credentials",
+            clientId: "missing-machine",
+            clientSecret: "secret",
+            code: "",
+            redirectUri: "",
+          },
+          client,
+        ),
+      (error: unknown) => error instanceof OAuthTokenError && error.code === "invalid_client" && error.status === 401,
+    );
+    await assert.rejects(
+      () =>
+        issueOAuthClientCredentialsToken(
+          {
+            grantType: "client_credentials",
+            clientId: "disabled-machine",
+            clientSecret: created.clientSecret,
+            code: "",
+            redirectUri: "",
+          },
+          client,
+        ),
+      (error: unknown) => error instanceof OAuthTokenError && error.code === "invalid_client" && error.status === 401,
+    );
+    await client.oAuthClient.update({ where: { id: created.client.id }, data: { enabled: true } });
+    await assert.rejects(
+      () =>
+        issueOAuthClientCredentialsToken(
+          {
+            grantType: "client_credentials",
+            clientId: "disabled-machine",
+            clientSecret: "wrong",
+            code: "",
+            redirectUri: "",
+          },
+          client,
+        ),
+      (error: unknown) => error instanceof OAuthTokenError && error.code === "invalid_client" && error.status === 401,
+    );
+  });
+});
+
 test("authorization_code exchange rejects reuse, redirect mismatch, expired code, invalid client, and unsupported grants", async () => {
   await withIsolatedDb(async (client) => {
     const login = await loginOAuthUserForConsent(
@@ -219,7 +360,7 @@ test("authorization_code exchange rejects reuse, redirect mismatch, expired code
       () =>
         exchangeOAuthAuthorizationCode(
           {
-            grantType: "client_credentials",
+            grantType: "password",
             code: "unused",
             redirectUri: DEFAULT_OAUTH_CLIENT_REDIRECT_URI,
             clientId: "default",

@@ -176,7 +176,7 @@ model OAuthIssuedToken {
   id                      String      @id
   jti                     String      @unique
   oauthClientId           String
-  oauthUserId             String
+  oauthUserId             String?
   grantType               String
   scope                   String
   resource                String
@@ -186,7 +186,7 @@ model OAuthIssuedToken {
   revokedAt               DateTime?
   createdAt               DateTime    @default(now())
   oauthClient             OAuthClient @relation(fields: [oauthClientId], references: [id], onDelete: Cascade)
-  oauthUser               OAuthUser   @relation(fields: [oauthUserId], references: [id], onDelete: Cascade)
+  oauthUser               OAuthUser?  @relation(fields: [oauthUserId], references: [id], onDelete: Cascade)
 
   @@index([jti])
   @@index([oauthClientId, oauthUserId])

@@ -28,7 +28,7 @@ Remote MCP adoption is moving auth, transport, and permission bugs into client i
 - manage Basic Auth test users while keeping the built-in default/default fixture locked
 - list enabled tools and call configured mock tools through simple REST routes for curl and Postman style testing
 - prove no-auth, Basic, and OAuth bearer client behavior against strict routes
-- issue mock OAuth tokens with endpoint-level permissions through browser consent or client credentials
+- issue mock OAuth tokens with endpoint-level permissions through browser consent or non-interactive client credentials
 - create mock OAuth authorization codes through browser login and consent with explicit endpoint permission selection
 - simulate failure cases that clients often mishandle
 - persist configuration and provide root-password-protected reset/recovery for a public test service
@@ -48,6 +48,7 @@ Remote MCP adoption is moving auth, transport, and permission bugs into client i
 - OAuth default/default remains locked while additional login users can be configured with hashed passwords and MVP token TTL presets
 - OAuth default/default client remains locked while additional clients can be configured with generated copy-once secrets, redirect URIs, client credentials TTL presets, and maximum allowed endpoint sets
 - OAuth consent can select endpoints, exchange a single-use code for a JWT with endpoint permission claims, allow selected tools, deny unselected tools with 403, and return 401 after revocation
+- OAuth client credentials can issue a JWT without browser login, using the client's TTL and only the endpoint-scope intersection allowed for that client
 - token and audit screens show enough evidence to debug a client test, including endpoint delete success/failure without stored secrets
 - SQLite state survives restart and root reset restores currently implemented built-in endpoint and Basic user defaults
 - npm run verify and npm run start:smoke pass before task promotion

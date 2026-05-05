@@ -156,6 +156,8 @@ export function oauthTokenInputFromFormData(formData: FormData, issuer?: string)
     redirectUri: String(formData.get("redirect_uri") ?? "").trim(),
     clientId: String(formData.get("client_id") ?? "").trim(),
     clientSecret: String(formData.get("client_secret") ?? ""),
+    scope: String(formData.get("scope") ?? "").trim(),
+    resource: String(formData.get("resource") ?? "").trim(),
     issuer,
   };
 }

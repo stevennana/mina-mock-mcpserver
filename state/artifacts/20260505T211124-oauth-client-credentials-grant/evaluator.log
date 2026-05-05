@@ -1,0 +1,2209 @@
+/Users/stevenna/WebstormProjects/mina-mock-mcpserver/scripts/ralph/generated/current-evaluator-prompt.txt
+OpenAI Codex v0.128.0 (research preview)
+--------
+workdir: /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 019df813-4f20-7c42-afdc-36c6850e06b8
+--------
+user
+You are the promotion evaluator for a repository-local Ralph loop.
+
+Read these documents before deciding:
+- AGENTS.md
+- ARCHITECTURE.md
+- docs/PRODUCT_SENSE.md
+- docs/SECURITY.md
+- docs/product-specs/oauth-consent-and-token-runtime.md
+- docs/exec-plans/active/017-oauth-client-credentials-grant.md
+
+Current task id: oauth-client-credentials-grant
+Current task title: OAuth Client Credentials Grant
+
+Objective:
+Implement non-interactive client_credentials token issuance with endpoint scope intersection.
+
+Scope:
+- Add client_credentials branch to `/oauth/token`.
+- Validate client ID/secret and enabled state.
+- Compute endpoint permission set from requested scopes and allowed endpoints.
+- Add unit and E2E tests tagged `@oauth-client-credentials`.
+
+Out of scope:
+- OAuth discovery metadata.
+- MCP bearer enforcement.
+- Token UI/revocation.
+- Refresh tokens.
+
+Exit criteria:
+1. Client credentials tokens can be issued for valid clients.
+2. Scope intersection behavior is tested.
+3. Invalid/disabled clients fail safely.
+4. Token claims distinguish grant_type and subject from authorization-code tokens.
+5. All required checks pass.
+
+Evaluator notes:
+Required commands are mandatory promotion gates, not suggestions.
+Do not promote if any required check fails.
+Do not accept broad feature work outside this task.
+Confirm that this task maps to the primary product spec `oauth-consent-and-token-runtime.md` or is explicitly final hardening.
+
+Deterministic check summary:
+{
+  "checked_at": "2026-05-05T12:18:28.103Z",
+  "task_id": "oauth-client-credentials-grant",
+  "commands": [
+    {
+      "command": "npm run test:unit",
+      "ok": true,
+      "output": "\n> mina-mock-mcpserver@1.0.0 test:unit\n> node --import tsx --test \"tests/unit/**/*.test.ts\"\n\n✔ Basic passwords are hashed and verified without plaintext storage (107.951667ms)\n✔ Basic Authorization parser handles missing, valid, unsupported, and malformed headers (1.759958ms)\n✔ Basic Authorization resolver authenticates enabled users and fails closed otherwise (1502.032208ms)\n✔ Basic credential verification uses stored hashes and enabled state (1221.874167ms)\n✔ built-in default Basic user cannot be disabled, changed, or deleted (919.321542ms)\n✔ normalizeLogLevel accepts supported operator log levels (0.367167ms)\n✔ normalizeLogLevel defaults invalid input to info (0.061166ms)\n✔ getBootstrapStatus reports prepared foundation state (0.054875ms)\n✔ db:prepare is repeatable and keeps seed rows singular (4928.810208ms)\n✔ endpoint runtime selects exact response cases after applying defaults (0.8465ms)\n✔ endpoint runtime falls back to the configured default case on no exact match (0.144208ms)\n✔ endpoint runtime reports disabled endpoints and invalid arguments deterministically (0.078166ms)\n✔ endpoint validation accepts the MVP editor field set (0.6505ms)\n✔ endpoint validation returns field-level errors for UI rendering (0.3785ms)\n✔ MCP input schema generation reflects endpoint parameters (0.418458ms)\n✔ MCP initialize returns explicit no-auth MVP capabilities (0.795041ms)\n✔ MCP initialized notification is accepted without a JSON-RPC body (0.081333ms)\n✔ MCP tools/list returns loaded tools without executing them (0.076875ms)\n✔ MCP tools/call converts endpoint success to content and structuredContent (0.16275ms)\n✔ MCP tools/call maps unknown tools and invalid params to JSON-RPC invalid params (0.100292ms)\n✔ MCP unknown methods return JSON-RPC method not found (0.059708ms)\n✔ OAuth authorize validates client and exact registered redirect URI (1549.605875ms)\n✔ OAuth consent creates a single-use-ready authorization code with endpoint bindings (1248.370916ms)\n✔ OAuth consent rejects invalid users and endpoint selections outside the client allowed set (1025.741084ms)\n✔ OAuth client secrets are generated once, hashed, and verifiable (1663.782792ms)\n✔ OAuth client allowed endpoints persist and reject unknown endpoint IDs (1171.498834ms)\n✔ built-in default OAuth client cannot be disabled, regenerated, or deleted (997.460791ms)\n✔ authorization_code exchange issues RS256 JWT claims and stores token metadata (1627.168208ms)\n✔ client_credentials exchange issues client-subject JWT with scoped endpoint intersection (1292.286959ms)\n✔ client_credentials exchange rejects invalid credentials and disabled clients (1003.799084ms)\n✔ authorization_code exchange rejects reuse, redirect mismatch, expired code, invalid client, and unsupported grants (854.653333ms)\n✔ OAuth user passwords are hashed and verified without plaintext storage (1518.998792ms)\n✔ built-in default OAuth user cannot be disabled, changed, or deleted (1213.315167ms)\n✔ OAuth user TTL validation rejects non-preset and never-expiring values (967.061833ms)\n✔ Ralph promotion resolves ordered successor filenames by taskmeta id (75.874708ms)\n✔ reset requires confirmation and leaves endpoint state untouched on failure (1393.206292ms)\n✔ reset clears mutable endpoint data and recreates current seed defaults (1334.893083ms)\n✔ REST tool metadata maps endpoint parameters without MCP JSON-RPC envelope (0.738375ms)\n✔ REST tool call mapper preserves success bodies and maps deterministic errors (0.151584ms)\nℹ tests 39\nℹ suites 0\nℹ pass 39\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 5323.32175\n"
+    },
+    {
+      "command": "npm run test:e2e -- --grep @oauth-client-credentials",
+      "ok": true,
+      "output": "\n> mina-mock-mcpserver@1.0.0 test:e2e\n> playwright test --grep @oauth-client-credentials\n\n\nRunning 1 test using 1 worker\n\n  ✓  1 [chromium] › tests/e2e/oauth-client-credentials.spec.ts:12:5 › OAuth client_credentials issues tokens with endpoint scope intersection @oauth-client-credentials (836ms)\n\n  1 passed (5.0s)\n",
+      "preflight": {
+        "command": "ensure-e2e-port-free.sh 3100",
+        "error": "",
+        "ok": true,
+        "output": "port-cleanup: 127.0.0.1:3100 already free\n"
+      },
+      "next_server_log_path": "/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T211124-oauth-client-credentials-grant/npm-run-test-e2e-grep-oauth-client-credentials-next-server.log"
+    },
+    {
+      "command": "npm run verify",
+      "ok": true,
+      "output": "\n> mina-mock-mcpserver@1.0.0 verify\n> npm run lint && npm run typecheck && npm run build && npm run test:unit && npm run test:e2e && npm run start:smoke\n\n\n> mina-mock-mcpserver@1.0.0 lint\n> eslint .\n\n\n> mina-mock-mcpserver@1.0.0 typecheck\n> tsc --noEmit\n\n\n> mina-mock-mcpserver@1.0.0 build\n> next build\n\n   ▲ Next.js 15.5.15\n\n   Creating an optimized production build ...\n ✓ Compiled successfully in 898ms\n   Linting and checking validity of types ...\n   Collecting page data ...\n   Generating static pages (0/21) ...\n   Generating static pages (5/21) \r\n   Generating static pages (10/21) \r\n   Generating static pages (15/21) \r\n ✓ Generating static pages (21/21)\n   Finalizing page optimization ...\n   Collecting build traces ...\n\nRoute (app)                                 Size  First Load JS\n┌ ○ /                                      164 B         106 kB\n├ ○ /_not-found                            999 B         103 kB\n├ ƒ /api/audit                             170 B         102 kB\n├ ƒ /api/basic-users                       170 B         102 kB\n├ ƒ /api/basic-users/[id]                  170 B         102 kB\n├ ƒ /api/endpoints                         170 B         102 kB\n├ ƒ /api/endpoints/[id]                    170 B         102 kB\n├ ƒ /api/health                            170 B         102 kB\n├ ƒ /api/oauth-clients                     170 B         102 kB\n├ ƒ /api/oauth-clients/[id]                170 B         102 kB\n├ ƒ /api/oauth-clients/[id]/secret         170 B         102 kB\n├ ƒ /api/oauth-users                       170 B         102 kB\n├ ƒ /api/oauth-users/[id]                  170 B         102 kB\n├ ƒ /api/reset                             170 B         102 kB\n├ ○ /audit                                 164 B         106 kB\n├ ○ /basic-users                         2.22 kB         108 kB\n├ ○ /endpoints                           5.62 kB         111 kB\n├ ƒ /mcp                                   170 B         102 kB\n├ ƒ /mcp/basic                             170 B         102 kB\n├ ƒ /mcp/none                              170 B         102 kB\n├ ○ /oauth-clients                          3 kB         109 kB\n├ ○ /oauth-users                         2.42 kB         108 kB\n├ ƒ /oauth/authorize                       170 B         102 kB\n├ ƒ /oauth/consent                         170 B         102 kB\n├ ƒ /oauth/login                           170 B         102 kB\n├ ƒ /oauth/token                           170 B         102 kB\n├ ○ /reset                               1.01 kB         107 kB\n├ ƒ /rest/tools                            170 B         102 kB\n└ ƒ /rest/tools/[name]/call                170 B         102 kB\n+ First Load JS shared by all             102 kB\n  ├ chunks/255-4f212684648fcab9.js         46 kB\n  ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB\n  └ other shared chunks (total)          1.92 kB\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n\n\n> mina-mock-mcpserver@1.0.0 test:unit\n> node --import tsx --test \"tests/unit/**/*.test.ts\"\n\n✔ Basic passwords are hashed and verified without plaintext storage (97.919875ms)\n✔ Basic Authorization parser handles missing, valid, unsupported, and malformed headers (0.613584ms)\n✔ Basic Authorization resolver authenticates enabled users and fails closed otherwise (1142.760125ms)\n✔ Basic credential verification uses stored hashes and enabled state (1300.866583ms)\n✔ built-in default Basic user cannot be disabled, changed, or deleted (923.832875ms)\n✔ normalizeLogLevel accepts supported operator log levels (0.3805ms)\n✔ normalizeLogLevel defaults invalid input to info (0.059667ms)\n✔ getBootstrapStatus reports prepared foundation state (0.072792ms)\n✔ db:prepare is repeatable and keeps seed rows singular (4849.241167ms)\n✔ endpoint runtime selects exact response cases after applying defaults (0.896584ms)\n✔ endpoint runtime falls back to the configured default case on no exact match (0.132209ms)\n✔ endpoint runtime reports disabled endpoints and invalid arguments deterministically (0.077333ms)\n✔ endpoint validation accepts the MVP editor field set (0.694166ms)\n✔ endpoint validation returns field-level errors for UI rendering (0.360416ms)\n✔ MCP input schema generation reflects endpoint parameters (0.39875ms)\n✔ MCP initialize returns explicit no-auth MVP capabilities (0.747917ms)\n✔ MCP initialized notification is accepted without a JSON-RPC body (0.070584ms)\n✔ MCP tools/list returns loaded tools without executing them (0.074875ms)\n✔ MCP tools/call converts endpoint success to content and structuredContent (0.131208ms)\n✔ MCP tools/call maps unknown tools and invalid params to JSON-RPC invalid params (0.098ms)\n✔ MCP unknown methods return JSON-RPC method not found (0.061209ms)\n✔ OAuth authorize validates client and exact registered redirect URI (1311.658291ms)\n✔ OAuth consent creates a single-use-ready authorization code with endpoint bindings (1334.227125ms)\n✔ OAuth consent rejects invalid users and endpoint selections outside the client allowed set (972.556958ms)\n✔ OAuth client secrets are generated once, hashed, and verifiable (1394.920417ms)\n✔ OAuth client allowed endpoints persist and reject unknown endpoint IDs (1193.84825ms)\n✔ built-in default OAuth client cannot be disabled, regenerated, or deleted (958.010875ms)\n✔ authorization_code exchange issues RS256 JWT claims and stores token metadata (1300.193ms)\n✔ client_credentials exchange issues client-subject JWT with scoped endpoint intersection (1353.873917ms)\n✔ client_credentials exchange rejects invalid credentials and disabled clients (1018.515458ms)\n✔ authorization_code exchange rejects reuse, redirect mismatch, expired code, invalid client, and unsupported grants (864.601ms)\n✔ OAuth user passwords are hashed and verified without plaintext storage (1319.718333ms)\n✔ built-in default OAuth user cannot be disabled, changed, or deleted (1204.36325ms)\n✔ OAuth user TTL validation rejects non-preset and never-expiring values (921.444833ms)\n✔ Ralph promotion resolves ordered successor filenames by taskmeta id (64.719083ms)\n✔ reset requires confirmation and leaves endpoint state untouched on failure (1192.308333ms)\n✔ reset clears mutable endpoint data and recreates current seed defaults (1353.587208ms)\n✔ REST tool metadata maps endpoint parameters without MCP JSON-RPC envelope (0.676083ms)\n✔ REST tool call mapper preserves success bodies and maps deterministic errors (0.120125ms)\nℹ tests 39\nℹ suites 0\nℹ pass 39\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 5167.59175\n\n> mina-mock-mcpserver@1.0.0 test:e2e\n> playwright test\n\n\nRunning 19 tests using 1 worker\n\n  ✓   1 [chromium] › tests/e2e/basic-auth-mcp.spec.ts:7:5 › Basic Auth MCP strict route and unified precedence fail closed and allow valid callers @basic-auth-mcp (658ms)\n  ✓   2 [chromium] › tests/e2e/basic-users.spec.ts:5:5 › Basic users management UI protects default and manages editable users @ui-basic-users (1.7s)\n  ✓   3 [chromium] › tests/e2e/bootstrap.spec.ts:3:5 › foundation dashboard renders planned MCP mock server surfaces (488ms)\n  ✓   4 [chromium] › tests/e2e/bootstrap.spec.ts:11:5 › health endpoint reports ok status (188ms)\n  ✓   5 [chromium] › tests/e2e/endpoint-console.spec.ts:5:5 › endpoint schema preview and console shell stay stable on desktop and mobile @ui-endpoint-console (990ms)\n  ✓   6 [chromium] › tests/e2e/endpoint-delete-audit.spec.ts:17:5 › endpoint delete requires confirmation and writes non-secret audit evidence @endpoint-delete-audit (3.1s)\n  ✓   7 [chromium] › tests/e2e/endpoint-editor.spec.ts:5:5 › endpoint editor supports persisted create, edit, search, screenshots, and responsive checks @ui-endpoint-editor (1.4s)\n  ✓   8 [chromium] › tests/e2e/mcp-initialize-list.spec.ts:3:5 › no-auth MCP initialize, initialized notification, and tools/list use enabled endpoint schemas @mcp-initialize-list (200ms)\n  ✓   9 [chromium] › tests/e2e/mcp-tools-call.spec.ts:3:5 › no-auth MCP tools/call executes enabled endpoint cases and deterministic errors @mcp-tools-call (54ms)\n  ✓  10 [chromium] › tests/e2e/oauth-client-credentials.spec.ts:12:5 › OAuth client_credentials issues tokens with endpoint scope intersection @oauth-client-credentials (896ms)\n  ✓  11 [chromium] › tests/e2e/oauth-clients.spec.ts:5:5 › OAuth clients management UI protects default, shows secrets once, and persists allowed endpoints @ui-oauth-clients (2.3s)\n  ✓  12 [chromium] › tests/e2e/oauth-code-token.spec.ts:12:5 › OAuth authorization code exchanges once for endpoint-permission JWT @oauth-code-token (1.6s)\n  ✓  13 [chromium] › tests/e2e/oauth-code-token.spec.ts:108:5 › OAuth token endpoint rejects invalid authorization_code exchanges @oauth-code-token (27ms)\n  ✓  14 [chromium] › tests/e2e/oauth-consent.spec.ts:6:5 › OAuth authorization login and consent creates an endpoint-bound code @oauth-consent (782ms)\n  ✓  15 [chromium] › tests/e2e/oauth-consent.spec.ts:81:5 › OAuth authorize and login invalid paths fail deterministically @oauth-consent (1.1s)\n  ✓  16 [chromium] › tests/e2e/oauth-users.spec.ts:5:5 › OAuth users management UI protects default, validates TTLs, and manages editable users @ui-oauth-users (2.1s)\n  ✓  17 [chromium] › tests/e2e/rest-tools-call.spec.ts:7:5 › REST tools call executes exact matches, Basic auth, errors, and console evidence @rest-tools-call (1.3s)\n  ✓  18 [chromium] › tests/e2e/rest-tools-list.spec.ts:7:5 › REST tools list exposes enabled metadata for no-auth and Basic callers @rest-tools-list (313ms)\n  ✓  19 [chromium] › tests/e2e/root-reset.spec.ts:16:5 › root reset requires password and restores deterministic endpoint defaults @root-reset (3.5s)\n\n  19 passed (27.2s)\n\n> mina-mock-mcpserver@1.0.0 start:smoke\n> node scripts/start-smoke.mjs\n\n\n> mina-mock-mcpserver@1.0.0 db:prepare\n> node scripts/db-prepare.mjs\n\nDatasource \"db\": SQLite database \"runtime.sqlite\" at \"file:./data/runtime.sqlite\"\n\n9 migrations found in prisma/migrations\n\n\nNo pending migrations to apply.\n\n✔ Generated Prisma Client (v7.8.0) to ./node_modules/@prisma/client in 55ms\n\nStart by importing your Prisma Client (See: https://pris.ly/d/importing-client)\n\n\nPrepared SQLite runtime state with Prisma migrations and seed defaults.\n\n> mina-mock-mcpserver@1.0.0 build\n> next build\n\n   ▲ Next.js 15.5.15\n\n   Creating an optimized production build ...\n ✓ Compiled successfully in 904ms\n   Linting and checking validity of types ...\n   Collecting page data ...\n   Generating static pages (0/21) ...\n   Generating static pages (5/21) \r\n   Generating static pages (10/21) \r\n   Generating static pages (15/21) \r\n ✓ Generating static pages (21/21)\n   Finalizing page optimization ...\n   Collecting build traces ...\n\nRoute (app)                                 Size  First Load JS\n┌ ○ /                                      164 B         106 kB\n├ ○ /_not-found                            999 B         103 kB\n├ ƒ /api/audit                             170 B         102 kB\n├ ƒ /api/basic-users                       170 B         102 kB\n├ ƒ /api/basic-users/[id]                  170 B         102 kB\n├ ƒ /api/endpoints                         170 B         102 kB\n├ ƒ /api/endpoints/[id]                    170 B         102 kB\n├ ƒ /api/health                            170 B         102 kB\n├ ƒ /api/oauth-clients                     170 B         102 kB\n├ ƒ /api/oauth-clients/[id]                170 B         102 kB\n├ ƒ /api/oauth-clients/[id]/secret         170 B         102 kB\n├ ƒ /api/oauth-users                       170 B         102 kB\n├ ƒ /api/oauth-users/[id]                  170 B         102 kB\n├ ƒ /api/reset                             170 B         102 kB\n├ ○ /audit                                 164 B         106 kB\n├ ○ /basic-users                         2.22 kB         108 kB\n├ ○ /endpoints                           5.62 kB         111 kB\n├ ƒ /mcp                                   170 B         102 kB\n├ ƒ /mcp/basic                             170 B         102 kB\n├ ƒ /mcp/none                              170 B         102 kB\n├ ○ /oauth-clients                          3 kB         109 kB\n├ ○ /oauth-users                         2.42 kB         108 kB\n├ ƒ /oauth/authorize                       170 B         102 kB\n├ ƒ /oauth/consent                         170 B         102 kB\n├ ƒ /oauth/login                           170 B         102 kB\n├ ƒ /oauth/token                           170 B         102 kB\n├ ○ /reset                               1.01 kB         107 kB\n├ ƒ /rest/tools                            170 B         102 kB\n└ ƒ /rest/tools/[name]/call                170 B         102 kB\n+ First Load JS shared by all             102 kB\n  ├ chunks/255-4f212684648fcab9.js         46 kB\n  ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB\n  └ other shared chunks (total)          1.92 kB\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n\n   ▲ Next.js 15.5.15\n   - Local:        http://localhost:3100\n   - Network:      http://192.168.100.125:3100\n\n ✓ Starting...\n ✓ Ready in 266ms\nProduction-style startup smoke passed at http://127.0.0.1:3100/api/health\n",
+      "preflight": {
+        "command": "ensure-e2e-port-free.sh 3100",
+        "error": "",
+        "ok": true,
+        "output": "port-cleanup: 127.0.0.1:3100 already free\n"
+      },
+      "next_server_log_path": "/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T211124-oauth-client-credentials-grant/npm-run-verify-next-server.log"
+    }
+  ],
+  "missing_files": [],
+  "pass": true
+}
+
+Worker handoff summary from the last run:
+Implemented `oauth-client-credentials-grant` and wrote the handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+
+What changed: `/oauth/token` now dispatches both `authorization_code` and `client_credentials`; client credentials validate enabled client ID/secret, issue `sub=client:<client_id>` JWTs with `grant_type=client_credentials`, use the client credentials TTL, and compute endpoint permissions from all allowed endpoints or the requested scope intersection. Issued token storage now supports machine tokens with nullable `oauthUserId`.
+
+Added coverage in [tests/unit/oauth-token.test.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/tests/unit/oauth-token.test.ts) and [tests/e2e/oauth-client-credentials.spec.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/tests/e2e/oauth-client-credentials.spec.ts), plus the Prisma migration and scoped docs/progress updates.
+
+Required checks passed:
+- `npm run test:unit`
+- `npm run test:e2e -- --grep @oauth-client-credentials`
+- `npm run verify`
+
+Exit criteria appear satisfied. Nothing remains for this task. Note: there were pre-existing Ralph/state worktree changes before my edits; I left those unrelated changes in place.
+
+Your job:
+- inspect the repository and current implementation
+- determine whether the current task is actually complete
+- mark `done` only if the exit criteria are satisfied in substance, not just approximately
+- prefer conservative decisions
+- recommend promotion only if the task is truly ready
+
+Return JSON only using the provided schema.
+
+codex
+{"decision":"not_done","recommend_promotion":false,"confidence":0,"summary":"Starting evaluation by reading the required repository docs and then checking the implementation/test diffs against the task contract.","satisfied_exit_criteria":[],"missing_requirements":[],"human_review_triggers":[]}
+exec
+/bin/zsh -lc "sed -n '1,220p' AGENTS.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+exec
+/bin/zsh -lc "sed -n '1,260p' ARCHITECTURE.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# AGENTS.md
+
+## Purpose
+MCP Mock Server is a public remote MCP mock server and web UI for testing no-auth, Basic Auth, and mock OAuth bearer tool calls.
+
+This repository is optimized for agent-legible development and a Ralph-style task-promotion loop.
+
+## Read Order
+Before changing code or plans, read these files in order:
+
+1. `ARCHITECTURE.md`
+2. `docs/PRODUCT_SENSE.md`
+3. `docs/design-docs/core-beliefs.md`
+4. `docs/product-specs/index.md`
+5. `docs/FRONTEND.md`
+6. `docs/PLANS.md`
+7. active plans in `docs/exec-plans/active/`
+
+## Scope Guardrails
+### In scope for v1
+- Next.js App Router web gateway and route handlers
+- TypeScript domain/services with Prisma SQLite persistence
+- endpoint/tool management with up to three parameters and exact-match response cases
+- no-auth, Basic, and OAuth bearer MCP/REST runtime paths
+- OAuth user/client/token administration, authorization code flow, client credentials flow, discovery metadata, and JWKS
+- failure simulation, audit log, server config, reset, logging, Docker/Nginx guidance, and Ralph harness
+
+### Explicitly out of scope for v1
+- production-grade identity management
+- external OAuth provider integration
+- true multi-tenant isolation
+- enterprise RBAC for the public admin UI
+- handling sensitive customer data
+- full MCP resources, prompts, sampling, elicitation, or task-augmented execution in MVP
+- replacing a real authorization server
+
+## Product Shape
+- public admin UI for mock endpoint, auth, token, config, reset, and audit management
+- MCP Streamable HTTP-style JSON-RPC endpoints at /mcp and strict auth aliases
+- REST tool list/call API for curl and Postman style testing
+- mock OAuth authorization server with login, consent, token, revocation, and discovery metadata
+- SQLite-backed persistence with deterministic seed defaults
+
+## Technical Shape
+- Next.js App Router and TypeScript with npm scripts
+- Prisma plus SQLite for migrations, seed defaults, and persistent runtime state
+- layered domain shape: types, config, repo, service, runtime, UI
+- Playwright for E2E and UI verification, node --import tsx --test for unit tests
+- logs/ plus LOG_LEVEL and start:logged for operator-visible server flow
+
+## Validation Strategy
+Use layered checks:
+- unit tests for domain rules
+- integration tests for repository/runtime boundaries where needed
+- small E2E coverage for the required user journeys only
+
+Promotion is blocked when required checks fail. Required test commands in active task contracts are hard gates, not suggestions.
+While iterating, prefer the smallest targeted check for the code you just changed. Use the full required command set before considering the task done.
+If a feature depends on an outside resource such as AI chat or another remote service, keep it in the required E2E flows before allowing promotion.
+If a task is mainly UI or UX work, require a dedicated `@ui-*` Playwright command with screenshot, responsive, and accessibility checks before allowing promotion.
+If `taskmeta.promotion_mode` is `deterministic_only`, passing the required commands is sufficient for promotion without human review.
+For manual server inspection, prefer `npm run start:logged` and set `LOG_LEVEL` intentionally instead of relying only on ephemeral terminal output.
+
+### Required E2E flows
+- endpoint create/edit/delete and console call flow
+- MCP initialize, tools/list, and tools/call in no-auth mode
+- Basic user creation and strict /mcp/basic success/failure
+- REST tools list/call across auth modes
+- OAuth browser consent, token exchange, allowed tool call, denied tool call, and revocation
+- failure simulation and audit evidence
+- config/health/reset/startup smoke
+
+## Documentation Discipline
+- If behavior changes, update the related spec or design doc in the same cycle.
+- Prefer small, executable plans over vague TODOs.
+- When a repeated mistake appears, first document it; if it keeps recurring, promote it into tests or lint rules.
+- Keep the documented test strategy current; do not leave promotion gates implied.
+- When adding or editing tests, explain what behavior the test protects if that intent would otherwise be easy to lose.
+
+## Search Discipline
+- Search the codebase before concluding that a thing is unimplemented.
+- Prefer multiple targeted searches over one broad assumption.
+- If you find a partial implementation, adapt or complete it instead of duplicating it blindly.
+
+## Optional Companion Skills
+- If the customer allows them and they are installed, consider relevant companion skills before planning or implementation.
+- Good candidates include database, Next.js pattern, UI design, responsive UI, and clean-architecture skills.
+
+## Done Definition
+A task is done only when its scoped behavior works in substance, docs and tests match the implementation, required deterministic commands pass, and promotion rules in taskmeta are satisfied.
+
+ succeeded in 0ms:
+# ARCHITECTURE.md
+
+## Goal
+Build MCP Mock Server as an agent-legible codebase with strong boundaries, a short instruction surface, and enough extension seams to support future change without overbuilding v1.
+
+## System Overview
+MCP Mock Server is a web application with:
+- a public Next.js UI served on port 3000
+- server-side route handlers for admin APIs, MCP, REST, OAuth, and discovery metadata
+- SQLite persistence prepared by npm run db:prepare
+- operator logs under logs/ with LOG_LEVEL selection
+- Ralph scripts under scripts/ralph/ driving active task promotion
+
+## Architectural Priorities
+- isolate MCP protocol formatting from endpoint matching and auth decisions
+- keep auth mode resolution explicit and fail closed for invalid Basic/Bearer headers
+- store immutable endpoint IDs and treat names as external labels
+- make seeded built-in users/clients impossible to delete or disable through normal flows
+- prove persistence and production-style startup with deterministic commands
+
+## Layered Domain Model
+Use a strict forward-only dependency shape inside each domain:
+
+`Types -> Config -> Repo -> Service -> Runtime -> UI`
+
+### Why this matters
+The repository is intended to work well with long-running agent loops. Strict boundaries reduce accidental coupling and make failure analysis easier.
+
+## Primary Domains
+| Domain | Responsibility |
+|---|---|
+| Endpoint catalog | Endpoint CRUD, parameters, response cases, delete code, enabled state |
+| Matcher/runtime | Argument normalization, exact match, default/no-match, delay/error/malformed behavior |
+| MCP protocol | JSON-RPC request handling, initialize, tools/list, tools/call, MCP errors |
+| REST API | Tool list/call responses and REST error mapping |
+| Basic auth | Basic users, password hashing, built-in default protection, 401 behavior |
+| OAuth | Users, clients, codes, JWTs, permissions, revocation, discovery metadata |
+| Admin UI | Dashboards, editors, console, config, reset, audit screens |
+| Operations | SQLite prep, seed defaults, base URL, Docker/Nginx docs, logs, health |
+
+## Frontend / Backend Shape
+### Frontend
+- App Router screens should be dense, operational, and optimized for repeated testing
+- UI routes read and mutate through server-backed APIs, not local-only state
+- route-level loading and error states are required for public mutation surfaces
+- test console shows raw request, raw response, principal, matched case, and elapsed time
+- OAuth login and consent UI is separate from the admin navigation
+
+### Server
+- Next.js route handlers own HTTP surfaces for MVP
+- domain services own validation, matching, auth, token, and reset logic
+- repositories isolate Prisma access
+- protocol adapters convert domain outcomes into MCP JSON-RPC or REST responses
+- startup code prepares runtime state before production-style serving
+
+## Persistence Strategy
+- SQLite is the source of truth for endpoints, parameters, cases, users, clients, codes, tokens, audit events, and settings
+- Prisma migrations define the schema and db:prepare applies migrations plus idempotent seed defaults
+- built-in default/default Basic user, OAuth user, and OAuth client are recreated and protected
+- issued token records store jti and metadata; raw tokens are shown only at issuance unless explicitly configured
+- tests use isolated temporary databases or resettable seed state
+
+## Verification Shape
+- unit tests cover validators, matching, auth precedence, JWT claims, permissions, reset, and protocol formatting
+- Playwright proves browser-visible workflows and external-client-like OAuth/MCP/REST flows
+- start:smoke builds, prepares runtime state, starts the production server, probes health, and shuts down
+- verify runs lint, typecheck, build, unit, E2E, and startup smoke
+- failing required checks block Ralph promotion
+
+## Long-Running Agent Readiness
+- docs are the system of record
+- plans are executable, not aspirational
+- domain boundaries are explicit
+- repeated issues should be upgraded into tests or static checks
+
+exec
+/bin/zsh -lc "sed -n '1,220p' docs/PRODUCT_SENSE.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# PRODUCT_SENSE.md
+
+## One-Line Product Definition
+MCP Mock Server is a public remote MCP mock server and web UI for testing no-auth, Basic Auth, and mock OAuth bearer tool calls.
+
+## Who It Is For
+### Primary user
+MCP client developers, AI agent developers, demo/QA users, and the server operator.
+
+## User Problem
+MCP client and AI-agent developers need a configurable remote server that behaves enough like a real MCP server to prove connection, auth, token, permission, and tool-call behavior before integrating with production systems.
+
+## Why This Product Exists
+Remote MCP adoption is moving auth, transport, and permission bugs into client integration work. A public mock server gives teams a repeatable target for manual testing, automated E2E checks, demos, and negative-path validation.
+
+## Product Principles
+- realistic MCP and OAuth behavior over decorative admin features
+- public-by-design administration with light destructive-operation protection
+- destructive endpoint deletion requires a delete code or root-password override and leaves non-secret audit evidence
+- deterministic mocks: exact-match cases, explicit defaults, and observable failures
+- endpoint permissions are visible, selectable, and enforced
+- operator recovery paths must be simple and root-password protected
+
+## Core Value in v1
+- create a mock endpoint once and exercise it through MCP and REST
+- inspect the generated MCP input schema and execute REST no-auth or Basic calls from the endpoint console with raw evidence
+- initialize no-auth MCP clients, list enabled tools, and execute exact-match tool calls
+- manage Basic Auth test users while keeping the built-in default/default fixture locked
+- list enabled tools and call configured mock tools through simple REST routes for curl and Postman style testing
+- prove no-auth, Basic, and OAuth bearer client behavior against strict routes
+- issue mock OAuth tokens with endpoint-level permissions through browser consent or non-interactive client credentials
+- create mock OAuth authorization codes through browser login and consent with explicit endpoint permission selection
+- simulate failure cases that clients often mishandle
+- persist configuration and provide root-password-protected reset/recovery for a public test service
+
+## Non-Goals for v1
+- production-grade identity management
+- external OAuth provider integration
+- true multi-tenant isolation
+- enterprise RBAC for the public admin UI
+- handling sensitive customer data
+- full MCP resources, prompts, sampling, elicitation, or task-augmented execution in MVP
+- replacing a real authorization server
+
+## v1 Success Signals
+- a new endpoint can be created and edited through the public endpoint UI, then listed through tools/list and GET /rest/tools, called through tools/call, and called through POST /rest/tools/:name/call
+- Basic default/default and additional users work on strict Basic routes while invalid credentials return 401
+- OAuth default/default remains locked while additional login users can be configured with hashed passwords and MVP token TTL presets
+- OAuth default/default client remains locked while additional clients can be configured with generated copy-once secrets, redirect URIs, client credentials TTL presets, and maximum allowed endpoint sets
+- OAuth consent can select endpoints, exchange a single-use code for a JWT with endpoint permission claims, allow selected tools, deny unselected tools with 403, and return 401 after revocation
+- OAuth client credentials can issue a JWT without browser login, using the client's TTL and only the endpoint-scope intersection allowed for that client
+- token and audit screens show enough evidence to debug a client test, including endpoint delete success/failure without stored secrets
+- SQLite state survives restart and root reset restores currently implemented built-in endpoint and Basic user defaults
+- npm run verify and npm run start:smoke pass before task promotion
+
+## Product Risks
+- public UI can be abused or reset if root/delete-code handling is weak
+- OAuth semantics can drift into unrealistic behavior unless routes and E2E checks pin 401/403/token claims
+- MCP spec details may change, so the implementation must isolate protocol formatting
+- failure simulation can intentionally violate protocol behavior and needs visible warnings
+- persistent SQLite state can make tests flaky unless seeded and isolated deterministically
+
+codex
+{"decision":"not_done","recommend_promotion":false,"confidence":0,"summary":"I have the architecture/product context. Next I’m reading the security/spec/active-plan documents, then I’ll inspect the actual OAuth token path and tests rather than relying only on the handoff.","satisfied_exit_criteria":[],"missing_requirements":[],"human_review_triggers":[]}
+exec
+/bin/zsh -lc "sed -n '1,260p' docs/SECURITY.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# SECURITY.md
+
+## Purpose
+Define the security posture for MCP Mock Server's current shipped slice.
+
+## Core Security Rules
+- validate Origin for Streamable HTTP-style MCP routes where browser-origin risk applies
+- unsupported Authorization schemes return 401
+- invalid Basic/Bearer credentials never downgrade to no-auth
+- OAuth tokens must verify signature, issuer, audience, expiry, jti revocation, and endpoint permissions
+- built-in identities and clients cannot be disabled or deleted through normal UI/API flows
+- built-in Basic Auth identities also cannot have passwords changed through normal UI/API flows
+- built-in OAuth login identities also cannot have passwords or token TTLs changed through normal UI/API flows
+- built-in OAuth clients cannot be disabled, deleted, edited, or assigned regenerated secrets through normal UI/API flows
+- root password comparisons must avoid logging and should use constant-time comparison where practical
+
+## Secrets and Config
+- ROOT_PASSWORD gates reset, delete override, base URL override, and optional historical token deletion
+- client secrets and passwords are never logged
+- endpoint delete audit entries store method/reason metadata, not submitted delete codes or root passwords
+- reset audit entries store success/failure reason and seed counts, not submitted root passwords
+- passwords are stored only as hashes
+- Basic Auth password verification compares submitted credentials against stored hashes without logging submitted passwords
+- OAuth login-user passwords are stored only as hashes and are not logged by management APIs
+- OAuth client secrets are generated server-side, stored only as hashes, and returned only at creation or regeneration
+- OAuth browser consent uses exact registered redirect URI matching and a short-lived signed login ticket before authorization code creation
+- OAuth authorization codes are stored as single-use-ready records with expiry, client, redirect URI, user, audience/resource, and selected endpoint bindings
+- `/oauth/token` authorization-code exchange requires the same client, client secret, and redirect URI; consumed, expired, mismatched, or unknown codes fail with OAuth-style errors
+- `/oauth/token` client-credentials exchange requires a valid enabled client and secret, does not require user login, and intersects requested endpoint scopes with the client's allowed endpoint set
+- Access tokens are RS256 JWTs signed with `OAUTH_JWT_PRIVATE_KEY_PEM` when configured, otherwise a documented development key; issued token metadata is stored by `jti`, and raw token values are not persisted
+- raw JWT values are shown only at issuance unless a config explicitly permits storage
+- LOG_LEVEL controls verbosity but must not expose secrets even at trace/debug
+
+## Public Surfaces
+- public admin UI routes and /api/* mutation endpoints
+- MCP routes /mcp, /mcp/none, /mcp/basic, /mcp/oauth
+- REST mock routes /rest/tools and /rest/tools/:name/call
+- OAuth browser, token, revocation, discovery, and JWKS routes
+- health and public config endpoints
+
+## Verification
+- unit tests for password hashing, auth precedence, root checks, built-in immutability, JWT signing/claims, code exchange failure cases, and permission denial
+- E2E tests for Basic 401/success and OAuth 401/403/revocation
+- reset tests prove endpoint defaults are recreated after root-password and confirmation checks
+- audit tests prove failed delete attempts and reset events are recorded
+
+exec
+/bin/zsh -lc "sed -n '1,320p' docs/product-specs/oauth-consent-and-token-runtime.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# OAuth Consent and Token Runtime
+
+## Goal
+The mock OAuth server issues JWT bearer tokens through browser consent and client credentials, with endpoint-level permissions and revocation.
+
+## Trigger / Entry
+OAuth users and clients management
+
+## User-Visible Behavior
+- OAuth users and clients management
+- OAuth user management lists the locked built-in `default/default` login fixture and allows non-built-in users to be created, password-edited, TTL-edited, enabled/disabled, and deleted
+- OAuth login-user token TTLs use MVP presets only: 15 minutes, 1 hour, 8 hours, and 24 hours; never-expiring tokens are not available in this slice
+- OAuth user passwords are stored as hashes and never returned through the public management API
+- OAuth client management lists the locked built-in `default/default` client fixture and allows non-built-in clients to be created, edited, regenerated, disabled/enabled, and deleted
+- OAuth client secrets are generated server-side, stored as hashes, and returned only on create or regenerate responses
+- OAuth clients store redirect URIs, client credentials TTL presets, and a maximum allowed endpoint set that later consent and client credentials flows must not exceed
+- Login and consent flow
+- `/oauth/authorize` accepts authorization-code requests only after exact client and registered redirect URI validation
+- mock login verifies enabled OAuth users and carries the request to consent with a short-lived signed login ticket
+- consent displays client, redirect URI, resource, user, authorization-code TTL, and an endpoint permission checklist constrained to the client's allowed endpoint set
+- approving consent creates a single-use-ready authorization code bound to client, redirect URI, user, selected endpoints, resource/audience, state, expiry, and unused status, then redirects with `code` and `state`
+- Token issuance
+- `/oauth/token` supports the `authorization_code` grant with form-encoded `grant_type`, `code`, `redirect_uri`, `client_id`, and `client_secret`
+- valid code exchange marks the code used, returns `access_token`, `token_type`, `expires_in`, and `scope`, and stores issued token metadata by JWT `jti`
+- `/oauth/token` supports the `client_credentials` grant with form-encoded `grant_type`, `client_id`, `client_secret`, optional `scope`, and optional `resource`; no login or consent UI is involved
+- client-credentials tokens use the client credentials TTL, subject `client:<client_id>`, `grant_type=client_credentials`, and endpoint permissions equal to all client-allowed endpoints when no scope is requested or the intersection of requested `endpoint:<endpoint_id>` scopes and client-allowed endpoints when scope is present
+- access tokens are RS256 JWTs with issuer, audience/resource, subject, client ID, grant type, issued/expiry times, `jti`, scope, and `endpoint_permissions`
+- expired, reused, unknown, redirect-mismatched, client-mismatched, or client-secret-invalid authorization-code exchanges fail with deterministic OAuth-style errors
+- Token list/detail/revoke
+- Discovery metadata
+
+## Validation
+- Built-in OAuth login user cannot be disabled, deleted, password-changed, or TTL-changed through normal public UI/API flows
+- Non-built-in OAuth login user CRUD validates username shape, password length, unique usernames, and token TTL presets
+- Built-in OAuth client cannot be disabled, deleted, edited, or secret-regenerated through normal public UI/API flows
+- Non-built-in OAuth client CRUD validates client ID shape, redirect URI shape, TTL presets, unique client IDs, and existing allowed endpoint IDs
+- Authorization code lifetime/single-use
+- Client redirect validation
+- Consent endpoint selection must be a subset of the registered OAuth client's allowed endpoint IDs
+- Client-credentials requested scopes must never expand beyond the registered OAuth client's allowed endpoint IDs
+- JWT claims/signature/expiry
+- Permission filtering
+- Revocation lookup
+- 401 versus 403 mapping
+- Authorization-code browser flow selects endpoint permissions, exchanges code for token, calls /mcp/oauth successfully for allowed endpoint, receives 403 for denied endpoint, revokes token and receives 401
+
+exec
+/bin/zsh -lc "sed -n '1,260p' docs/exec-plans/active/017-oauth-client-credentials-grant.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# OAuth Client Credentials Grant
+
+```json taskmeta
+{
+  "id": "oauth-client-credentials-grant",
+  "title": "OAuth Client Credentials Grant",
+  "order": 17,
+  "status": "active",
+  "next_task_on_success": "oauth-discovery-metadata",
+  "prompt_docs": [
+    "AGENTS.md",
+    "ARCHITECTURE.md",
+    "docs/PRODUCT_SENSE.md",
+    "docs/SECURITY.md",
+    "docs/product-specs/oauth-consent-and-token-runtime.md"
+  ],
+  "required_commands": [
+    "npm run test:unit",
+    "npm run test:e2e -- --grep @oauth-client-credentials",
+    "npm run verify"
+  ],
+  "required_files": [],
+  "human_review_triggers": [
+    "The task broadens into unrelated feature fronts.",
+    "Required checks do not prove the claimed behavior.",
+    "Implementation changes contradict the product spec or security/reliability docs."
+  ],
+  "promotion_mode": "deterministic"
+}
+```
+
+## Objective
+
+Implement non-interactive client_credentials token issuance with endpoint scope intersection.
+
+## Clarity notes
+
+- This task is only the grant behavior, not metadata discovery.
+- Client credentials tokens use subject `client:<client_id>` and client TTL settings.
+- Requested scopes narrow access and must never expand beyond client allowed endpoints.
+- No user login is involved.
+
+## Expected result
+
+- Valid clients can request client_credentials tokens.
+- No scope grants all client-allowed endpoints; requested scopes grant the intersection only.
+- Invalid client credentials or disabled clients are rejected.
+- Issued token records are stored consistently with authorization-code tokens.
+
+## Objections / risks to avoid
+
+- Do not allow requested scopes to exceed allowed endpoints.
+- Do not require browser login for this grant.
+- Do not leak client secrets in errors or logs.
+- Do not implement discovery metadata here.
+
+## Scope
+
+- Add client_credentials branch to `/oauth/token`.
+- Validate client ID/secret and enabled state.
+- Compute endpoint permission set from requested scopes and allowed endpoints.
+- Add unit and E2E tests tagged `@oauth-client-credentials`.
+
+## Out of scope
+
+- OAuth discovery metadata.
+- MCP bearer enforcement.
+- Token UI/revocation.
+- Refresh tokens.
+
+## Exit criteria
+
+1. Client credentials tokens can be issued for valid clients.
+2. Scope intersection behavior is tested.
+3. Invalid/disabled clients fail safely.
+4. Token claims distinguish grant_type and subject from authorization-code tokens.
+5. All required checks pass.
+
+## Required checks
+
+- npm run test:unit
+- npm run test:e2e -- --grep @oauth-client-credentials
+- npm run verify
+
+## Implementation notes
+
+- Reuse JWT creation from authorization-code task.
+
+## Docs to update
+
+- docs/PRODUCT_SENSE.md
+- docs/SECURITY.md
+
+## Evaluator notes
+
+Required commands are mandatory promotion gates, not suggestions.
+Do not promote if any required check fails.
+Do not accept broad feature work outside this task.
+Confirm that this task maps to the primary product spec `oauth-consent-and-token-runtime.md` or is explicitly final hardening.
+
+## Progress log
+
+- Start here. Append timestamped progress notes as work lands.
+- Note when existing partial implementations were found and reused instead of replaced.
+- 2026-05-05T12:10:54.414Z: restored as current task after oauth-code-token-jwt promotion.
+- 2026-05-05T12:38:00.000Z: found authorization-code JWT issuance and token persistence helpers already implemented; reused the route error mapping/signing approach while adding a client_credentials token branch and focused unit/E2E coverage.
+
+exec
+/bin/zsh -lc 'git status --short' in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+git: warning: confstr() failed with code 5: couldn't get path of DARWIN_USER_TEMP_DIR; using /tmp instead
+git: error: couldn't create cache file '/tmp/xcrun_db-GtuR5txY' (errno=Operation not permitted)
+git: warning: confstr() failed with code 5: couldn't get path of DARWIN_USER_TEMP_DIR; using /tmp instead
+git: error: couldn't create cache file '/tmp/xcrun_db-nsqGLznq' (errno=Operation not permitted)
+ M app/oauth/token/route.ts
+ M docs/PRODUCT_SENSE.md
+ M docs/SECURITY.md
+ D docs/exec-plans/active/016-oauth-code-token-jwt.md
+ M docs/exec-plans/active/017-oauth-client-credentials-grant.md
+ M docs/product-specs/oauth-consent-and-token-runtime.md
+ M lib/oauth/api.ts
+ M lib/oauth/service.ts
+ M lib/oauth/types.ts
+ M prisma/schema.prisma
+ M scripts/ralph/generated/current-evaluator-prompt.txt
+ M scripts/ralph/generated/current-task-prompt.txt
+ M state/artifacts/20260505T210051-oauth-code-token-jwt/commit.log
+ M state/backlog.md
+ M state/blocker-tracker.json
+ M state/current-cycle.json
+ M state/current-task.txt
+ M state/deterministic-checks.json
+ M state/last-result.txt
+ M state/run-log.md
+ M state/task-history.md
+ M tests/e2e/oauth-code-token.spec.ts
+ M tests/unit/oauth-token.test.ts
+?? docs/exec-plans/completed/016-oauth-code-token-jwt.md
+?? prisma/migrations/202605050009_oauth_client_credentials_tokens/
+?? state/artifacts/20260505T210051-oauth-code-token-jwt/backlog.log
+?? state/artifacts/20260505T210051-oauth-code-token-jwt/promote.log
+?? state/artifacts/20260505T211124-oauth-client-credentials-grant/
+?? tests/e2e/oauth-client-credentials.spec.ts
+
+exec
+/bin/zsh -lc 'rg -n "client_credentials|grant_type|endpoint_permissions|oauthUserId|issue" app lib tests prisma docs -S' in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+exec
+/bin/zsh -lc 'rg -n "oauth/token|exchange|client credentials|Authorization code" app lib tests -S' in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+tests/e2e/oauth-code-token.spec.ts:12:test("OAuth authorization code exchanges once for endpoint-permission JWT @oauth-code-token", async ({
+tests/e2e/oauth-code-token.spec.ts:52:  const tokenResponse = await request.post("/oauth/token", {
+tests/e2e/oauth-code-token.spec.ts:79:  const reuseResponse = await request.post("/oauth/token", {
+tests/e2e/oauth-code-token.spec.ts:108:test("OAuth token endpoint rejects invalid authorization_code exchanges @oauth-code-token", async ({ request }) => {
+tests/e2e/oauth-code-token.spec.ts:110:  const unsupported = await request.post("/oauth/token", {
+tests/e2e/oauth-code-token.spec.ts:120:  const missing = await request.post("/oauth/token", {
+tests/e2e/oauth-code-token.spec.ts:132:  const invalid = await request.post("/oauth/token", {
+tests/e2e/oauth-code-token.spec.ts:144:  const invalidClient = await request.post("/oauth/token", {
+tests/e2e/oauth-client-credentials.spec.ts:46:  const narrowedResponse = await request.post("/oauth/token", {
+tests/e2e/oauth-client-credentials.spec.ts:69:  const fullResponse = await request.post("/oauth/token", {
+tests/e2e/oauth-client-credentials.spec.ts:81:  const invalidSecretResponse = await request.post("/oauth/token", {
+tests/e2e/oauth-client-credentials.spec.ts:96:  const disabledResponse = await request.post("/oauth/token", {
+lib/oauth/service.ts:800:export async function exchangeOAuthAuthorizationCode(
+lib/oauth/service.ts:822:      throw new OAuthTokenError("invalid_grant", "Authorization code is invalid.");
+lib/oauth/service.ts:834:      throw new OAuthTokenError("invalid_grant", "Authorization code has already been used.");
+lib/oauth/service.ts:837:      throw new OAuthTokenError("invalid_grant", "Authorization code is expired.");
+lib/oauth/service.ts:1011:export async function exchangeOAuthToken(
+lib/oauth/service.ts:1016:    return exchangeOAuthAuthorizationCode(input, client);
+tests/unit/oauth-token.test.ts:14:  exchangeOAuthAuthorizationCode,
+tests/unit/oauth-token.test.ts:15:  exchangeOAuthToken,
+tests/unit/oauth-token.test.ts:68:test("authorization_code exchange issues RS256 JWT claims and stores token metadata", async () => {
+tests/unit/oauth-token.test.ts:83:    const result = await exchangeOAuthAuthorizationCode(
+tests/unit/oauth-token.test.ts:130:test("client_credentials exchange issues client-subject JWT with scoped endpoint intersection", async () => {
+tests/unit/oauth-token.test.ts:187:    const full = await exchangeOAuthToken(
+tests/unit/oauth-token.test.ts:204:test("client_credentials exchange rejects invalid credentials and disabled clients", async () => {
+tests/unit/oauth-token.test.ts:264:test("authorization_code exchange rejects reuse, redirect mismatch, expired code, invalid client, and unsupported grants", async () => {
+tests/unit/oauth-token.test.ts:281:    await exchangeOAuthAuthorizationCode(
+tests/unit/oauth-token.test.ts:293:        exchangeOAuthAuthorizationCode(
+tests/unit/oauth-token.test.ts:309:        exchangeOAuthAuthorizationCode(
+tests/unit/oauth-token.test.ts:325:        exchangeOAuthAuthorizationCode(
+tests/unit/oauth-token.test.ts:345:        exchangeOAuthAuthorizationCode(
+tests/unit/oauth-token.test.ts:361:        exchangeOAuthAuthorizationCode(
+lib/oauth/validation.ts:69:    fieldErrors.clientCredentialsTtlSeconds = "Choose one of the MVP client credentials TTL presets.";
+app/oauth/consent/page.tsx:79:              <dt>Authorization code TTL</dt>
+app/oauth/token/route.ts:3:import { exchangeOAuthToken } from "@/lib/oauth/service";
+app/oauth/token/route.ts:8:    const result = await exchangeOAuthToken(oauthTokenInputFromFormData(await request.formData(), issuer));
+
+ succeeded in 0ms:
+prisma/schema.prisma:110:  issuedTokens          OAuthIssuedToken[]
+prisma/schema.prisma:128:  issuedTokens                OAuthIssuedToken[]
+prisma/schema.prisma:148:  oauthUserId         String
+prisma/schema.prisma:156:  oauthUser           OAuthUser                        @relation(fields: [oauthUserId], references: [id], onDelete: Cascade)
+prisma/schema.prisma:160:  @@index([oauthClientId, oauthUserId])
+prisma/schema.prisma:179:  oauthUserId             String?
+prisma/schema.prisma:184:  issuedAt                DateTime
+prisma/schema.prisma:189:  oauthUser               OAuthUser?  @relation(fields: [oauthUserId], references: [id], onDelete: Cascade)
+prisma/schema.prisma:192:  @@index([oauthClientId, oauthUserId])
+docs/SECURITY.md:10:- OAuth tokens must verify signature, issuer, audience, expiry, jti revocation, and endpoint permissions
+docs/SECURITY.md:30:- Access tokens are RS256 JWTs signed with `OAUTH_JWT_PRIVATE_KEY_PEM` when configured, otherwise a documented development key; issued token metadata is stored by `jti`, and raw token values are not persisted
+tests/e2e/oauth-code-token.spec.ts:54:      grant_type: "authorization_code",
+tests/e2e/oauth-code-token.spec.ts:73:  expect(claims.grant_type).toBe("authorization_code");
+tests/e2e/oauth-code-token.spec.ts:75:  expect(claims.endpoint_permissions).toEqual(["endpoint_default_echo"]);
+tests/e2e/oauth-code-token.spec.ts:81:      grant_type: "authorization_code",
+tests/e2e/oauth-code-token.spec.ts:112:      grant_type: "password",
+tests/e2e/oauth-code-token.spec.ts:118:  expect(await unsupported.json()).toMatchObject({ error: "unsupported_grant_type" });
+tests/e2e/oauth-code-token.spec.ts:122:      grant_type: "authorization_code",
+tests/e2e/oauth-code-token.spec.ts:134:      grant_type: "authorization_code",
+tests/e2e/oauth-code-token.spec.ts:146:      grant_type: "authorization_code",
+docs/exec-plans/active/017-oauth-client-credentials-grant.md:34:Implement non-interactive client_credentials token issuance with endpoint scope intersection.
+docs/exec-plans/active/017-oauth-client-credentials-grant.md:45:- Valid clients can request client_credentials tokens.
+docs/exec-plans/active/017-oauth-client-credentials-grant.md:59:- Add client_credentials branch to `/oauth/token`.
+docs/exec-plans/active/017-oauth-client-credentials-grant.md:73:1. Client credentials tokens can be issued for valid clients.
+docs/exec-plans/active/017-oauth-client-credentials-grant.md:76:4. Token claims distinguish grant_type and subject from authorization-code tokens.
+docs/exec-plans/active/017-oauth-client-credentials-grant.md:106:- 2026-05-05T12:38:00.000Z: found authorization-code JWT issuance and token persistence helpers already implemented; reused the route error mapping/signing approach while adding a client_credentials token branch and focused unit/E2E coverage.
+tests/e2e/oauth-client-credentials.spec.ts:12:test("OAuth client_credentials issues tokens with endpoint scope intersection @oauth-client-credentials", async ({
+tests/e2e/oauth-client-credentials.spec.ts:48:      grant_type: "client_credentials",
+tests/e2e/oauth-client-credentials.spec.ts:65:  expect(claims.grant_type).toBe("client_credentials");
+tests/e2e/oauth-client-credentials.spec.ts:67:  expect(claims.endpoint_permissions).toEqual([endpointId]);
+tests/e2e/oauth-client-credentials.spec.ts:71:      grant_type: "client_credentials",
+tests/e2e/oauth-client-credentials.spec.ts:79:  expect(decodeJwt(fullPayload.access_token).endpoint_permissions).toEqual([endpointId, "endpoint_default_echo"]);
+tests/e2e/oauth-client-credentials.spec.ts:83:      grant_type: "client_credentials",
+tests/e2e/oauth-client-credentials.spec.ts:98:      grant_type: "client_credentials",
+docs/exec-plans/active/018-oauth-discovery-metadata.md:74:2. JWKS can be used to verify issued tokens according to the signing approach.
+docs/PRODUCT_SENSE.md:31:- issue mock OAuth tokens with endpoint-level permissions through browser consent or non-interactive client credentials
+docs/PRODUCT_SENSE.md:51:- OAuth client credentials can issue a JWT without browser login, using the client's TTL and only the endpoint-scope intersection allowed for that client
+docs/exec-plans/active/020-issued-token-ui-revocation.md:5:  "id": "issued-token-ui-revocation",
+docs/exec-plans/active/020-issued-token-ui-revocation.md:35:Build issued-token inspection/filtering UI and token revocation behavior that affects subsequent OAuth runtime calls.
+docs/exec-plans/active/020-issued-token-ui-revocation.md:47:- Token detail shows claims and endpoint_permissions metadata.
+docs/exec-plans/active/index.md:24:17. `017-oauth-client-credentials-grant.md` -> `oauth-client-credentials-grant` -> Implement non-interactive client_credentials token issuance with endpoint scope intersection.
+docs/exec-plans/active/index.md:27:20. `020-issued-token-ui-revocation.md` -> `issued-token-ui-revocation` -> Build issued-token inspection/filtering UI and token revocation behavior that affects subsequent OAuth runtime calls.
+lib/oauth/service.ts:159:    oauthUserId: code.oauthUserId,
+lib/oauth/service.ts:663:export function createOAuthLoginTicket(input: { request: OAuthAuthorizeRequest; oauthUserId: string; now?: Date }) {
+lib/oauth/service.ts:667:    oauthUserId: input.oauthUserId,
+lib/oauth/service.ts:686:  let payload: OAuthAuthorizeRequest & { oauthUserId: string; exp: number };
+lib/oauth/service.ts:699:  if (!matchesRequest || !payload.oauthUserId || payload.exp < Math.floor(Date.now() / 1000)) {
+lib/oauth/service.ts:702:  return payload.oauthUserId;
+lib/oauth/service.ts:718:    loginTicket: createOAuthLoginTicket({ request: context.request, oauthUserId: user.id }),
+lib/oauth/service.ts:727:  const oauthUserId = verifyOAuthLoginTicket(input.loginTicket, context.request);
+lib/oauth/service.ts:728:  const user = await client.oAuthUser.findUnique({ where: { id: oauthUserId } });
+lib/oauth/service.ts:763:        oauthUserId: context.user.id,
+lib/oauth/service.ts:782:          oauthUserId: context.user.id,
+lib/oauth/service.ts:805:    throw new OAuthTokenError("unsupported_grant_type", "Only grant_type=authorization_code is supported.");
+lib/oauth/service.ts:850:      iss: oauthIssuer(input.issuer),
+lib/oauth/service.ts:855:      grant_type: "authorization_code",
+lib/oauth/service.ts:860:      endpoint_permissions: endpointPermissions,
+lib/oauth/service.ts:869:        id: `oauth_issued_token_${randomUUID()}`,
+lib/oauth/service.ts:872:        oauthUserId: code.oauthUserId,
+lib/oauth/service.ts:877:        issuedAt: new Date(iat * 1000),
+lib/oauth/service.ts:883:        eventType: "oauth_token.issue",
+lib/oauth/service.ts:884:        subjectType: "oauth_issued_token",
+lib/oauth/service.ts:891:          oauthUserId: code.oauthUserId,
+lib/oauth/service.ts:915:export async function issueOAuthClientCredentialsToken(
+lib/oauth/service.ts:919:  if (input.grantType !== "client_credentials") {
+lib/oauth/service.ts:920:    throw new OAuthTokenError("unsupported_grant_type", "Only grant_type=client_credentials is supported.");
+lib/oauth/service.ts:948:    const resource = input.resource || oauthIssuer(input.issuer);
+lib/oauth/service.ts:950:      iss: oauthIssuer(input.issuer),
+lib/oauth/service.ts:955:      grant_type: "client_credentials",
+lib/oauth/service.ts:960:      endpoint_permissions: endpointPermissions,
+lib/oauth/service.ts:965:        id: `oauth_issued_token_${randomUUID()}`,
+lib/oauth/service.ts:968:        oauthUserId: null,
+lib/oauth/service.ts:969:        grantType: "client_credentials",
+lib/oauth/service.ts:973:        issuedAt: new Date(iat * 1000),
+lib/oauth/service.ts:979:        eventType: "oauth_token.issue",
+lib/oauth/service.ts:980:        subjectType: "oauth_issued_token",
+lib/oauth/service.ts:985:          grantType: "client_credentials",
+lib/oauth/service.ts:987:          oauthUserId: null,
+lib/oauth/service.ts:1018:  if (input.grantType === "client_credentials") {
+lib/oauth/service.ts:1019:    return issueOAuthClientCredentialsToken(input, client);
+lib/oauth/service.ts:1022:    "unsupported_grant_type",
+lib/oauth/service.ts:1023:    "Only grant_type=authorization_code and grant_type=client_credentials are supported.",
+docs/exec-plans/active/019-oauth-mcp-rest-permission-enforcement.md:9:  "next_task_on_success": "issued-token-ui-revocation",
+docs/exec-plans/active/019-oauth-mcp-rest-permission-enforcement.md:40:- This task connects issued tokens to runtime authorization but does not build the token management UI.
+docs/exec-plans/active/019-oauth-mcp-rest-permission-enforcement.md:62:- Check signature, issuer, audience/resource, expiry, jti revocation state, and endpoint permissions.
+lib/oauth/types.ts:200:  oauthUserId: string;
+lib/oauth/types.ts:230:  issuer?: string;
+lib/oauth/types.ts:240:  grant_type: "authorization_code" | "client_credentials";
+lib/oauth/types.ts:245:  endpoint_permissions: string[];
+lib/oauth/types.ts:257:    public readonly code: "invalid_request" | "invalid_client" | "invalid_grant" | "unsupported_grant_type",
+lib/oauth/api.ts:152:export function oauthTokenInputFromFormData(formData: FormData, issuer?: string): OAuthTokenExchangeInput {
+lib/oauth/api.ts:154:    grantType: String(formData.get("grant_type") ?? "").trim(),
+lib/oauth/api.ts:161:    issuer,
+docs/product-specs/oauth-consent-and-token-runtime.md:4:The mock OAuth server issues JWT bearer tokens through browser consent and client credentials, with endpoint-level permissions and revocation.
+docs/product-specs/oauth-consent-and-token-runtime.md:23:- `/oauth/token` supports the `authorization_code` grant with form-encoded `grant_type`, `code`, `redirect_uri`, `client_id`, and `client_secret`
+docs/product-specs/oauth-consent-and-token-runtime.md:24:- valid code exchange marks the code used, returns `access_token`, `token_type`, `expires_in`, and `scope`, and stores issued token metadata by JWT `jti`
+docs/product-specs/oauth-consent-and-token-runtime.md:25:- `/oauth/token` supports the `client_credentials` grant with form-encoded `grant_type`, `client_id`, `client_secret`, optional `scope`, and optional `resource`; no login or consent UI is involved
+docs/product-specs/oauth-consent-and-token-runtime.md:26:- client-credentials tokens use the client credentials TTL, subject `client:<client_id>`, `grant_type=client_credentials`, and endpoint permissions equal to all client-allowed endpoints when no scope is requested or the intersection of requested `endpoint:<endpoint_id>` scopes and client-allowed endpoints when scope is present
+docs/product-specs/oauth-consent-and-token-runtime.md:27:- access tokens are RS256 JWTs with issuer, audience/resource, subject, client ID, grant type, issued/expiry times, `jti`, scope, and `endpoint_permissions`
+prisma/migrations/202605050009_oauth_client_credentials_tokens/migration.sql:7:    "oauthUserId" TEXT,
+prisma/migrations/202605050009_oauth_client_credentials_tokens/migration.sql:12:    "issuedAt" DATETIME NOT NULL,
+prisma/migrations/202605050009_oauth_client_credentials_tokens/migration.sql:17:    CONSTRAINT "OAuthIssuedToken_oauthUserId_fkey" FOREIGN KEY ("oauthUserId") REFERENCES "OAuthUser" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+prisma/migrations/202605050009_oauth_client_credentials_tokens/migration.sql:24:    "oauthUserId",
+prisma/migrations/202605050009_oauth_client_credentials_tokens/migration.sql:29:    "issuedAt",
+prisma/migrations/202605050009_oauth_client_credentials_tokens/migration.sql:38:    "oauthUserId",
+prisma/migrations/202605050009_oauth_client_credentials_tokens/migration.sql:43:    "issuedAt",
+prisma/migrations/202605050009_oauth_client_credentials_tokens/migration.sql:54:CREATE INDEX "OAuthIssuedToken_oauthClientId_oauthUserId_idx" ON "OAuthIssuedToken"("oauthClientId", "oauthUserId");
+tests/unit/oauth-token.test.ts:16:  issueOAuthClientCredentialsToken,
+tests/unit/oauth-token.test.ts:68:test("authorization_code exchange issues RS256 JWT claims and stores token metadata", async () => {
+tests/unit/oauth-token.test.ts:90:        issuer: "https://issuer.example",
+tests/unit/oauth-token.test.ts:107:    assert.equal(decoded.payload.iss, "https://issuer.example");
+tests/unit/oauth-token.test.ts:112:    assert.equal(decoded.payload.grant_type, "authorization_code");
+tests/unit/oauth-token.test.ts:115:    assert.deepEqual(decoded.payload.endpoint_permissions, ["endpoint_default_echo"]);
+tests/unit/oauth-token.test.ts:121:    assert.equal(storedToken.oauthUserId, login.user.id);
+tests/unit/oauth-token.test.ts:130:test("client_credentials exchange issues client-subject JWT with scoped endpoint intersection", async () => {
+tests/unit/oauth-token.test.ts:152:    const narrowed = await issueOAuthClientCredentialsToken(
+tests/unit/oauth-token.test.ts:154:        grantType: "client_credentials",
+tests/unit/oauth-token.test.ts:159:        issuer: "https://issuer.example",
+tests/unit/oauth-token.test.ts:171:    assert.equal(narrowedClaims.iss, "https://issuer.example");
+tests/unit/oauth-token.test.ts:176:    assert.equal(narrowedClaims.grant_type, "client_credentials");
+tests/unit/oauth-token.test.ts:177:    assert.deepEqual(narrowedClaims.endpoint_permissions, ["endpoint_client_extra"]);
+tests/unit/oauth-token.test.ts:181:    assert.equal(storedNarrowed.oauthUserId, null);
+tests/unit/oauth-token.test.ts:182:    assert.equal(storedNarrowed.grantType, "client_credentials");
+tests/unit/oauth-token.test.ts:189:        grantType: "client_credentials",
+tests/unit/oauth-token.test.ts:192:        issuer: "https://issuer.example",
+tests/unit/oauth-token.test.ts:200:    assert.deepEqual(fullClaims.endpoint_permissions, ["endpoint_client_extra", "endpoint_default_echo"]);
+tests/unit/oauth-token.test.ts:204:test("client_credentials exchange rejects invalid credentials and disabled clients", async () => {
+tests/unit/oauth-token.test.ts:220:        issueOAuthClientCredentialsToken(
+tests/unit/oauth-token.test.ts:222:            grantType: "client_credentials",
+tests/unit/oauth-token.test.ts:234:        issueOAuthClientCredentialsToken(
+tests/unit/oauth-token.test.ts:236:            grantType: "client_credentials",
+tests/unit/oauth-token.test.ts:249:        issueOAuthClientCredentialsToken(
+tests/unit/oauth-token.test.ts:251:            grantType: "client_credentials",
+tests/unit/oauth-token.test.ts:371:      (error: unknown) => error instanceof OAuthTokenError && error.code === "unsupported_grant_type",
+tests/unit/oauth-authorize.test.ts:98:    assert.equal(stored.oauthUserId, login.user.id);
+prisma/migrations/202605050007_oauth_authorization_codes/migration.sql:5:    "oauthUserId" TEXT NOT NULL,
+prisma/migrations/202605050007_oauth_authorization_codes/migration.sql:13:    CONSTRAINT "OAuthAuthorizationCode_oauthUserId_fkey" FOREIGN KEY ("oauthUserId") REFERENCES "OAuthUser" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+prisma/migrations/202605050007_oauth_authorization_codes/migration.sql:28:CREATE INDEX "OAuthAuthorizationCode_oauthClientId_oauthUserId_idx" ON "OAuthAuthorizationCode"("oauthClientId", "oauthUserId");
+prisma/migrations/202605050008_oauth_issued_tokens/migration.sql:5:    "oauthUserId" TEXT NOT NULL,
+prisma/migrations/202605050008_oauth_issued_tokens/migration.sql:10:    "issuedAt" DATETIME NOT NULL,
+prisma/migrations/202605050008_oauth_issued_tokens/migration.sql:15:    CONSTRAINT "OAuthIssuedToken_oauthUserId_fkey" FOREIGN KEY ("oauthUserId") REFERENCES "OAuthUser" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+prisma/migrations/202605050008_oauth_issued_tokens/migration.sql:20:CREATE INDEX "OAuthIssuedToken_oauthClientId_oauthUserId_idx" ON "OAuthIssuedToken"("oauthClientId", "oauthUserId");
+app/oauth-clients/oauth-clients-manager.tsx:74:  const [issuedSecret, setIssuedSecret] = useState("");
+app/oauth-clients/oauth-clients-manager.tsx:307:        {issuedSecret ? (
+app/oauth-clients/oauth-clients-manager.tsx:311:              <code>{issuedSecret}</code>
+app/oauth-clients/oauth-clients-manager.tsx:313:            <button className="secondary-button" type="button" onClick={() => void navigator.clipboard?.writeText(issuedSecret)}>
+app/oauth/token/route.ts:7:    const issuer = new URL(request.url).origin;
+app/oauth/token/route.ts:8:    const result = await exchangeOAuthToken(oauthTokenInputFromFormData(await request.formData(), issuer));
+docs/exec-plans/completed/016-oauth-code-token-jwt.md:47:- JWT claims include issuer, audience/resource, subject, client_id, grant_type, iat, exp, jti, scope, and endpoint_permissions.
+docs/exec-plans/completed/016-oauth-code-token-jwt.md:53:- Do not implement client_credentials in this task.
+docs/exec-plans/completed/016-oauth-code-token-jwt.md:55:- Do not omit endpoint_permissions from the token.
+docs/exec-plans/completed/016-oauth-code-token-jwt.md:62:- Persist issued token metadata.
+
+codex
+{"decision":"not_done","recommend_promotion":false,"confidence":0,"summary":"The task is mapped to the OAuth consent/token spec, and the required docs now mention client credentials. I’m checking the implementation details for fail-closed handling, claim shape, scope intersection, and whether tests prove the exact requested behavior.","satisfied_exit_criteria":[],"missing_requirements":[],"human_review_triggers":[]}
+exec
+/bin/zsh -lc "sed -n '780,1040p' lib/oauth/service.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+        metadata: {
+          oauthClientId: context.client.id,
+          oauthUserId: context.user.id,
+          redirectUri: context.request.redirectUri,
+          resource: context.request.resource,
+          selectedEndpointCount: selectedEndpointIds.length,
+          expiresAt: created.expiresAt.toISOString(),
+        },
+      },
+      tx,
+    );
+    return tx.oAuthAuthorizationCode.findUniqueOrThrow({
+      where: { id: created.id },
+      include: { selectedEndpoints: true },
+    });
+  });
+
+  return toAuthorizationCodeSummary(code);
+}
+
+export async function exchangeOAuthAuthorizationCode(
+  input: OAuthTokenExchangeInput,
+  client: OAuthTokenExchangeClient = createPrismaClient(),
+): Promise<OAuthTokenExchangeResult> {
+  if (input.grantType !== "authorization_code") {
+    throw new OAuthTokenError("unsupported_grant_type", "Only grant_type=authorization_code is supported.");
+  }
+  if (!input.code || !input.redirectUri || !input.clientId || !input.clientSecret) {
+    throw new OAuthTokenError("invalid_request", "code, redirect_uri, client_id, and client_secret are required.");
+  }
+
+  const now = input.now ?? new Date();
+  const result = await client.$transaction(async (tx) => {
+    const code = await tx.oAuthAuthorizationCode.findUnique({
+      where: { code: input.code },
+      include: {
+        selectedEndpoints: true,
+        oauthClient: true,
+        oauthUser: true,
+      },
+    });
+    if (!code) {
+      throw new OAuthTokenError("invalid_grant", "Authorization code is invalid.");
+    }
+    if (!code.oauthClient.enabled || code.oauthClient.clientId !== input.clientId) {
+      throw new OAuthTokenError("invalid_client", "OAuth client is invalid.");
+    }
+    if (!(await verifyBasicPassword(input.clientSecret, code.oauthClient.secretHash))) {
+      throw new OAuthTokenError("invalid_client", "OAuth client is invalid.");
+    }
+    if (code.redirectUri !== input.redirectUri) {
+      throw new OAuthTokenError("invalid_grant", "redirect_uri does not match the authorization code.");
+    }
+    if (code.usedAt) {
+      throw new OAuthTokenError("invalid_grant", "Authorization code has already been used.");
+    }
+    if (code.expiresAt.getTime() <= now.getTime()) {
+      throw new OAuthTokenError("invalid_grant", "Authorization code is expired.");
+    }
+    if (!code.oauthUser.enabled) {
+      throw new OAuthTokenError("invalid_grant", "OAuth user is disabled.");
+    }
+
+    const endpointPermissions = code.selectedEndpoints.map((endpoint) => endpoint.endpointId).sort();
+    const iat = Math.floor(now.getTime() / 1000);
+    const expiresIn = code.oauthUser.accessTokenTtlSeconds;
+    const exp = iat + expiresIn;
+    const jti = `oauth_token_${randomUUID()}`;
+    const scope = endpointScope(endpointPermissions);
+    const claims: OAuthAccessTokenClaims = {
+      iss: oauthIssuer(input.issuer),
+      aud: code.resource,
+      resource: code.resource,
+      sub: code.oauthUser.id,
+      client_id: code.oauthClient.clientId,
+      grant_type: "authorization_code",
+      iat,
+      exp,
+      jti,
+      scope,
+      endpoint_permissions: endpointPermissions,
+    };
+
+    await tx.oAuthAuthorizationCode.update({
+      where: { id: code.id },
+      data: { usedAt: now },
+    });
+    await tx.oAuthIssuedToken.create({
+      data: {
+        id: `oauth_issued_token_${randomUUID()}`,
+        jti,
+        oauthClientId: code.oauthClientId,
+        oauthUserId: code.oauthUserId,
+        grantType: "authorization_code",
+        scope,
+        resource: code.resource,
+        endpointPermissionsJson: JSON.stringify(endpointPermissions),
+        issuedAt: new Date(iat * 1000),
+        expiresAt: new Date(exp * 1000),
+      },
+    });
+    await recordAuditEvent(
+      {
+        eventType: "oauth_token.issue",
+        subjectType: "oauth_issued_token",
+        subjectId: jti,
+        subjectName: code.oauthClient.clientId,
+        outcome: "success",
+        metadata: {
+          grantType: "authorization_code",
+          oauthClientId: code.oauthClientId,
+          oauthUserId: code.oauthUserId,
+          resource: code.resource,
+          endpointPermissionCount: endpointPermissions.length,
+          expiresAt: new Date(exp * 1000).toISOString(),
+        },
+      },
+      tx,
+    );
+
+    return {
+      accessToken: signJwt({ alg: OAUTH_JWT_ALGORITHM, typ: "JWT", kid: OAUTH_JWT_KEY_ID }, claims),
+      expiresIn,
+      scope,
+    };
+  });
+
+  return {
+    access_token: result.accessToken,
+    token_type: "Bearer",
+    expires_in: result.expiresIn,
+    scope: result.scope,
+  };
+}
+
+export async function issueOAuthClientCredentialsToken(
+  input: OAuthTokenExchangeInput,
+  client: OAuthTokenExchangeClient = createPrismaClient(),
+): Promise<OAuthTokenExchangeResult> {
+  if (input.grantType !== "client_credentials") {
+    throw new OAuthTokenError("unsupported_grant_type", "Only grant_type=client_credentials is supported.");
+  }
+  if (!input.clientId || !input.clientSecret) {
+    throw new OAuthTokenError("invalid_request", "client_id and client_secret are required.");
+  }
+
+  const now = input.now ?? new Date();
+  const result = await client.$transaction(async (tx) => {
+    const oauthClient = await tx.oAuthClient.findUnique({
+      where: { clientId: input.clientId },
+      include: { allowedEndpoints: true },
+    });
+    if (!oauthClient?.enabled) {
+      throw new OAuthTokenError("invalid_client", "OAuth client is invalid.");
+    }
+    if (!(await verifyBasicPassword(input.clientSecret, oauthClient.secretHash))) {
+      throw new OAuthTokenError("invalid_client", "OAuth client is invalid.");
+    }
+
+    const endpointPermissions = endpointPermissionsFromRequestedScope(
+      input.scope ?? "",
+      oauthClient.allowedEndpoints.map((endpoint) => endpoint.endpointId),
+    );
+    const iat = Math.floor(now.getTime() / 1000);
+    const expiresIn = oauthClient.clientCredentialsTtlSeconds;
+    const exp = iat + expiresIn;
+    const jti = `oauth_token_${randomUUID()}`;
+    const scope = endpointScope(endpointPermissions);
+    const resource = input.resource || oauthIssuer(input.issuer);
+    const claims: OAuthAccessTokenClaims = {
+      iss: oauthIssuer(input.issuer),
+      aud: resource,
+      resource,
+      sub: `client:${oauthClient.clientId}`,
+      client_id: oauthClient.clientId,
+      grant_type: "client_credentials",
+      iat,
+      exp,
+      jti,
+      scope,
+      endpoint_permissions: endpointPermissions,
+    };
+
+    await tx.oAuthIssuedToken.create({
+      data: {
+        id: `oauth_issued_token_${randomUUID()}`,
+        jti,
+        oauthClientId: oauthClient.id,
+        oauthUserId: null,
+        grantType: "client_credentials",
+        scope,
+        resource,
+        endpointPermissionsJson: JSON.stringify(endpointPermissions),
+        issuedAt: new Date(iat * 1000),
+        expiresAt: new Date(exp * 1000),
+      },
+    });
+    await recordAuditEvent(
+      {
+        eventType: "oauth_token.issue",
+        subjectType: "oauth_issued_token",
+        subjectId: jti,
+        subjectName: oauthClient.clientId,
+        outcome: "success",
+        metadata: {
+          grantType: "client_credentials",
+          oauthClientId: oauthClient.id,
+          oauthUserId: null,
+          resource,
+          endpointPermissionCount: endpointPermissions.length,
+          expiresAt: new Date(exp * 1000).toISOString(),
+        },
+      },
+      tx,
+    );
+
+    return {
+      accessToken: signJwt({ alg: OAUTH_JWT_ALGORITHM, typ: "JWT", kid: OAUTH_JWT_KEY_ID }, claims),
+      expiresIn,
+      scope,
+    };
+  });
+
+  return {
+    access_token: result.accessToken,
+    token_type: "Bearer",
+    expires_in: result.expiresIn,
+    scope: result.scope,
+  };
+}
+
+export async function exchangeOAuthToken(
+  input: OAuthTokenExchangeInput,
+  client: OAuthTokenExchangeClient = createPrismaClient(),
+): Promise<OAuthTokenExchangeResult> {
+  if (input.grantType === "authorization_code") {
+    return exchangeOAuthAuthorizationCode(input, client);
+  }
+  if (input.grantType === "client_credentials") {
+    return issueOAuthClientCredentialsToken(input, client);
+  }
+  throw new OAuthTokenError(
+    "unsupported_grant_type",
+    "Only grant_type=authorization_code and grant_type=client_credentials are supported.",
+  );
+}
+
+exec
+/bin/zsh -lc "sed -n '170,205p' prisma/schema.prisma && sed -n '1,120p' prisma/migrations/202605050009_oauth_client_credentials_tokens/migration.sql" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+
+  @@id([authorizationCodeId, endpointId])
+  @@index([endpointId])
+}
+
+model OAuthIssuedToken {
+  id                      String      @id
+  jti                     String      @unique
+  oauthClientId           String
+  oauthUserId             String?
+  grantType               String
+  scope                   String
+  resource                String
+  endpointPermissionsJson String      @default("[]")
+  issuedAt                DateTime
+  expiresAt               DateTime
+  revokedAt               DateTime?
+  createdAt               DateTime    @default(now())
+  oauthClient             OAuthClient @relation(fields: [oauthClientId], references: [id], onDelete: Cascade)
+  oauthUser               OAuthUser?  @relation(fields: [oauthUserId], references: [id], onDelete: Cascade)
+
+  @@index([jti])
+  @@index([oauthClientId, oauthUserId])
+  @@index([expiresAt])
+  @@index([revokedAt])
+}
+PRAGMA foreign_keys=OFF;
+
+CREATE TABLE "new_OAuthIssuedToken" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "jti" TEXT NOT NULL,
+    "oauthClientId" TEXT NOT NULL,
+    "oauthUserId" TEXT,
+    "grantType" TEXT NOT NULL,
+    "scope" TEXT NOT NULL,
+    "resource" TEXT NOT NULL,
+    "endpointPermissionsJson" TEXT NOT NULL DEFAULT '[]',
+    "issuedAt" DATETIME NOT NULL,
+    "expiresAt" DATETIME NOT NULL,
+    "revokedAt" DATETIME,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "OAuthIssuedToken_oauthClientId_fkey" FOREIGN KEY ("oauthClientId") REFERENCES "OAuthClient" ("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT "OAuthIssuedToken_oauthUserId_fkey" FOREIGN KEY ("oauthUserId") REFERENCES "OAuthUser" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+INSERT INTO "new_OAuthIssuedToken" (
+    "id",
+    "jti",
+    "oauthClientId",
+    "oauthUserId",
+    "grantType",
+    "scope",
+    "resource",
+    "endpointPermissionsJson",
+    "issuedAt",
+    "expiresAt",
+    "revokedAt",
+    "createdAt"
+)
+SELECT
+    "id",
+    "jti",
+    "oauthClientId",
+    "oauthUserId",
+    "grantType",
+    "scope",
+    "resource",
+    "endpointPermissionsJson",
+    "issuedAt",
+    "expiresAt",
+    "revokedAt",
+    "createdAt"
+FROM "OAuthIssuedToken";
+
+DROP TABLE "OAuthIssuedToken";
+ALTER TABLE "new_OAuthIssuedToken" RENAME TO "OAuthIssuedToken";
+
+CREATE UNIQUE INDEX "OAuthIssuedToken_jti_key" ON "OAuthIssuedToken"("jti");
+CREATE INDEX "OAuthIssuedToken_jti_idx" ON "OAuthIssuedToken"("jti");
+CREATE INDEX "OAuthIssuedToken_oauthClientId_oauthUserId_idx" ON "OAuthIssuedToken"("oauthClientId", "oauthUserId");
+CREATE INDEX "OAuthIssuedToken_expiresAt_idx" ON "OAuthIssuedToken"("expiresAt");
+CREATE INDEX "OAuthIssuedToken_revokedAt_idx" ON "OAuthIssuedToken"("revokedAt");
+
+PRAGMA foreign_keys=ON;
+
+exec
+/bin/zsh -lc "sed -n '140,180p' lib/oauth/api.ts && sed -n '220,270p' lib/oauth/types.ts && sed -n '1,80p' app/oauth/token/route.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+        { status: 409 },
+      );
+    }
+    if (error.code === "P2025") {
+      return NextResponse.json({ error: "not_found" }, { status: 404 });
+    }
+  }
+
+  console.error(error);
+  return NextResponse.json({ error: "internal_error" }, { status: 500 });
+}
+
+export function oauthTokenInputFromFormData(formData: FormData, issuer?: string): OAuthTokenExchangeInput {
+  return {
+    grantType: String(formData.get("grant_type") ?? "").trim(),
+    code: String(formData.get("code") ?? "").trim(),
+    redirectUri: String(formData.get("redirect_uri") ?? "").trim(),
+    clientId: String(formData.get("client_id") ?? "").trim(),
+    clientSecret: String(formData.get("client_secret") ?? ""),
+    scope: String(formData.get("scope") ?? "").trim(),
+    resource: String(formData.get("resource") ?? "").trim(),
+    issuer,
+  };
+}
+
+export function oauthTokenErrorResponse(error: unknown) {
+  if (error instanceof OAuthTokenError) {
+    return NextResponse.json(
+      { error: error.code, error_description: error.message },
+      {
+        status: error.status,
+        headers: error.code === "invalid_client" ? { "WWW-Authenticate": 'Basic realm="oauth-token"' } : undefined,
+      },
+    );
+  }
+
+  console.error(error);
+  return NextResponse.json({ error: "server_error" }, { status: 500 });
+}
+}
+
+export type OAuthTokenExchangeInput = {
+  grantType: string;
+  code: string;
+  redirectUri: string;
+  clientId: string;
+  clientSecret: string;
+  scope?: string;
+  resource?: string;
+  issuer?: string;
+  now?: Date;
+};
+
+export type OAuthAccessTokenClaims = {
+  iss: string;
+  aud: string;
+  resource: string;
+  sub: string;
+  client_id: string;
+  grant_type: "authorization_code" | "client_credentials";
+  iat: number;
+  exp: number;
+  jti: string;
+  scope: string;
+  endpoint_permissions: string[];
+};
+
+export type OAuthTokenExchangeResult = {
+  access_token: string;
+  token_type: "Bearer";
+  expires_in: number;
+  scope: string;
+};
+
+export class OAuthTokenError extends Error {
+  constructor(
+    public readonly code: "invalid_request" | "invalid_client" | "invalid_grant" | "unsupported_grant_type",
+    message: string,
+    public readonly status = code === "invalid_client" ? 401 : 400,
+  ) {
+    super(message);
+  }
+}
+import { NextResponse } from "next/server";
+import { oauthTokenErrorResponse, oauthTokenInputFromFormData } from "@/lib/oauth/api";
+import { exchangeOAuthToken } from "@/lib/oauth/service";
+
+export async function POST(request: Request) {
+  try {
+    const issuer = new URL(request.url).origin;
+    const result = await exchangeOAuthToken(oauthTokenInputFromFormData(await request.formData(), issuer));
+    return NextResponse.json(result, {
+      status: 200,
+      headers: { "Cache-Control": "no-store", Pragma: "no-cache" },
+    });
+  } catch (error) {
+    return oauthTokenErrorResponse(error);
+  }
+}
+
+exec
+/bin/zsh -lc "sed -n '120,220p' tests/unit/oauth-token.test.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+exec
+/bin/zsh -lc "rg -n \"function endpointPermissionsFromRequestedScope|endpointScope\\(\" lib/oauth/service.ts -C 4" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+    assert.equal(storedToken.oauthClientId, login.client.id);
+    assert.equal(storedToken.oauthUserId, login.user.id);
+    assert.equal(storedToken.grantType, "authorization_code");
+    assert.equal(storedToken.scope, "endpoint:endpoint_default_echo");
+    assert.equal(storedToken.resource, "https://resource.example/mcp");
+    assert.equal(storedToken.endpointPermissionsJson, JSON.stringify(["endpoint_default_echo"]));
+    assert.equal(storedToken.revokedAt, null);
+  });
+});
+
+test("client_credentials exchange issues client-subject JWT with scoped endpoint intersection", async () => {
+  await withIsolatedDb(async (client) => {
+    await client.endpoint.create({
+      data: {
+        id: "endpoint_client_extra",
+        name: "client-extra",
+        title: "Client Extra",
+        defaultResponseJson: JSON.stringify({ ok: true }),
+      },
+    });
+    const created = await createOAuthClient(
+      {
+        clientId: "machine-client",
+        displayName: "Machine Client",
+        enabled: true,
+        redirectUris: ["http://localhost:3000/callback"],
+        clientCredentialsTtlSeconds: 900,
+        allowedEndpointIds: ["endpoint_default_echo", "endpoint_client_extra"],
+      },
+      client,
+    );
+
+    const narrowed = await issueOAuthClientCredentialsToken(
+      {
+        grantType: "client_credentials",
+        clientId: "machine-client",
+        clientSecret: created.clientSecret,
+        scope: "endpoint:endpoint_client_extra endpoint:missing profile endpoint:endpoint_client_extra",
+        resource: "https://resource.example/machine",
+        issuer: "https://issuer.example",
+        now: new Date("2026-05-05T00:00:00.000Z"),
+        code: "",
+        redirectUri: "",
+      },
+      client,
+    );
+    const narrowedClaims = decodeJwt(narrowed.access_token).payload;
+
+    assert.equal(narrowed.token_type, "Bearer");
+    assert.equal(narrowed.expires_in, 900);
+    assert.equal(narrowed.scope, "endpoint:endpoint_client_extra");
+    assert.equal(narrowedClaims.iss, "https://issuer.example");
+    assert.equal(narrowedClaims.aud, "https://resource.example/machine");
+    assert.equal(narrowedClaims.resource, "https://resource.example/machine");
+    assert.equal(narrowedClaims.sub, "client:machine-client");
+    assert.equal(narrowedClaims.client_id, "machine-client");
+    assert.equal(narrowedClaims.grant_type, "client_credentials");
+    assert.deepEqual(narrowedClaims.endpoint_permissions, ["endpoint_client_extra"]);
+
+    const storedNarrowed = await client.oAuthIssuedToken.findUniqueOrThrow({ where: { jti: narrowedClaims.jti } });
+    assert.equal(storedNarrowed.oauthClientId, created.client.id);
+    assert.equal(storedNarrowed.oauthUserId, null);
+    assert.equal(storedNarrowed.grantType, "client_credentials");
+    assert.equal(storedNarrowed.scope, "endpoint:endpoint_client_extra");
+    assert.equal(storedNarrowed.resource, "https://resource.example/machine");
+    assert.equal(storedNarrowed.endpointPermissionsJson, JSON.stringify(["endpoint_client_extra"]));
+
+    const full = await exchangeOAuthToken(
+      {
+        grantType: "client_credentials",
+        clientId: "machine-client",
+        clientSecret: created.clientSecret,
+        issuer: "https://issuer.example",
+        code: "",
+        redirectUri: "",
+      },
+      client,
+    );
+    const fullClaims = decodeJwt(full.access_token).payload;
+    assert.equal(full.scope, "endpoint:endpoint_client_extra endpoint:endpoint_default_echo");
+    assert.deepEqual(fullClaims.endpoint_permissions, ["endpoint_client_extra", "endpoint_default_echo"]);
+  });
+});
+
+test("client_credentials exchange rejects invalid credentials and disabled clients", async () => {
+  await withIsolatedDb(async (client) => {
+    const created = await createOAuthClient(
+      {
+        clientId: "disabled-machine",
+        displayName: "Disabled Machine",
+        enabled: false,
+        redirectUris: ["http://localhost:3000/callback"],
+        clientCredentialsTtlSeconds: 3600,
+        allowedEndpointIds: ["endpoint_default_echo"],
+      },
+      client,
+    );
+
+    await assert.rejects(
+      () =>
+        issueOAuthClientCredentialsToken(
+
+ succeeded in 0ms:
+184-function oauthIssuer(inputIssuer?: string) {
+185-  return inputIssuer || process.env.OAUTH_ISSUER || process.env.APP_BASE_URL || DEFAULT_OAUTH_ISSUER;
+186-}
+187-
+188:function endpointScope(endpointIds: string[]) {
+189-  return endpointIds.map((endpointId) => `endpoint:${endpointId}`).join(" ");
+190-}
+191-
+192:function endpointPermissionsFromRequestedScope(scope: string, allowedEndpointIds: string[]) {
+193-  if (!scope.trim()) {
+194-    return [...allowedEndpointIds].sort();
+195-  }
+196-  const allowed = new Set(allowedEndpointIds);
+--
+844-    const iat = Math.floor(now.getTime() / 1000);
+845-    const expiresIn = code.oauthUser.accessTokenTtlSeconds;
+846-    const exp = iat + expiresIn;
+847-    const jti = `oauth_token_${randomUUID()}`;
+848:    const scope = endpointScope(endpointPermissions);
+849-    const claims: OAuthAccessTokenClaims = {
+850-      iss: oauthIssuer(input.issuer),
+851-      aud: code.resource,
+852-      resource: code.resource,
+--
+943-    const iat = Math.floor(now.getTime() / 1000);
+944-    const expiresIn = oauthClient.clientCredentialsTtlSeconds;
+945-    const exp = iat + expiresIn;
+946-    const jti = `oauth_token_${randomUUID()}`;
+947:    const scope = endpointScope(endpointPermissions);
+948-    const resource = input.resource || oauthIssuer(input.issuer);
+949-    const claims: OAuthAccessTokenClaims = {
+950-      iss: oauthIssuer(input.issuer),
+951-      aud: resource,
+
+exec
+/bin/zsh -lc "sed -n '1,140p' tests/e2e/oauth-client-credentials.spec.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import { expect, test } from "@playwright/test";
+import { createPrismaClient } from "@/lib/db/client";
+
+test.setTimeout(60_000);
+
+function decodeJwt(token: string) {
+  const [, encodedPayload] = token.split(".");
+  expect(encodedPayload).toBeTruthy();
+  return JSON.parse(Buffer.from(encodedPayload ?? "", "base64url").toString("utf8"));
+}
+
+test("OAuth client_credentials issues tokens with endpoint scope intersection @oauth-client-credentials", async ({
+  request,
+}) => {
+  const clientId = `cc-client-${Date.now()}`;
+  const endpointId = `endpoint_cc_${Date.now()}`;
+  const prisma = createPrismaClient();
+  try {
+    await prisma.endpoint.create({
+      data: {
+        id: endpointId,
+        name: `cc-tool-${Date.now()}`,
+        title: "Client credentials E2E tool",
+        defaultResponseJson: JSON.stringify({ ok: true }),
+      },
+    });
+  } finally {
+    await prisma.$disconnect();
+  }
+
+  const createResponse = await request.post("/api/oauth-clients", {
+    data: {
+      clientId,
+      displayName: "Client Credentials E2E",
+      enabled: true,
+      redirectUris: ["http://localhost:3000/oauth/callback"],
+      clientCredentialsTtlSeconds: 900,
+      allowedEndpointIds: ["endpoint_default_echo", endpointId],
+    },
+  });
+  expect(createResponse.status()).toBe(201);
+  const created = await createResponse.json();
+  const oauthClientId = created.client.id as string;
+  const clientSecret = created.clientSecret as string;
+
+  const narrowedResponse = await request.post("/oauth/token", {
+    form: {
+      grant_type: "client_credentials",
+      client_id: clientId,
+      client_secret: clientSecret,
+      scope: `endpoint:${endpointId} endpoint:not_allowed profile endpoint:${endpointId}`,
+      resource: "https://resource.example/client-credentials",
+    },
+  });
+  expect(narrowedResponse.status()).toBe(200);
+  const narrowedPayload = await narrowedResponse.json();
+  expect(narrowedPayload.token_type).toBe("Bearer");
+  expect(narrowedPayload.expires_in).toBe(900);
+  expect(narrowedPayload.scope).toBe(`endpoint:${endpointId}`);
+  expect(narrowedPayload.access_token).toMatch(/^eyJ/);
+
+  const claims = decodeJwt(narrowedPayload.access_token);
+  expect(claims.client_id).toBe(clientId);
+  expect(claims.sub).toBe(`client:${clientId}`);
+  expect(claims.grant_type).toBe("client_credentials");
+  expect(claims.resource).toBe("https://resource.example/client-credentials");
+  expect(claims.endpoint_permissions).toEqual([endpointId]);
+
+  const fullResponse = await request.post("/oauth/token", {
+    form: {
+      grant_type: "client_credentials",
+      client_id: clientId,
+      client_secret: clientSecret,
+    },
+  });
+  expect(fullResponse.status()).toBe(200);
+  const fullPayload = await fullResponse.json();
+  expect(fullPayload.scope).toBe(`endpoint:${endpointId} endpoint:endpoint_default_echo`);
+  expect(decodeJwt(fullPayload.access_token).endpoint_permissions).toEqual([endpointId, "endpoint_default_echo"]);
+
+  const invalidSecretResponse = await request.post("/oauth/token", {
+    form: {
+      grant_type: "client_credentials",
+      client_id: clientId,
+      client_secret: "wrong",
+    },
+  });
+  expect(invalidSecretResponse.status()).toBe(401);
+  expect(await invalidSecretResponse.json()).toMatchObject({
+    error: "invalid_client",
+    error_description: "OAuth client is invalid.",
+  });
+
+  const disableResponse = await request.patch(`/api/oauth-clients/${oauthClientId}`, { data: { enabled: false } });
+  expect(disableResponse.status()).toBe(200);
+  const disabledResponse = await request.post("/oauth/token", {
+    form: {
+      grant_type: "client_credentials",
+      client_id: clientId,
+      client_secret: clientSecret,
+    },
+  });
+  expect(disabledResponse.status()).toBe(401);
+  expect(await disabledResponse.json()).toMatchObject({ error: "invalid_client" });
+});
+
+exec
+/bin/zsh -lc "sed -n '188,210p' lib/oauth/service.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+function endpointScope(endpointIds: string[]) {
+  return endpointIds.map((endpointId) => `endpoint:${endpointId}`).join(" ");
+}
+
+function endpointPermissionsFromRequestedScope(scope: string, allowedEndpointIds: string[]) {
+  if (!scope.trim()) {
+    return [...allowedEndpointIds].sort();
+  }
+  const allowed = new Set(allowedEndpointIds);
+  const requested = scope
+    .split(/\s+/)
+    .map((value) => value.trim())
+    .filter((value) => value.startsWith("endpoint:"))
+    .map((value) => value.slice("endpoint:".length))
+    .filter((endpointId) => endpointId && allowed.has(endpointId));
+
+  return Array.from(new Set(requested)).sort();
+}
+
+async function assertAllowedEndpointsExist(endpointIds: string[], client: OAuthClientEndpointLookupClient) {
+  if (endpointIds.length === 0) {
+    return;
+  }
+
+exec
+/bin/zsh -lc "sed -n '204,385p' tests/unit/oauth-token.test.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+test("client_credentials exchange rejects invalid credentials and disabled clients", async () => {
+  await withIsolatedDb(async (client) => {
+    const created = await createOAuthClient(
+      {
+        clientId: "disabled-machine",
+        displayName: "Disabled Machine",
+        enabled: false,
+        redirectUris: ["http://localhost:3000/callback"],
+        clientCredentialsTtlSeconds: 3600,
+        allowedEndpointIds: ["endpoint_default_echo"],
+      },
+      client,
+    );
+
+    await assert.rejects(
+      () =>
+        issueOAuthClientCredentialsToken(
+          {
+            grantType: "client_credentials",
+            clientId: "missing-machine",
+            clientSecret: "secret",
+            code: "",
+            redirectUri: "",
+          },
+          client,
+        ),
+      (error: unknown) => error instanceof OAuthTokenError && error.code === "invalid_client" && error.status === 401,
+    );
+    await assert.rejects(
+      () =>
+        issueOAuthClientCredentialsToken(
+          {
+            grantType: "client_credentials",
+            clientId: "disabled-machine",
+            clientSecret: created.clientSecret,
+            code: "",
+            redirectUri: "",
+          },
+          client,
+        ),
+      (error: unknown) => error instanceof OAuthTokenError && error.code === "invalid_client" && error.status === 401,
+    );
+    await client.oAuthClient.update({ where: { id: created.client.id }, data: { enabled: true } });
+    await assert.rejects(
+      () =>
+        issueOAuthClientCredentialsToken(
+          {
+            grantType: "client_credentials",
+            clientId: "disabled-machine",
+            clientSecret: "wrong",
+            code: "",
+            redirectUri: "",
+          },
+          client,
+        ),
+      (error: unknown) => error instanceof OAuthTokenError && error.code === "invalid_client" && error.status === 401,
+    );
+  });
+});
+
+test("authorization_code exchange rejects reuse, redirect mismatch, expired code, invalid client, and unsupported grants", async () => {
+  await withIsolatedDb(async (client) => {
+    const login = await loginOAuthUserForConsent(
+      { authorizeRequest: defaultAuthorizeRequest(), username: "default", password: "default" },
+      client,
+    );
+    const makeCode = async () =>
+      createOAuthAuthorizationCode(
+        {
+          authorizeRequest: defaultAuthorizeRequest(),
+          loginTicket: login.loginTicket,
+          selectedEndpointIds: ["endpoint_default_echo"],
+        },
+        client,
+      );
+
+    const code = await makeCode();
+    await exchangeOAuthAuthorizationCode(
+      {
+        grantType: "authorization_code",
+        code: code.code,
+        redirectUri: DEFAULT_OAUTH_CLIENT_REDIRECT_URI,
+        clientId: "default",
+        clientSecret: "default",
+      },
+      client,
+    );
+    await assert.rejects(
+      () =>
+        exchangeOAuthAuthorizationCode(
+          {
+            grantType: "authorization_code",
+            code: code.code,
+            redirectUri: DEFAULT_OAUTH_CLIENT_REDIRECT_URI,
+            clientId: "default",
+            clientSecret: "default",
+          },
+          client,
+        ),
+      (error: unknown) => error instanceof OAuthTokenError && error.code === "invalid_grant",
+    );
+
+    const mismatchCode = await makeCode();
+    await assert.rejects(
+      () =>
+        exchangeOAuthAuthorizationCode(
+          {
+            grantType: "authorization_code",
+            code: mismatchCode.code,
+            redirectUri: "http://localhost:3000/wrong",
+            clientId: "default",
+            clientSecret: "default",
+          },
+          client,
+        ),
+      (error: unknown) => error instanceof OAuthTokenError && error.code === "invalid_grant",
+    );
+
+    const invalidClientCode = await makeCode();
+    await assert.rejects(
+      () =>
+        exchangeOAuthAuthorizationCode(
+          {
+            grantType: "authorization_code",
+            code: invalidClientCode.code,
+            redirectUri: DEFAULT_OAUTH_CLIENT_REDIRECT_URI,
+            clientId: "default",
+            clientSecret: "wrong",
+          },
+          client,
+        ),
+      (error: unknown) => error instanceof OAuthTokenError && error.code === "invalid_client" && error.status === 401,
+    );
+
+    const expiredCode = await makeCode();
+    await client.oAuthAuthorizationCode.update({
+      where: { code: expiredCode.code },
+      data: { expiresAt: new Date("2026-05-05T00:00:00.000Z") },
+    });
+    await assert.rejects(
+      () =>
+        exchangeOAuthAuthorizationCode(
+          {
+            grantType: "authorization_code",
+            code: expiredCode.code,
+            redirectUri: DEFAULT_OAUTH_CLIENT_REDIRECT_URI,
+            clientId: "default",
+            clientSecret: "default",
+            now: new Date("2026-05-05T00:00:01.000Z"),
+          },
+          client,
+        ),
+      (error: unknown) => error instanceof OAuthTokenError && error.code === "invalid_grant",
+    );
+
+    await assert.rejects(
+      () =>
+        exchangeOAuthAuthorizationCode(
+          {
+            grantType: "password",
+            code: "unused",
+            redirectUri: DEFAULT_OAUTH_CLIENT_REDIRECT_URI,
+            clientId: "default",
+            clientSecret: "default",
+          },
+          client,
+        ),
+      (error: unknown) => error instanceof OAuthTokenError && error.code === "unsupported_grant_type",
+    );
+  });
+});
+
+exec
+/bin/zsh -lc 'find docs/exec-plans/active -maxdepth 1 -type f -print | sort' in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+docs/exec-plans/active/017-oauth-client-credentials-grant.md
+docs/exec-plans/active/018-oauth-discovery-metadata.md
+docs/exec-plans/active/019-oauth-mcp-rest-permission-enforcement.md
+docs/exec-plans/active/020-issued-token-ui-revocation.md
+docs/exec-plans/active/021-failure-delay-forced-error-runtime.md
+docs/exec-plans/active/022-malformed-response-console-audit.md
+docs/exec-plans/active/023-operator-config-health-logs.md
+docs/exec-plans/active/024-docker-nginx-final-hardening.md
+docs/exec-plans/active/index.md
+
+exec
+/bin/zsh -lc 'git diff -- app/oauth/token/route.ts lib/oauth/api.ts lib/oauth/service.ts lib/oauth/types.ts prisma/schema.prisma tests/unit/oauth-token.test.ts tests/e2e/oauth-client-credentials.spec.ts' in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+git: warning: confstr() failed with code 5: couldn't get path of DARWIN_USER_TEMP_DIR; using /tmp instead
+git: error: couldn't create cache file '/tmp/xcrun_db-gv0L6xOG' (errno=Operation not permitted)
+git: warning: confstr() failed with code 5: couldn't get path of DARWIN_USER_TEMP_DIR; using /tmp instead
+git: error: couldn't create cache file '/tmp/xcrun_db-FJ1pg32q' (errno=Operation not permitted)
+diff --git a/app/oauth/token/route.ts b/app/oauth/token/route.ts
+index 0039291..bf5f5f4 100644
+--- a/app/oauth/token/route.ts
++++ b/app/oauth/token/route.ts
+@@ -1,11 +1,11 @@
+ import { NextResponse } from "next/server";
+ import { oauthTokenErrorResponse, oauthTokenInputFromFormData } from "@/lib/oauth/api";
+-import { exchangeOAuthAuthorizationCode } from "@/lib/oauth/service";
++import { exchangeOAuthToken } from "@/lib/oauth/service";
+ 
+ export async function POST(request: Request) {
+   try {
+     const issuer = new URL(request.url).origin;
+-    const result = await exchangeOAuthAuthorizationCode(oauthTokenInputFromFormData(await request.formData(), issuer));
++    const result = await exchangeOAuthToken(oauthTokenInputFromFormData(await request.formData(), issuer));
+     return NextResponse.json(result, {
+       status: 200,
+       headers: { "Cache-Control": "no-store", Pragma: "no-cache" },
+diff --git a/lib/oauth/api.ts b/lib/oauth/api.ts
+index 9bc9637..48ae069 100644
+--- a/lib/oauth/api.ts
++++ b/lib/oauth/api.ts
+@@ -156,6 +156,8 @@ export function oauthTokenInputFromFormData(formData: FormData, issuer?: string)
+     redirectUri: String(formData.get("redirect_uri") ?? "").trim(),
+     clientId: String(formData.get("client_id") ?? "").trim(),
+     clientSecret: String(formData.get("client_secret") ?? ""),
++    scope: String(formData.get("scope") ?? "").trim(),
++    resource: String(formData.get("resource") ?? "").trim(),
+     issuer,
+   };
+ }
+diff --git a/lib/oauth/service.ts b/lib/oauth/service.ts
+index e500c2c..54d8b69 100644
+--- a/lib/oauth/service.ts
++++ b/lib/oauth/service.ts
+@@ -189,6 +189,21 @@ function endpointScope(endpointIds: string[]) {
+   return endpointIds.map((endpointId) => `endpoint:${endpointId}`).join(" ");
+ }
+ 
++function endpointPermissionsFromRequestedScope(scope: string, allowedEndpointIds: string[]) {
++  if (!scope.trim()) {
++    return [...allowedEndpointIds].sort();
++  }
++  const allowed = new Set(allowedEndpointIds);
++  const requested = scope
++    .split(/\s+/)
++    .map((value) => value.trim())
++    .filter((value) => value.startsWith("endpoint:"))
++    .map((value) => value.slice("endpoint:".length))
++    .filter((endpointId) => endpointId && allowed.has(endpointId));
++
++  return Array.from(new Set(requested)).sort();
++}
++
+ async function assertAllowedEndpointsExist(endpointIds: string[], client: OAuthClientEndpointLookupClient) {
+   if (endpointIds.length === 0) {
+     return;
+@@ -896,3 +911,115 @@ export async function exchangeOAuthAuthorizationCode(
+     scope: result.scope,
+   };
+ }
++
++export async function issueOAuthClientCredentialsToken(
++  input: OAuthTokenExchangeInput,
++  client: OAuthTokenExchangeClient = createPrismaClient(),
++): Promise<OAuthTokenExchangeResult> {
++  if (input.grantType !== "client_credentials") {
++    throw new OAuthTokenError("unsupported_grant_type", "Only grant_type=client_credentials is supported.");
++  }
++  if (!input.clientId || !input.clientSecret) {
++    throw new OAuthTokenError("invalid_request", "client_id and client_secret are required.");
++  }
++
++  const now = input.now ?? new Date();
++  const result = await client.$transaction(async (tx) => {
++    const oauthClient = await tx.oAuthClient.findUnique({
++      where: { clientId: input.clientId },
++      include: { allowedEndpoints: true },
++    });
++    if (!oauthClient?.enabled) {
++      throw new OAuthTokenError("invalid_client", "OAuth client is invalid.");
++    }
++    if (!(await verifyBasicPassword(input.clientSecret, oauthClient.secretHash))) {
++      throw new OAuthTokenError("invalid_client", "OAuth client is invalid.");
++    }
++
++    const endpointPermissions = endpointPermissionsFromRequestedScope(
++      input.scope ?? "",
++      oauthClient.allowedEndpoints.map((endpoint) => endpoint.endpointId),
++    );
++    const iat = Math.floor(now.getTime() / 1000);
++    const expiresIn = oauthClient.clientCredentialsTtlSeconds;
++    const exp = iat + expiresIn;
++    const jti = `oauth_token_${randomUUID()}`;
++    const scope = endpointScope(endpointPermissions);
++    const resource = input.resource || oauthIssuer(input.issuer);
++    const claims: OAuthAccessTokenClaims = {
++      iss: oauthIssuer(input.issuer),
++      aud: resource,
++      resource,
++      sub: `client:${oauthClient.clientId}`,
++      client_id: oauthClient.clientId,
++      grant_type: "client_credentials",
++      iat,
++      exp,
++      jti,
++      scope,
++      endpoint_permissions: endpointPermissions,
++    };
++
++    await tx.oAuthIssuedToken.create({
++      data: {
++        id: `oauth_issued_token_${randomUUID()}`,
++        jti,
++        oauthClientId: oauthClient.id,
++        oauthUserId: null,
++        grantType: "client_credentials",
++        scope,
++        resource,
++        endpointPermissionsJson: JSON.stringify(endpointPermissions),
++        issuedAt: new Date(iat * 1000),
++        expiresAt: new Date(exp * 1000),
++      },
++    });
++    await recordAuditEvent(
++      {
++        eventType: "oauth_token.issue",
++        subjectType: "oauth_issued_token",
++        subjectId: jti,
++        subjectName: oauthClient.clientId,
++        outcome: "success",
++        metadata: {
++          grantType: "client_credentials",
++          oauthClientId: oauthClient.id,
++          oauthUserId: null,
++          resource,
++          endpointPermissionCount: endpointPermissions.length,
++          expiresAt: new Date(exp * 1000).toISOString(),
++        },
++      },
++      tx,
++    );
++
++    return {
++      accessToken: signJwt({ alg: OAUTH_JWT_ALGORITHM, typ: "JWT", kid: OAUTH_JWT_KEY_ID }, claims),
++      expiresIn,
++      scope,
++    };
++  });
++
++  return {
++    access_token: result.accessToken,
++    token_type: "Bearer",
++    expires_in: result.expiresIn,
++    scope: result.scope,
++  };
++}
++
++export async function exchangeOAuthToken(
++  input: OAuthTokenExchangeInput,
++  client: OAuthTokenExchangeClient = createPrismaClient(),
++): Promise<OAuthTokenExchangeResult> {
++  if (input.grantType === "authorization_code") {
++    return exchangeOAuthAuthorizationCode(input, client);
++  }
++  if (input.grantType === "client_credentials") {
++    return issueOAuthClientCredentialsToken(input, client);
++  }
++  throw new OAuthTokenError(
++    "unsupported_grant_type",
++    "Only grant_type=authorization_code and grant_type=client_credentials are supported.",
++  );
++}
+diff --git a/lib/oauth/types.ts b/lib/oauth/types.ts
+index 91e8288..eb78e41 100644
+--- a/lib/oauth/types.ts
++++ b/lib/oauth/types.ts
+@@ -225,6 +225,8 @@ export type OAuthTokenExchangeInput = {
+   redirectUri: string;
+   clientId: string;
+   clientSecret: string;
++  scope?: string;
++  resource?: string;
+   issuer?: string;
+   now?: Date;
+ };
+@@ -235,7 +237,7 @@ export type OAuthAccessTokenClaims = {
+   resource: string;
+   sub: string;
+   client_id: string;
+-  grant_type: "authorization_code";
++  grant_type: "authorization_code" | "client_credentials";
+   iat: number;
+   exp: number;
+   jti: string;
+diff --git a/prisma/schema.prisma b/prisma/schema.prisma
+index fb692de..bb55032 100644
+--- a/prisma/schema.prisma
++++ b/prisma/schema.prisma
+@@ -176,7 +176,7 @@ model OAuthIssuedToken {
+   id                      String      @id
+   jti                     String      @unique
+   oauthClientId           String
+-  oauthUserId             String
++  oauthUserId             String?
+   grantType               String
+   scope                   String
+   resource                String
+@@ -186,7 +186,7 @@ model OAuthIssuedToken {
+   revokedAt               DateTime?
+   createdAt               DateTime    @default(now())
+   oauthClient             OAuthClient @relation(fields: [oauthClientId], references: [id], onDelete: Cascade)
+-  oauthUser               OAuthUser   @relation(fields: [oauthUserId], references: [id], onDelete: Cascade)
++  oauthUser               OAuthUser?  @relation(fields: [oauthUserId], references: [id], onDelete: Cascade)
+ 
+   @@index([jti])
+   @@index([oauthClientId, oauthUserId])
+diff --git a/tests/unit/oauth-token.test.ts b/tests/unit/oauth-token.test.ts
+index 87531c2..8f5325f 100644
+--- a/tests/unit/oauth-token.test.ts
++++ b/tests/unit/oauth-token.test.ts
+@@ -8,7 +8,14 @@ import { promisify } from "node:util";
+ import test from "node:test";
+ import { createPrismaClient } from "@/lib/db/client";
+ import { seedAllDefaults } from "@/lib/db/seed";
+-import { createOAuthAuthorizationCode, exchangeOAuthAuthorizationCode, loginOAuthUserForConsent } from "@/lib/oauth/service";
++import {
++  createOAuthAuthorizationCode,
++  createOAuthClient,
++  exchangeOAuthAuthorizationCode,
++  exchangeOAuthToken,
++  issueOAuthClientCredentialsToken,
++  loginOAuthUserForConsent,
++} from "@/lib/oauth/service";
+ import { DEFAULT_OAUTH_CLIENT_REDIRECT_URI, DEFAULT_OAUTH_PRIVATE_KEY_PEM, OAuthTokenError } from "@/lib/oauth/types";
+ 
+ const execFileAsync = promisify(execFile);
+@@ -120,6 +127,140 @@ test("authorization_code exchange issues RS256 JWT claims and stores token metad
+   });
+ });
+ 
++test("client_credentials exchange issues client-subject JWT with scoped endpoint intersection", async () => {
++  await withIsolatedDb(async (client) => {
++    await client.endpoint.create({
++      data: {
++        id: "endpoint_client_extra",
++        name: "client-extra",
++        title: "Client Extra",
++        defaultResponseJson: JSON.stringify({ ok: true }),
++      },
++    });
++    const created = await createOAuthClient(
++      {
++        clientId: "machine-client",
++        displayName: "Machine Client",
++        enabled: true,
++        redirectUris: ["http://localhost:3000/callback"],
++        clientCredentialsTtlSeconds: 900,
++        allowedEndpointIds: ["endpoint_default_echo", "endpoint_client_extra"],
++      },
++      client,
++    );
++
++    const narrowed = await issueOAuthClientCredentialsToken(
++      {
++        grantType: "client_credentials",
++        clientId: "machine-client",
++        clientSecret: created.clientSecret,
++        scope: "endpoint:endpoint_client_extra endpoint:missing profile endpoint:endpoint_client_extra",
++        resource: "https://resource.example/machine",
++        issuer: "https://issuer.example",
++        now: new Date("2026-05-05T00:00:00.000Z"),
++        code: "",
++        redirectUri: "",
++      },
++      client,
++    );
++    const narrowedClaims = decodeJwt(narrowed.access_token).payload;
++
++    assert.equal(narrowed.token_type, "Bearer");
++    assert.equal(narrowed.expires_in, 900);
++    assert.equal(narrowed.scope, "endpoint:endpoint_client_extra");
++    assert.equal(narrowedClaims.iss, "https://issuer.example");
++    assert.equal(narrowedClaims.aud, "https://resource.example/machine");
++    assert.equal(narrowedClaims.resource, "https://resource.example/machine");
++    assert.equal(narrowedClaims.sub, "client:machine-client");
++    assert.equal(narrowedClaims.client_id, "machine-client");
++    assert.equal(narrowedClaims.grant_type, "client_credentials");
++    assert.deepEqual(narrowedClaims.endpoint_permissions, ["endpoint_client_extra"]);
++
++    const storedNarrowed = await client.oAuthIssuedToken.findUniqueOrThrow({ where: { jti: narrowedClaims.jti } });
++    assert.equal(storedNarrowed.oauthClientId, created.client.id);
++    assert.equal(storedNarrowed.oauthUserId, null);
++    assert.equal(storedNarrowed.grantType, "client_credentials");
++    assert.equal(storedNarrowed.scope, "endpoint:endpoint_client_extra");
++    assert.equal(storedNarrowed.resource, "https://resource.example/machine");
++    assert.equal(storedNarrowed.endpointPermissionsJson, JSON.stringify(["endpoint_client_extra"]));
++
++    const full = await exchangeOAuthToken(
++      {
++        grantType: "client_credentials",
++        clientId: "machine-client",
++        clientSecret: created.clientSecret,
++        issuer: "https://issuer.example",
++        code: "",
++        redirectUri: "",
++      },
++      client,
++    );
++    const fullClaims = decodeJwt(full.access_token).payload;
++    assert.equal(full.scope, "endpoint:endpoint_client_extra endpoint:endpoint_default_echo");
++    assert.deepEqual(fullClaims.endpoint_permissions, ["endpoint_client_extra", "endpoint_default_echo"]);
++  });
++});
++
++test("client_credentials exchange rejects invalid credentials and disabled clients", async () => {
++  await withIsolatedDb(async (client) => {
++    const created = await createOAuthClient(
++      {
++        clientId: "disabled-machine",
++        displayName: "Disabled Machine",
++        enabled: false,
++        redirectUris: ["http://localhost:3000/callback"],
++        clientCredentialsTtlSeconds: 3600,
++        allowedEndpointIds: ["endpoint_default_echo"],
++      },
++      client,
++    );
++
++    await assert.rejects(
++      () =>
++        issueOAuthClientCredentialsToken(
++          {
++            grantType: "client_credentials",
++            clientId: "missing-machine",
++            clientSecret: "secret",
++            code: "",
++            redirectUri: "",
++          },
++          client,
++        ),
++      (error: unknown) => error instanceof OAuthTokenError && error.code === "invalid_client" && error.status === 401,
++    );
++    await assert.rejects(
++      () =>
++        issueOAuthClientCredentialsToken(
++          {
++            grantType: "client_credentials",
++            clientId: "disabled-machine",
++            clientSecret: created.clientSecret,
++            code: "",
++            redirectUri: "",
++          },
++          client,
++        ),
++      (error: unknown) => error instanceof OAuthTokenError && error.code === "invalid_client" && error.status === 401,
++    );
++    await client.oAuthClient.update({ where: { id: created.client.id }, data: { enabled: true } });
++    await assert.rejects(
++      () =>
++        issueOAuthClientCredentialsToken(
++          {
++            grantType: "client_credentials",
++            clientId: "disabled-machine",
++            clientSecret: "wrong",
++            code: "",
++            redirectUri: "",
++          },
++          client,
++        ),
++      (error: unknown) => error instanceof OAuthTokenError && error.code === "invalid_client" && error.status === 401,
++    );
++  });
++});
++
+ test("authorization_code exchange rejects reuse, redirect mismatch, expired code, invalid client, and unsupported grants", async () => {
+   await withIsolatedDb(async (client) => {
+     const login = await loginOAuthUserForConsent(
+@@ -219,7 +360,7 @@ test("authorization_code exchange rejects reuse, redirect mismatch, expired code
+       () =>
+         exchangeOAuthAuthorizationCode(
+           {
+-            grantType: "client_credentials",
++            grantType: "password",
+             code: "unused",
+             redirectUri: DEFAULT_OAUTH_CLIENT_REDIRECT_URI,
+             clientId: "default",
+
+exec
+/bin/zsh -lc "sed -n '1,220p' state/last-result.txt" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+Implemented `oauth-client-credentials-grant` and wrote the handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+
+What changed: `/oauth/token` now dispatches both `authorization_code` and `client_credentials`; client credentials validate enabled client ID/secret, issue `sub=client:<client_id>` JWTs with `grant_type=client_credentials`, use the client credentials TTL, and compute endpoint permissions from all allowed endpoints or the requested scope intersection. Issued token storage now supports machine tokens with nullable `oauthUserId`.
+
+Added coverage in [tests/unit/oauth-token.test.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/tests/unit/oauth-token.test.ts) and [tests/e2e/oauth-client-credentials.spec.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/tests/e2e/oauth-client-credentials.spec.ts), plus the Prisma migration and scoped docs/progress updates.
+
+Required checks passed:
+- `npm run test:unit`
+- `npm run test:e2e -- --grep @oauth-client-credentials`
+- `npm run verify`
+
+Exit criteria appear satisfied. Nothing remains for this task. Note: there were pre-existing Ralph/state worktree changes before my edits; I left those unrelated changes in place.
+exec
+/bin/zsh -lc "sed -n '68,128p' tests/unit/oauth-token.test.ts && sed -n '60,80p' tests/e2e/oauth-code-token.spec.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+test("authorization_code exchange issues RS256 JWT claims and stores token metadata", async () => {
+  await withIsolatedDb(async (client) => {
+    const login = await loginOAuthUserForConsent(
+      { authorizeRequest: defaultAuthorizeRequest(), username: "default", password: "default" },
+      client,
+    );
+    const code = await createOAuthAuthorizationCode(
+      {
+        authorizeRequest: defaultAuthorizeRequest(),
+        loginTicket: login.loginTicket,
+        selectedEndpointIds: ["endpoint_default_echo"],
+      },
+      client,
+    );
+
+    const result = await exchangeOAuthAuthorizationCode(
+      {
+        grantType: "authorization_code",
+        code: code.code,
+        redirectUri: DEFAULT_OAUTH_CLIENT_REDIRECT_URI,
+        clientId: "default",
+        clientSecret: "default",
+        issuer: "https://issuer.example",
+        now: new Date("2026-05-05T00:00:00.000Z"),
+      },
+      client,
+    );
+    const decoded = decodeJwt(result.access_token);
+    const publicKey = createPublicKey(DEFAULT_OAUTH_PRIVATE_KEY_PEM).export({ type: "spki", format: "pem" });
+    const verified = createVerify("RSA-SHA256")
+      .update(decoded.signingInput)
+      .end()
+      .verify(publicKey, decoded.signature, "base64url");
+
+    assert.equal(verified, true);
+    assert.equal(decoded.header.alg, "RS256");
+    assert.equal(result.token_type, "Bearer");
+    assert.equal(result.expires_in, 3600);
+    assert.equal(result.scope, "endpoint:endpoint_default_echo");
+    assert.equal(decoded.payload.iss, "https://issuer.example");
+    assert.equal(decoded.payload.aud, "https://resource.example/mcp");
+    assert.equal(decoded.payload.resource, "https://resource.example/mcp");
+    assert.equal(decoded.payload.sub, login.user.id);
+    assert.equal(decoded.payload.client_id, "default");
+    assert.equal(decoded.payload.grant_type, "authorization_code");
+    assert.equal(decoded.payload.iat, 1777939200);
+    assert.equal(decoded.payload.exp, 1777942800);
+    assert.deepEqual(decoded.payload.endpoint_permissions, ["endpoint_default_echo"]);
+
+    const storedCode = await client.oAuthAuthorizationCode.findUniqueOrThrow({ where: { code: code.code } });
+    const storedToken = await client.oAuthIssuedToken.findUniqueOrThrow({ where: { jti: decoded.payload.jti } });
+    assert.ok(storedCode.usedAt);
+    assert.equal(storedToken.oauthClientId, login.client.id);
+    assert.equal(storedToken.oauthUserId, login.user.id);
+    assert.equal(storedToken.grantType, "authorization_code");
+    assert.equal(storedToken.scope, "endpoint:endpoint_default_echo");
+    assert.equal(storedToken.resource, "https://resource.example/mcp");
+    assert.equal(storedToken.endpointPermissionsJson, JSON.stringify(["endpoint_default_echo"]));
+    assert.equal(storedToken.revokedAt, null);
+  });
+});
+  });
+  expect(tokenResponse.status()).toBe(200);
+  const tokenPayload = await tokenResponse.json();
+  expect(tokenPayload.token_type).toBe("Bearer");
+  expect(tokenPayload.expires_in).toBe(3600);
+  expect(tokenPayload.scope).toBe("endpoint:endpoint_default_echo");
+  expect(tokenPayload.access_token).toMatch(/^eyJ/);
+
+  const claims = decodeJwt(tokenPayload.access_token);
+  expect(claims.iss).toMatch(/^http:\/\/(127\.0\.0\.1|localhost):3100$/);
+  expect(claims.aud).toBe("https://resource.example/token-e2e");
+  expect(claims.resource).toBe("https://resource.example/token-e2e");
+  expect(claims.client_id).toBe(clientId);
+  expect(claims.grant_type).toBe("authorization_code");
+  expect(claims.scope).toBe("endpoint:endpoint_default_echo");
+  expect(claims.endpoint_permissions).toEqual(["endpoint_default_echo"]);
+  expect(typeof claims.jti).toBe("string");
+  expect(claims.exp).toBeGreaterThan(claims.iat);
+
+  const reuseResponse = await request.post("/oauth/token", {
+    form: {
+
+codex
+{"decision":"done","recommend_promotion":true,"confidence":0.9,"summary":"The implementation matches the oauth-consent-and-token-runtime spec for this task. /oauth/token dispatches client_credentials, validates enabled client credentials, issues client-subject RS256 JWTs with grant_type=client_credentials, uses client credentials TTL, persists machine tokens with nullable oauthUserId, and computes endpoint permissions as all allowed endpoints or the requested endpoint-scope intersection. Unit and E2E coverage exercise valid issuance, scope narrowing, no-scope full allowed permissions, invalid credentials, and disabled clients. The mandatory deterministic checks are reported passing.","satisfied_exit_criteria":["Client credentials tokens can be issued for valid clients.","Scope intersection behavior is tested in unit and @oauth-client-credentials E2E coverage.","Invalid, missing, wrong-secret, and disabled clients fail with invalid_client/401 behavior.","Token claims distinguish client_credentials with sub=client:<client_id> from authorization_code user-subject tokens.","Required commands passed: npm run test:unit, npm run test:e2e -- --grep @oauth-client-credentials, and npm run verify.","Task maps directly to docs/product-specs/oauth-consent-and-token-runtime.md and does not implement out-of-scope discovery, bearer enforcement, token UI/revocation, or refresh tokens."],"missing_requirements":[],"human_review_triggers":[]}
+tokens used
+51,519
+{"decision":"done","recommend_promotion":true,"confidence":0.9,"summary":"The implementation matches the oauth-consent-and-token-runtime spec for this task. /oauth/token dispatches client_credentials, validates enabled client credentials, issues client-subject RS256 JWTs with grant_type=client_credentials, uses client credentials TTL, persists machine tokens with nullable oauthUserId, and computes endpoint permissions as all allowed endpoints or the requested endpoint-scope intersection. Unit and E2E coverage exercise valid issuance, scope narrowing, no-scope full allowed permissions, invalid credentials, and disabled clients. The mandatory deterministic checks are reported passing.","satisfied_exit_criteria":["Client credentials tokens can be issued for valid clients.","Scope intersection behavior is tested in unit and @oauth-client-credentials E2E coverage.","Invalid, missing, wrong-secret, and disabled clients fail with invalid_client/401 behavior.","Token claims distinguish client_credentials with sub=client:<client_id> from authorization_code user-subject tokens.","Required commands passed: npm run test:unit, npm run test:e2e -- --grep @oauth-client-credentials, and npm run verify.","Task maps directly to docs/product-specs/oauth-consent-and-token-runtime.md and does not implement out-of-scope discovery, bearer enforcement, token UI/revocation, or refresh tokens."],"missing_requirements":[],"human_review_triggers":[]}
+evaluation: done promotion=true
