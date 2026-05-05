@@ -17,6 +17,7 @@ Define the security posture for MCP Mock Server's current shipped slice.
 
 ## Secrets and Config
 - ROOT_PASSWORD gates reset, delete override, base URL override, and optional historical token deletion
+- Base URL override changes require ROOT_PASSWORD and write non-secret audit evidence for success and failure
 - client secrets and passwords are never logged
 - endpoint delete audit entries store method/reason metadata, not submitted delete codes or root passwords
 - reset audit entries store success/failure reason and seed counts, not submitted root passwords
@@ -35,6 +36,7 @@ Define the security posture for MCP Mock Server's current shipped slice.
 - OAuth discovery metadata must describe implemented mock capabilities only and must not advertise refresh tokens, PKCE, external providers, or unimplemented revocation behavior
 - raw JWT values are shown only at issuance unless a config explicitly permits storage
 - LOG_LEVEL controls verbosity but must not expose secrets even at trace/debug
+- Operator logger metadata redacts secret-looking keys before writing to stdout or `start:logged` log files
 
 ## Public Surfaces
 - public admin UI routes and /api/* mutation endpoints

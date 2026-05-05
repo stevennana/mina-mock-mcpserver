@@ -87,7 +87,7 @@ export async function handleUnifiedMcpPost(request: Request) {
   const authorization = request.headers.get("Authorization");
   const bearer = parseBearerAuthorizationHeader(authorization);
   if (bearer.kind === "bearer" || bearer.kind === "invalid") {
-    const resolution = await resolveOAuthBearerAuthorizationHeader(authorization, request.url);
+    const resolution = await resolveOAuthBearerAuthorizationHeader(authorization, request);
     if (resolution.kind !== "authenticated") {
       return unauthorizedBearerResponse("Authorization header was invalid.");
     }
@@ -107,7 +107,7 @@ export async function handleUnifiedMcpPost(request: Request) {
 }
 
 export async function handleStrictOAuthMcpPost(request: Request) {
-  const resolution = await resolveOAuthBearerAuthorizationHeader(request.headers.get("Authorization"), request.url);
+  const resolution = await resolveOAuthBearerAuthorizationHeader(request.headers.get("Authorization"), request);
   if (resolution.kind !== "authenticated") {
     return unauthorizedBearerResponse();
   }

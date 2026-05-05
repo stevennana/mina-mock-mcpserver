@@ -1,7 +1,7 @@
 import { createPublicKey, createVerify } from "node:crypto";
 import type { PrismaClient } from "@prisma/client";
 import { createPrismaClient } from "@/lib/db/client";
-import { resolveOAuthIssuer } from "@/lib/oauth/discovery";
+import { resolveBaseUrl } from "@/lib/operator/config";
 import {
   DEFAULT_OAUTH_PRIVATE_KEY_PEM,
   OAUTH_JWT_ALGORITHM,
@@ -124,7 +124,7 @@ export function parseBearerAuthorizationHeader(header: string | null): ParsedBea
 
 export async function resolveOAuthBearerAuthorizationHeader(
   header: string | null,
-  requestUrl: string,
+  request: Request | string,
   client: PrismaClient = createPrismaClient(),
   now: Date = new Date(),
 ): Promise<OAuthBearerAuthorizationResolution> {
@@ -142,7 +142,11 @@ export async function resolveOAuthBearerAuthorizationHeader(
   }
 
   const nowSeconds = Math.floor(now.getTime() / 1000);
-  if (claims.iss !== resolveOAuthIssuer(requestUrl)) {
+  const issuer =
+    typeof request === "string"
+      ? (await resolveBaseUrl(new Request(request), client)).baseUrl
+      : (await resolveBaseUrl(request, client)).baseUrl;
+  if (claims.iss !== issuer) {
     return { kind: "unauthorized", reason: "invalid_issuer" };
   }
   if (claims.aud !== claims.resource || !claims.resource) {

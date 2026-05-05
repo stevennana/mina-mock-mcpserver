@@ -1,15 +1,14 @@
-Implemented `malformed-response-console-audit`.
+Implemented `operator-config-health-logs` and wrote the handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
 
-Changed:
-- Added endpoint-scoped `invalid_json`, `wrong_content_type`, and `empty_body` modes for matched MCP/REST tool calls.
-- Added UI warnings before saving/running malformed modes and console evidence for raw response, status/content type, malformed mode, matched case, principal, and elapsed time.
-- Added non-secret audit events for failure-simulation config changes.
-- Updated docs and the active task progress log.
-- Wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+What changed: health/config now report real runtime and DB state, base URL resolution follows `APP_BASE_URL -> DB override -> forwarded headers -> Host -> local fallback`, `/config` is a full connection guide, OAuth issuer paths use the shared resolver, root-protected base URL override is persisted/audited, and `start:logged` writes `logs/server-*.log` with normalized `LOG_LEVEL`.
 
 Required checks passed:
+- `npm run lint`
+- `npm run typecheck`
+- `npm run build`
 - `npm run test:unit`
-- `npm run test:e2e -- --grep @malformed-audit`
+- `npm run test:e2e -- --grep @operator-config`
+- `npm run start:smoke`
 - `npm run verify`
 
-Exit criteria appear satisfied. Nothing remains for this task.
+Exit criteria appear satisfied. The only note: a direct manual `start:logged` bind attempt hit sandbox `EPERM`, but it did create/write the log file; production startup proof passed through `start:smoke`.

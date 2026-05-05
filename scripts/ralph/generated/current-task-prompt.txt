@@ -4,69 +4,79 @@ Read the following repository documents before making changes:
 - docs/PRODUCT_SENSE.md
 - docs/FRONTEND.md
 - docs/RELIABILITY.md
-- docs/product-specs/failure-simulation-and-audit.md
-- docs/exec-plans/active/022-malformed-response-console-audit.md
+- docs/SECURITY.md
+- docs/product-specs/operator-configuration.md
+- docs/exec-plans/active/023-operator-config-health-logs.md
 
-Current task id: malformed-response-console-audit
-Current task title: Malformed Response Modes, Console Evidence, and Audit
+Current task id: operator-config-health-logs
+Current task title: Operator Config, Health, Connection Guide, and Logs
 
 Objective:
-Implement intentionally malformed response modes with visible warnings, console evidence, and audit logging for failure-simulation changes.
+Complete operator-facing health, public config, base URL behavior, connection guide, root-protected config changes, and server logging.
 
 Clarity notes:
-- Malformed responses intentionally break normal protocol expectations and must be clearly marked in UI.
-- This task should not make malformed behavior global or accidental.
-- Console evidence helps developers understand exactly what a client will see.
-- Audit should record public changes to failure-simulation settings without leaking sensitive values.
+- This is operator runtime behavior, not Docker packaging.
+- Connection guide content must reflect actual implemented routes and auth behavior.
+- Base URL resolution affects OAuth metadata and client examples.
+- Logs must be operator-visible without relying on Ralph artifacts.
 
 Expected result:
-- `invalid_json`, `wrong_content_type`, and `empty_body` modes work where feasible for MCP and REST routes.
-- UI warns before saving or running malformed response modes.
-- Endpoint console shows raw response evidence, elapsed time, matched case, and principal for malformed/failure cases.
-- Audit log records failure-simulation config changes and relevant protected events.
+- Health and public config routes report real runtime/database state.
+- Base URL precedence follows APP_BASE_URL, DB override, forwarded headers, Host, then local fallback.
+- Connection guide shows MCP, REST, OAuth discovery URLs, sample client config, curl examples, and public UI warning.
+- `npm run start:logged` writes logs under `logs/` with LOG_LEVEL support.
 
 Objections / risks to avoid:
-- Do not accidentally apply malformed output to every endpoint.
-- Do not hide warnings for protocol-breaking behavior.
-- Do not broaden into new failure types or matchers.
-- Do not log secrets or raw tokens in audit evidence.
+- Do not hardcode localhost into public examples when a configured base URL exists.
+- Do not log secrets at debug/trace levels.
+- Do not claim Docker/Nginx readiness here; final packaging is next.
+- Do not let `build` substitute for startup smoke.
 
 Scope:
-- Implement malformed response mode execution.
-- Add UI warnings and console evidence for malformed modes.
-- Expand audit events for failure-simulation configuration changes.
-- Add unit and E2E tests tagged `@malformed-audit`.
+- Implement or finalize health/public config behavior.
+- Implement base URL override with root password if not already present.
+- Build server config/connection guide screen.
+- Ensure `start:logged`, `logs/`, and `LOG_LEVEL` behavior and docs match.
+- Add E2E tests tagged `@operator-config`.
 
 Out of scope:
-- Delay/forced error behavior already handled.
-- Rate limiting or public abuse controls.
-- New matcher types.
-- External observability dashboards.
+- Dockerfile/docker-compose/Nginx artifacts.
+- New product features.
+- External OAuth providers.
+- Full production monitoring.
 
 Exit criteria:
-1. Malformed modes produce the documented raw HTTP/protocol behavior only when configured.
-2. UI warnings are visible and tested.
-3. Console evidence accurately shows malformed outputs.
-4. Audit records failure-simulation changes.
+1. Config/connection guide examples match actual routes.
+2. Base URL behavior is deterministic and tested.
+3. Operator logs are persisted to `logs/` and avoid secrets.
+4. `start:smoke` and `@operator-config` pass.
 5. All required checks pass.
 
 Required checks:
+- npm run lint
+- npm run typecheck
+- npm run build
 - npm run test:unit
-- npm run test:e2e -- --grep @malformed-audit
+- npm run test:e2e -- --grep @operator-config
+- npm run start:smoke
 - npm run verify
 
 Evaluator notes:
 Required commands are mandatory promotion gates, not suggestions.
 Do not promote if any required check fails.
 Do not accept broad feature work outside this task.
-Confirm that this task maps to the primary product spec `failure-simulation-and-audit.md` or is explicitly final hardening.
+Confirm that this task maps to the primary product spec `operator-configuration.md` or is explicitly final hardening.
 
 Required repository artifacts for this task:
 - none
 
 Required commands for this task:
+- npm run lint
+- npm run typecheck
+- npm run build
 - npm run test:unit
-- npm run test:e2e -- --grep @malformed-audit
+- npm run test:e2e -- --grep @operator-config
+- npm run start:smoke
 - npm run verify
 
 Previous known gaps from the last evaluation:

@@ -45,7 +45,7 @@ function unauthorizedBearerRestResponse(message = "Authorization header was inva
 export async function handleRestToolsGet(request: Request) {
   const bearer = parseBearerAuthorizationHeader(request.headers.get("Authorization"));
   if (bearer.kind === "bearer" || bearer.kind === "invalid") {
-    const resolution = await resolveOAuthBearerAuthorizationHeader(request.headers.get("Authorization"), request.url);
+    const resolution = await resolveOAuthBearerAuthorizationHeader(request.headers.get("Authorization"), request);
     if (resolution.kind !== "authenticated") {
       return unauthorizedBearerRestResponse();
     }
@@ -100,7 +100,7 @@ function restToolCallHttpResponse(response: RestToolCallResponse, principal: str
 export async function handleRestToolCallPost(request: Request, name: string) {
   const bearer = parseBearerAuthorizationHeader(request.headers.get("Authorization"));
   if (bearer.kind === "bearer" || bearer.kind === "invalid") {
-    const resolution = await resolveOAuthBearerAuthorizationHeader(request.headers.get("Authorization"), request.url);
+    const resolution = await resolveOAuthBearerAuthorizationHeader(request.headers.get("Authorization"), request);
     if (resolution.kind !== "authenticated") {
       return unauthorizedBearerRestResponse();
     }

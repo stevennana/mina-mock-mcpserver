@@ -8,11 +8,14 @@ Connection guide
 
 ## User-Visible Behavior
 - Connection guide
-- Health endpoint
-- Root-protected base URL override
+- Health endpoint reports runtime status, database reachability, log level, and persisted runtime counts without secrets
+- Public config endpoint reports the effective base URL, route map, connection examples, public admin warning, health summary, and logging command
+- Base URL precedence is `APP_BASE_URL`, database override, forwarded headers, Host, then `http://localhost:3000`
+- Root-protected database base URL override
 - Root-protected reset
 - Reset requires exact confirmation text and records non-secret audit evidence for failed and successful attempts
-- Operator-visible logs
+- Operator-visible logs are written by `npm run start:logged` under `logs/`; `LOG_LEVEL` supports `trace`, `debug`, `info`, `warn`, and `error`
+- Connection guide examples cover `/mcp`, `/mcp/none`, `/mcp/basic`, `/mcp/oauth`, `/rest/tools`, `/rest/tools/{tool_name}/call`, OAuth discovery metadata, `/oauth/token`, and `/oauth/jwks`
 
 ## Validation
 - Base URL precedence

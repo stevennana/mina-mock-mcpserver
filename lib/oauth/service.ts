@@ -201,7 +201,7 @@ function oauthJwtPrivateKey() {
 }
 
 function oauthIssuer(inputIssuer?: string) {
-  return inputIssuer || process.env.OAUTH_ISSUER || process.env.APP_BASE_URL || DEFAULT_OAUTH_ISSUER;
+  return inputIssuer || process.env.APP_BASE_URL || DEFAULT_OAUTH_ISSUER;
 }
 
 function endpointScope(endpointIds: string[]) {

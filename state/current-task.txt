@@ -1,1 +1,1 @@
-malformed-response-console-audit
+operator-config-health-logs

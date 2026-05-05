@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "db:prepare": "node scripts/db-prepare.mjs",
-    "test:unit": "node --import tsx --test \"tests/unit/**/*.test.ts\"",
+    "test:unit": "node --import tsx --test --test-concurrency=1 \"tests/unit/**/*.test.ts\"",
     "test:e2e": "playwright test",
     "test": "npm run test:unit && npm run test:e2e",
     "start:smoke": "node scripts/start-smoke.mjs",

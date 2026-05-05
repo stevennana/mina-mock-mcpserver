@@ -35,21 +35,14 @@ test("OAuth discovery metadata advertises only implemented grant and endpoint be
 });
 
 test("OAuth issuer resolution respects configured base URL before request origin", () => {
-  const previousIssuer = process.env.OAUTH_ISSUER;
   const previousBaseUrl = process.env.APP_BASE_URL;
   process.env.APP_BASE_URL = "https://configured.example/";
-  delete process.env.OAUTH_ISSUER;
 
   try {
     assert.equal(resolveOAuthIssuer("http://127.0.0.1:3100/oauth/token"), "https://configured.example");
-    process.env.OAUTH_ISSUER = "https://issuer.example/";
-    assert.equal(resolveOAuthIssuer("http://127.0.0.1:3100/oauth/token"), "https://issuer.example");
+    delete process.env.APP_BASE_URL;
+    assert.equal(resolveOAuthIssuer("http://127.0.0.1:3100/oauth/token"), "http://127.0.0.1:3100");
   } finally {
-    if (previousIssuer === undefined) {
-      delete process.env.OAUTH_ISSUER;
-    } else {
-      process.env.OAUTH_ISSUER = previousIssuer;
-    }
     if (previousBaseUrl === undefined) {
       delete process.env.APP_BASE_URL;
     } else {

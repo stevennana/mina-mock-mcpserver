@@ -1,0 +1,118 @@
+import assert from "node:assert/strict";
+import { execFile } from "node:child_process";
+import { mkdtemp } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { promisify } from "node:util";
+import test from "node:test";
+import { createPrismaClient } from "@/lib/db/client";
+import { seedAllDefaults } from "@/lib/db/seed";
+import {
+  getOperatorHealth,
+  getPublicOperatorConfig,
+  normalizeBaseUrl,
+  resolveBaseUrl,
+  updateOperatorBaseUrl,
+} from "@/lib/operator/config";
+import { redactLogMetadata } from "@/lib/operator/logger";
+
+const execFileAsync = promisify(execFile);
+
+async function withIsolatedDb(fn: (client: ReturnType<typeof createPrismaClient>) => Promise<void>) {
+  const directory = await mkdtemp(join(tmpdir(), "mcp-mock-operator-config-"));
+  const previousDatabaseUrl = process.env.DATABASE_URL;
+  const previousAppBaseUrl = process.env.APP_BASE_URL;
+  const previousRootPassword = process.env.ROOT_PASSWORD;
+  process.env.DATABASE_URL = `file:${join(directory, "runtime.sqlite")}`;
+  process.env.ROOT_PASSWORD = "unit-root-password";
+  delete process.env.APP_BASE_URL;
+
+  await execFileAsync("npx", ["prisma", "migrate", "deploy"], { env: { ...process.env } });
+
+  const client = createPrismaClient();
+  try {
+    await seedAllDefaults(client);
+    await fn(client);
+  } finally {
+    await client.$disconnect();
+    if (previousDatabaseUrl === undefined) {
+      delete process.env.DATABASE_URL;
+    } else {
+      process.env.DATABASE_URL = previousDatabaseUrl;
+    }
+    if (previousAppBaseUrl === undefined) {
+      delete process.env.APP_BASE_URL;
+    } else {
+      process.env.APP_BASE_URL = previousAppBaseUrl;
+    }
+    if (previousRootPassword === undefined) {
+      delete process.env.ROOT_PASSWORD;
+    } else {
+      process.env.ROOT_PASSWORD = previousRootPassword;
+    }
+  }
+}
+
+test("operator base URL precedence is APP_BASE_URL, database, forwarded headers, Host, local fallback", async () => {
+  await withIsolatedDb(async (client) => {
+    assert.equal((await resolveBaseUrl(undefined, client)).baseUrl, "http://localhost:3000");
+    assert.equal((await resolveBaseUrl(undefined, client)).source, "local_fallback");
+
+    const hostRequest = new Request("http://ignored.example/config", { headers: { host: "host.example:3100" } });
+    assert.deepEqual(await resolveBaseUrl(hostRequest, client), {
+      baseUrl: "http://host.example:3100",
+      source: "host",
+      databaseOverride: null,
+      appBaseUrl: null,
+    });
+
+    const forwardedRequest = new Request("http://ignored.example/config", {
+      headers: {
+        host: "host.example:3100",
+        "x-forwarded-host": "forwarded.example",
+        "x-forwarded-proto": "https",
+      },
+    });
+    assert.equal((await resolveBaseUrl(forwardedRequest, client)).baseUrl, "https://forwarded.example");
+    assert.equal((await resolveBaseUrl(forwardedRequest, client)).source, "forwarded_headers");
+
+    await updateOperatorBaseUrl({ rootPassword: "unit-root-password", baseUrl: "https://db.example/" }, client);
+    assert.equal((await resolveBaseUrl(forwardedRequest, client)).baseUrl, "https://db.example");
+    assert.equal((await resolveBaseUrl(forwardedRequest, client)).source, "database");
+
+    process.env.APP_BASE_URL = "https://env.example/";
+    assert.equal((await resolveBaseUrl(forwardedRequest, client)).baseUrl, "https://env.example");
+    assert.equal((await resolveBaseUrl(forwardedRequest, client)).source, "app_base_url");
+    assert.equal((await resolveBaseUrl(forwardedRequest, client)).databaseOverride, "https://db.example");
+  });
+});
+
+test("operator public config and health report persisted runtime state", async () => {
+  await withIsolatedDb(async (client) => {
+    const health = await getOperatorHealth(client);
+    assert.equal(health.status, "ok");
+    assert.equal(health.database.status, "ok");
+    assert.ok(health.database.counts);
+    assert.equal(health.database.counts.endpoints, 1);
+    assert.equal(health.database.counts.enabledEndpoints, 1);
+    assert.equal(health.database.counts.basicUsers, 1);
+    assert.equal(health.database.counts.oauthClients, 1);
+
+    await updateOperatorBaseUrl({ rootPassword: "unit-root-password", baseUrl: "https://guide.example" }, client);
+    const config = await getPublicOperatorConfig(undefined, client);
+    assert.equal(config.routes.mcp.noAuth, "https://guide.example/mcp/none");
+    assert.equal(config.routes.rest.tools, "https://guide.example/rest/tools");
+    assert.equal(config.routes.oauth.authorizationServerMetadata, "https://guide.example/.well-known/oauth-authorization-server");
+    assert.equal(config.examples.curl.callTool.includes("https://guide.example/rest/tools/echo/call"), true);
+  });
+});
+
+test("operator config validation and log redaction avoid secrets", () => {
+  assert.equal(normalizeBaseUrl("https://mock.example/path/"), "https://mock.example/path");
+  assert.throws(() => normalizeBaseUrl("ftp://mock.example"), { name: "OperatorConfigValidationError" });
+  assert.deepEqual(redactLogMetadata({ rootPassword: "secret", clientSecret: "secret", baseUrl: "https://mock.example" }), {
+    rootPassword: "[redacted]",
+    clientSecret: "[redacted]",
+    baseUrl: "https://mock.example",
+  });
+});

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { oauthAuthorizationServerMetadata, resolveOAuthIssuer } from "@/lib/oauth/discovery";
+import { oauthAuthorizationServerMetadata } from "@/lib/oauth/discovery";
+import { resolveBaseUrl } from "@/lib/operator/config";
 
 export async function GET(request: Request) {
-  return NextResponse.json(oauthAuthorizationServerMetadata(resolveOAuthIssuer(request.url)));
+  return NextResponse.json(oauthAuthorizationServerMetadata((await resolveBaseUrl(request)).baseUrl));
 }

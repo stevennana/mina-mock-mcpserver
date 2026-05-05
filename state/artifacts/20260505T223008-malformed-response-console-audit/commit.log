@@ -1,0 +1,11 @@
+[main 6a25b73] ralph: malformed-response-console-audit 2026-05-05T22:40:45+09:00
+ 39 files changed, 4961 insertions(+), 133 deletions(-)
+ rename docs/exec-plans/{active => completed}/021-failure-delay-forced-error-runtime.md (95%)
+ create mode 100644 state/artifacts/20260505T222248-failure-delay-forced-error-runtime/backlog.log
+ create mode 100644 state/artifacts/20260505T222248-failure-delay-forced-error-runtime/promote.log
+ create mode 100644 state/artifacts/20260505T223008-malformed-response-console-audit/commit.log
+ create mode 100644 state/artifacts/20260505T223008-malformed-response-console-audit/evaluator.log
+ create mode 100644 state/artifacts/20260505T223008-malformed-response-console-audit/task-prompt.log
+ create mode 100644 state/artifacts/20260505T223008-malformed-response-console-audit/worker.jsonl
+ create mode 100644 tests/e2e/malformed-audit.spec.ts
+commit: created

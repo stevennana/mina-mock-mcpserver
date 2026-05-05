@@ -85,6 +85,12 @@ model AuditEvent {
   @@index([subjectType, subjectId])
 }
 
+model ServerSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
 model BasicUser {
   id           String   @id
   username     String   @unique

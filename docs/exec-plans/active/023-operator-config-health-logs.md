@@ -5,7 +5,7 @@
   "id": "operator-config-health-logs",
   "title": "Operator Config, Health, Connection Guide, and Logs",
   "order": 23,
-  "status": "queued",
+  "status": "active",
   "next_task_on_success": "docker-nginx-final-hardening",
   "prompt_docs": [
     "AGENTS.md",
@@ -115,3 +115,5 @@ Confirm that this task maps to the primary product spec `operator-configuration.
 
 - Start here. Append timestamped progress notes as work lands.
 - Note when existing partial implementations were found and reused instead of replaced.
+- 2026-05-05T13:40:45.211Z: restored as current task after malformed-response-console-audit promotion.
+- 2026-05-05T14:25:00.000Z: found partial `/config`, `/api/health`, and `start:logged` implementations; reused them while adding shared operator config/base URL/logging services, persisted base URL override, public config API, expanded connection guide, and `@operator-config` coverage.

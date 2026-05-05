@@ -1,11 +1,9 @@
 import { NextResponse } from "next/server";
-import { getBootstrapStatus } from "@/lib/bootstrap-status";
+import { getOperatorHealth } from "@/lib/operator/config";
+import { operatorLog } from "@/lib/operator/logger";
 
-export function GET() {
-  return NextResponse.json({
-    status: "ok",
-    version: "1.0.0",
-    database: getBootstrapStatus().runtimeState,
-    time: new Date().toISOString(),
-  });
+export async function GET() {
+  const health = await getOperatorHealth();
+  operatorLog("debug", "health check completed", { status: health.status });
+  return NextResponse.json(health, { status: health.status === "ok" ? 200 : 503 });
 }

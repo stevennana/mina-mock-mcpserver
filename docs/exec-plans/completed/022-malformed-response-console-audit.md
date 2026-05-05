@@ -5,7 +5,7 @@
   "id": "malformed-response-console-audit",
   "title": "Malformed Response Modes, Console Evidence, and Audit",
   "order": 22,
-  "status": "active",
+  "status": "completed",
   "next_task_on_success": "operator-config-health-logs",
   "prompt_docs": [
     "AGENTS.md",
@@ -26,7 +26,8 @@
     "Required checks do not prove the claimed behavior.",
     "Implementation changes contradict the product spec or security/reliability docs."
   ],
-  "promotion_mode": "deterministic"
+  "promotion_mode": "deterministic",
+  "completed_at": "2026-05-05T13:40:45.211Z"
 }
 ```
 
@@ -107,3 +108,4 @@ Confirm that this task maps to the primary product spec `failure-simulation-and-
 - 2026-05-05T13:29:38.585Z: restored as current task after failure-delay-forced-error-runtime promotion.
 - 2026-05-05T14:19:00Z: found and reused existing failureMode/malformedResponseJson persistence plus console evidence shell; extended it to explicit invalid_json, wrong_content_type, and empty_body modes instead of adding a parallel config surface.
 - 2026-05-05T14:27:00Z: implemented endpoint-scoped malformed REST/MCP raw responses, UI warnings before save/run, non-secret failure-simulation audit events, and @malformed-audit unit/E2E coverage.
+- 2026-05-05T13:40:45.211Z: automatically promoted after deterministic checks and evaluator approval.

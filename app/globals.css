@@ -641,6 +641,31 @@ h1 {
   margin-bottom: 16px;
 }
 
+.config-stack {
+  display: grid;
+  gap: 16px;
+}
+
+.config-form {
+  margin-top: 14px;
+}
+
+.config-form .form-message {
+  grid-column: 1 / -1;
+}
+
+.inline-code {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  border: 1px solid #d8e0ea;
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: #f8fafc;
+  color: #26313f;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 0.88rem;
+}
+
 .guide-list {
   display: grid;
   grid-template-columns: 1fr;

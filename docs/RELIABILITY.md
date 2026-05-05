@@ -30,8 +30,14 @@ If the app depends on persistent runtime state, document how runtime preparation
 - `tools/call` in no-auth mode must call the shared endpoint matcher by endpoint name. Unknown or disabled tools and argument validation failures return JSON-RPC `-32602`; unsupported JSON-RPC methods return `-32601`; no exact response-case match falls back to the configured default case.
 
 ## Operator Logging
-Document how `npm run start:logged` writes operator-visible server logs into `logs/`, which environment variable controls the log level, and which levels are supported for manual debugging.
-Generated server code should expose at least `trace`, `debug`, `info`, `warn`, and `error` logging without dumping secrets or full sensitive payloads by default.
+`npm run start:logged` starts Next.js and writes operator-visible server output into timestamped files under `logs/`.
+`LOG_LEVEL` controls app log verbosity and supports `trace`, `debug`, `info`, `warn`, and `error`; invalid values fall back to `info`.
+Generated server code exposes those levels through the operator logger and redacts secret-looking metadata keys, including passwords, secrets, tokens, authorization headers, JWTs, and codes.
+
+## Base URL Resolution
+Runtime URL examples and OAuth issuer metadata use a shared base URL resolver.
+Precedence is `APP_BASE_URL`, root-protected database override, forwarded headers, Host, then `http://localhost:3000`.
+Startup smoke must still probe the real `/api/health` route; a successful build alone does not prove runtime readiness.
 
 ## Test Strategy
 Document which behaviors are protected by unit tests, which flows require end-to-end coverage, and which command failures block task promotion.

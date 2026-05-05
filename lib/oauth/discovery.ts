@@ -12,7 +12,7 @@ const SUPPORTED_RESPONSE_TYPES = ["code"] as const;
 const SUPPORTED_CLIENT_AUTH_METHODS = ["client_secret_post"] as const;
 
 function configuredBaseUrl() {
-  return process.env.OAUTH_ISSUER || process.env.APP_BASE_URL || "";
+  return process.env.APP_BASE_URL || "";
 }
 
 function normalizeBaseUrl(baseUrl: string) {

@@ -11,5 +11,9 @@ test("foundation dashboard renders planned MCP mock server surfaces", async ({ p
 test("health endpoint reports ok status", async ({ request }) => {
   const response = await request.get("/api/health");
   expect(response.ok()).toBeTruthy();
-  await expect(response.json()).resolves.toMatchObject({ status: "ok", database: "prepared" });
+  await expect(response.json()).resolves.toMatchObject({
+    status: "ok",
+    runtime: { runtimeState: "prepared" },
+    database: { status: "ok" },
+  });
 });

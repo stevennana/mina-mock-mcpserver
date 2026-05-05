@@ -1,20 +1,16 @@
 import Link from "next/link";
 import { headers } from "next/headers";
-import { oauthDiscoveryUrls, resolveOAuthIssuer } from "@/lib/oauth/discovery";
+import { ConfigManager } from "@/app/config/config-manager";
+import { getPublicOperatorConfig } from "@/lib/operator/config";
 
 export const dynamic = "force-dynamic";
 
 export default async function ConfigPage() {
   const requestHeaders = await headers();
-  const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host") ?? "localhost:3000";
+  const host = requestHeaders.get("host") ?? "localhost:3000";
   const protocol = requestHeaders.get("x-forwarded-proto") ?? "http";
-  const urls = oauthDiscoveryUrls(resolveOAuthIssuer(`${protocol}://${host}`));
-  const metadataEndpoints = [
-    [".well-known/oauth-protected-resource", urls.protectedResourceMetadata],
-    [".well-known/oauth-authorization-server", urls.authorizationServerMetadata],
-    [".well-known/openid-configuration", urls.openidConfiguration],
-    ["OAuth JWKS", urls.jwksUri],
-  ] as const;
+  const request = new Request(`${protocol}://${host}/config`, { headers: requestHeaders });
+  const config = await getPublicOperatorConfig(request);
 
   return (
     <main className="shell app-shell">
@@ -34,47 +30,12 @@ export default async function ConfigPage() {
           <p className="eyebrow">Connection guide</p>
           <h1 id="config-title">Config</h1>
           <p className="lede compact">
-            Runtime URLs for MCP clients, REST clients, and OAuth discovery-aware setup.
+            Runtime URLs for MCP clients, REST clients, OAuth discovery, health, public config, and operator logs.
           </p>
         </div>
       </section>
 
-      <section className="panel guide-panel" aria-labelledby="discovery-title">
-        <h2 id="discovery-title">OAuth discovery metadata</h2>
-        <div className="guide-list">
-          {metadataEndpoints.map(([label, url]) => (
-            <div key={label}>
-              <span>{label}</span>
-              <code>{url}</code>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="panel guide-panel" aria-labelledby="mcp-title">
-        <h2 id="mcp-title">OAuth discovery setup</h2>
-        <pre className="json-panel" aria-label="OAuth discovery connection example">
-{JSON.stringify(
-  {
-    oauth_protected_resource: urls.protectedResourceMetadata,
-    oauth_authorization_server: urls.authorizationServerMetadata,
-    openid_configuration: urls.openidConfiguration,
-    jwks_uri: urls.jwksUri,
-    scope_format: "endpoint:<endpoint_id>",
-  },
-  null,
-  2,
-)}
-        </pre>
-      </section>
-
-      <section className="panel guide-panel" aria-labelledby="curl-title">
-        <h2 id="curl-title">Metadata checks</h2>
-        <pre className="json-panel" aria-label="OAuth discovery curl examples">{`curl ${urls.protectedResourceMetadata}
-curl ${urls.authorizationServerMetadata}
-curl ${urls.openidConfiguration}
-curl ${urls.jwksUri}`}</pre>
-      </section>
+      <ConfigManager initialConfig={config} />
     </main>
   );
 }

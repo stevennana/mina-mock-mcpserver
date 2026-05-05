@@ -33,6 +33,7 @@ Remote MCP adoption is moving auth, transport, and permission bugs into client i
 - expose OAuth discovery metadata and a public JWKS that match the mock RS256 token issuer
 - simulate failure cases that clients often mishandle, including bounded artificial delays, forced REST/MCP errors, and endpoint-scoped malformed responses
 - persist configuration and provide root-password-protected reset/recovery for a public test service
+- expose health, public config, deterministic base URL behavior, connection examples, and operator-visible logs for runtime handoff
 
 ## Non-Goals for v1
 - production-grade identity management

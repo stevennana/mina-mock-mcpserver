@@ -107,7 +107,7 @@ cat state/last-result.txt
 cat state/evaluation.json
 cat state/current-cycle.json
 ls logs/
-tail -f logs/next-server-*.log
+tail -f logs/server-*.log
 ```
 
 ### Manual promotion for stalled-but-done tasks

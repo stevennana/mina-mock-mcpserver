@@ -94,11 +94,9 @@ test("OAuth discovery metadata and JWKS are internally consistent @oauth-discove
   expect(verified).toBe(true);
 
   await page.goto("/config");
-  await expect(page.getByRole("heading", { name: "Config" })).toBeVisible();
-  const connectionExample = page.getByLabel("OAuth discovery connection example");
-  await expect(connectionExample).toContainText("/.well-known/oauth-protected-resource");
-  await expect(connectionExample).toContainText("/.well-known/oauth-authorization-server");
-  await expect(connectionExample).toContainText("/.well-known/openid-configuration");
-  await expect(connectionExample).toContainText("/oauth/jwks");
-  await expect(connectionExample).not.toContainText("/mcp/oauth");
+  await expect(page.getByRole("heading", { name: "Config", exact: true })).toBeVisible();
+  await expect(page.getByText(`${expectedBaseUrl}/.well-known/oauth-protected-resource`, { exact: true }).first()).toBeVisible();
+  await expect(page.getByText(`${expectedBaseUrl}/.well-known/oauth-authorization-server`, { exact: true }).first()).toBeVisible();
+  await expect(page.getByText(`${expectedBaseUrl}/.well-known/openid-configuration`, { exact: true }).first()).toBeVisible();
+  await expect(page.getByText(`${expectedBaseUrl}/oauth/jwks`, { exact: true }).first()).toBeVisible();
 });
