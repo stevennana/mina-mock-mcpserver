@@ -1,6 +1,6 @@
 Completed `endpoint-domain-and-schema`.
 
-I verified the existing Prisma/SQLite persistence foundation and updated:
+I revalidated the existing Prisma/SQLite persistence foundation and updated:
 - [001-endpoint-domain-and-schema.md](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/docs/exec-plans/active/001-endpoint-domain-and-schema.md)
 - [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt)
 
@@ -9,4 +9,4 @@ Required gates passed:
 - `npm run test:unit`
 - `npm run verify`
 
-Exit criteria appear satisfied. Nothing remains for this task under the current contract. There were pre-existing dirty `state/` artifact changes; I left them untouched except for `state/last-result.txt`.
+Exit criteria appear satisfied. No implementation changes were needed; the persistence slice was already in place and scoped correctly. I left unrelated pre-existing dirty `state/` artifacts untouched.
