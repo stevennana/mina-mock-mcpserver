@@ -1,0 +1,42 @@
+{
+  "type": "object",
+  "properties": {
+    "decision": {
+      "type": "string",
+      "enum": ["done", "not_done", "blocked"]
+    },
+    "recommend_promotion": {
+      "type": "boolean"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "summary": {
+      "type": "string"
+    },
+    "satisfied_exit_criteria": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "missing_requirements": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "human_review_triggers": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  },
+  "required": [
+    "decision",
+    "recommend_promotion",
+    "confidence",
+    "summary",
+    "satisfied_exit_criteria",
+    "missing_requirements",
+    "human_review_triggers"
+  ],
+  "additionalProperties": false
+}

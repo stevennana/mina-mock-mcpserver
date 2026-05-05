@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Endpoint {
+  id                    String          @id
+  name                  String          @unique
+  description           String          @default("")
+  enabled               Boolean         @default(true)
+  protectedDefault      Boolean         @default(false)
+  deleteCode            String?
+  defaultResponseJson   String          @default("{}")
+  failureMode           String          @default("none")
+  failureStatusCode     Int?
+  failureDelayMs        Int             @default(0)
+  failureMessage        String?
+  malformedResponseJson String?
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+  parameters            EndpointParam[]
+  responseCases         ResponseCase[]
+}
+
+model EndpointParam {
+  id               String   @id
+  endpointId       String
+  position         Int
+  name             String
+  label            String?
+  description      String   @default("")
+  type             String   @default("string")
+  required         Boolean  @default(false)
+  defaultValueJson String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  endpoint         Endpoint @relation(fields: [endpointId], references: [id], onDelete: Cascade)
+
+  @@unique([endpointId, position])
+  @@unique([endpointId, name])
+  @@index([endpointId])
+}
+
+model ResponseCase {
+  id            String   @id
+  endpointId    String
+  name          String
+  matchArgsJson String   @default("{}")
+  responseJson  String
+  statusCode    Int      @default(200)
+  isDefault     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  endpoint      Endpoint @relation(fields: [endpointId], references: [id], onDelete: Cascade)
+
+  @@unique([endpointId, name])
+  @@index([endpointId])
+}

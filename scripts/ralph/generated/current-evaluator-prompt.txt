@@ -1,0 +1,101 @@
+You are the promotion evaluator for a repository-local Ralph loop.
+
+Read these documents before deciding:
+- AGENTS.md
+- ARCHITECTURE.md
+- docs/PRODUCT_SENSE.md
+- docs/DESIGN.md
+- docs/references/prd-analysis.md
+- docs/product-specs/endpoint-tool-management.md
+- docs/exec-plans/active/001-endpoint-domain-and-schema.md
+
+Current task id: endpoint-domain-and-schema
+Current task title: Endpoint Persistence Schema and Seed Defaults
+
+Objective:
+Replace the bootstrap runtime placeholder with durable SQLite/Prisma persistence for endpoint/tool data and deterministic seed defaults.
+
+Scope:
+- Add Prisma/SQLite dependencies, schema, migration or sync path, generated client setup, and repo-local DB configuration.
+- Define endpoint, parameter, response case, and timestamp fields required by the PRD for MVP endpoint management.
+- Implement idempotent seed preparation for at least one representative enabled endpoint and any protected defaults needed by endpoint flows.
+- Update `scripts/db-prepare.mjs` to prepare SQLite state deterministically.
+- Add unit coverage or command-level assertions that `db:prepare` can run repeatedly.
+
+Out of scope:
+- Endpoint validators and exact-match response selection beyond simple schema constraints.
+- Endpoint management UI.
+- MCP, REST, Basic Auth, or OAuth runtime behavior.
+- Root reset behavior; that has its own task.
+
+Exit criteria:
+1. `npm run db:prepare` creates or updates the SQLite runtime state successfully from a clean checkout.
+2. Running `npm run db:prepare` twice is safe and does not duplicate seed data.
+3. The schema can represent endpoint names, descriptions, enabled state, up to three parameters, response cases, default responses, delete codes, and basic failure config fields.
+4. `docs/generated/db-schema.md` matches the implemented persistence shape.
+5. All required checks pass.
+
+Evaluator notes:
+Required commands are mandatory promotion gates, not suggestions.
+Do not promote if any required check fails.
+Do not accept broad feature work outside this task.
+Confirm that this task maps to the primary product spec `endpoint-tool-management.md` or is explicitly final hardening.
+
+Deterministic check summary:
+{
+  "checked_at": "2026-05-05T07:15:07.262Z",
+  "task_id": "endpoint-domain-and-schema",
+  "commands": [
+    {
+      "command": "npm run db:prepare",
+      "ok": true,
+      "output": "\n> mina-mock-mcpserver@1.0.0 db:prepare\n> node scripts/db-prepare.mjs\n\nDatasource \"db\": SQLite database \"runtime.sqlite\" at \"file:./data/runtime.sqlite\"\n\n1 migration found in prisma/migrations\n\n\nNo pending migrations to apply.\n\n✔ Generated Prisma Client (v7.8.0) to ./node_modules/@prisma/client in 35ms\n\nStart by importing your Prisma Client (See: https://pris.ly/d/importing-client)\n\n\nPrepared SQLite runtime state with Prisma migrations and endpoint seed defaults.\n"
+    },
+    {
+      "command": "npm run test:unit",
+      "ok": true,
+      "output": "\n> mina-mock-mcpserver@1.0.0 test:unit\n> node --import tsx --test \"tests/unit/**/*.test.ts\"\n\n✔ normalizeLogLevel accepts supported operator log levels (0.343583ms)\n✔ normalizeLogLevel defaults invalid input to info (0.058375ms)\n✔ getBootstrapStatus reports prepared foundation state (0.0525ms)\n✔ db:prepare is repeatable and keeps endpoint seed rows singular (2791.667666ms)\nℹ tests 4\nℹ suites 0\nℹ pass 4\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 2911.362166\n"
+    },
+    {
+      "command": "npm run verify",
+      "ok": true,
+      "output": "\n> mina-mock-mcpserver@1.0.0 verify\n> npm run lint && npm run typecheck && npm run build && npm run test:unit && npm run test:e2e && npm run start:smoke\n\n\n> mina-mock-mcpserver@1.0.0 lint\n> eslint .\n\n\n> mina-mock-mcpserver@1.0.0 typecheck\n> tsc --noEmit\n\n\n> mina-mock-mcpserver@1.0.0 build\n> next build\n\n   ▲ Next.js 15.5.15\n\n   Creating an optimized production build ...\n ✓ Compiled successfully in 550ms\n   Linting and checking validity of types ...\n   Collecting page data ...\n   Generating static pages (0/5) ...\n   Generating static pages (1/5) \r\n   Generating static pages (2/5) \r\n   Generating static pages (3/5) \r\n ✓ Generating static pages (5/5)\n   Finalizing page optimization ...\n   Collecting build traces ...\n\nRoute (app)                                 Size  First Load JS\n┌ ○ /                                      124 B         102 kB\n├ ○ /_not-found                            999 B         103 kB\n└ ƒ /api/health                            124 B         102 kB\n+ First Load JS shared by all             102 kB\n  ├ chunks/255-4f212684648fcab9.js         46 kB\n  ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB\n  └ other shared chunks (total)          1.89 kB\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n\n\n> mina-mock-mcpserver@1.0.0 test:unit\n> node --import tsx --test \"tests/unit/**/*.test.ts\"\n\n✔ normalizeLogLevel accepts supported operator log levels (0.354042ms)\n✔ normalizeLogLevel defaults invalid input to info (0.057166ms)\n✔ getBootstrapStatus reports prepared foundation state (0.054208ms)\n✔ db:prepare is repeatable and keeps endpoint seed rows singular (2804.219792ms)\nℹ tests 4\nℹ suites 0\nℹ pass 4\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 2918.63075\n\n> mina-mock-mcpserver@1.0.0 test:e2e\n> playwright test\n\n\nRunning 2 tests using 1 worker\n\n  ✓  1 [chromium] › tests/e2e/bootstrap.spec.ts:3:5 › foundation dashboard renders planned MCP mock server surfaces (513ms)\n  ✓  2 [chromium] › tests/e2e/bootstrap.spec.ts:11:5 › health endpoint reports ok status (229ms)\n\n  2 passed (3.2s)\n\n> mina-mock-mcpserver@1.0.0 start:smoke\n> node scripts/start-smoke.mjs\n\n\n> mina-mock-mcpserver@1.0.0 db:prepare\n> node scripts/db-prepare.mjs\n\nDatasource \"db\": SQLite database \"runtime.sqlite\" at \"file:./data/runtime.sqlite\"\n\n1 migration found in prisma/migrations\n\n\nNo pending migrations to apply.\n\n✔ Generated Prisma Client (v7.8.0) to ./node_modules/@prisma/client in 36ms\n\nStart by importing your Prisma Client (See: https://pris.ly/d/importing-client)\n\n\nPrepared SQLite runtime state with Prisma migrations and endpoint seed defaults.\n\n> mina-mock-mcpserver@1.0.0 build\n> next build\n\n   ▲ Next.js 15.5.15\n\n   Creating an optimized production build ...\n ✓ Compiled successfully in 516ms\n   Linting and checking validity of types ...\n   Collecting page data ...\n   Generating static pages (0/5) ...\n   Generating static pages (1/5) \r\n   Generating static pages (2/5) \r\n   Generating static pages (3/5) \r\n ✓ Generating static pages (5/5)\n   Finalizing page optimization ...\n   Collecting build traces ...\n\nRoute (app)                                 Size  First Load JS\n┌ ○ /                                      124 B         102 kB\n├ ○ /_not-found                            999 B         103 kB\n└ ƒ /api/health                            124 B         102 kB\n+ First Load JS shared by all             102 kB\n  ├ chunks/255-4f212684648fcab9.js         46 kB\n  ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB\n  └ other shared chunks (total)          1.89 kB\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n\n   ▲ Next.js 15.5.15\n   - Local:        http://localhost:3100\n   - Network:      http://192.168.100.125:3100\n\n ✓ Starting...\n ✓ Ready in 261ms\nProduction-style startup smoke passed at http://127.0.0.1:3100/api/health\n",
+      "preflight": {
+        "command": "ensure-e2e-port-free.sh 3100",
+        "error": "",
+        "ok": true,
+        "output": "port-cleanup: 127.0.0.1:3100 already free\n"
+      },
+      "next_server_log_path": "/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T160740-endpoint-domain-and-schema/npm-run-verify-next-server.log"
+    }
+  ],
+  "missing_files": [],
+  "pass": true
+}
+
+Worker handoff summary from the last run:
+Implemented the endpoint persistence foundation.
+
+Changed:
+- Added Prisma/SQLite config, migration, and seed defaults.
+- Replaced `scripts/db-prepare.mjs` bootstrap JSON placeholder with migrate/generate/seed flow.
+- Added a shared Prisma client factory and idempotent protected `echo` endpoint seed.
+- Added unit coverage proving `db:prepare` can run twice without duplicating seed rows.
+- Updated [docs/generated/db-schema.md](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/docs/generated/db-schema.md) and the active task progress log.
+- Wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+
+Required checks passed:
+- `npm run db:prepare`
+- `npm run test:unit`
+- `npm run verify`
+
+Exit criteria appear satisfied. No remaining work for this task.
+
+Your job:
+- inspect the repository and current implementation
+- determine whether the current task is actually complete
+- mark `done` only if the exit criteria are satisfied in substance, not just approximately
+- prefer conservative decisions
+- recommend promotion only if the task is truly ready
+
+Return JSON only using the provided schema.
