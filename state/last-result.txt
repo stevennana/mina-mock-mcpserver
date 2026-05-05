@@ -1,4 +1,4 @@
-Revalidated `endpoint-domain-and-schema`. The Prisma/SQLite persistence slice is already implemented and still maps to `endpoint-tool-management.md`: migrations/schema, deterministic `db:prepare`, idempotent seed defaults, generated DB schema docs, and repeatability unit coverage are present.
+Revalidated `endpoint-domain-and-schema`. The Prisma/SQLite persistence foundation is already in place and maps to `endpoint-tool-management.md`: migrations/schema, deterministic `db:prepare`, idempotent protected seed defaults, generated DB schema docs, and repeatability unit coverage.
 
 Updated:
 - [001-endpoint-domain-and-schema.md](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/docs/exec-plans/active/001-endpoint-domain-and-schema.md)
@@ -9,4 +9,4 @@ Required gates passed:
 - `npm run test:unit`
 - `npm run verify`
 
-Exit criteria appear satisfied. Nothing remains for this task based on the current contract. Note: the worktree had pre-existing Ralph state artifact changes before my update; I left those alone.
+Exit criteria appear satisfied. Nothing remains for this task. Note: the worktree already had unrelated Ralph state artifact changes; I left those untouched.
