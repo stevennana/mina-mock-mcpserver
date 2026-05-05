@@ -1,0 +1,16 @@
+[main 0769af7] ralph: endpoint-protected-delete-audit 2026-05-05T19:19:51+09:00
+ 42 files changed, 3258 insertions(+), 114 deletions(-)
+ create mode 100644 app/api/audit/route.ts
+ create mode 100644 app/audit/page.tsx
+ rename docs/exec-plans/{active => completed}/004-endpoint-console-schema-preview-ui.md (95%)
+ create mode 100644 lib/audit/service.ts
+ create mode 100644 lib/security/root-password.ts
+ create mode 100644 prisma/migrations/202605050003_audit_events/migration.sql
+ create mode 100644 state/artifacts/20260505T190425-endpoint-console-schema-preview-ui/backlog.log
+ create mode 100644 state/artifacts/20260505T190425-endpoint-console-schema-preview-ui/promote.log
+ create mode 100644 state/artifacts/20260505T191001-endpoint-protected-delete-audit/commit.log
+ create mode 100644 state/artifacts/20260505T191001-endpoint-protected-delete-audit/evaluator.log
+ create mode 100644 state/artifacts/20260505T191001-endpoint-protected-delete-audit/task-prompt.log
+ create mode 100644 state/artifacts/20260505T191001-endpoint-protected-delete-audit/worker.jsonl
+ create mode 100644 tests/e2e/endpoint-delete-audit.spec.ts
+commit: created

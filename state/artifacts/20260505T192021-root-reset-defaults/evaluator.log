@@ -1,0 +1,2291 @@
+/Users/stevenna/WebstormProjects/mina-mock-mcpserver/scripts/ralph/generated/current-evaluator-prompt.txt
+OpenAI Codex v0.128.0 (research preview)
+--------
+workdir: /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+model: gpt-5.5
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: medium
+reasoning summaries: none
+session id: 019df7af-af9f-7973-bdd2-9cbe91c461d7
+--------
+user
+You are the promotion evaluator for a repository-local Ralph loop.
+
+Read these documents before deciding:
+- AGENTS.md
+- ARCHITECTURE.md
+- docs/PRODUCT_SENSE.md
+- docs/FRONTEND.md
+- docs/SECURITY.md
+- docs/RELIABILITY.md
+- docs/product-specs/operator-configuration.md
+- docs/exec-plans/active/006-root-reset-defaults.md
+
+Current task id: root-reset-defaults
+Current task title: Root-Protected Reset to Defaults
+
+Objective:
+Implement root-password-protected reset behavior that restores deterministic default state without harming runtime readiness.
+
+Scope:
+- Implement root password verification for reset.
+- Create reset service that clears currently implemented mutable data and reruns seed preparation.
+- Build reset confirmation UI.
+- Write audit events for reset success/failure.
+- Add E2E coverage tagged `@root-reset`.
+
+Out of scope:
+- Endpoint delete-by-code behavior already handled in previous task.
+- Future Basic/OAuth reset extensions before their domains exist.
+- Backup/restore or scheduled maintenance tooling.
+
+Exit criteria:
+1. Root password and confirmation are required for reset.
+2. Reset restores deterministic endpoint defaults after user-created data exists.
+3. Reset failure does not corrupt runtime state.
+4. `@root-reset` proves UI/API recovery behavior.
+5. All required checks pass.
+
+Evaluator notes:
+Required commands are mandatory promotion gates, not suggestions.
+Do not promote if any required check fails.
+Do not accept broad feature work outside this task.
+Confirm that this task maps to the primary product spec `operator-configuration.md` or is explicitly final hardening.
+
+Deterministic check summary:
+{
+  "checked_at": "2026-05-05T10:29:39.209Z",
+  "task_id": "root-reset-defaults",
+  "commands": [
+    {
+      "command": "npm run db:prepare",
+      "ok": true,
+      "output": "\n> mina-mock-mcpserver@1.0.0 db:prepare\n> node scripts/db-prepare.mjs\n\nDatasource \"db\": SQLite database \"runtime.sqlite\" at \"file:./data/runtime.sqlite\"\n\n3 migrations found in prisma/migrations\n\n\nNo pending migrations to apply.\n\n✔ Generated Prisma Client (v7.8.0) to ./node_modules/@prisma/client in 38ms\n\nStart by importing your Prisma Client (See: https://pris.ly/d/importing-client)\n\n\nPrepared SQLite runtime state with Prisma migrations and endpoint seed defaults.\n"
+    },
+    {
+      "command": "npm run test:unit",
+      "ok": true,
+      "output": "\n> mina-mock-mcpserver@1.0.0 test:unit\n> node --import tsx --test \"tests/unit/**/*.test.ts\"\n\n✔ normalizeLogLevel accepts supported operator log levels (0.35825ms)\n✔ normalizeLogLevel defaults invalid input to info (0.057917ms)\n✔ getBootstrapStatus reports prepared foundation state (0.052542ms)\n✔ db:prepare is repeatable and keeps endpoint seed rows singular (2921.039458ms)\n✔ endpoint validation accepts the MVP editor field set (0.6355ms)\n✔ endpoint validation returns field-level errors for UI rendering (0.353959ms)\n✔ MCP input schema generation reflects endpoint parameters (0.386875ms)\n✔ Ralph promotion resolves ordered successor filenames by taskmeta id (37.506334ms)\n✔ reset requires confirmation and leaves endpoint state untouched on failure (706.897792ms)\n✔ reset clears mutable endpoint data and recreates current seed defaults (640.814916ms)\nℹ tests 10\nℹ suites 0\nℹ pass 10\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 3071.662458\n"
+    },
+    {
+      "command": "npm run test:e2e -- --grep @root-reset",
+      "ok": true,
+      "output": "\n> mina-mock-mcpserver@1.0.0 test:e2e\n> playwright test --grep @root-reset\n\n\nRunning 1 test using 1 worker\n\n  ✓  1 [chromium] › tests/e2e/root-reset.spec.ts:16:5 › root reset requires password and restores deterministic endpoint defaults @root-reset (4.0s)\n\n  1 passed (8.2s)\n",
+      "preflight": {
+        "command": "ensure-e2e-port-free.sh 3100",
+        "error": "",
+        "ok": true,
+        "output": "port-cleanup: 127.0.0.1:3100 already free\n"
+      },
+      "next_server_log_path": "/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T192021-root-reset-defaults/npm-run-test-e2e-grep-root-reset-next-server.log"
+    },
+    {
+      "command": "npm run verify",
+      "ok": true,
+      "output": "\n> mina-mock-mcpserver@1.0.0 verify\n> npm run lint && npm run typecheck && npm run build && npm run test:unit && npm run test:e2e && npm run start:smoke\n\n\n> mina-mock-mcpserver@1.0.0 lint\n> eslint .\n\n\n> mina-mock-mcpserver@1.0.0 typecheck\n> tsc --noEmit\n\n\n> mina-mock-mcpserver@1.0.0 build\n> next build\n\n   ▲ Next.js 15.5.15\n\n   Creating an optimized production build ...\n ✓ Compiled successfully in 789ms\n   Linting and checking validity of types ...\n   Collecting page data ...\n   Generating static pages (0/11) ...\n   Generating static pages (2/11) \r\n   Generating static pages (5/11) \r\n   Generating static pages (8/11) \r\n ✓ Generating static pages (11/11)\n   Finalizing page optimization ...\n   Collecting build traces ...\n\nRoute (app)                                 Size  First Load JS\n┌ ○ /                                      164 B         106 kB\n├ ○ /_not-found                            999 B         103 kB\n├ ƒ /api/audit                             133 B         102 kB\n├ ƒ /api/endpoints                         133 B         102 kB\n├ ƒ /api/endpoints/[id]                    133 B         102 kB\n├ ƒ /api/health                            133 B         102 kB\n├ ƒ /api/reset                             133 B         102 kB\n├ ○ /audit                                 164 B         106 kB\n├ ○ /endpoints                           4.97 kB         110 kB\n└ ○ /reset                               1.02 kB         107 kB\n+ First Load JS shared by all             102 kB\n  ├ chunks/255-4f212684648fcab9.js         46 kB\n  ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB\n  └ other shared chunks (total)          1.89 kB\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n\n\n> mina-mock-mcpserver@1.0.0 test:unit\n> node --import tsx --test \"tests/unit/**/*.test.ts\"\n\n✔ normalizeLogLevel accepts supported operator log levels (0.375083ms)\n✔ normalizeLogLevel defaults invalid input to info (0.059375ms)\n✔ getBootstrapStatus reports prepared foundation state (0.055125ms)\n✔ db:prepare is repeatable and keeps endpoint seed rows singular (2878.278125ms)\n✔ endpoint validation accepts the MVP editor field set (0.630667ms)\n✔ endpoint validation returns field-level errors for UI rendering (0.374375ms)\n✔ MCP input schema generation reflects endpoint parameters (0.398291ms)\n✔ Ralph promotion resolves ordered successor filenames by taskmeta id (36.013542ms)\n✔ reset requires confirmation and leaves endpoint state untouched on failure (689.778583ms)\n✔ reset clears mutable endpoint data and recreates current seed defaults (593.659208ms)\nℹ tests 10\nℹ suites 0\nℹ pass 10\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 3021.817625\n\n> mina-mock-mcpserver@1.0.0 test:e2e\n> playwright test\n\n\nRunning 6 tests using 1 worker\n\n  ✓  1 [chromium] › tests/e2e/bootstrap.spec.ts:3:5 › foundation dashboard renders planned MCP mock server surfaces (344ms)\n  ✓  2 [chromium] › tests/e2e/bootstrap.spec.ts:11:5 › health endpoint reports ok status (406ms)\n  ✓  3 [chromium] › tests/e2e/endpoint-console.spec.ts:5:5 › endpoint schema preview and console shell stay stable on desktop and mobile @ui-endpoint-console (924ms)\n  ✓  4 [chromium] › tests/e2e/endpoint-delete-audit.spec.ts:17:5 › endpoint delete requires confirmation and writes non-secret audit evidence @endpoint-delete-audit (3.2s)\n  ✓  5 [chromium] › tests/e2e/endpoint-editor.spec.ts:5:5 › endpoint editor supports persisted create, edit, search, screenshots, and responsive checks @ui-endpoint-editor (1.3s)\n  ✓  6 [chromium] › tests/e2e/root-reset.spec.ts:16:5 › root reset requires password and restores deterministic endpoint defaults @root-reset (2.9s)\n\n  6 passed (13.0s)\n\n> mina-mock-mcpserver@1.0.0 start:smoke\n> node scripts/start-smoke.mjs\n\n\n> mina-mock-mcpserver@1.0.0 db:prepare\n> node scripts/db-prepare.mjs\n\nDatasource \"db\": SQLite database \"runtime.sqlite\" at \"file:./data/runtime.sqlite\"\n\n3 migrations found in prisma/migrations\n\n\nNo pending migrations to apply.\n\n✔ Generated Prisma Client (v7.8.0) to ./node_modules/@prisma/client in 48ms\n\nStart by importing your Prisma Client (See: https://pris.ly/d/importing-client)\n\n\nPrepared SQLite runtime state with Prisma migrations and endpoint seed defaults.\n\n> mina-mock-mcpserver@1.0.0 build\n> next build\n\n   ▲ Next.js 15.5.15\n\n   Creating an optimized production build ...\n ✓ Compiled successfully in 808ms\n   Linting and checking validity of types ...\n   Collecting page data ...\n   Generating static pages (0/11) ...\n   Generating static pages (2/11) \r\n   Generating static pages (5/11) \r\n   Generating static pages (8/11) \r\n ✓ Generating static pages (11/11)\n   Finalizing page optimization ...\n   Collecting build traces ...\n\nRoute (app)                                 Size  First Load JS\n┌ ○ /                                      164 B         106 kB\n├ ○ /_not-found                            999 B         103 kB\n├ ƒ /api/audit                             133 B         102 kB\n├ ƒ /api/endpoints                         133 B         102 kB\n├ ƒ /api/endpoints/[id]                    133 B         102 kB\n├ ƒ /api/health                            133 B         102 kB\n├ ƒ /api/reset                             133 B         102 kB\n├ ○ /audit                                 164 B         106 kB\n├ ○ /endpoints                           4.97 kB         110 kB\n└ ○ /reset                               1.02 kB         107 kB\n+ First Load JS shared by all             102 kB\n  ├ chunks/255-4f212684648fcab9.js         46 kB\n  ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB\n  └ other shared chunks (total)          1.89 kB\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n\n   ▲ Next.js 15.5.15\n   - Local:        http://localhost:3100\n   - Network:      http://192.168.100.125:3100\n\n ✓ Starting...\n ✓ Ready in 260ms\nProduction-style startup smoke passed at http://127.0.0.1:3100/api/health\n",
+      "preflight": {
+        "command": "ensure-e2e-port-free.sh 3100",
+        "error": "",
+        "ok": true,
+        "output": "port-cleanup: 127.0.0.1:3100 already free\n"
+      },
+      "next_server_log_path": "/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T192021-root-reset-defaults/npm-run-verify-next-server.log"
+    }
+  ],
+  "missing_files": [],
+  "pass": true
+}
+
+Worker handoff summary from the last run:
+Implemented `root-reset-defaults`.
+
+What changed:
+- Added root-protected reset API/UI at `/api/reset` and `/reset`.
+- Reset requires root password plus exact `RESET DEFAULTS` confirmation.
+- Reset clears current endpoint data, recreates deterministic endpoint seed defaults, and keeps audit history.
+- Added non-secret audit evidence for reset failures and success.
+- Added unit coverage and `@root-reset` E2E coverage.
+- Serialized Playwright E2E workers to avoid shared SQLite reset/mutation races.
+
+Required checks passed:
+- `npm run db:prepare`
+- `npm run test:unit`
+- `npm run test:e2e -- --grep @root-reset`
+- `npm run verify`
+
+I also updated `state/last-result.txt` with the operator handoff. Exit criteria appear satisfied; no known remaining work for this task.
+
+Your job:
+- inspect the repository and current implementation
+- determine whether the current task is actually complete
+- mark `done` only if the exit criteria are satisfied in substance, not just approximately
+- prefer conservative decisions
+- recommend promotion only if the task is truly ready
+
+Return JSON only using the provided schema.
+
+codex
+{"decision":"not_done","recommend_promotion":false,"confidence":0.0,"summary":"I’m going to inspect the required docs and the implementation/test surfaces that matter for reset, then compare them against the exit criteria and promotion gates.","satisfied_exit_criteria":[],"missing_requirements":[],"human_review_triggers":[]}
+exec
+/bin/zsh -lc "sed -n '1,260p' ARCHITECTURE.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+exec
+/bin/zsh -lc "sed -n '1,240p' docs/FRONTEND.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+exec
+/bin/zsh -lc "sed -n '1,220p' AGENTS.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+exec
+/bin/zsh -lc "sed -n '1,240p' docs/PRODUCT_SENSE.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# FRONTEND.md
+
+## Goal
+Describe the user-facing structure of MCP Mock Server so an agent can implement the UI without guessing the product model.
+
+## Tech Direction
+- Next.js application
+- TypeScript
+- App Router
+- server-backed data flows where appropriate
+
+## Route Map
+| Route | Surface | Notes |
+|---|---|---|
+| / | Dashboard | Counts, URL examples, public UI warning |
+| /endpoints | Endpoint tools | List/search/create/edit/delete/test |
+| /basic-users | Basic Auth users | Built-in default locked |
+| /oauth-users | OAuth users | Built-in default locked |
+| /oauth-clients | OAuth clients | Redirect URIs and allowed endpoints |
+| /tokens | Issued tokens | Claims, permissions, revoke, filters |
+| /config | Server config | Base URL, MCP/REST/OAuth examples, Nginx guide |
+| /reset | Reset | Root-password protected reset |
+| /audit | Audit log | Public mutation, protected delete, and token evidence |
+| /oauth/login | OAuth login | Separate from admin UI |
+| /oauth/consent | OAuth consent | Endpoint permission checklist |
+| /api/* | Admin/API | Health, CRUD, config, reset, audit |
+| /mcp, /mcp/none, /mcp/basic, /mcp/oauth | MCP JSON-RPC | Unified plus strict auth routes |
+| /rest/tools, /rest/tools/:name/call | REST mock API | Same tool catalog through REST |
+| /.well-known/*, /oauth/jwks, /oauth/token, /oauth/revoke | OAuth metadata/runtime | Discovery, token, revocation |
+
+## Primary Screens
+| Screen | Primary jobs |
+|---|---|
+| Dashboard | Summarize service state and show connection examples |
+| Endpoints | List, search, create, and edit mock tools, response cases, failure simulation, and delete protection |
+| Endpoint console | Preview MCP/REST call shape with selected auth mode, then run calls once runtime tasks wire execution |
+| Basic Auth users | Manage Basic test identities and built-in lock state |
+| OAuth users | Manage login identities and token TTLs |
+| OAuth clients | Manage client secrets, redirect URIs, and allowed endpoint set |
+| OAuth login/consent | Complete authorization-code flow and select endpoint permissions |
+| Issued tokens | Inspect claims, permissions, expiration, and revoke tokens |
+| Config/guide | Show base URL, MCP/REST/OAuth URLs, sample client config, curl, Nginx |
+| Reset | Root-protected reset to current seed defaults with exact confirmation text |
+| Audit | Review mutation and security-relevant event history without exposing submitted secrets |
+
+## UI Rules
+- favor quiet, dense, operational layouts over marketing composition
+- use icons for copy, edit, delete, revoke, reset, refresh, and external-link actions where available
+- every destructive action has a confirmation path and explains whether delete code or root password is accepted
+- endpoint deletion keeps confirmation inputs separate from the endpoint editor values and clears submitted secrets after attempts
+- show protocol/auth warnings inline on malformed-response and public-admin controls
+- tables must support search/filter states without layout shift
+- endpoint editor forms must surface API/domain validation errors next to the affected fields
+- endpoint editor forms must show generated MCP `inputSchema` from the shared endpoint domain schema helper
+- console outputs must preserve raw JSON formatting and elapsed/auth/match metadata
+- console shell states must clearly mark unavailable runtime actions instead of faking calls
+- UI-focused tasks must include desktop and mobile screenshots plus accessibility checks
+
+## Search / Share / Admin Notes
+- the admin UI is intentionally public, so copy must avoid implying enterprise security
+- root-password fields are used only for protected actions and must not be logged
+- reset confirmation must make clear that currently implemented endpoint data is deleted and seed defaults are recreated
+- copy buttons should exist for MCP URLs, REST URLs, client config, curl examples, client secrets at issuance, and JWTs at issuance
+- OAuth consent should make selected endpoint permissions unambiguous
+
+## Frontend Non-Goals for v1
+- no marketing landing page before the usable dashboard
+- no enterprise account settings or RBAC screens
+- no hidden destructive operations without confirmation
+- no decorative UI that obscures raw request/response evidence
+
+ succeeded in 0ms:
+# ARCHITECTURE.md
+
+## Goal
+Build MCP Mock Server as an agent-legible codebase with strong boundaries, a short instruction surface, and enough extension seams to support future change without overbuilding v1.
+
+## System Overview
+MCP Mock Server is a web application with:
+- a public Next.js UI served on port 3000
+- server-side route handlers for admin APIs, MCP, REST, OAuth, and discovery metadata
+- SQLite persistence prepared by npm run db:prepare
+- operator logs under logs/ with LOG_LEVEL selection
+- Ralph scripts under scripts/ralph/ driving active task promotion
+
+## Architectural Priorities
+- isolate MCP protocol formatting from endpoint matching and auth decisions
+- keep auth mode resolution explicit and fail closed for invalid Basic/Bearer headers
+- store immutable endpoint IDs and treat names as external labels
+- make seeded built-in users/clients impossible to delete or disable through normal flows
+- prove persistence and production-style startup with deterministic commands
+
+## Layered Domain Model
+Use a strict forward-only dependency shape inside each domain:
+
+`Types -> Config -> Repo -> Service -> Runtime -> UI`
+
+### Why this matters
+The repository is intended to work well with long-running agent loops. Strict boundaries reduce accidental coupling and make failure analysis easier.
+
+## Primary Domains
+| Domain | Responsibility |
+|---|---|
+| Endpoint catalog | Endpoint CRUD, parameters, response cases, delete code, enabled state |
+| Matcher/runtime | Argument normalization, exact match, default/no-match, delay/error/malformed behavior |
+| MCP protocol | JSON-RPC request handling, initialize, tools/list, tools/call, MCP errors |
+| REST API | Tool list/call responses and REST error mapping |
+| Basic auth | Basic users, password hashing, built-in default protection, 401 behavior |
+| OAuth | Users, clients, codes, JWTs, permissions, revocation, discovery metadata |
+| Admin UI | Dashboards, editors, console, config, reset, audit screens |
+| Operations | SQLite prep, seed defaults, base URL, Docker/Nginx docs, logs, health |
+
+## Frontend / Backend Shape
+### Frontend
+- App Router screens should be dense, operational, and optimized for repeated testing
+- UI routes read and mutate through server-backed APIs, not local-only state
+- route-level loading and error states are required for public mutation surfaces
+- test console shows raw request, raw response, principal, matched case, and elapsed time
+- OAuth login and consent UI is separate from the admin navigation
+
+### Server
+- Next.js route handlers own HTTP surfaces for MVP
+- domain services own validation, matching, auth, token, and reset logic
+- repositories isolate Prisma access
+- protocol adapters convert domain outcomes into MCP JSON-RPC or REST responses
+- startup code prepares runtime state before production-style serving
+
+## Persistence Strategy
+- SQLite is the source of truth for endpoints, parameters, cases, users, clients, codes, tokens, audit events, and settings
+- Prisma migrations define the schema and db:prepare applies migrations plus idempotent seed defaults
+- built-in default/default Basic user, OAuth user, and OAuth client are recreated and protected
+- issued token records store jti and metadata; raw tokens are shown only at issuance unless explicitly configured
+- tests use isolated temporary databases or resettable seed state
+
+## Verification Shape
+- unit tests cover validators, matching, auth precedence, JWT claims, permissions, reset, and protocol formatting
+- Playwright proves browser-visible workflows and external-client-like OAuth/MCP/REST flows
+- start:smoke builds, prepares runtime state, starts the production server, probes health, and shuts down
+- verify runs lint, typecheck, build, unit, E2E, and startup smoke
+- failing required checks block Ralph promotion
+
+## Long-Running Agent Readiness
+- docs are the system of record
+- plans are executable, not aspirational
+- domain boundaries are explicit
+- repeated issues should be upgraded into tests or static checks
+
+ succeeded in 0ms:
+# PRODUCT_SENSE.md
+
+## One-Line Product Definition
+MCP Mock Server is a public remote MCP mock server and web UI for testing no-auth, Basic Auth, and mock OAuth bearer tool calls.
+
+## Who It Is For
+### Primary user
+MCP client developers, AI agent developers, demo/QA users, and the server operator.
+
+## User Problem
+MCP client and AI-agent developers need a configurable remote server that behaves enough like a real MCP server to prove connection, auth, token, permission, and tool-call behavior before integrating with production systems.
+
+## Why This Product Exists
+Remote MCP adoption is moving auth, transport, and permission bugs into client integration work. A public mock server gives teams a repeatable target for manual testing, automated E2E checks, demos, and negative-path validation.
+
+## Product Principles
+- realistic MCP and OAuth behavior over decorative admin features
+- public-by-design administration with light destructive-operation protection
+- destructive endpoint deletion requires a delete code or root-password override and leaves non-secret audit evidence
+- deterministic mocks: exact-match cases, explicit defaults, and observable failures
+- endpoint permissions are visible, selectable, and enforced
+- operator recovery paths must be simple and root-password protected
+
+## Core Value in v1
+- create a mock endpoint once and exercise it through MCP and REST
+- inspect the generated MCP input schema and planned console evidence before runtime calls are wired
+- prove no-auth, Basic, and OAuth bearer client behavior against strict routes
+- issue mock OAuth tokens with endpoint-level permissions through browser consent or client credentials
+- simulate failure cases that clients often mishandle
+- persist configuration and provide root-password-protected reset/recovery for a public test service
+
+## Non-Goals for v1
+- production-grade identity management
+- external OAuth provider integration
+- true multi-tenant isolation
+- enterprise RBAC for the public admin UI
+- handling sensitive customer data
+- full MCP resources, prompts, sampling, elicitation, or task-augmented execution in MVP
+- replacing a real authorization server
+
+## v1 Success Signals
+- a new endpoint can be created and edited through the public endpoint UI, then listed through tools/list, called through tools/call, and called through REST
+- Basic default/default and additional users work on strict Basic routes while invalid credentials return 401
+- OAuth consent can select endpoints, exchange a code for a JWT, allow selected tools, deny unselected tools with 403, and return 401 after revocation
+- token and audit screens show enough evidence to debug a client test, including endpoint delete success/failure without stored secrets
+- SQLite state survives restart and root reset restores currently implemented built-in defaults
+- npm run verify and npm run start:smoke pass before task promotion
+
+## Product Risks
+- public UI can be abused or reset if root/delete-code handling is weak
+- OAuth semantics can drift into unrealistic behavior unless routes and E2E checks pin 401/403/token claims
+- MCP spec details may change, so the implementation must isolate protocol formatting
+- failure simulation can intentionally violate protocol behavior and needs visible warnings
+- persistent SQLite state can make tests flaky unless seeded and isolated deterministically
+
+ succeeded in 0ms:
+# AGENTS.md
+
+## Purpose
+MCP Mock Server is a public remote MCP mock server and web UI for testing no-auth, Basic Auth, and mock OAuth bearer tool calls.
+
+This repository is optimized for agent-legible development and a Ralph-style task-promotion loop.
+
+## Read Order
+Before changing code or plans, read these files in order:
+
+1. `ARCHITECTURE.md`
+2. `docs/PRODUCT_SENSE.md`
+3. `docs/design-docs/core-beliefs.md`
+4. `docs/product-specs/index.md`
+5. `docs/FRONTEND.md`
+6. `docs/PLANS.md`
+7. active plans in `docs/exec-plans/active/`
+
+## Scope Guardrails
+### In scope for v1
+- Next.js App Router web gateway and route handlers
+- TypeScript domain/services with Prisma SQLite persistence
+- endpoint/tool management with up to three parameters and exact-match response cases
+- no-auth, Basic, and OAuth bearer MCP/REST runtime paths
+- OAuth user/client/token administration, authorization code flow, client credentials flow, discovery metadata, and JWKS
+- failure simulation, audit log, server config, reset, logging, Docker/Nginx guidance, and Ralph harness
+
+### Explicitly out of scope for v1
+- production-grade identity management
+- external OAuth provider integration
+- true multi-tenant isolation
+- enterprise RBAC for the public admin UI
+- handling sensitive customer data
+- full MCP resources, prompts, sampling, elicitation, or task-augmented execution in MVP
+- replacing a real authorization server
+
+## Product Shape
+- public admin UI for mock endpoint, auth, token, config, reset, and audit management
+- MCP Streamable HTTP-style JSON-RPC endpoints at /mcp and strict auth aliases
+- REST tool list/call API for curl and Postman style testing
+- mock OAuth authorization server with login, consent, token, revocation, and discovery metadata
+- SQLite-backed persistence with deterministic seed defaults
+
+## Technical Shape
+- Next.js App Router and TypeScript with npm scripts
+- Prisma plus SQLite for migrations, seed defaults, and persistent runtime state
+- layered domain shape: types, config, repo, service, runtime, UI
+- Playwright for E2E and UI verification, node --import tsx --test for unit tests
+- logs/ plus LOG_LEVEL and start:logged for operator-visible server flow
+
+## Validation Strategy
+Use layered checks:
+- unit tests for domain rules
+- integration tests for repository/runtime boundaries where needed
+- small E2E coverage for the required user journeys only
+
+Promotion is blocked when required checks fail. Required test commands in active task contracts are hard gates, not suggestions.
+While iterating, prefer the smallest targeted check for the code you just changed. Use the full required command set before considering the task done.
+If a feature depends on an outside resource such as AI chat or another remote service, keep it in the required E2E flows before allowing promotion.
+If a task is mainly UI or UX work, require a dedicated `@ui-*` Playwright command with screenshot, responsive, and accessibility checks before allowing promotion.
+If `taskmeta.promotion_mode` is `deterministic_only`, passing the required commands is sufficient for promotion without human review.
+For manual server inspection, prefer `npm run start:logged` and set `LOG_LEVEL` intentionally instead of relying only on ephemeral terminal output.
+
+### Required E2E flows
+- endpoint create/edit/delete and console call flow
+- MCP initialize, tools/list, and tools/call in no-auth mode
+- Basic user creation and strict /mcp/basic success/failure
+- REST tools list/call across auth modes
+- OAuth browser consent, token exchange, allowed tool call, denied tool call, and revocation
+- failure simulation and audit evidence
+- config/health/reset/startup smoke
+
+## Documentation Discipline
+- If behavior changes, update the related spec or design doc in the same cycle.
+- Prefer small, executable plans over vague TODOs.
+- When a repeated mistake appears, first document it; if it keeps recurring, promote it into tests or lint rules.
+- Keep the documented test strategy current; do not leave promotion gates implied.
+- When adding or editing tests, explain what behavior the test protects if that intent would otherwise be easy to lose.
+
+## Search Discipline
+- Search the codebase before concluding that a thing is unimplemented.
+- Prefer multiple targeted searches over one broad assumption.
+- If you find a partial implementation, adapt or complete it instead of duplicating it blindly.
+
+## Optional Companion Skills
+- If the customer allows them and they are installed, consider relevant companion skills before planning or implementation.
+- Good candidates include database, Next.js pattern, UI design, responsive UI, and clean-architecture skills.
+
+## Done Definition
+A task is done only when its scoped behavior works in substance, docs and tests match the implementation, required deterministic commands pass, and promotion rules in taskmeta are satisfied.
+
+codex
+{"decision":"not_done","recommend_promotion":false,"confidence":0,"summary":"I’ve read the top-level architecture/product/frontend guidance. Next I’m checking security, reliability, the operator configuration spec, and the active plan contract before judging the patch.","satisfied_exit_criteria":[],"missing_requirements":[],"human_review_triggers":[]}
+exec
+/bin/zsh -lc "sed -n '1,260p' docs/SECURITY.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# SECURITY.md
+
+## Purpose
+Define the security posture for MCP Mock Server's current shipped slice.
+
+## Core Security Rules
+- validate Origin for Streamable HTTP-style MCP routes where browser-origin risk applies
+- unsupported Authorization schemes return 401
+- invalid Basic/Bearer credentials never downgrade to no-auth
+- OAuth tokens must verify signature, issuer, audience, expiry, jti revocation, and endpoint permissions
+- built-in identities and clients cannot be disabled or deleted through normal UI/API flows
+- root password comparisons must avoid logging and should use constant-time comparison where practical
+
+## Secrets and Config
+- ROOT_PASSWORD gates reset, delete override, base URL override, and optional historical token deletion
+- client secrets and passwords are never logged
+- endpoint delete audit entries store method/reason metadata, not submitted delete codes or root passwords
+- reset audit entries store success/failure reason and seed counts, not submitted root passwords
+- passwords are stored only as hashes
+- raw JWT values are shown only at issuance unless a config explicitly permits storage
+- LOG_LEVEL controls verbosity but must not expose secrets even at trace/debug
+
+## Public Surfaces
+- public admin UI routes and /api/* mutation endpoints
+- MCP routes /mcp, /mcp/none, /mcp/basic, /mcp/oauth
+- REST mock routes /rest/tools and /rest/tools/:name/call
+- OAuth browser, token, revocation, discovery, and JWKS routes
+- health and public config endpoints
+
+## Verification
+- unit tests for auth precedence, root checks, built-in immutability, JWT validation, and permission denial
+- E2E tests for Basic 401/success and OAuth 401/403/revocation
+- reset tests prove endpoint defaults are recreated after root-password and confirmation checks
+- audit tests prove failed delete attempts and reset events are recorded
+
+exec
+/bin/zsh -lc "sed -n '1,260p' docs/RELIABILITY.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# RELIABILITY.md
+
+## Purpose
+Define the reliability expectations and failure-handling rules for MCP Mock Server.
+
+## Core Reliability Rules
+- seed defaults must be idempotent and protected from normal deletion
+- invalid auth fails closed and never falls back to anonymous access
+- reset must leave the service operational with default users/client/endpoints
+- current reset invariants cover endpoint data and current endpoint seed defaults; later Basic/OAuth slices must add their own reset extensions when those built-ins land
+- long delays and malformed responses are intentional per endpoint/case and must not corrupt other requests
+- worker stalls in Ralph are detected through worker.jsonl heartbeat evidence
+
+## Verification
+- npm run db:prepare applies schema and seed data
+- npm run start:smoke proves production-style startup and health response
+- E2E checks cover OAuth permission denial, revocation, and reset recovery
+- audit tests prove mutation evidence is written
+- Ralph status verifies current-task state and active queue consistency
+
+## Runtime Startup Contract
+If the app depends on persistent runtime state, document how runtime preparation happens and how a production-style startup smoke proves the `start` path actually works.
+
+## Operator Logging
+Document how `npm run start:logged` writes operator-visible server logs into `logs/`, which environment variable controls the log level, and which levels are supported for manual debugging.
+Generated server code should expose at least `trace`, `debug`, `info`, `warn`, and `error` logging without dumping secrets or full sensitive payloads by default.
+
+## Test Strategy
+Document which behaviors are protected by unit tests, which flows require end-to-end coverage, and which command failures block task promotion.
+When tests cover subtle or business-critical behavior, capture why those tests exist so future loops do not weaken them casually.
+If a user-visible behavior depends on an outside resource such as AI chat or a third-party service, require end-to-end coverage before promotion.
+If a task is mainly UI or UX work, require a dedicated `@ui-*` Playwright command with screenshot, responsive, and accessibility checks before promotion.
+UI tasks that fully prove quality through those deterministic checks may use `taskmeta.promotion_mode = deterministic_only` so promotion does not require human review.
+
+## Known Gaps
+- production hosting rate limits and abuse controls are outside MVP unless added later
+- SQLite backup/rotation policy is not yet defined
+- SSE streaming and MCP sessions are Phase 2
+- privacy policy for storing IP or IP hash in audit logs must be decided before public deployment
+
+## Environment-Specific Verification Blockers
+If the direct operator path passes but the current sandboxed or wrapped runner still fails, record that separately from normal product bugs and escalate it explicitly instead of hiding it inside generic “not done” wording.
+
+exec
+/bin/zsh -lc "sed -n '1,320p' docs/exec-plans/active/006-root-reset-defaults.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+exec
+/bin/zsh -lc "sed -n '1,260p' docs/product-specs/operator-configuration.md" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+# Root-Protected Reset to Defaults
+
+```json taskmeta
+{
+  "id": "root-reset-defaults",
+  "title": "Root-Protected Reset to Defaults",
+  "order": 6,
+  "status": "active",
+  "next_task_on_success": "mcp-initialize-and-tools-list",
+  "prompt_docs": [
+    "AGENTS.md",
+    "ARCHITECTURE.md",
+    "docs/PRODUCT_SENSE.md",
+    "docs/FRONTEND.md",
+    "docs/SECURITY.md",
+    "docs/RELIABILITY.md",
+    "docs/product-specs/operator-configuration.md"
+  ],
+  "required_commands": [
+    "npm run db:prepare",
+    "npm run test:unit",
+    "npm run test:e2e -- --grep @root-reset",
+    "npm run verify"
+  ],
+  "required_files": [],
+  "human_review_triggers": [
+    "The task broadens into unrelated feature fronts.",
+    "Required checks do not prove the claimed behavior.",
+    "Implementation changes contradict the product spec or security/reliability docs."
+  ],
+  "promotion_mode": "deterministic"
+}
+```
+
+## Objective
+
+Implement root-password-protected reset behavior that restores deterministic default state without harming runtime readiness.
+
+## Clarity notes
+
+- Reset is an operator recovery path for a public test service.
+- This task should reset endpoint data and any seeded defaults currently implemented; future auth slices can extend reset invariants as they add built-ins.
+- The reset UI should be explicit about destructive behavior.
+- The reset path must leave `db:prepare`, startup smoke, and later queue tasks usable.
+
+## Expected result
+
+- A reset screen/API requires root password and confirmation text.
+- Full reset removes user-created endpoint data and recreates current seed defaults.
+- Audit evidence records reset attempts and successful reset.
+- Tests prove reset recovery from modified public data.
+
+## Objections / risks to avoid
+
+- Do not introduce login/session semantics for root password.
+- Do not reset by deleting the SQLite file in a way that bypasses migrations or seed invariants.
+- Do not leave stale in-memory data after reset.
+- Do not claim future Basic/OAuth built-ins are handled until those slices add their reset extensions.
+
+## Scope
+
+- Implement root password verification for reset.
+- Create reset service that clears currently implemented mutable data and reruns seed preparation.
+- Build reset confirmation UI.
+- Write audit events for reset success/failure.
+- Add E2E coverage tagged `@root-reset`.
+
+## Out of scope
+
+- Endpoint delete-by-code behavior already handled in previous task.
+- Future Basic/OAuth reset extensions before their domains exist.
+- Backup/restore or scheduled maintenance tooling.
+
+## Exit criteria
+
+1. Root password and confirmation are required for reset.
+2. Reset restores deterministic endpoint defaults after user-created data exists.
+3. Reset failure does not corrupt runtime state.
+4. `@root-reset` proves UI/API recovery behavior.
+5. All required checks pass.
+
+## Required checks
+
+- npm run db:prepare
+- npm run test:unit
+- npm run test:e2e -- --grep @root-reset
+- npm run verify
+
+## Implementation notes
+
+- Document reset invariants in reliability/security docs if implementation details change.
+
+## Docs to update
+
+- docs/PRODUCT_SENSE.md
+- docs/FRONTEND.md
+- docs/SECURITY.md
+- docs/RELIABILITY.md
+
+## Evaluator notes
+
+Required commands are mandatory promotion gates, not suggestions.
+Do not promote if any required check fails.
+Do not accept broad feature work outside this task.
+Confirm that this task maps to the primary product spec `operator-configuration.md` or is explicitly final hardening.
+
+## Progress log
+
+- Start here. Append timestamped progress notes as work lands.
+- Note when existing partial implementations were found and reused instead of replaced.
+- 2026-05-05T10:19:51.517Z: restored as current task after endpoint-protected-delete-audit promotion.
+- 2026-05-05T19:12:00+09:00 - Found existing endpoint seed preparation, root-password verifier, endpoint deletion API patterns, and audit service; reused those rather than adding sessions or deleting the SQLite file.
+- 2026-05-05T19:18:00+09:00 - Added root-password plus exact confirmation reset API/UI, endpoint-table reset service that reruns current seed defaults, non-secret reset audit events, and `@root-reset` UI/API E2E coverage.
+- 2026-05-05T19:28:05+09:00 - Required gates passed: `npm run db:prepare`, `npm run test:unit`, `npm run test:e2e -- --grep @root-reset`, and `npm run verify`; `verify` required serial Playwright workers because reset and endpoint mutation E2E share the same SQLite runtime database.
+
+ succeeded in 0ms:
+# Operator Configuration and Deployment
+
+## Goal
+The operator can inspect health, connection URLs, base URL behavior, reset with root password, logs, Docker/Nginx guidance, and deterministic startup proof.
+
+## Trigger / Entry
+Connection guide
+
+## User-Visible Behavior
+- Connection guide
+- Health endpoint
+- Root-protected base URL override
+- Root-protected reset
+- Reset requires exact confirmation text and records non-secret audit evidence for failed and successful attempts
+- Operator-visible logs
+
+## Validation
+- Base URL precedence
+- Root password checks
+- Seed default recreation for currently implemented endpoint defaults
+- Log-level filtering without secret leakage
+- Health/config page renders, root reset restores defaults, production-style startup smoke passes
+
+codex
+{"decision":"not_done","recommend_promotion":false,"confidence":0,"summary":"The task contract matches the operator configuration spec, so the remaining question is implementation substance. I’m checking the reset service, API, UI, audit behavior, seed path, and tests now.","satisfied_exit_criteria":[],"missing_requirements":[],"human_review_triggers":[]}
+exec
+/bin/zsh -lc 'find app lib tests scripts prisma -maxdepth 4 -type f | sort' in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+app/api/audit/route.ts
+app/api/endpoints/[id]/route.ts
+app/api/endpoints/route.ts
+app/api/health/route.ts
+app/api/reset/route.ts
+app/audit/page.tsx
+app/endpoints/endpoint-manager.tsx
+app/endpoints/page.tsx
+app/globals.css
+app/layout.tsx
+app/page.tsx
+app/reset/page.tsx
+app/reset/reset-form.tsx
+lib/audit/service.ts
+lib/bootstrap-status.ts
+lib/db/client.ts
+lib/db/seed.ts
+lib/endpoints/api.ts
+lib/endpoints/schema.ts
+lib/endpoints/service.ts
+lib/endpoints/types.ts
+lib/endpoints/validation.ts
+lib/reset/service.ts
+lib/reset/types.ts
+lib/security/root-password.ts
+prisma/migrations/202605050001_endpoint_persistence/migration.sql
+prisma/migrations/202605050002_endpoint_title_response_case_config/migration.sql
+prisma/migrations/202605050003_audit_events/migration.sql
+prisma/schema.prisma
+prisma/seed.mjs
+scripts/db-prepare.mjs
+scripts/ralph/README.md
+scripts/ralph/branch-rca-task.mjs
+scripts/ralph/commit-if-changed.sh
+scripts/ralph/ensure-e2e-port-free.sh
+scripts/ralph/ensure-state.mjs
+scripts/ralph/evaluate-task.mjs
+scripts/ralph/generated/current-evaluator-prompt.txt
+scripts/ralph/generated/current-task-prompt.txt
+scripts/ralph/lib/blocker-utils.mjs
+scripts/ralph/lib/task-utils.mjs
+scripts/ralph/manual-promote.sh
+scripts/ralph/promote-task.mjs
+scripts/ralph/record-blocker.mjs
+scripts/ralph/render-backlog.mjs
+scripts/ralph/render-evaluator-prompt.mjs
+scripts/ralph/render-task-prompt.mjs
+scripts/ralph/run-loop.sh
+scripts/ralph/run-once.sh
+scripts/ralph/schemas/task-evaluation.schema.json
+scripts/ralph/status.sh
+scripts/start-logged.mjs
+scripts/start-smoke.mjs
+tests/e2e/bootstrap.spec.ts
+tests/e2e/endpoint-console.spec.ts
+tests/e2e/endpoint-delete-audit.spec.ts
+tests/e2e/endpoint-editor.spec.ts
+tests/e2e/root-reset.spec.ts
+tests/unit/bootstrap-status.test.ts
+tests/unit/db-prepare.test.ts
+tests/unit/endpoint-validation.test.ts
+tests/unit/ralph-promote.test.ts
+tests/unit/reset-service.test.ts
+
+exec
+/bin/zsh -lc "rg -n \"reset|ROOT_PASSWORD|verifyRoot|RESET DEFAULTS|seed\" app lib tests prisma scripts docs -g '"'!node_modules'"'" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+docs/SECURITY.md:15:- ROOT_PASSWORD gates reset, delete override, base URL override, and optional historical token deletion
+docs/SECURITY.md:18:- reset audit entries store success/failure reason and seed counts, not submitted root passwords
+docs/SECURITY.md:33:- reset tests prove endpoint defaults are recreated after root-password and confirmation checks
+docs/SECURITY.md:34:- audit tests prove failed delete attempts and reset events are recorded
+lib/db/seed.ts:7:export async function seedEndpointDefaults(client: SeedClient) {
+tests/e2e/root-reset.spec.ts:10:  await page.getByRole("textbox", { name: /^Description/ }).fill(`Root reset coverage for ${name}.`);
+tests/e2e/root-reset.spec.ts:16:test("root reset requires password and restores deterministic endpoint defaults @root-reset", async ({ page, request }) => {
+tests/e2e/root-reset.spec.ts:17:  const endpointName = `root_reset_${Date.now()}`;
+tests/e2e/root-reset.spec.ts:20:  const failedResponse = await request.post("/api/reset", {
+tests/e2e/root-reset.spec.ts:21:    data: { rootPassword: "wrong-root-password", confirmation: "RESET DEFAULTS" },
+tests/e2e/root-reset.spec.ts:29:  await page.goto("/reset");
+tests/e2e/root-reset.spec.ts:34:  await expect(page.getByText("Enter the root password and exact confirmation text to reset defaults.")).toBeVisible();
+tests/e2e/root-reset.spec.ts:40:  await page.goto("/reset");
+tests/e2e/root-reset.spec.ts:42:  await page.getByLabel("Confirmation text").fill("RESET DEFAULTS");
+tests/e2e/root-reset.spec.ts:53:  await expect(page.getByRole("row").filter({ hasText: "system.reset" }).filter({ hasText: "failure" }).first()).toBeVisible();
+tests/e2e/root-reset.spec.ts:54:  await expect(page.getByRole("row").filter({ hasText: "system.reset" }).filter({ hasText: "success" }).first()).toBeVisible();
+app/globals.css:546:.reset-panel {
+app/globals.css:556:.reset-panel h2 {
+app/globals.css:561:.reset-panel p {
+app/globals.css:567:.reset-panel .form-message {
+app/globals.css:571:.reset-panel .danger-button {
+docs/DESIGN.md:11:- recoverable public service: root reset and audit evidence are first-class operator tools
+lib/reset/service.ts:4:import { seedEndpointDefaults } from "@/lib/db/seed";
+lib/reset/service.ts:5:import { verifyRootPassword } from "@/lib/security/root-password";
+lib/reset/service.ts:6:import { RESET_CONFIRMATION_TEXT, ResetAuthorizationError } from "@/lib/reset/types";
+lib/reset/service.ts:7:import type { ResetInput, ResetResult } from "@/lib/reset/types";
+lib/reset/service.ts:9:function resetReasonFor(input: ResetInput) {
+lib/reset/service.ts:17:  if (!verifyRootPassword(input.rootPassword)) {
+lib/reset/service.ts:26:      eventType: "system.reset",
+lib/reset/service.ts:29:      subjectName: "reset",
+lib/reset/service.ts:37:export async function resetToDefaults(input: ResetInput, client: PrismaClient = createPrismaClient()): Promise<ResetResult> {
+lib/reset/service.ts:38:  const failureReason = resetReasonFor(input);
+lib/reset/service.ts:49:    await seedEndpointDefaults(tx);
+lib/reset/service.ts:50:    const seededEndpoints = await tx.endpoint.count();
+lib/reset/service.ts:54:        eventType: "system.reset",
+lib/reset/service.ts:57:        subjectName: "reset",
+lib/reset/service.ts:62:          seededEndpoints,
+lib/reset/service.ts:70:      seededEndpoints,
+docs/FRONTEND.md:22:| /reset | Reset | Root-password protected reset |
+docs/FRONTEND.md:26:| /api/* | Admin/API | Health, CRUD, config, reset, audit |
+docs/FRONTEND.md:43:| Reset | Root-protected reset to current seed defaults with exact confirmation text |
+docs/FRONTEND.md:48:- use icons for copy, edit, delete, revoke, reset, refresh, and external-link actions where available
+docs/FRONTEND.md:62:- reset confirmation must make clear that currently implemented endpoint data is deleted and seed defaults are recreated
+tests/unit/reset-service.test.ts:7:import { seedEndpointDefaults } from "@/lib/db/seed";
+tests/unit/reset-service.test.ts:9:import { resetToDefaults } from "@/lib/reset/service";
+tests/unit/reset-service.test.ts:10:import { ResetAuthorizationError } from "@/lib/reset/types";
+tests/unit/reset-service.test.ts:13:  const directory = await mkdtemp(join(tmpdir(), "mcp-mock-reset-"));
+tests/unit/reset-service.test.ts:15:  const previousRootPassword = process.env.ROOT_PASSWORD;
+tests/unit/reset-service.test.ts:17:  process.env.ROOT_PASSWORD = "unit-root-password";
+tests/unit/reset-service.test.ts:25:    await seedEndpointDefaults(client);
+tests/unit/reset-service.test.ts:35:      delete process.env.ROOT_PASSWORD;
+tests/unit/reset-service.test.ts:37:      process.env.ROOT_PASSWORD = previousRootPassword;
+tests/unit/reset-service.test.ts:42:test("reset requires confirmation and leaves endpoint state untouched on failure", async () => {
+tests/unit/reset-service.test.ts:45:      () => resetToDefaults({ rootPassword: "unit-root-password", confirmation: "wrong" }, client),
+tests/unit/reset-service.test.ts:50:    assert.equal(await client.auditEvent.count({ where: { eventType: "system.reset", outcome: "failure" } }), 1);
+tests/unit/reset-service.test.ts:54:test("reset clears mutable endpoint data and recreates current seed defaults", async () => {
+tests/unit/reset-service.test.ts:58:        name: "temporary_reset_endpoint",
+tests/unit/reset-service.test.ts:59:        title: "Temporary reset endpoint",
+tests/unit/reset-service.test.ts:60:        description: "Removed by reset.",
+tests/unit/reset-service.test.ts:85:    const result = await resetToDefaults({ rootPassword: "unit-root-password", confirmation: "RESET DEFAULTS" }, client);
+tests/unit/reset-service.test.ts:87:    assert.equal(result.seededEndpoints, 1);
+tests/unit/reset-service.test.ts:91:    assert.equal(await client.endpoint.count({ where: { name: "temporary_reset_endpoint" } }), 0);
+tests/unit/reset-service.test.ts:93:    assert.equal(await client.auditEvent.count({ where: { eventType: "system.reset", outcome: "success" } }), 1);
+lib/reset/types.ts:1:export const RESET_CONFIRMATION_TEXT = "RESET DEFAULTS";
+lib/reset/types.ts:10:  seededEndpoints: number;
+app/page.tsx:24:        <Link href="/reset">Reset</Link>
+tests/unit/db-prepare.test.ts:18:test("db:prepare is repeatable and keeps endpoint seed rows singular", async () => {
+lib/security/root-password.ts:13:export function verifyRootPassword(candidate: string | null | undefined) {
+lib/security/root-password.ts:14:  const configured = process.env.ROOT_PASSWORD;
+app/reset/page.tsx:2:import { ResetForm } from "@/app/reset/reset-form";
+app/reset/page.tsx:10:        <Link href="/reset" aria-current="page">Reset</Link>
+app/reset/page.tsx:18:            Root-protected reset for recovering the public test service to the current deterministic endpoint defaults.
+docs/product-specs/endpoint-tool-management.md:22:- Protected deletion and reset invariants
+lib/endpoints/service.ts:8:import { verifyRootPassword } from "@/lib/security/root-password";
+lib/endpoints/service.ts:200:  if (verifyRootPassword(rootPassword)) {
+app/reset/reset-form.tsx:20:      const response = await fetch("/api/reset", {
+app/reset/reset-form.tsx:25:      const payload = (await response.json()) as { message?: string; result?: { seededEndpoints?: number } };
+app/reset/reset-form.tsx:35:        message: `Defaults restored. Seeded endpoints: ${payload.result?.seededEndpoints ?? 0}.`,
+app/reset/reset-form.tsx:44:    <form className="reset-panel" onSubmit={(event) => void submitReset(event)}>
+app/reset/reset-form.tsx:49:          deterministic seed defaults. Audit evidence is retained.
+app/reset/reset-form.tsx:72:          aria-describedby="reset-confirmation-hint"
+app/reset/reset-form.tsx:74:        <p className="field-hint" id="reset-confirmation-hint">
+app/reset/reset-form.tsx:75:          Type RESET DEFAULTS exactly.
+docs/product-specs/operator-configuration.md:4:The operator can inspect health, connection URLs, base URL behavior, reset with root password, logs, Docker/Nginx guidance, and deterministic startup proof.
+docs/product-specs/operator-configuration.md:13:- Root-protected reset
+docs/product-specs/operator-configuration.md:22:- Health/config page renders, root reset restores defaults, production-style startup smoke passes
+app/api/reset/route.ts:2:import { resetToDefaults } from "@/lib/reset/service";
+app/api/reset/route.ts:3:import { ResetAuthorizationError } from "@/lib/reset/types";
+app/api/reset/route.ts:16:    const result = await resetToDefaults({
+app/api/reset/route.ts:25:          error: "reset_confirmation_failed",
+app/api/reset/route.ts:26:          message: "Enter the root password and exact confirmation text to reset defaults.",
+docs/RELIABILITY.md:7:- seed defaults must be idempotent and protected from normal deletion
+docs/RELIABILITY.md:9:- reset must leave the service operational with default users/client/endpoints
+docs/RELIABILITY.md:10:- current reset invariants cover endpoint data and current endpoint seed defaults; later Basic/OAuth slices must add their own reset extensions when those built-ins land
+docs/RELIABILITY.md:15:- npm run db:prepare applies schema and seed data
+docs/RELIABILITY.md:17:- E2E checks cover OAuth permission denial, revocation, and reset recovery
+prisma/seed.mjs:10:export async function seedEndpointDefaults(client = prisma) {
+prisma/seed.mjs:173:  await seedEndpointDefaults();
+app/endpoints/page.tsx:13:        <Link href="/reset">Reset</Link>
+app/audit/page.tsx:12:        <Link href="/reset">Reset</Link>
+docs/exec-plans/active/index.md:8:1. `001-endpoint-domain-and-schema.md` -> `endpoint-domain-and-schema` -> Replace the bootstrap runtime placeholder with durable SQLite/Prisma persistence for endpoint/tool data and deterministic seed defaults.
+docs/exec-plans/active/index.md:13:6. `006-root-reset-defaults.md` -> `root-reset-defaults` -> Implement root-password-protected reset behavior that restores deterministic default state without harming runtime readiness.
+docs/exec-plans/active/index.md:65:Update the relevant product specs and design docs first, then seed the next active queue for the next feature wave.
+docs/design-docs/core-beliefs.md:7:5. Operators need reset, logs, health, and startup proof as much as feature code.
+docs/PRODUCT_SENSE.md:30:- persist configuration and provide root-password-protected reset/recovery for a public test service
+docs/PRODUCT_SENSE.md:46:- SQLite state survives restart and root reset restores currently implemented built-in defaults
+docs/PRODUCT_SENSE.md:50:- public UI can be abused or reset if root/delete-code handling is weak
+docs/PRODUCT_SENSE.md:54:- persistent SQLite state can make tests flaky unless seeded and isolated deterministically
+docs/exec-plans/active/006-root-reset-defaults.md:5:  "id": "root-reset-defaults",
+docs/exec-plans/active/006-root-reset-defaults.md:22:    "npm run test:e2e -- --grep @root-reset",
+docs/exec-plans/active/006-root-reset-defaults.md:37:Implement root-password-protected reset behavior that restores deterministic default state without harming runtime readiness.
+docs/exec-plans/active/006-root-reset-defaults.md:42:- This task should reset endpoint data and any seeded defaults currently implemented; future auth slices can extend reset invariants as they add built-ins.
+docs/exec-plans/active/006-root-reset-defaults.md:43:- The reset UI should be explicit about destructive behavior.
+docs/exec-plans/active/006-root-reset-defaults.md:44:- The reset path must leave `db:prepare`, startup smoke, and later queue tasks usable.
+docs/exec-plans/active/006-root-reset-defaults.md:48:- A reset screen/API requires root password and confirmation text.
+docs/exec-plans/active/006-root-reset-defaults.md:49:- Full reset removes user-created endpoint data and recreates current seed defaults.
+docs/exec-plans/active/006-root-reset-defaults.md:50:- Audit evidence records reset attempts and successful reset.
+docs/exec-plans/active/006-root-reset-defaults.md:51:- Tests prove reset recovery from modified public data.
+docs/exec-plans/active/006-root-reset-defaults.md:56:- Do not reset by deleting the SQLite file in a way that bypasses migrations or seed invariants.
+docs/exec-plans/active/006-root-reset-defaults.md:57:- Do not leave stale in-memory data after reset.
+docs/exec-plans/active/006-root-reset-defaults.md:58:- Do not claim future Basic/OAuth built-ins are handled until those slices add their reset extensions.
+docs/exec-plans/active/006-root-reset-defaults.md:62:- Implement root password verification for reset.
+docs/exec-plans/active/006-root-reset-defaults.md:63:- Create reset service that clears currently implemented mutable data and reruns seed preparation.
+docs/exec-plans/active/006-root-reset-defaults.md:64:- Build reset confirmation UI.
+docs/exec-plans/active/006-root-reset-defaults.md:65:- Write audit events for reset success/failure.
+docs/exec-plans/active/006-root-reset-defaults.md:66:- Add E2E coverage tagged `@root-reset`.
+docs/exec-plans/active/006-root-reset-defaults.md:71:- Future Basic/OAuth reset extensions before their domains exist.
+docs/exec-plans/active/006-root-reset-defaults.md:76:1. Root password and confirmation are required for reset.
+docs/exec-plans/active/006-root-reset-defaults.md:79:4. `@root-reset` proves UI/API recovery behavior.
+docs/exec-plans/active/006-root-reset-defaults.md:86:- npm run test:e2e -- --grep @root-reset
+docs/exec-plans/active/006-root-reset-defaults.md:91:- Document reset invariants in reliability/security docs if implementation details change.
+docs/exec-plans/active/006-root-reset-defaults.md:112:- 2026-05-05T19:12:00+09:00 - Found existing endpoint seed preparation, root-password verifier, endpoint deletion API patterns, and audit service; reused those rather than adding sessions or deleting the SQLite file.
+docs/exec-plans/active/006-root-reset-defaults.md:113:- 2026-05-05T19:18:00+09:00 - Added root-password plus exact confirmation reset API/UI, endpoint-table reset service that reruns current seed defaults, non-secret reset audit events, and `@root-reset` UI/API E2E coverage.
+docs/exec-plans/active/006-root-reset-defaults.md:114:- 2026-05-05T19:28:05+09:00 - Required gates passed: `npm run db:prepare`, `npm run test:unit`, `npm run test:e2e -- --grep @root-reset`, and `npm run verify`; `verify` required serial Playwright workers because reset and endpoint mutation E2E share the same SQLite runtime database.
+docs/PLANS.md:62:- Preserve completed plans as history and seed a new active sequence for the next feature wave.
+docs/design-docs/system-shape.md:8:- API route handlers provide admin CRUD, MCP, REST, OAuth, discovery, health, reset, and audit surfaces
+docs/design-docs/system-shape.md:10:- Prisma repositories persist SQLite state and seed built-ins
+docs/generated/db-schema.md:12:- Preparation behavior: creates `data/`, applies Prisma migrations, generates Prisma Client, and runs idempotent endpoint seed defaults.
+docs/generated/db-schema.md:21:| `id` | `String` | Primary key, assigned by domain/seed code. |
+docs/generated/db-schema.md:29:| `failureMode` | `String` | Basic failure simulation mode placeholder, seeded as `none`. |
+docs/generated/db-schema.md:31:| `failureDelayMs` | `Int` | Optional delay duration, seeded as `0`. |
+docs/generated/db-schema.md:43:| `id` | `String` | Primary key, assigned by domain/seed code. |
+docs/generated/db-schema.md:49:| `type` | `String` | Parameter type placeholder, seeded as `string`. |
+docs/generated/db-schema.md:67:| `id` | `String` | Primary key, assigned by domain/seed code. |
+docs/generated/db-schema.md:75:| `errorMode` | `String` | Case-level error mode placeholder, seeded as `none`. |
+docs/generated/db-schema.md:121:The seed uses immutable IDs and unique endpoint-scoped keys, so repeated preparation updates the built-in records without duplicating rows.
+scripts/db-prepare.mjs:25:await run("node", ["prisma/seed.mjs"]);
+scripts/db-prepare.mjs:27:console.log("Prepared SQLite runtime state with Prisma migrations and endpoint seed defaults.");
+scripts/ralph/generated/current-evaluator-prompt.txt:11:- docs/exec-plans/active/006-root-reset-defaults.md
+scripts/ralph/generated/current-evaluator-prompt.txt:13:Current task id: root-reset-defaults
+scripts/ralph/generated/current-evaluator-prompt.txt:17:Implement root-password-protected reset behavior that restores deterministic default state without harming runtime readiness.
+scripts/ralph/generated/current-evaluator-prompt.txt:20:- Implement root password verification for reset.
+scripts/ralph/generated/current-evaluator-prompt.txt:21:- Create reset service that clears currently implemented mutable data and reruns seed preparation.
+scripts/ralph/generated/current-evaluator-prompt.txt:22:- Build reset confirmation UI.
+scripts/ralph/generated/current-evaluator-prompt.txt:23:- Write audit events for reset success/failure.
+scripts/ralph/generated/current-evaluator-prompt.txt:24:- Add E2E coverage tagged `@root-reset`.
+scripts/ralph/generated/current-evaluator-prompt.txt:28:- Future Basic/OAuth reset extensions before their domains exist.
+scripts/ralph/generated/current-evaluator-prompt.txt:32:1. Root password and confirmation are required for reset.
+scripts/ralph/generated/current-evaluator-prompt.txt:35:4. `@root-reset` proves UI/API recovery behavior.
+scripts/ralph/generated/current-evaluator-prompt.txt:47:  "task_id": "root-reset-defaults",
+scripts/ralph/generated/current-evaluator-prompt.txt:52:      "output": "\n> mina-mock-mcpserver@1.0.0 db:prepare\n> node scripts/db-prepare.mjs\n\nDatasource \"db\": SQLite database \"runtime.sqlite\" at \"file:./data/runtime.sqlite\"\n\n3 migrations found in prisma/migrations\n\n\nNo pending migrations to apply.\n\n✔ Generated Prisma Client (v7.8.0) to ./node_modules/@prisma/client in 38ms\n\nStart by importing your Prisma Client (See: https://pris.ly/d/importing-client)\n\n\nPrepared SQLite runtime state with Prisma migrations and endpoint seed defaults.\n"
+scripts/ralph/generated/current-evaluator-prompt.txt:57:      "output": "\n> mina-mock-mcpserver@1.0.0 test:unit\n> node --import tsx --test \"tests/unit/**/*.test.ts\"\n\n✔ normalizeLogLevel accepts supported operator log levels (0.35825ms)\n✔ normalizeLogLevel defaults invalid input to info (0.057917ms)\n✔ getBootstrapStatus reports prepared foundation state (0.052542ms)\n✔ db:prepare is repeatable and keeps endpoint seed rows singular (2921.039458ms)\n✔ endpoint validation accepts the MVP editor field set (0.6355ms)\n✔ endpoint validation returns field-level errors for UI rendering (0.353959ms)\n✔ MCP input schema generation reflects endpoint parameters (0.386875ms)\n✔ Ralph promotion resolves ordered successor filenames by taskmeta id (37.506334ms)\n✔ reset requires confirmation and leaves endpoint state untouched on failure (706.897792ms)\n✔ reset clears mutable endpoint data and recreates current seed defaults (640.814916ms)\nℹ tests 10\nℹ suites 0\nℹ pass 10\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 3071.662458\n"
+scripts/ralph/generated/current-evaluator-prompt.txt:60:      "command": "npm run test:e2e -- --grep @root-reset",
+scripts/ralph/generated/current-evaluator-prompt.txt:62:      "output": "\n> mina-mock-mcpserver@1.0.0 test:e2e\n> playwright test --grep @root-reset\n\n\nRunning 1 test using 1 worker\n\n  ✓  1 [chromium] › tests/e2e/root-reset.spec.ts:16:5 › root reset requires password and restores deterministic endpoint defaults @root-reset (4.0s)\n\n  1 passed (8.2s)\n",
+scripts/ralph/generated/current-evaluator-prompt.txt:69:      "next_server_log_path": "/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T192021-root-reset-defaults/npm-run-test-e2e-grep-root-reset-next-server.log"
+scripts/ralph/generated/current-evaluator-prompt.txt:74:      "output": "\n> mina-mock-mcpserver@1.0.0 verify\n> npm run lint && npm run typecheck && npm run build && npm run test:unit && npm run test:e2e && npm run start:smoke\n\n\n> mina-mock-mcpserver@1.0.0 lint\n> eslint .\n\n\n> mina-mock-mcpserver@1.0.0 typecheck\n> tsc --noEmit\n\n\n> mina-mock-mcpserver@1.0.0 build\n> next build\n\n   ▲ Next.js 15.5.15\n\n   Creating an optimized production build ...\n ✓ Compiled successfully in 789ms\n   Linting and checking validity of types ...\n   Collecting page data ...\n   Generating static pages (0/11) ...\n   Generating static pages (2/11) \r\n   Generating static pages (5/11) \r\n   Generating static pages (8/11) \r\n ✓ Generating static pages (11/11)\n   Finalizing page optimization ...\n   Collecting build traces ...\n\nRoute (app)                                 Size  First Load JS\n┌ ○ /                                      164 B         106 kB\n├ ○ /_not-found                            999 B         103 kB\n├ ƒ /api/audit                             133 B         102 kB\n├ ƒ /api/endpoints                         133 B         102 kB\n├ ƒ /api/endpoints/[id]                    133 B         102 kB\n├ ƒ /api/health                            133 B         102 kB\n├ ƒ /api/reset                             133 B         102 kB\n├ ○ /audit                                 164 B         106 kB\n├ ○ /endpoints                           4.97 kB         110 kB\n└ ○ /reset                               1.02 kB         107 kB\n+ First Load JS shared by all             102 kB\n  ├ chunks/255-4f212684648fcab9.js         46 kB\n  ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB\n  └ other shared chunks (total)          1.89 kB\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n\n\n> mina-mock-mcpserver@1.0.0 test:unit\n> node --import tsx --test \"tests/unit/**/*.test.ts\"\n\n✔ normalizeLogLevel accepts supported operator log levels (0.375083ms)\n✔ normalizeLogLevel defaults invalid input to info (0.059375ms)\n✔ getBootstrapStatus reports prepared foundation state (0.055125ms)\n✔ db:prepare is repeatable and keeps endpoint seed rows singular (2878.278125ms)\n✔ endpoint validation accepts the MVP editor field set (0.630667ms)\n✔ endpoint validation returns field-level errors for UI rendering (0.374375ms)\n✔ MCP input schema generation reflects endpoint parameters (0.398291ms)\n✔ Ralph promotion resolves ordered successor filenames by taskmeta id (36.013542ms)\n✔ reset requires confirmation and leaves endpoint state untouched on failure (689.778583ms)\n✔ reset clears mutable endpoint data and recreates current seed defaults (593.659208ms)\nℹ tests 10\nℹ suites 0\nℹ pass 10\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 3021.817625\n\n> mina-mock-mcpserver@1.0.0 test:e2e\n> playwright test\n\n\nRunning 6 tests using 1 worker\n\n  ✓  1 [chromium] › tests/e2e/bootstrap.spec.ts:3:5 › foundation dashboard renders planned MCP mock server surfaces (344ms)\n  ✓  2 [chromium] › tests/e2e/bootstrap.spec.ts:11:5 › health endpoint reports ok status (406ms)\n  ✓  3 [chromium] › tests/e2e/endpoint-console.spec.ts:5:5 › endpoint schema preview and console shell stay stable on desktop and mobile @ui-endpoint-console (924ms)\n  ✓  4 [chromium] › tests/e2e/endpoint-delete-audit.spec.ts:17:5 › endpoint delete requires confirmation and writes non-secret audit evidence @endpoint-delete-audit (3.2s)\n  ✓  5 [chromium] › tests/e2e/endpoint-editor.spec.ts:5:5 › endpoint editor supports persisted create, edit, search, screenshots, and responsive checks @ui-endpoint-editor (1.3s)\n  ✓  6 [chromium] › tests/e2e/root-reset.spec.ts:16:5 › root reset requires password and restores deterministic endpoint defaults @root-reset (2.9s)\n\n  6 passed (13.0s)\n\n> mina-mock-mcpserver@1.0.0 start:smoke\n> node scripts/start-smoke.mjs\n\n\n> mina-mock-mcpserver@1.0.0 db:prepare\n> node scripts/db-prepare.mjs\n\nDatasource \"db\": SQLite database \"runtime.sqlite\" at \"file:./data/runtime.sqlite\"\n\n3 migrations found in prisma/migrations\n\n\nNo pending migrations to apply.\n\n✔ Generated Prisma Client (v7.8.0) to ./node_modules/@prisma/client in 48ms\n\nStart by importing your Prisma Client (See: https://pris.ly/d/importing-client)\n\n\nPrepared SQLite runtime state with Prisma migrations and endpoint seed defaults.\n\n> mina-mock-mcpserver@1.0.0 build\n> next build\n\n   ▲ Next.js 15.5.15\n\n   Creating an optimized production build ...\n ✓ Compiled successfully in 808ms\n   Linting and checking validity of types ...\n   Collecting page data ...\n   Generating static pages (0/11) ...\n   Generating static pages (2/11) \r\n   Generating static pages (5/11) \r\n   Generating static pages (8/11) \r\n ✓ Generating static pages (11/11)\n   Finalizing page optimization ...\n   Collecting build traces ...\n\nRoute (app)                                 Size  First Load JS\n┌ ○ /                                      164 B         106 kB\n├ ○ /_not-found                            999 B         103 kB\n├ ƒ /api/audit                             133 B         102 kB\n├ ƒ /api/endpoints                         133 B         102 kB\n├ ƒ /api/endpoints/[id]                    133 B         102 kB\n├ ƒ /api/health                            133 B         102 kB\n├ ƒ /api/reset                             133 B         102 kB\n├ ○ /audit                                 164 B         106 kB\n├ ○ /endpoints                           4.97 kB         110 kB\n└ ○ /reset                               1.02 kB         107 kB\n+ First Load JS shared by all             102 kB\n  ├ chunks/255-4f212684648fcab9.js         46 kB\n  ├ chunks/4bd1b696-c023c6e3521b1417.js  54.2 kB\n  └ other shared chunks (total)          1.89 kB\n\n\n○  (Static)   prerendered as static content\nƒ  (Dynamic)  server-rendered on demand\n\n   ▲ Next.js 15.5.15\n   - Local:        http://localhost:3100\n   - Network:      http://192.168.100.125:3100\n\n ✓ Starting...\n ✓ Ready in 260ms\nProduction-style startup smoke passed at http://127.0.0.1:3100/api/health\n",
+scripts/ralph/generated/current-evaluator-prompt.txt:81:      "next_server_log_path": "/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T192021-root-reset-defaults/npm-run-verify-next-server.log"
+scripts/ralph/generated/current-evaluator-prompt.txt:89:Implemented `root-reset-defaults`.
+scripts/ralph/generated/current-evaluator-prompt.txt:92:- Added root-protected reset API/UI at `/api/reset` and `/reset`.
+scripts/ralph/generated/current-evaluator-prompt.txt:93:- Reset requires root password plus exact `RESET DEFAULTS` confirmation.
+scripts/ralph/generated/current-evaluator-prompt.txt:94:- Reset clears current endpoint data, recreates deterministic endpoint seed defaults, and keeps audit history.
+scripts/ralph/generated/current-evaluator-prompt.txt:95:- Added non-secret audit evidence for reset failures and success.
+scripts/ralph/generated/current-evaluator-prompt.txt:96:- Added unit coverage and `@root-reset` E2E coverage.
+scripts/ralph/generated/current-evaluator-prompt.txt:97:- Serialized Playwright E2E workers to avoid shared SQLite reset/mutation races.
+scripts/ralph/generated/current-evaluator-prompt.txt:102:- `npm run test:e2e -- --grep @root-reset`
+docs/exec-plans/active/013-oauth-users-management-ui.md:61:- Implement TTL presets and validation.
+docs/QUALITY_SCORE.md:18:| User workflows | Strong | Playwright E2E for endpoint, auth, OAuth, REST, reset, audit |
+docs/QUALITY_SCORE.md:26:| Persistence | Strong | Prisma SQLite migrations and seed defaults |
+docs/QUALITY_SCORE.md:33:- keep Playwright data setup deterministic and resettable
+docs/exec-plans/completed/005-endpoint-protected-delete-audit.md:9:  "next_task_on_success": "root-reset-defaults",
+docs/exec-plans/completed/005-endpoint-protected-delete-audit.md:40:- This task protects destructive endpoint deletion only; full reset is a separate task.
+docs/exec-plans/completed/005-endpoint-protected-delete-audit.md:54:- Do not implement root reset in this task.
+docs/exec-plans/completed/005-endpoint-protected-delete-audit.md:69:- Full reset-to-default behavior.
+docs/exec-plans/completed/005-endpoint-protected-delete-audit.md:111:- 2026-05-05T20:21:00+09:00 - Found existing endpoint delete-code persistence and no existing delete/audit implementation; reused endpoint service/API/UI patterns and added guarded delete plus audit storage instead of broadening into reset/auth tasks.
+docs/exec-plans/completed/003-endpoint-management-list-editor-ui.md:54:- Do not implement endpoint deletion, reset, or audit here.
+docs/exec-plans/completed/003-endpoint-management-list-editor-ui.md:70:- Delete/reset/audit behavior.
+docs/references/prd-analysis.md:15:- Endpoint/tool management with parameters, response cases, delete protection, reset, and generated MCP schema.
+docs/references/prd-analysis.md:21:- Operator configuration for base URL, root reset, health, logs, Docker/Nginx guidance, and startup proof.
+scripts/ralph/generated/current-task-prompt.txt:9:- docs/exec-plans/active/006-root-reset-defaults.md
+scripts/ralph/generated/current-task-prompt.txt:11:Current task id: root-reset-defaults
+scripts/ralph/generated/current-task-prompt.txt:15:Implement root-password-protected reset behavior that restores deterministic default state without harming runtime readiness.
+scripts/ralph/generated/current-task-prompt.txt:19:- This task should reset endpoint data and any seeded defaults currently implemented; future auth slices can extend reset invariants as they add built-ins.
+scripts/ralph/generated/current-task-prompt.txt:20:- The reset UI should be explicit about destructive behavior.
+scripts/ralph/generated/current-task-prompt.txt:21:- The reset path must leave `db:prepare`, startup smoke, and later queue tasks usable.
+scripts/ralph/generated/current-task-prompt.txt:24:- A reset screen/API requires root password and confirmation text.
+scripts/ralph/generated/current-task-prompt.txt:25:- Full reset removes user-created endpoint data and recreates current seed defaults.
+scripts/ralph/generated/current-task-prompt.txt:26:- Audit evidence records reset attempts and successful reset.
+scripts/ralph/generated/current-task-prompt.txt:27:- Tests prove reset recovery from modified public data.
+scripts/ralph/generated/current-task-prompt.txt:31:- Do not reset by deleting the SQLite file in a way that bypasses migrations or seed invariants.
+scripts/ralph/generated/current-task-prompt.txt:32:- Do not leave stale in-memory data after reset.
+scripts/ralph/generated/current-task-prompt.txt:33:- Do not claim future Basic/OAuth built-ins are handled until those slices add their reset extensions.
+scripts/ralph/generated/current-task-prompt.txt:36:- Implement root password verification for reset.
+scripts/ralph/generated/current-task-prompt.txt:37:- Create reset service that clears currently implemented mutable data and reruns seed preparation.
+scripts/ralph/generated/current-task-prompt.txt:38:- Build reset confirmation UI.
+scripts/ralph/generated/current-task-prompt.txt:39:- Write audit events for reset success/failure.
+scripts/ralph/generated/current-task-prompt.txt:40:- Add E2E coverage tagged `@root-reset`.
+scripts/ralph/generated/current-task-prompt.txt:44:- Future Basic/OAuth reset extensions before their domains exist.
+scripts/ralph/generated/current-task-prompt.txt:48:1. Root password and confirmation are required for reset.
+scripts/ralph/generated/current-task-prompt.txt:51:4. `@root-reset` proves UI/API recovery behavior.
+scripts/ralph/generated/current-task-prompt.txt:57:- npm run test:e2e -- --grep @root-reset
+scripts/ralph/generated/current-task-prompt.txt:72:- npm run test:e2e -- --grep @root-reset
+docs/exec-plans/completed/001-endpoint-domain-and-schema.md:36:Replace the bootstrap runtime placeholder with durable SQLite/Prisma persistence for endpoint/tool data and deterministic seed defaults.
+docs/exec-plans/completed/001-endpoint-domain-and-schema.md:48:- Tables or models exist for endpoints, parameters, response cases, audit-ready timestamps, and enough seed defaults for later slices.
+docs/exec-plans/completed/001-endpoint-domain-and-schema.md:57:- Do not leave migrations or seed commands dependent on local manual steps.
+docs/exec-plans/completed/001-endpoint-domain-and-schema.md:63:- Implement idempotent seed preparation for at least one representative enabled endpoint and any protected defaults needed by endpoint flows.
+docs/exec-plans/completed/001-endpoint-domain-and-schema.md:72:- Root reset behavior; that has its own task.
+docs/exec-plans/completed/001-endpoint-domain-and-schema.md:77:2. Running `npm run db:prepare` twice is safe and does not duplicate seed data.
+docs/exec-plans/completed/001-endpoint-domain-and-schema.md:110:- 2026-05-05T17:05:00+09:00 - Found only the bootstrap placeholder (`scripts/db-prepare.mjs` writing `data/bootstrap-state.json`) and reused the existing `db:prepare` command name while replacing its implementation with Prisma migration/client/seed preparation.
+docs/exec-plans/completed/001-endpoint-domain-and-schema.md:112:- 2026-05-05T17:15:00+09:00 - Added idempotent default seed for protected enabled `endpoint_default_echo` plus a repeatability unit test that runs `db:prepare` twice against an isolated SQLite file.
+docs/exec-plans/completed/001-endpoint-domain-and-schema.md:115:- 2026-05-05T16:23:00+09:00 - Closed evaluator gaps by adding endpoint `title` plus response-case `priority`, `delayMs`, and case-level error config fields to Prisma schema, migration, seed defaults, generated schema docs, and the repeatability test.
+docs/exec-plans/completed/001-endpoint-domain-and-schema.md:117:- 2026-05-05T16:34:18+09:00 - Revalidated the persistence foundation without broadening scope; confirmed `npm run db:prepare`, `npm run test:unit`, and `npm run verify` pass, including idempotent seed coverage.
+docs/exec-plans/completed/001-endpoint-domain-and-schema.md:126:- 2026-05-05T17:15:44+09:00 - Revalidated the current `endpoint-domain-and-schema` implementation against the task contract; Prisma/SQLite persistence, idempotent seed defaults, generated schema docs, and repeatability coverage are present, and `npm run db:prepare`, `npm run test:unit`, and `npm run verify` passed.
+docs/exec-plans/completed/001-endpoint-domain-and-schema.md:128:- 2026-05-05T17:24:47+09:00 - Re-read the task-required docs, inspected the current Prisma/SQLite schema, seed, generated DB docs, and repeatability test, then re-ran `npm run db:prepare`, `npm run test:unit`, and `npm run verify`; all passed, with no additional implementation changes needed.
+docs/exec-plans/completed/001-endpoint-domain-and-schema.md:129:- 2026-05-05T17:30:02+09:00 - Re-read the requested repository docs and AGENTS read-order docs, verified the existing Prisma/SQLite endpoint schema, deterministic seed path, generated schema docs, and idempotency coverage remain scoped to `endpoint-domain-and-schema`; running the mandatory gates next.
+docs/exec-plans/completed/001-endpoint-domain-and-schema.md:132:- 2026-05-05T17:40:08+09:00 - Re-read the requested repository docs, inspected the Prisma/SQLite schema, migrations, seed defaults, generated DB docs, and repeatability test, then re-ran `npm run db:prepare`, `npm run test:unit`, and `npm run verify`; all passed and no scope changes were needed.
+docs/exec-plans/completed/001-endpoint-domain-and-schema.md:136:- 2026-05-05T17:58:28+09:00 - Re-read the requested repository docs, inspected the current Prisma/SQLite schema, migrations, seed defaults, generated DB docs, and idempotency test, then re-ran the mandatory gates; `npm run db:prepare`, `npm run test:unit`, and `npm run verify` all passed with no scope changes needed.
+docs/exec-plans/completed/001-endpoint-domain-and-schema.md:137:- 2026-05-05T18:03:10+09:00 - Revalidated the existing endpoint persistence foundation against the current task prompt; Prisma/SQLite schema, migrations, idempotent seed defaults, generated DB docs, and repeatability coverage are present, and `npm run db:prepare`, `npm run test:unit`, and `npm run verify` all passed.
+docs/exec-plans/completed/001-endpoint-domain-and-schema.md:139:- 2026-05-05T18:11:45+09:00 - Re-read the requested repository docs, inspected the current Prisma/SQLite schema, migrations, seed defaults, generated DB docs, and idempotency test, then re-ran the mandatory gates; `npm run db:prepare`, `npm run test:unit`, and `npm run verify` all passed with no product-code changes needed.
+docs/exec-plans/completed/001-endpoint-domain-and-schema.md:141:- 2026-05-05T18:21:56+09:00 - Re-read the task-required docs, inspected the current Prisma/SQLite endpoint schema, seed path, generated DB docs, and repeatability test, then re-ran all mandatory gates; `npm run db:prepare`, `npm run test:unit`, and `npm run verify` passed with no product-code changes needed.
+docs/exec-plans/completed/001-endpoint-domain-and-schema.md:143:- 2026-05-05T18:31:09+09:00 - Revalidated the current `endpoint-domain-and-schema` slice against the task prompt; Prisma/SQLite schema, migrations, deterministic seed preparation, generated DB docs, and repeatability coverage are present, and `npm run db:prepare`, `npm run test:unit`, and `npm run verify` all passed.
+docs/exec-plans/completed/001-endpoint-domain-and-schema.md:145:- 2026-05-05T18:41:27+09:00 - Re-read the task-required docs plus AGENTS read-order docs, inspected the Prisma/SQLite schema, migrations, seed defaults, generated DB docs, and repeatability test, then re-ran all mandatory gates; `npm run db:prepare`, `npm run test:unit`, and `npm run verify` passed with no product-code changes needed.
+
+exec
+/bin/zsh -lc 'git status --short' in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+git: warning: confstr() failed with code 5: couldn't get path of DARWIN_USER_TEMP_DIR; using /tmp instead
+git: error: couldn't create cache file '/tmp/xcrun_db-WsKom51c' (errno=Operation not permitted)
+git: warning: confstr() failed with code 5: couldn't get path of DARWIN_USER_TEMP_DIR; using /tmp instead
+git: error: couldn't create cache file '/tmp/xcrun_db-WvFvoiBI' (errno=Operation not permitted)
+ M app/audit/page.tsx
+ M app/endpoints/page.tsx
+ M app/globals.css
+ M app/page.tsx
+ M docs/FRONTEND.md
+ M docs/PRODUCT_SENSE.md
+ M docs/RELIABILITY.md
+ M docs/SECURITY.md
+ D docs/exec-plans/active/005-endpoint-protected-delete-audit.md
+ M docs/exec-plans/active/006-root-reset-defaults.md
+ M docs/product-specs/operator-configuration.md
+ M playwright.config.ts
+ M scripts/ralph/generated/current-evaluator-prompt.txt
+ M scripts/ralph/generated/current-task-prompt.txt
+ M state/artifacts/20260505T191001-endpoint-protected-delete-audit/commit.log
+ M state/backlog.md
+ M state/blocker-tracker.json
+ M state/current-cycle.json
+ M state/current-task.txt
+ M state/deterministic-checks.json
+ M state/last-result.txt
+ M state/run-log.md
+ M state/task-history.md
+?? app/api/reset/
+?? app/reset/
+?? docs/exec-plans/completed/005-endpoint-protected-delete-audit.md
+?? lib/db/seed.ts
+?? lib/reset/
+?? state/artifacts/20260505T191001-endpoint-protected-delete-audit/backlog.log
+?? state/artifacts/20260505T191001-endpoint-protected-delete-audit/promote.log
+?? state/artifacts/20260505T192021-root-reset-defaults/
+?? tests/e2e/root-reset.spec.ts
+?? tests/unit/reset-service.test.ts
+
+exec
+/bin/zsh -lc "sed -n '1,160p' lib/reset/types.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+exec
+/bin/zsh -lc "sed -n '1,220p' lib/reset/service.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+export const RESET_CONFIRMATION_TEXT = "RESET DEFAULTS";
+
+export type ResetInput = {
+  rootPassword?: string | null;
+  confirmation?: string | null;
+};
+
+export type ResetResult = {
+  deletedEndpoints: number;
+  seededEndpoints: number;
+};
+
+export class ResetAuthorizationError extends Error {
+  constructor(public readonly reason: "missing_confirmation" | "invalid_confirmation" | "invalid_root_password") {
+    super("Reset authorization failed");
+  }
+}
+
+ succeeded in 0ms:
+import type { PrismaClient } from "@prisma/client";
+import { recordAuditEvent } from "@/lib/audit/service";
+import { createPrismaClient } from "@/lib/db/client";
+import { seedEndpointDefaults } from "@/lib/db/seed";
+import { verifyRootPassword } from "@/lib/security/root-password";
+import { RESET_CONFIRMATION_TEXT, ResetAuthorizationError } from "@/lib/reset/types";
+import type { ResetInput, ResetResult } from "@/lib/reset/types";
+
+function resetReasonFor(input: ResetInput) {
+  const confirmation = input.confirmation?.trim() ?? "";
+  if (!confirmation) {
+    return "missing_confirmation";
+  }
+  if (confirmation !== RESET_CONFIRMATION_TEXT) {
+    return "invalid_confirmation";
+  }
+  if (!verifyRootPassword(input.rootPassword)) {
+    return "invalid_root_password";
+  }
+  return null;
+}
+
+async function recordResetFailure(reason: ResetAuthorizationError["reason"], client: PrismaClient) {
+  await recordAuditEvent(
+    {
+      eventType: "system.reset",
+      subjectType: "system",
+      subjectId: "default-state",
+      subjectName: "reset",
+      outcome: "failure",
+      metadata: { reason },
+    },
+    client,
+  );
+}
+
+export async function resetToDefaults(input: ResetInput, client: PrismaClient = createPrismaClient()): Promise<ResetResult> {
+  const failureReason = resetReasonFor(input);
+  if (failureReason) {
+    await recordResetFailure(failureReason, client);
+    throw new ResetAuthorizationError(failureReason);
+  }
+
+  return client.$transaction(async (tx) => {
+    await tx.responseCase.deleteMany({});
+    await tx.endpointParam.deleteMany({});
+    const deletedEndpoints = await tx.endpoint.deleteMany({});
+
+    await seedEndpointDefaults(tx);
+    const seededEndpoints = await tx.endpoint.count();
+
+    await recordAuditEvent(
+      {
+        eventType: "system.reset",
+        subjectType: "system",
+        subjectId: "default-state",
+        subjectName: "reset",
+        outcome: "success",
+        metadata: {
+          method: "root_password",
+          deletedEndpoints: deletedEndpoints.count,
+          seededEndpoints,
+        },
+      },
+      tx,
+    );
+
+    return {
+      deletedEndpoints: deletedEndpoints.count,
+      seededEndpoints,
+    };
+  });
+}
+
+exec
+/bin/zsh -lc "sed -n '1,180p' lib/security/root-password.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import { timingSafeEqual } from "node:crypto";
+
+function safeEqual(left: string, right: string) {
+  const leftBuffer = Buffer.from(left);
+  const rightBuffer = Buffer.from(right);
+  if (leftBuffer.length !== rightBuffer.length) {
+    timingSafeEqual(leftBuffer, leftBuffer);
+    return false;
+  }
+  return timingSafeEqual(leftBuffer, rightBuffer);
+}
+
+export function verifyRootPassword(candidate: string | null | undefined) {
+  const configured = process.env.ROOT_PASSWORD;
+  if (!configured || !candidate) {
+    return false;
+  }
+  return safeEqual(candidate, configured);
+}
+
+exec
+/bin/zsh -lc "sed -n '1,220p' app/api/reset/route.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import { NextResponse } from "next/server";
+import { resetToDefaults } from "@/lib/reset/service";
+import { ResetAuthorizationError } from "@/lib/reset/types";
+
+function asRecord(value: unknown): Record<string, unknown> {
+  return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : {};
+}
+
+function asNullableString(value: unknown) {
+  return typeof value === "string" && value.trim() ? value : null;
+}
+
+export async function POST(request: Request) {
+  try {
+    const body = asRecord(await request.json());
+    const result = await resetToDefaults({
+      rootPassword: asNullableString(body.rootPassword),
+      confirmation: asNullableString(body.confirmation),
+    });
+    return NextResponse.json({ ok: true, result });
+  } catch (error) {
+    if (error instanceof ResetAuthorizationError) {
+      return NextResponse.json(
+        {
+          error: "reset_confirmation_failed",
+          message: "Enter the root password and exact confirmation text to reset defaults.",
+        },
+        { status: 403 },
+      );
+    }
+
+    console.error(error);
+    return NextResponse.json({ error: "internal_error" }, { status: 500 });
+  }
+}
+
+exec
+/bin/zsh -lc "sed -n '1,220p' lib/db/seed.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import type { PrismaClient } from "@prisma/client";
+
+export const DEFAULT_ENDPOINT_ID = "endpoint_default_echo";
+
+type SeedClient = Pick<PrismaClient, "endpoint" | "endpointParam" | "responseCase">;
+
+export async function seedEndpointDefaults(client: SeedClient) {
+  await client.endpoint.upsert({
+    where: { id: DEFAULT_ENDPOINT_ID },
+    update: {
+      name: "echo",
+      title: "Echo",
+      description: "Default enabled endpoint for smoke-testing endpoint persistence.",
+      enabled: true,
+      protectedDefault: true,
+      deleteCode: "12345678",
+      defaultResponseJson: JSON.stringify({ ok: true, source: "default" }),
+      failureMode: "none",
+      failureStatusCode: null,
+      failureDelayMs: 0,
+      failureMessage: null,
+      malformedResponseJson: null,
+    },
+    create: {
+      id: DEFAULT_ENDPOINT_ID,
+      name: "echo",
+      title: "Echo",
+      description: "Default enabled endpoint for smoke-testing endpoint persistence.",
+      enabled: true,
+      protectedDefault: true,
+      deleteCode: "12345678",
+      defaultResponseJson: JSON.stringify({ ok: true, source: "default" }),
+      parameters: {
+        create: [
+          {
+            id: `${DEFAULT_ENDPOINT_ID}_param_message`,
+            position: 0,
+            name: "message",
+            label: "Message",
+            description: "Message to echo back in later runtime slices.",
+            type: "string",
+            required: true,
+          },
+        ],
+      },
+      responseCases: {
+        create: [
+          {
+            id: `${DEFAULT_ENDPOINT_ID}_case_default`,
+            name: "default",
+            priority: 0,
+            matchArgsJson: "{}",
+            responseJson: JSON.stringify({ ok: true, source: "default" }),
+            statusCode: 200,
+            delayMs: 0,
+            errorMode: "none",
+            isDefault: true,
+          },
+          {
+            id: `${DEFAULT_ENDPOINT_ID}_case_hello`,
+            name: "hello-world",
+            priority: 10,
+            matchArgsJson: JSON.stringify({ message: "hello" }),
+            responseJson: JSON.stringify({ ok: true, message: "world" }),
+            statusCode: 200,
+            delayMs: 0,
+            errorMode: "none",
+            isDefault: false,
+          },
+        ],
+      },
+    },
+  });
+
+  await client.endpointParam.upsert({
+    where: {
+      endpointId_name: {
+        endpointId: DEFAULT_ENDPOINT_ID,
+        name: "message",
+      },
+    },
+    update: {
+      position: 0,
+      label: "Message",
+      description: "Message to echo back in later runtime slices.",
+      type: "string",
+      required: true,
+      defaultValueJson: null,
+    },
+    create: {
+      id: `${DEFAULT_ENDPOINT_ID}_param_message`,
+      endpointId: DEFAULT_ENDPOINT_ID,
+      position: 0,
+      name: "message",
+      label: "Message",
+      description: "Message to echo back in later runtime slices.",
+      type: "string",
+      required: true,
+    },
+  });
+
+  await client.responseCase.upsert({
+    where: {
+      endpointId_name: {
+        endpointId: DEFAULT_ENDPOINT_ID,
+        name: "default",
+      },
+    },
+    update: {
+      priority: 0,
+      matchArgsJson: "{}",
+      responseJson: JSON.stringify({ ok: true, source: "default" }),
+      statusCode: 200,
+      delayMs: 0,
+      errorMode: "none",
+      errorStatusCode: null,
+      errorMessage: null,
+      errorBodyJson: null,
+      isDefault: true,
+    },
+    create: {
+      id: `${DEFAULT_ENDPOINT_ID}_case_default`,
+      endpointId: DEFAULT_ENDPOINT_ID,
+      name: "default",
+      priority: 0,
+      matchArgsJson: "{}",
+      responseJson: JSON.stringify({ ok: true, source: "default" }),
+      statusCode: 200,
+      delayMs: 0,
+      errorMode: "none",
+      isDefault: true,
+    },
+  });
+
+  await client.responseCase.upsert({
+    where: {
+      endpointId_name: {
+        endpointId: DEFAULT_ENDPOINT_ID,
+        name: "hello-world",
+      },
+    },
+    update: {
+      priority: 10,
+      matchArgsJson: JSON.stringify({ message: "hello" }),
+      responseJson: JSON.stringify({ ok: true, message: "world" }),
+      statusCode: 200,
+      delayMs: 0,
+      errorMode: "none",
+      errorStatusCode: null,
+      errorMessage: null,
+      errorBodyJson: null,
+      isDefault: false,
+    },
+    create: {
+      id: `${DEFAULT_ENDPOINT_ID}_case_hello`,
+      endpointId: DEFAULT_ENDPOINT_ID,
+      name: "hello-world",
+      priority: 10,
+      matchArgsJson: JSON.stringify({ message: "hello" }),
+      responseJson: JSON.stringify({ ok: true, message: "world" }),
+      statusCode: 200,
+      delayMs: 0,
+      errorMode: "none",
+      isDefault: false,
+    },
+  });
+}
+
+exec
+/bin/zsh -lc "sed -n '1,220p' app/reset/reset-form.tsx" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+exec
+/bin/zsh -lc "sed -n '1,180p' app/reset/page.tsx" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+"use client";
+
+import { FormEvent, useState } from "react";
+
+type ResetState = {
+  status: "idle" | "submitting" | "success" | "error";
+  message: string;
+};
+
+export function ResetForm() {
+  const [rootPassword, setRootPassword] = useState("");
+  const [confirmation, setConfirmation] = useState("");
+  const [state, setState] = useState<ResetState>({ status: "idle", message: "" });
+
+  async function submitReset(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setState({ status: "submitting", message: "Resetting defaults." });
+
+    try {
+      const response = await fetch("/api/reset", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ rootPassword, confirmation }),
+      });
+      const payload = (await response.json()) as { message?: string; result?: { seededEndpoints?: number } };
+
+      if (!response.ok) {
+        throw new Error(payload.message ?? "Reset failed.");
+      }
+
+      setRootPassword("");
+      setConfirmation("");
+      setState({
+        status: "success",
+        message: `Defaults restored. Seeded endpoints: ${payload.result?.seededEndpoints ?? 0}.`,
+      });
+    } catch (error) {
+      setRootPassword("");
+      setState({ status: "error", message: error instanceof Error ? error.message : "Reset failed." });
+    }
+  }
+
+  return (
+    <form className="reset-panel" onSubmit={(event) => void submitReset(event)}>
+      <div>
+        <h2>Reset service data</h2>
+        <p>
+          This clears currently implemented endpoint data, including user-created endpoint tools, and recreates the
+          deterministic seed defaults. Audit evidence is retained.
+        </p>
+      </div>
+
+      {state.message ? <p className={`form-message ${state.status}`}>{state.message}</p> : null}
+
+      <label className="field-block">
+        <span>Root password</span>
+        <input
+          className="text-input"
+          type="password"
+          value={rootPassword}
+          autoComplete="off"
+          onChange={(event) => setRootPassword(event.target.value)}
+        />
+      </label>
+
+      <label className="field-block">
+        <span>Confirmation text</span>
+        <input
+          className="text-input"
+          value={confirmation}
+          onChange={(event) => setConfirmation(event.target.value)}
+          aria-describedby="reset-confirmation-hint"
+        />
+        <p className="field-hint" id="reset-confirmation-hint">
+          Type RESET DEFAULTS exactly.
+        </p>
+      </label>
+
+      <button className="danger-button" type="submit" disabled={state.status === "submitting"}>
+        {state.status === "submitting" ? "Resetting" : "Reset to defaults"}
+      </button>
+    </form>
+  );
+}
+
+ succeeded in 0ms:
+import Link from "next/link";
+import { ResetForm } from "@/app/reset/reset-form";
+
+export default function ResetPage() {
+  return (
+    <main className="shell app-shell">
+      <nav className="top-nav" aria-label="Primary">
+        <Link href="/">Dashboard</Link>
+        <Link href="/endpoints">Endpoints</Link>
+        <Link href="/reset" aria-current="page">Reset</Link>
+        <Link href="/audit">Audit</Link>
+      </nav>
+      <header className="page-header">
+        <div>
+          <p className="eyebrow">Operator recovery</p>
+          <h1>Reset defaults</h1>
+          <p className="lede compact">
+            Root-protected reset for recovering the public test service to the current deterministic endpoint defaults.
+          </p>
+        </div>
+      </header>
+
+      <ResetForm />
+    </main>
+  );
+}
+
+exec
+/bin/zsh -lc "sed -n '1,220p' tests/unit/reset-service.test.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import assert from "node:assert/strict";
+import { mkdtemp } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import test from "node:test";
+import { createPrismaClient } from "@/lib/db/client";
+import { seedEndpointDefaults } from "@/lib/db/seed";
+import { createEndpoint } from "@/lib/endpoints/service";
+import { resetToDefaults } from "@/lib/reset/service";
+import { ResetAuthorizationError } from "@/lib/reset/types";
+
+async function withIsolatedDb(fn: (client: ReturnType<typeof createPrismaClient>) => Promise<void>) {
+  const directory = await mkdtemp(join(tmpdir(), "mcp-mock-reset-"));
+  const previousDatabaseUrl = process.env.DATABASE_URL;
+  const previousRootPassword = process.env.ROOT_PASSWORD;
+  process.env.DATABASE_URL = `file:${join(directory, "runtime.sqlite")}`;
+  process.env.ROOT_PASSWORD = "unit-root-password";
+
+  const { execFile } = await import("node:child_process");
+  const { promisify } = await import("node:util");
+  await promisify(execFile)("npx", ["prisma", "migrate", "deploy"], { env: { ...process.env } });
+
+  const client = createPrismaClient();
+  try {
+    await seedEndpointDefaults(client);
+    await fn(client);
+  } finally {
+    await client.$disconnect();
+    if (previousDatabaseUrl === undefined) {
+      delete process.env.DATABASE_URL;
+    } else {
+      process.env.DATABASE_URL = previousDatabaseUrl;
+    }
+    if (previousRootPassword === undefined) {
+      delete process.env.ROOT_PASSWORD;
+    } else {
+      process.env.ROOT_PASSWORD = previousRootPassword;
+    }
+  }
+}
+
+test("reset requires confirmation and leaves endpoint state untouched on failure", async () => {
+  await withIsolatedDb(async (client) => {
+    await assert.rejects(
+      () => resetToDefaults({ rootPassword: "unit-root-password", confirmation: "wrong" }, client),
+      ResetAuthorizationError,
+    );
+
+    assert.equal(await client.endpoint.count(), 1);
+    assert.equal(await client.auditEvent.count({ where: { eventType: "system.reset", outcome: "failure" } }), 1);
+  });
+});
+
+test("reset clears mutable endpoint data and recreates current seed defaults", async () => {
+  await withIsolatedDb(async (client) => {
+    await createEndpoint(
+      {
+        name: "temporary_reset_endpoint",
+        title: "Temporary reset endpoint",
+        description: "Removed by reset.",
+        enabled: true,
+        deleteCode: "87654321",
+        defaultResponseJson: "{}",
+        failureMode: "none",
+        failureDelayMs: 0,
+        parameters: [],
+        responseCases: [
+          {
+            name: "default",
+            priority: 0,
+            matchArgsJson: "{}",
+            responseJson: "{}",
+            statusCode: 200,
+            delayMs: 0,
+            errorMode: "none",
+            isDefault: true,
+          },
+        ],
+      },
+      client,
+    );
+
+    assert.equal(await client.endpoint.count(), 2);
+
+    const result = await resetToDefaults({ rootPassword: "unit-root-password", confirmation: "RESET DEFAULTS" }, client);
+
+    assert.equal(result.seededEndpoints, 1);
+    assert.equal(await client.endpoint.count(), 1);
+    assert.equal(await client.endpointParam.count(), 1);
+    assert.equal(await client.responseCase.count(), 2);
+    assert.equal(await client.endpoint.count({ where: { name: "temporary_reset_endpoint" } }), 0);
+    assert.equal(await client.endpoint.count({ where: { id: "endpoint_default_echo", protectedDefault: true } }), 1);
+    assert.equal(await client.auditEvent.count({ where: { eventType: "system.reset", outcome: "success" } }), 1);
+  });
+});
+
+exec
+/bin/zsh -lc "sed -n '1,220p' tests/e2e/root-reset.spec.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import { expect, test, type Page } from "@playwright/test";
+
+test.setTimeout(60_000);
+
+async function createEndpoint(page: Page, name: string) {
+  await page.goto("/endpoints");
+  await page.getByRole("button", { name: "New endpoint" }).click();
+  await page.getByRole("textbox", { name: /^Name/ }).fill(name);
+  await page.getByRole("textbox", { name: /^Title/ }).fill(name);
+  await page.getByRole("textbox", { name: /^Description/ }).fill(`Root reset coverage for ${name}.`);
+  await page.getByRole("textbox", { name: /^Delete code/ }).fill("87654321");
+  await page.getByRole("button", { name: "Save" }).click();
+  await expect(page.getByText("Endpoint saved.")).toBeVisible();
+}
+
+test("root reset requires password and restores deterministic endpoint defaults @root-reset", async ({ page, request }) => {
+  const endpointName = `root_reset_${Date.now()}`;
+  await createEndpoint(page, endpointName);
+
+  const failedResponse = await request.post("/api/reset", {
+    data: { rootPassword: "wrong-root-password", confirmation: "RESET DEFAULTS" },
+  });
+  expect(failedResponse.status()).toBe(403);
+
+  await page.goto("/endpoints");
+  await page.getByLabel("Search").fill(endpointName);
+  await expect(page.getByRole("button", { name: endpointName })).toBeVisible();
+
+  await page.goto("/reset");
+  await expect(page.getByRole("heading", { name: "Reset defaults" })).toBeVisible();
+  await page.getByLabel("Root password").fill("e2e-root-password");
+  await page.getByLabel("Confirmation text").fill("not the phrase");
+  await page.getByRole("button", { name: "Reset to defaults" }).click();
+  await expect(page.getByText("Enter the root password and exact confirmation text to reset defaults.")).toBeVisible();
+
+  await page.goto("/endpoints");
+  await page.getByLabel("Search").fill(endpointName);
+  await expect(page.getByRole("button", { name: endpointName })).toBeVisible();
+
+  await page.goto("/reset");
+  await page.getByLabel("Root password").fill("e2e-root-password");
+  await page.getByLabel("Confirmation text").fill("RESET DEFAULTS");
+  await page.getByRole("button", { name: "Reset to defaults" }).click();
+  await expect(page.getByText("Defaults restored. Seeded endpoints: 1.")).toBeVisible();
+
+  await page.goto("/endpoints");
+  await page.getByLabel("Search").fill(endpointName);
+  await expect(page.getByText("No endpoints match this search.")).toBeVisible();
+  await page.getByLabel("Search").fill("echo");
+  await expect(page.getByRole("button", { name: "echo" })).toBeVisible();
+
+  await page.goto("/audit");
+  await expect(page.getByRole("row").filter({ hasText: "system.reset" }).filter({ hasText: "failure" }).first()).toBeVisible();
+  await expect(page.getByRole("row").filter({ hasText: "system.reset" }).filter({ hasText: "success" }).first()).toBeVisible();
+  await expect(page.getByText("e2e-root-password")).toHaveCount(0);
+  await expect(page.getByText("wrong-root-password")).toHaveCount(0);
+});
+
+exec
+/bin/zsh -lc "sed -n '1,220p' lib/audit/service.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import { randomUUID } from "node:crypto";
+import type { PrismaClient } from "@prisma/client";
+import { createPrismaClient } from "@/lib/db/client";
+
+type AuditClient = Pick<PrismaClient, "auditEvent">;
+
+export type AuditOutcome = "success" | "failure";
+
+export type AuditEventInput = {
+  eventType: string;
+  subjectType: string;
+  subjectId?: string | null;
+  subjectName?: string | null;
+  outcome: AuditOutcome;
+  actorType?: string;
+  metadata?: Record<string, string | number | boolean | null>;
+};
+
+export type AuditEventSummary = {
+  id: string;
+  eventType: string;
+  subjectType: string;
+  subjectId: string | null;
+  subjectName: string | null;
+  outcome: string;
+  actorType: string;
+  metadata: Record<string, unknown>;
+  createdAt: string;
+};
+
+function parseMetadata(value: string): Record<string, unknown> {
+  try {
+    const parsed = JSON.parse(value);
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? (parsed as Record<string, unknown>) : {};
+  } catch {
+    return {};
+  }
+}
+
+export async function recordAuditEvent(input: AuditEventInput, client: AuditClient = createPrismaClient()) {
+  return client.auditEvent.create({
+    data: {
+      id: `audit_${randomUUID()}`,
+      eventType: input.eventType,
+      subjectType: input.subjectType,
+      subjectId: input.subjectId ?? null,
+      subjectName: input.subjectName ?? null,
+      outcome: input.outcome,
+      actorType: input.actorType ?? "public",
+      metadataJson: JSON.stringify(input.metadata ?? {}),
+    },
+  });
+}
+
+export async function listAuditEvents(client: PrismaClient = createPrismaClient()): Promise<AuditEventSummary[]> {
+  const events = await client.auditEvent.findMany({
+    orderBy: { createdAt: "desc" },
+    take: 100,
+  });
+
+  return events.map((event) => ({
+    id: event.id,
+    eventType: event.eventType,
+    subjectType: event.subjectType,
+    subjectId: event.subjectId,
+    subjectName: event.subjectName,
+    outcome: event.outcome,
+    actorType: event.actorType,
+    metadata: parseMetadata(event.metadataJson),
+    createdAt: event.createdAt.toISOString(),
+  }));
+}
+
+exec
+/bin/zsh -lc "sed -n '1,220p' prisma/schema.prisma" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+exec
+/bin/zsh -lc "sed -n '1,240p' prisma/seed.mjs" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Endpoint {
+  id                    String          @id
+  name                  String          @unique
+  title                 String          @default("")
+  description           String          @default("")
+  enabled               Boolean         @default(true)
+  protectedDefault      Boolean         @default(false)
+  deleteCode            String?
+  defaultResponseJson   String          @default("{}")
+  failureMode           String          @default("none")
+  failureStatusCode     Int?
+  failureDelayMs        Int             @default(0)
+  failureMessage        String?
+  malformedResponseJson String?
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+  parameters            EndpointParam[]
+  responseCases         ResponseCase[]
+}
+
+model EndpointParam {
+  id               String   @id
+  endpointId       String
+  position         Int
+  name             String
+  label            String?
+  description      String   @default("")
+  type             String   @default("string")
+  required         Boolean  @default(false)
+  defaultValueJson String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  endpoint         Endpoint @relation(fields: [endpointId], references: [id], onDelete: Cascade)
+
+  @@unique([endpointId, position])
+  @@unique([endpointId, name])
+  @@index([endpointId])
+}
+
+model ResponseCase {
+  id              String   @id
+  endpointId      String
+  name            String
+  priority        Int      @default(0)
+  matchArgsJson   String   @default("{}")
+  responseJson    String
+  statusCode      Int      @default(200)
+  delayMs         Int      @default(0)
+  errorMode       String   @default("none")
+  errorStatusCode Int?
+  errorMessage    String?
+  errorBodyJson   String?
+  isDefault       Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  endpoint        Endpoint @relation(fields: [endpointId], references: [id], onDelete: Cascade)
+
+  @@unique([endpointId, name])
+  @@index([endpointId, priority])
+  @@index([endpointId])
+}
+
+model AuditEvent {
+  id             String   @id
+  eventType      String
+  subjectType    String
+  subjectId      String?
+  subjectName    String?
+  outcome        String
+  actorType      String   @default("public")
+  metadataJson   String   @default("{}")
+  createdAt      DateTime @default(now())
+
+  @@index([eventType, createdAt])
+  @@index([subjectType, subjectId])
+}
+
+ succeeded in 0ms:
+import { PrismaClient } from "@prisma/client";
+import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+
+export const DEFAULT_ENDPOINT_ID = "endpoint_default_echo";
+
+const databaseUrl = process.env.DATABASE_URL ?? "file:./data/runtime.sqlite";
+const adapter = new PrismaBetterSqlite3({ url: databaseUrl });
+const prisma = new PrismaClient({ adapter });
+
+export async function seedEndpointDefaults(client = prisma) {
+  await client.endpoint.upsert({
+    where: { id: DEFAULT_ENDPOINT_ID },
+    update: {
+      name: "echo",
+      title: "Echo",
+      description: "Default enabled endpoint for smoke-testing endpoint persistence.",
+      enabled: true,
+      protectedDefault: true,
+      deleteCode: "12345678",
+      defaultResponseJson: JSON.stringify({ ok: true, source: "default" }),
+      failureMode: "none",
+      failureStatusCode: null,
+      failureDelayMs: 0,
+      failureMessage: null,
+      malformedResponseJson: null,
+    },
+    create: {
+      id: DEFAULT_ENDPOINT_ID,
+      name: "echo",
+      title: "Echo",
+      description: "Default enabled endpoint for smoke-testing endpoint persistence.",
+      enabled: true,
+      protectedDefault: true,
+      deleteCode: "12345678",
+      defaultResponseJson: JSON.stringify({ ok: true, source: "default" }),
+      parameters: {
+        create: [
+          {
+            id: `${DEFAULT_ENDPOINT_ID}_param_message`,
+            position: 0,
+            name: "message",
+            label: "Message",
+            description: "Message to echo back in later runtime slices.",
+            type: "string",
+            required: true,
+          },
+        ],
+      },
+      responseCases: {
+        create: [
+          {
+            id: `${DEFAULT_ENDPOINT_ID}_case_default`,
+            name: "default",
+            priority: 0,
+            matchArgsJson: "{}",
+            responseJson: JSON.stringify({ ok: true, source: "default" }),
+            statusCode: 200,
+            delayMs: 0,
+            errorMode: "none",
+            isDefault: true,
+          },
+          {
+            id: `${DEFAULT_ENDPOINT_ID}_case_hello`,
+            name: "hello-world",
+            priority: 10,
+            matchArgsJson: JSON.stringify({ message: "hello" }),
+            responseJson: JSON.stringify({ ok: true, message: "world" }),
+            statusCode: 200,
+            delayMs: 0,
+            errorMode: "none",
+            isDefault: false,
+          },
+        ],
+      },
+    },
+  });
+
+  await client.endpointParam.upsert({
+    where: {
+      endpointId_name: {
+        endpointId: DEFAULT_ENDPOINT_ID,
+        name: "message",
+      },
+    },
+    update: {
+      position: 0,
+      label: "Message",
+      description: "Message to echo back in later runtime slices.",
+      type: "string",
+      required: true,
+      defaultValueJson: null,
+    },
+    create: {
+      id: `${DEFAULT_ENDPOINT_ID}_param_message`,
+      endpointId: DEFAULT_ENDPOINT_ID,
+      position: 0,
+      name: "message",
+      label: "Message",
+      description: "Message to echo back in later runtime slices.",
+      type: "string",
+      required: true,
+    },
+  });
+
+  await client.responseCase.upsert({
+    where: {
+      endpointId_name: {
+        endpointId: DEFAULT_ENDPOINT_ID,
+        name: "default",
+      },
+    },
+    update: {
+      priority: 0,
+      matchArgsJson: "{}",
+      responseJson: JSON.stringify({ ok: true, source: "default" }),
+      statusCode: 200,
+      delayMs: 0,
+      errorMode: "none",
+      errorStatusCode: null,
+      errorMessage: null,
+      errorBodyJson: null,
+      isDefault: true,
+    },
+    create: {
+      id: `${DEFAULT_ENDPOINT_ID}_case_default`,
+      endpointId: DEFAULT_ENDPOINT_ID,
+      name: "default",
+      priority: 0,
+      matchArgsJson: "{}",
+      responseJson: JSON.stringify({ ok: true, source: "default" }),
+      statusCode: 200,
+      delayMs: 0,
+      errorMode: "none",
+      isDefault: true,
+    },
+  });
+
+  await client.responseCase.upsert({
+    where: {
+      endpointId_name: {
+        endpointId: DEFAULT_ENDPOINT_ID,
+        name: "hello-world",
+      },
+    },
+    update: {
+      priority: 10,
+      matchArgsJson: JSON.stringify({ message: "hello" }),
+      responseJson: JSON.stringify({ ok: true, message: "world" }),
+      statusCode: 200,
+      delayMs: 0,
+      errorMode: "none",
+      errorStatusCode: null,
+      errorMessage: null,
+      errorBodyJson: null,
+      isDefault: false,
+    },
+    create: {
+      id: `${DEFAULT_ENDPOINT_ID}_case_hello`,
+      endpointId: DEFAULT_ENDPOINT_ID,
+      name: "hello-world",
+      priority: 10,
+      matchArgsJson: JSON.stringify({ message: "hello" }),
+      responseJson: JSON.stringify({ ok: true, message: "world" }),
+      statusCode: 200,
+      delayMs: 0,
+      errorMode: "none",
+      isDefault: false,
+    },
+  });
+}
+
+if (import.meta.url === `file://${process.argv[1]}`) {
+  await seedEndpointDefaults();
+  await prisma.$disconnect();
+}
+
+exec
+/bin/zsh -lc "sed -n '1,180p' playwright.config.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import { defineConfig, devices } from "@playwright/test";
+
+export default defineConfig({
+  testDir: "./tests/e2e",
+  timeout: 30_000,
+  expect: {
+    timeout: 5_000,
+  },
+  use: {
+    baseURL: "http://127.0.0.1:3100",
+    trace: "on-first-retry",
+  },
+  workers: 1,
+  webServer: {
+    command: "npm run db:prepare && npm run dev",
+    env: {
+      ROOT_PASSWORD: "e2e-root-password",
+    },
+    url: "http://127.0.0.1:3100",
+    reuseExistingServer: !process.env.CI,
+    timeout: 120_000,
+  },
+  projects: [
+    {
+      name: "chromium",
+      use: { ...devices["Desktop Chrome"] },
+    },
+  ],
+});
+
+exec
+/bin/zsh -lc "sed -n '1,220p' app/audit/page.tsx" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import Link from "next/link";
+import { listAuditEvents } from "@/lib/audit/service";
+
+export default async function AuditPage() {
+  const events = await listAuditEvents();
+
+  return (
+    <main className="shell app-shell">
+      <nav className="top-nav" aria-label="Primary">
+        <Link href="/">Dashboard</Link>
+        <Link href="/endpoints">Endpoints</Link>
+        <Link href="/reset">Reset</Link>
+        <Link href="/audit" aria-current="page">Audit</Link>
+      </nav>
+      <header className="page-header">
+        <div>
+          <p className="eyebrow">Mutation evidence</p>
+          <h1>Audit log</h1>
+          <p className="lede compact">
+            Public destructive endpoint actions are recorded with outcome and reason metadata only.
+          </p>
+        </div>
+      </header>
+
+      <section className="audit-panel" aria-label="Audit events">
+        <table className="audit-table">
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Event</th>
+              <th>Subject</th>
+              <th>Outcome</th>
+              <th>Evidence</th>
+            </tr>
+          </thead>
+          <tbody>
+            {events.map((event) => (
+              <tr key={event.id}>
+                <td>{new Date(event.createdAt).toLocaleString()}</td>
+                <td>{event.eventType}</td>
+                <td>{event.subjectName ?? event.subjectId ?? "unknown"}</td>
+                <td>
+                  <span className={event.outcome === "success" ? "status-pill enabled" : "status-pill danger"}>
+                    {event.outcome}
+                  </span>
+                </td>
+                <td>
+                  <code>{JSON.stringify(event.metadata)}</code>
+                </td>
+              </tr>
+            ))}
+            {events.length === 0 ? (
+              <tr>
+                <td colSpan={5} className="empty-cell">No audit events recorded yet.</td>
+              </tr>
+            ) : null}
+          </tbody>
+        </table>
+      </section>
+    </main>
+  );
+}
+
+exec
+/bin/zsh -lc "sed -n '1,220p' package.json" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+{
+  "name": "mina-mock-mcpserver",
+  "version": "1.0.0",
+  "description": "Public remote MCP mock server and web UI for testing MCP auth and tool calls.",
+  "scripts": {
+    "dev": "next dev --hostname 127.0.0.1 --port 3100",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "db:prepare": "node scripts/db-prepare.mjs",
+    "test:unit": "node --import tsx --test \"tests/unit/**/*.test.ts\"",
+    "test:e2e": "playwright test",
+    "test": "npm run test:unit && npm run test:e2e",
+    "start:smoke": "node scripts/start-smoke.mjs",
+    "start:logged": "node scripts/start-logged.mjs",
+    "verify": "npm run lint && npm run typecheck && npm run build && npm run test:unit && npm run test:e2e && npm run start:smoke"
+  },
+  "dependencies": {
+    "@prisma/adapter-better-sqlite3": "^7.8.0",
+    "@prisma/client": "^7.8.0",
+    "better-sqlite3": "^12.9.0",
+    "next": "^15.3.2",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.26.0",
+    "@playwright/test": "^1.52.0",
+    "@types/node": "^22.15.3",
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.3",
+    "eslint": "^9.26.0",
+    "eslint-config-next": "^15.3.2",
+    "prisma": "^7.8.0",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.32.0"
+  },
+  "private": true
+}
+
+exec
+/bin/zsh -lc "sed -n '1,180p' lib/db/client.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaClient } from "@prisma/client";
+
+export const DEFAULT_DATABASE_URL = "file:./data/runtime.sqlite";
+
+export function getDatabaseUrl() {
+  return process.env.DATABASE_URL ?? DEFAULT_DATABASE_URL;
+}
+
+export function createPrismaClient() {
+  const adapter = new PrismaBetterSqlite3({ url: getDatabaseUrl() });
+  return new PrismaClient({ adapter });
+}
+
+exec
+/bin/zsh -lc "sed -n '520,590p' app/globals.css" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+exec
+/bin/zsh -lc "sed -n '180,280p' lib/endpoints/service.ts" in /Users/stevenna/WebstormProjects/mina-mock-mcpserver
+ succeeded in 0ms:
+  gap: 12px;
+  min-width: 0;
+}
+
+.console-arguments {
+  min-height: 132px;
+}
+
+.console-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.console-actions .secondary-button {
+  white-space: normal;
+  text-align: left;
+}
+
+.delete-confirmation {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  max-width: 560px;
+}
+
+.reset-panel {
+  display: grid;
+  max-width: 680px;
+  gap: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 18px;
+  background: var(--panel);
+}
+
+.reset-panel h2 {
+  margin: 0 0 8px;
+  font-size: 1.12rem;
+}
+
+.reset-panel p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.reset-panel .form-message {
+  margin: 0;
+}
+
+.reset-panel .danger-button {
+  width: fit-content;
+}
+
+.audit-panel {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+
+.audit-table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.audit-table th,
+.audit-table td {
+
+ succeeded in 0ms:
+          create: validInput.responseCases.map((responseCase) => ({
+            id: `${id}_case_${randomUUID()}`,
+            ...responseCase,
+          })),
+        },
+      },
+      include: endpointInclude,
+    });
+  });
+
+  return toDetail(endpoint);
+}
+
+function deleteMethodFor(endpoint: EndpointRecord, input: EndpointDeleteInput) {
+  const deleteCode = input.deleteCode?.trim() ?? "";
+  const rootPassword = input.rootPassword ?? "";
+
+  if (deleteCode && endpoint.deleteCode && deleteCode === endpoint.deleteCode) {
+    return "delete_code";
+  }
+  if (verifyRootPassword(rootPassword)) {
+    return "root_password";
+  }
+  return null;
+}
+
+export async function deleteEndpoint(
+  id: string,
+  input: EndpointDeleteInput,
+  client: PrismaClient = createPrismaClient(),
+) {
+  const endpoint = await client.endpoint.findUnique({ where: { id }, include: endpointInclude });
+  if (!endpoint) {
+    throw new EndpointNotFoundError();
+  }
+
+  if (endpoint.protectedDefault) {
+    await recordAuditEvent(
+      {
+        eventType: "endpoint.delete",
+        subjectType: "endpoint",
+        subjectId: endpoint.id,
+        subjectName: endpoint.name,
+        outcome: "failure",
+        metadata: { reason: "protected_default" },
+      },
+      client,
+    );
+    throw new EndpointDeleteAuthorizationError("protected_default");
+  }
+
+  const method = deleteMethodFor(endpoint, input);
+  if (!method) {
+    await recordAuditEvent(
+      {
+        eventType: "endpoint.delete",
+        subjectType: "endpoint",
+        subjectId: endpoint.id,
+        subjectName: endpoint.name,
+        outcome: "failure",
+        metadata: { reason: "invalid_confirmation" },
+      },
+      client,
+    );
+    throw new EndpointDeleteAuthorizationError(input.deleteCode || input.rootPassword ? "invalid_confirmation" : "missing_confirmation");
+  }
+
+  await client.$transaction(async (tx) => {
+    await tx.endpoint.delete({ where: { id: endpoint.id } });
+    await recordAuditEvent(
+      {
+        eventType: "endpoint.delete",
+        subjectType: "endpoint",
+        subjectId: endpoint.id,
+        subjectName: endpoint.name,
+        outcome: "success",
+        metadata: { method },
+      },
+      tx,
+    );
+  });
+
+  return toSummary(endpoint);
+}
+
+codex
+{"decision":"done","recommend_promotion":true,"confidence":0.9,"summary":"The implementation satisfies the root-reset-defaults task in substance. Reset is gated by root password plus exact confirmation, failures record non-secret audit evidence without changing endpoint state, successful reset deletes current endpoint data and recreates deterministic seed defaults, the UI exposes the confirmation flow, and @root-reset covers API failure plus UI recovery/audit behavior. The task maps directly to docs/product-specs/operator-configuration.md, and the provided deterministic summary shows all required commands passed, including full verify.","satisfied_exit_criteria":["Root password and exact confirmation text are required by the reset service/API before mutation.","Failed reset attempts write non-secret system.reset audit records and leave endpoint data intact.","Successful reset clears endpoint, endpoint parameter, and response case data, reseeds the default echo endpoint, and retains audit history.","The /reset UI clearly describes destructive behavior and submits root password plus RESET DEFAULTS confirmation.","tests/e2e/root-reset.spec.ts is tagged @root-reset and proves API failure, UI failure, successful recovery to seed defaults, and audit evidence without leaked submitted passwords.","Required gates are reported passing: npm run db:prepare, npm run test:unit, npm run test:e2e -- --grep @root-reset, and npm run verify."],"missing_requirements":[],"human_review_triggers":[]}
+tokens used
+76,157
+{"decision":"done","recommend_promotion":true,"confidence":0.9,"summary":"The implementation satisfies the root-reset-defaults task in substance. Reset is gated by root password plus exact confirmation, failures record non-secret audit evidence without changing endpoint state, successful reset deletes current endpoint data and recreates deterministic seed defaults, the UI exposes the confirmation flow, and @root-reset covers API failure plus UI recovery/audit behavior. The task maps directly to docs/product-specs/operator-configuration.md, and the provided deterministic summary shows all required commands passed, including full verify.","satisfied_exit_criteria":["Root password and exact confirmation text are required by the reset service/API before mutation.","Failed reset attempts write non-secret system.reset audit records and leave endpoint data intact.","Successful reset clears endpoint, endpoint parameter, and response case data, reseeds the default echo endpoint, and retains audit history.","The /reset UI clearly describes destructive behavior and submits root password plus RESET DEFAULTS confirmation.","tests/e2e/root-reset.spec.ts is tagged @root-reset and proves API failure, UI failure, successful recovery to seed defaults, and audit evidence without leaked submitted passwords.","Required gates are reported passing: npm run db:prepare, npm run test:unit, npm run test:e2e -- --grep @root-reset, and npm run verify."],"missing_requirements":[],"human_review_triggers":[]}
+evaluation: done promotion=true

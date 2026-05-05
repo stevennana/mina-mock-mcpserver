@@ -342,6 +342,7 @@ h1 {
 }
 
 .form-message.saving,
+.form-message.submitting,
 .form-message.deleting,
 .form-message.idle {
   border: 1px solid var(--line);
@@ -540,6 +541,35 @@ h1 {
   grid-template-columns: 1fr;
   gap: 12px;
   max-width: 560px;
+}
+
+.reset-panel {
+  display: grid;
+  max-width: 680px;
+  gap: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 18px;
+  background: var(--panel);
+}
+
+.reset-panel h2 {
+  margin: 0 0 8px;
+  font-size: 1.12rem;
+}
+
+.reset-panel p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.reset-panel .form-message {
+  margin: 0;
+}
+
+.reset-panel .danger-button {
+  width: fit-content;
 }
 
 .audit-panel {

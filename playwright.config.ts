@@ -10,6 +10,7 @@ export default defineConfig({
     baseURL: "http://127.0.0.1:3100",
     trace: "on-first-retry",
   },
+  workers: 1,
   webServer: {
     command: "npm run db:prepare && npm run dev",
     env: {

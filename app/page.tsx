@@ -21,6 +21,7 @@ export default async function Home() {
       <nav className="top-nav" aria-label="Primary">
         <Link href="/" aria-current="page">Dashboard</Link>
         <Link href="/endpoints">Endpoints</Link>
+        <Link href="/reset">Reset</Link>
         <Link href="/audit">Audit</Link>
       </nav>
       <section className="hero" aria-labelledby="page-title">

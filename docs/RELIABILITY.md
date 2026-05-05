@@ -7,6 +7,7 @@ Define the reliability expectations and failure-handling rules for MCP Mock Serv
 - seed defaults must be idempotent and protected from normal deletion
 - invalid auth fails closed and never falls back to anonymous access
 - reset must leave the service operational with default users/client/endpoints
+- current reset invariants cover endpoint data and current endpoint seed defaults; later Basic/OAuth slices must add their own reset extensions when those built-ins land
 - long delays and malformed responses are intentional per endpoint/case and must not corrupt other requests
 - worker stalls in Ralph are detected through worker.jsonl heartbeat evidence
 

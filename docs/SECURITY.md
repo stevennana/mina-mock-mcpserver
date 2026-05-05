@@ -15,6 +15,7 @@ Define the security posture for MCP Mock Server's current shipped slice.
 - ROOT_PASSWORD gates reset, delete override, base URL override, and optional historical token deletion
 - client secrets and passwords are never logged
 - endpoint delete audit entries store method/reason metadata, not submitted delete codes or root passwords
+- reset audit entries store success/failure reason and seed counts, not submitted root passwords
 - passwords are stored only as hashes
 - raw JWT values are shown only at issuance unless a config explicitly permits storage
 - LOG_LEVEL controls verbosity but must not expose secrets even at trace/debug
@@ -29,5 +30,5 @@ Define the security posture for MCP Mock Server's current shipped slice.
 ## Verification
 - unit tests for auth precedence, root checks, built-in immutability, JWT validation, and permission denial
 - E2E tests for Basic 401/success and OAuth 401/403/revocation
-- reset tests prove built-in defaults are recreated
+- reset tests prove endpoint defaults are recreated after root-password and confirmation checks
 - audit tests prove failed delete attempts and reset events are recorded

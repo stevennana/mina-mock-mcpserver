@@ -1,8 +1,8 @@
 {
-  "task_id": "endpoint-protected-delete-audit",
-  "started_at": "2026-05-05T19:10:01+09:00",
-  "artifact_dir": "state/artifacts/20260505T191001-endpoint-protected-delete-audit",
+  "task_id": "root-reset-defaults",
+  "started_at": "2026-05-05T19:20:21+09:00",
+  "artifact_dir": "state/artifacts/20260505T192021-root-reset-defaults",
   "phase": "commit",
   "status": "running",
-  "updated_at": "2026-05-05T10:19:51.323Z"
+  "updated_at": "2026-05-05T10:31:06.408Z"
 }

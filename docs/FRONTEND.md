@@ -40,7 +40,7 @@ Describe the user-facing structure of MCP Mock Server so an agent can implement 
 | OAuth login/consent | Complete authorization-code flow and select endpoint permissions |
 | Issued tokens | Inspect claims, permissions, expiration, and revoke tokens |
 | Config/guide | Show base URL, MCP/REST/OAuth URLs, sample client config, curl, Nginx |
-| Reset | Root-protected full reset to seed defaults |
+| Reset | Root-protected reset to current seed defaults with exact confirmation text |
 | Audit | Review mutation and security-relevant event history without exposing submitted secrets |
 
 ## UI Rules
@@ -59,6 +59,7 @@ Describe the user-facing structure of MCP Mock Server so an agent can implement 
 ## Search / Share / Admin Notes
 - the admin UI is intentionally public, so copy must avoid implying enterprise security
 - root-password fields are used only for protected actions and must not be logged
+- reset confirmation must make clear that currently implemented endpoint data is deleted and seed defaults are recreated
 - copy buttons should exist for MCP URLs, REST URLs, client config, curl examples, client secrets at issuance, and JWTs at issuance
 - OAuth consent should make selected endpoint permissions unambiguous
 

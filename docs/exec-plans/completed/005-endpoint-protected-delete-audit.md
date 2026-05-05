@@ -5,7 +5,7 @@
   "id": "endpoint-protected-delete-audit",
   "title": "Endpoint Protected Delete and Audit Evidence",
   "order": 5,
-  "status": "active",
+  "status": "completed",
   "next_task_on_success": "root-reset-defaults",
   "prompt_docs": [
     "AGENTS.md",
@@ -26,7 +26,8 @@
     "Required checks do not prove the claimed behavior.",
     "Implementation changes contradict the product spec or security/reliability docs."
   ],
-  "promotion_mode": "deterministic"
+  "promotion_mode": "deterministic",
+  "completed_at": "2026-05-05T10:19:51.517Z"
 }
 ```
 
@@ -110,3 +111,4 @@ Confirm that this task maps to the primary product spec `endpoint-tool-managemen
 - 2026-05-05T20:21:00+09:00 - Found existing endpoint delete-code persistence and no existing delete/audit implementation; reused endpoint service/API/UI patterns and added guarded delete plus audit storage instead of broadening into reset/auth tasks.
 - 2026-05-05T20:24:00+09:00 - Added endpoint delete confirmation UI/API, root-password override validation, non-secret audit evidence, `/audit` read surface, and `@endpoint-delete-audit` E2E coverage for failed code, successful code, and root override paths.
 - 2026-05-05T20:32:00+09:00 - Required gates passed: `npm run test:unit`, `npm run test:e2e -- --grep @endpoint-delete-audit`, and `npm run verify`.
+- 2026-05-05T10:19:51.517Z: automatically promoted after deterministic checks and evaluator approval.

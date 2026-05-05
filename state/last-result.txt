@@ -1,16 +1,17 @@
-Implemented `endpoint-protected-delete-audit`.
+Implemented `root-reset-defaults`.
 
-Key changes:
-- Added Prisma `AuditEvent` storage and audit service.
-- Added guarded endpoint deletion in [lib/endpoints/service.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/lib/endpoints/service.ts:206).
-- Added delete confirmation UI with delete code/root password fields in [endpoint-manager.tsx](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/app/endpoints/endpoint-manager.tsx:551).
-- Added `/audit` UI/API evidence surface.
-- Added `@endpoint-delete-audit` E2E coverage in [endpoint-delete-audit.spec.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/tests/e2e/endpoint-delete-audit.spec.ts:17).
-- Updated docs and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+What changed:
+- Added root-protected reset API/UI at `/api/reset` and `/reset`.
+- Reset requires root password plus exact `RESET DEFAULTS` confirmation.
+- Reset clears current endpoint data, recreates deterministic endpoint seed defaults, and keeps audit history.
+- Added non-secret audit evidence for reset failures and success.
+- Added unit coverage and `@root-reset` E2E coverage.
+- Serialized Playwright E2E workers to avoid shared SQLite reset/mutation races.
 
 Required checks passed:
+- `npm run db:prepare`
 - `npm run test:unit`
-- `npm run test:e2e -- --grep @endpoint-delete-audit`
+- `npm run test:e2e -- --grep @root-reset`
 - `npm run verify`
 
-Exit criteria appear satisfied; nothing remains for this task.
+I also updated `state/last-result.txt` with the operator handoff. Exit criteria appear satisfied; no known remaining work for this task.
