@@ -28,7 +28,7 @@ test("OAuth discovery metadata advertises only implemented grant and endpoint be
   assert.equal(authorizationServer.grant_types_supported.includes("refresh_token" as never), false);
 
   assert.deepEqual(protectedResource.authorization_servers, [`${baseUrl}/.well-known/oauth-authorization-server`]);
-  assert.equal(protectedResource.mcp_endpoint, `${baseUrl}/mcp/oauth`);
+  assert.equal("mcp_endpoint" in protectedResource, false);
   assert.equal(openid.issuer, authorizationServer.issuer);
   assert.equal(openid.token_endpoint, authorizationServer.token_endpoint);
   assert.deepEqual(openid.id_token_signing_alg_values_supported, []);

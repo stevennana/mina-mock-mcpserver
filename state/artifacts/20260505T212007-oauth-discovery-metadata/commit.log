@@ -1,0 +1,18 @@
+[main 86a0c03] ralph: oauth-discovery-metadata 2026-05-05T21:30:57+09:00
+ 36 files changed, 2763 insertions(+), 112 deletions(-)
+ create mode 100644 app/.well-known/oauth-authorization-server/route.ts
+ create mode 100644 app/.well-known/oauth-protected-resource/route.ts
+ create mode 100644 app/.well-known/openid-configuration/route.ts
+ create mode 100644 app/config/page.tsx
+ create mode 100644 app/oauth/jwks/route.ts
+ rename docs/exec-plans/{active => completed}/017-oauth-client-credentials-grant.md (94%)
+ create mode 100644 lib/oauth/discovery.ts
+ create mode 100644 state/artifacts/20260505T211124-oauth-client-credentials-grant/backlog.log
+ create mode 100644 state/artifacts/20260505T211124-oauth-client-credentials-grant/promote.log
+ create mode 100644 state/artifacts/20260505T212007-oauth-discovery-metadata/commit.log
+ create mode 100644 state/artifacts/20260505T212007-oauth-discovery-metadata/evaluator.log
+ create mode 100644 state/artifacts/20260505T212007-oauth-discovery-metadata/task-prompt.log
+ create mode 100644 state/artifacts/20260505T212007-oauth-discovery-metadata/worker.jsonl
+ create mode 100644 tests/e2e/oauth-discovery.spec.ts
+ create mode 100644 tests/unit/oauth-discovery.test.ts
+commit: created

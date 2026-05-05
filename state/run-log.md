@@ -721,3 +721,18 @@
 - evaluator: started
 - evaluator: status=not_done promotion=false Most OAuth discovery/JWKS scope is implemented and the provided deterministic checks passed, but the implementation advertises an MCP OAuth endpoint at /mcp/oauth in protected-resource metadata and the /config connection example while no app/mcp/oauth route exists. That means the metadata/guide are not fully aligned with actual runtime routes, and the @oauth-discovery test only asserts the advertised string instead of proving the route exists. -> state/artifacts/20260505T212007-oauth-discovery-metadata/evaluator.log
 - next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T212007-oauth-discovery-metadata/npm-run-test-e2e-grep-oauth-discovery-next-server.log
+- commit: commit: created
+- promote: Task oauth-discovery-metadata not eligible for promotion.
+- backlog: rendered current=oauth-discovery-metadata
+- health: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxoooooooooooooooox
+- cycle: finished
+
+### cycle 2026-05-05T21:31:27+09:00 task=oauth-discovery-metadata
+- artifacts: state/artifacts/20260505T213127-oauth-discovery-metadata
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260505T213127-oauth-discovery-metadata/worker.jsonl
+- worker-summary: Implemented the hardening for `oauth-discovery-metadata`.
+- evaluator: started
+- evaluator: status=done promotion=true The task maps directly to docs/product-specs/oauth-consent-and-token-runtime.md and is complete in substance. Discovery route handlers and /oauth/jwks are implemented, metadata avoids unsupported refresh/PKCE/revocation/OAuth MCP route claims, JWKS exposes only public RS256 verification material matching issued token kid/alg, the config guide lists actual metadata/JWKS routes, and the required deterministic checks passed per state/deterministic-checks.json. -> state/artifacts/20260505T213127-oauth-discovery-metadata/evaluator.log
+- next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T213127-oauth-discovery-metadata/npm-run-test-e2e-grep-oauth-discovery-next-server.log

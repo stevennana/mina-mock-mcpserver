@@ -1,10 +1,10 @@
-Implemented `oauth-discovery-metadata` and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+Implemented the hardening for `oauth-discovery-metadata`.
 
-Added OAuth discovery/JWKS helpers and routes for `/.well-known/oauth-protected-resource`, `/.well-known/oauth-authorization-server`, `/.well-known/openid-configuration`, and `/oauth/jwks`. Updated `/oauth/token` issuer resolution, added the `/config` connection guide entries, updated scoped docs and the active progress log, and added unit plus `@oauth-discovery` E2E coverage.
+Changed discovery/config so they no longer advertise unsupported `/mcp/oauth`; updated tests to assert that absence; aligned docs and the active task progress log. Wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
 
 Required checks passed:
 - `npm run test:unit`
 - `npm run test:e2e -- --grep @oauth-discovery`
 - `npm run verify`
 
-Exit criteria appear satisfied. Nothing remains for this task.
+Exit criteria appear satisfied. Nothing remains for this task; OAuth-protected MCP runtime enforcement remains in the next queued permission task.

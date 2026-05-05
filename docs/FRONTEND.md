@@ -24,7 +24,7 @@ Describe the user-facing structure of MCP Mock Server so an agent can implement 
 | /oauth/login | OAuth login | Separate from admin UI |
 | /oauth/consent | OAuth consent | Endpoint permission checklist |
 | /api/* | Admin/API | Health, CRUD, config, reset, audit |
-| /mcp, /mcp/none, /mcp/basic, /mcp/oauth | MCP JSON-RPC | Unified plus strict auth routes |
+| /mcp, /mcp/none, /mcp/basic | MCP JSON-RPC | Unified plus currently implemented strict auth routes |
 | /rest/tools, /rest/tools/:name/call | REST mock API | Same tool catalog through REST |
 | /.well-known/*, /oauth/jwks, /oauth/token, /oauth/revoke | OAuth metadata/runtime | Discovery, token, revocation |
 

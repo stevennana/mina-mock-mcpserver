@@ -28,8 +28,8 @@ test("OAuth discovery metadata and JWKS are internally consistent @oauth-discove
     authorization_servers: [`${expectedBaseUrl}/.well-known/oauth-authorization-server`],
     bearer_methods_supported: ["header"],
     scopes_supported: ["endpoint:<endpoint_id>"],
-    mcp_endpoint: `${expectedBaseUrl}/mcp/oauth`,
   });
+  expect(protectedResource).not.toHaveProperty("mcp_endpoint");
 
   expect(authorizationServer).toMatchObject({
     issuer: expectedBaseUrl,
@@ -95,9 +95,10 @@ test("OAuth discovery metadata and JWKS are internally consistent @oauth-discove
 
   await page.goto("/config");
   await expect(page.getByRole("heading", { name: "Config" })).toBeVisible();
-  const connectionExample = page.getByLabel("MCP OAuth connection example");
+  const connectionExample = page.getByLabel("OAuth discovery connection example");
   await expect(connectionExample).toContainText("/.well-known/oauth-protected-resource");
   await expect(connectionExample).toContainText("/.well-known/oauth-authorization-server");
   await expect(connectionExample).toContainText("/.well-known/openid-configuration");
   await expect(connectionExample).toContainText("/oauth/jwks");
+  await expect(connectionExample).not.toContainText("/mcp/oauth");
 });

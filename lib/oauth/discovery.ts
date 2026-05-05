@@ -42,7 +42,6 @@ export function oauthDiscoveryUrls(baseUrl: string) {
     protectedResourceMetadata: absoluteUrl(baseUrl, "/.well-known/oauth-protected-resource"),
     authorizationServerMetadata: absoluteUrl(baseUrl, "/.well-known/oauth-authorization-server"),
     openidConfiguration: absoluteUrl(baseUrl, "/.well-known/openid-configuration"),
-    mcpOAuthEndpoint: absoluteUrl(baseUrl, "/mcp/oauth"),
   };
 }
 
@@ -68,7 +67,6 @@ export function oauthProtectedResourceMetadata(baseUrl: string) {
     authorization_servers: [urls.authorizationServerMetadata],
     bearer_methods_supported: ["header"],
     scopes_supported: [ENDPOINT_SCOPE_PATTERN],
-    mcp_endpoint: urls.mcpOAuthEndpoint,
   };
 }
 

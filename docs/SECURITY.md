@@ -35,7 +35,7 @@ Define the security posture for MCP Mock Server's current shipped slice.
 
 ## Public Surfaces
 - public admin UI routes and /api/* mutation endpoints
-- MCP routes /mcp, /mcp/none, /mcp/basic, /mcp/oauth
+- MCP routes /mcp, /mcp/none, /mcp/basic
 - REST mock routes /rest/tools and /rest/tools/:name/call
 - OAuth browser, token, revocation, discovery, and JWKS routes
 - health and public config endpoints

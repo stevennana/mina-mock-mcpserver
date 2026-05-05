@@ -30,7 +30,7 @@ OAuth users and clients management
 - Discovery metadata
 - `/.well-known/oauth-protected-resource`, `/.well-known/oauth-authorization-server`, `/.well-known/openid-configuration`, and `/oauth/jwks` expose the mock server's implemented OAuth capabilities only
 - Discovery advertises authorization code and client credentials grants, `code` response type, `client_secret_post` token authentication, endpoint scope format, token endpoint, authorization endpoint, and JWKS URI
-- Discovery must not advertise refresh tokens, PKCE, external identity providers, or revocation until those behaviors are implemented
+- Discovery must not advertise refresh tokens, PKCE, external identity providers, revocation, or OAuth-protected MCP route URLs until those behaviors are implemented
 - `/oauth/jwks` exposes only the public RS256 verification key matching issued token `kid` and never private signing material
 
 ## Validation

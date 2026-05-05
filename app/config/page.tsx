@@ -52,11 +52,10 @@ export default async function ConfigPage() {
       </section>
 
       <section className="panel guide-panel" aria-labelledby="mcp-title">
-        <h2 id="mcp-title">MCP client setup</h2>
-        <pre className="json-panel" aria-label="MCP OAuth connection example">
+        <h2 id="mcp-title">OAuth discovery setup</h2>
+        <pre className="json-panel" aria-label="OAuth discovery connection example">
 {JSON.stringify(
   {
-    mcp_url: urls.mcpOAuthEndpoint,
     oauth_protected_resource: urls.protectedResourceMetadata,
     oauth_authorization_server: urls.authorizationServerMetadata,
     openid_configuration: urls.openidConfiguration,

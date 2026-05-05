@@ -69,7 +69,8 @@ Required commands for this task:
 - npm run verify
 
 Previous known gaps from the last evaluation:
-- none
+- Protected-resource metadata and the /config MCP OAuth connection example advertise /mcp/oauth, but the repository currently has app/mcp, app/mcp/none, and app/mcp/basic only. This violates alignment with actual runtime routes and makes the guide example partially inaccurate.
+- The @oauth-discovery E2E test does not catch the missing advertised MCP OAuth route; it only checks that /mcp/oauth appears in metadata/config text.
 
 
 
