@@ -82,3 +82,15 @@ model AuditEvent {
   @@index([eventType, createdAt])
   @@index([subjectType, subjectId])
 }
+
+model BasicUser {
+  id           String   @id
+  username     String   @unique
+  passwordHash String
+  enabled      Boolean  @default(true)
+  builtIn      Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([builtIn, username])
+}

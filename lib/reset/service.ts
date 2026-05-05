@@ -1,7 +1,7 @@
 import type { PrismaClient } from "@prisma/client";
 import { recordAuditEvent } from "@/lib/audit/service";
 import { createPrismaClient } from "@/lib/db/client";
-import { seedEndpointDefaults } from "@/lib/db/seed";
+import { seedAllDefaults } from "@/lib/db/seed";
 import { verifyRootPassword } from "@/lib/security/root-password";
 import { RESET_CONFIRMATION_TEXT, ResetAuthorizationError } from "@/lib/reset/types";
 import type { ResetInput, ResetResult } from "@/lib/reset/types";
@@ -42,12 +42,14 @@ export async function resetToDefaults(input: ResetInput, client: PrismaClient = 
   }
 
   return client.$transaction(async (tx) => {
+    const deletedBasicUsers = await tx.basicUser.deleteMany({});
     await tx.responseCase.deleteMany({});
     await tx.endpointParam.deleteMany({});
     const deletedEndpoints = await tx.endpoint.deleteMany({});
 
-    await seedEndpointDefaults(tx);
+    await seedAllDefaults(tx);
     const seededEndpoints = await tx.endpoint.count();
+    const seededBasicUsers = await tx.basicUser.count();
 
     await recordAuditEvent(
       {
@@ -59,7 +61,9 @@ export async function resetToDefaults(input: ResetInput, client: PrismaClient = 
         metadata: {
           method: "root_password",
           deletedEndpoints: deletedEndpoints.count,
+          deletedBasicUsers: deletedBasicUsers.count,
           seededEndpoints,
+          seededBasicUsers,
         },
       },
       tx,
@@ -68,6 +72,8 @@ export async function resetToDefaults(input: ResetInput, client: PrismaClient = 
     return {
       deletedEndpoints: deletedEndpoints.count,
       seededEndpoints,
+      deletedBasicUsers: deletedBasicUsers.count,
+      seededBasicUsers,
     };
   });
 }

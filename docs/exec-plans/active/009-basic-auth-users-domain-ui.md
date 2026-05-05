@@ -5,7 +5,7 @@
   "id": "basic-auth-users-domain-ui",
   "title": "Basic Auth Users Domain and Management UI",
   "order": 9,
-  "status": "queued",
+  "status": "active",
   "next_task_on_success": "basic-auth-mcp-runtime",
   "prompt_docs": [
     "AGENTS.md",
@@ -105,3 +105,6 @@ Confirm that this task maps to the primary product spec `basic-auth-management.m
 
 - Start here. Append timestamped progress notes as work lands.
 - Note when existing partial implementations were found and reused instead of replaced.
+- 2026-05-05T10:49:01.250Z: restored as current task after mcp-tools-call-and-errors promotion.
+- 2026-05-05T19:54:46+09:00 - Found only Basic Auth placeholders in dashboard/nav and endpoint console; reused endpoint/reset API, Prisma, audit, and UI patterns instead of duplicating framework shape.
+- 2026-05-05T19:54:46+09:00 - Added BasicUser persistence, locked default/default seeding, scrypt password hashing, credential verification, CRUD APIs, management UI, reset reseeding, unit tests, and @ui-basic-users E2E coverage.

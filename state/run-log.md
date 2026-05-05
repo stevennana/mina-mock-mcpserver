@@ -571,3 +571,18 @@
 - evaluator: started
 - evaluator: status=done promotion=true The implementation matches the active task and the primary MCP JSON-RPC runtime spec. No-auth `/mcp` and `/mcp/none` route through the shared MCP adapter, `tools/call` invokes the endpoint matcher by endpoint name, success responses include MCP text content plus `structuredContent` for JSON objects, unknown/disabled tools and invalid arguments map to JSON-RPC `-32602`, unsupported methods map to `-32601`, and no exact response-case match deterministically falls back to the default case. Required deterministic checks are recorded as passing. -> state/artifacts/20260505T193935-mcp-tools-call-and-errors/evaluator.log
 - next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T193935-mcp-tools-call-and-errors/npm-run-test-e2e-grep-mcp-tools-call-next-server.log
+- commit: commit: created
+- promote: Promoted mcp-tools-call-and-errors -> basic-auth-users-domain-ui
+- backlog: rendered current=basic-auth-users-domain-ui
+- health: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxooooooo
+- cycle: finished
+
+### cycle 2026-05-05T19:49:31+09:00 task=basic-auth-users-domain-ui
+- artifacts: state/artifacts/20260505T194931-basic-auth-users-domain-ui
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260505T194931-basic-auth-users-domain-ui/worker.jsonl
+- worker-summary: Implemented `basic-auth-users-domain-ui` and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+- evaluator: started
+- evaluator: status=done promotion=true Deterministic checks passed; task is eligible for automatic promotion. -> state/artifacts/20260505T194931-basic-auth-users-domain-ui/evaluator.log
+- next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T194931-basic-auth-users-domain-ui/npm-run-test-e2e-grep-ui-basic-users-next-server.log

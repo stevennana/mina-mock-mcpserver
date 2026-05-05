@@ -1,11 +1,24 @@
 import { PrismaClient } from "@prisma/client";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { randomBytes, scrypt as scryptCallback } from "node:crypto";
+import { promisify } from "node:util";
 
 export const DEFAULT_ENDPOINT_ID = "endpoint_default_echo";
+export const DEFAULT_BASIC_USER_ID = "basic_user_default";
+export const DEFAULT_BASIC_USERNAME = "default";
+export const DEFAULT_BASIC_PASSWORD = "default";
+
+const scrypt = promisify(scryptCallback);
 
 const databaseUrl = process.env.DATABASE_URL ?? "file:./data/runtime.sqlite";
 const adapter = new PrismaBetterSqlite3({ url: databaseUrl });
 const prisma = new PrismaClient({ adapter });
+
+async function hashBasicPassword(password) {
+  const salt = randomBytes(16).toString("base64url");
+  const hash = await scrypt(password, salt, 32);
+  return `scrypt$${salt}$${hash.toString("base64url")}`;
+}
 
 export async function seedEndpointDefaults(client = prisma) {
   await client.endpoint.upsert({
@@ -169,7 +182,28 @@ export async function seedEndpointDefaults(client = prisma) {
   });
 }
 
+export async function seedBasicUserDefaults(client = prisma) {
+  const passwordHash = await hashBasicPassword(DEFAULT_BASIC_PASSWORD);
+  await client.basicUser.upsert({
+    where: { id: DEFAULT_BASIC_USER_ID },
+    update: {
+      username: DEFAULT_BASIC_USERNAME,
+      passwordHash,
+      enabled: true,
+      builtIn: true,
+    },
+    create: {
+      id: DEFAULT_BASIC_USER_ID,
+      username: DEFAULT_BASIC_USERNAME,
+      passwordHash,
+      enabled: true,
+      builtIn: true,
+    },
+  });
+}
+
 if (import.meta.url === `file://${process.argv[1]}`) {
   await seedEndpointDefaults();
+  await seedBasicUserDefaults();
   await prisma.$disconnect();
 }

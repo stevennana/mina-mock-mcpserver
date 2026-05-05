@@ -24,4 +24,4 @@ await run("npx", ["prisma", "migrate", "deploy"]);
 await run("npx", ["prisma", "generate"]);
 await run("node", ["prisma/seed.mjs"]);
 
-console.log("Prepared SQLite runtime state with Prisma migrations and endpoint seed defaults.");
+console.log("Prepared SQLite runtime state with Prisma migrations and seed defaults.");

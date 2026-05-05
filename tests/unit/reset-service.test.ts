@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 import { createPrismaClient } from "@/lib/db/client";
-import { seedEndpointDefaults } from "@/lib/db/seed";
+import { seedAllDefaults } from "@/lib/db/seed";
 import { createEndpoint } from "@/lib/endpoints/service";
 import { resetToDefaults } from "@/lib/reset/service";
 import { ResetAuthorizationError } from "@/lib/reset/types";
@@ -22,7 +22,7 @@ async function withIsolatedDb(fn: (client: ReturnType<typeof createPrismaClient>
 
   const client = createPrismaClient();
   try {
-    await seedEndpointDefaults(client);
+    await seedAllDefaults(client);
     await fn(client);
   } finally {
     await client.$disconnect();
@@ -47,6 +47,7 @@ test("reset requires confirmation and leaves endpoint state untouched on failure
     );
 
     assert.equal(await client.endpoint.count(), 1);
+    assert.equal(await client.basicUser.count(), 1);
     assert.equal(await client.auditEvent.count({ where: { eventType: "system.reset", outcome: "failure" } }), 1);
   });
 });
@@ -85,11 +86,14 @@ test("reset clears mutable endpoint data and recreates current seed defaults", a
     const result = await resetToDefaults({ rootPassword: "unit-root-password", confirmation: "RESET DEFAULTS" }, client);
 
     assert.equal(result.seededEndpoints, 1);
+    assert.equal(result.seededBasicUsers, 1);
     assert.equal(await client.endpoint.count(), 1);
+    assert.equal(await client.basicUser.count(), 1);
     assert.equal(await client.endpointParam.count(), 1);
     assert.equal(await client.responseCase.count(), 2);
     assert.equal(await client.endpoint.count({ where: { name: "temporary_reset_endpoint" } }), 0);
     assert.equal(await client.endpoint.count({ where: { id: "endpoint_default_echo", protectedDefault: true } }), 1);
+    assert.equal(await client.basicUser.count({ where: { id: "basic_user_default", builtIn: true, enabled: true } }), 1);
     assert.equal(await client.auditEvent.count({ where: { eventType: "system.reset", outcome: "success" } }), 1);
   });
 });

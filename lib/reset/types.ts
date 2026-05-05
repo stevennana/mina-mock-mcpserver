@@ -8,6 +8,8 @@ export type ResetInput = {
 export type ResetResult = {
   deletedEndpoints: number;
   seededEndpoints: number;
+  deletedBasicUsers: number;
+  seededBasicUsers: number;
 };
 
 export class ResetAuthorizationError extends Error {

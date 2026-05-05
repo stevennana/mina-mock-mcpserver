@@ -8,3 +8,4 @@
 - 2026-05-05T10:19:51.517Z: promoted endpoint-protected-delete-audit -> root-reset-defaults
 - 2026-05-05T10:31:06.589Z: promoted root-reset-defaults -> mcp-initialize-and-tools-list
 - 2026-05-05T10:39:05.356Z: promoted mcp-initialize-and-tools-list -> mcp-tools-call-and-errors
+- 2026-05-05T10:49:01.250Z: promoted mcp-tools-call-and-errors -> basic-auth-users-domain-ui

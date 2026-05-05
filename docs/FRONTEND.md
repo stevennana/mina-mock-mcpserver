@@ -34,7 +34,7 @@ Describe the user-facing structure of MCP Mock Server so an agent can implement 
 | Dashboard | Summarize service state and show connection examples |
 | Endpoints | List, search, create, and edit mock tools, response cases, failure simulation, and delete protection |
 | Endpoint console | Preview MCP/REST call shape with selected auth mode, then run calls once runtime tasks wire execution |
-| Basic Auth users | Manage Basic test identities and built-in lock state |
+| Basic Auth users | List/search/create/password-edit/disable/delete Basic test identities and show the built-in default/default lock state |
 | OAuth users | Manage login identities and token TTLs |
 | OAuth clients | Manage client secrets, redirect URIs, and allowed endpoint set |
 | OAuth login/consent | Complete authorization-code flow and select endpoint permissions |
@@ -52,6 +52,7 @@ Describe the user-facing structure of MCP Mock Server so an agent can implement 
 - tables must support search/filter states without layout shift
 - endpoint editor forms must surface API/domain validation errors next to the affected fields
 - endpoint editor forms must show generated MCP `inputSchema` from the shared endpoint domain schema helper
+- Basic user forms must not display password hashes and must disable mutation controls for built-in rows
 - console outputs must preserve raw JSON formatting and elapsed/auth/match metadata
 - console shell states must clearly mark unavailable runtime actions instead of faking calls
 - UI-focused tasks must include desktop and mobile screenshots plus accessibility checks

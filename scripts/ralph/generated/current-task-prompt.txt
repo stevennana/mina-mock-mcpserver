@@ -2,70 +2,72 @@ Read the following repository documents before making changes:
 - AGENTS.md
 - ARCHITECTURE.md
 - docs/PRODUCT_SENSE.md
-- docs/RELIABILITY.md
-- docs/product-specs/mcp-json-rpc-runtime.md
-- docs/exec-plans/active/008-mcp-tools-call-and-errors.md
+- docs/FRONTEND.md
+- docs/SECURITY.md
+- docs/product-specs/basic-auth-management.md
+- docs/exec-plans/active/009-basic-auth-users-domain-ui.md
 
-Current task id: mcp-tools-call-and-errors
-Current task title: MCP Tools Call and Error Semantics
+Current task id: basic-auth-users-domain-ui
+Current task title: Basic Auth Users Domain and Management UI
 
 Objective:
-Implement no-auth MCP `tools/call` execution and JSON-RPC error semantics using the endpoint matcher.
+Implement Basic Auth user persistence, hashing, built-in protection, and public management UI before strict route enforcement.
 
 Clarity notes:
-- This task completes no-auth MCP tool execution after list/initialize already work.
-- MCP success and error envelopes are protocol contracts, not REST responses.
-- Endpoint matching should remain shared with REST later.
-- This task can include unknown method behavior because it belongs to protocol error semantics.
+- Basic Auth here is a test identity catalog, not public admin UI protection.
+- The built-in `default/default` row is a permanent locked fixture.
+- Password hashing and built-in invariants should be unit-tested before protocol enforcement.
+- This task is UI-heavy because it includes the management screen.
 
 Expected result:
-- `tools/call` executes exact-match endpoint response cases.
-- Successful MCP responses include text content and structuredContent when appropriate.
-- Unknown method, invalid params, unknown tool, no-match, and endpoint disabled behavior are deterministic.
-- E2E coverage proves a configured tool can be called through `/mcp/none`.
+- Basic users can be listed, created, password-edited, enabled/disabled, and deleted where allowed.
+- Built-in default user is visible as locked and cannot be weakened.
+- Passwords are hashed at rest.
+- `@ui-basic-users` proves the management UI on desktop and mobile.
 
 Objections / risks to avoid:
-- Do not duplicate response-case matching logic inside MCP handlers.
-- Do not return REST-style error bodies from JSON-RPC routes.
-- Do not add Basic/OAuth authorization here.
-- Do not implement failure simulation modes beyond existing domain outcomes unless already available.
+- Do not implement `/mcp/basic` route behavior here.
+- Do not store plaintext passwords.
+- Do not add sessions, login, or RBAC.
+- Do not allow built-in user disable/delete/password change.
 
 Scope:
-- Implement `tools/call` for no-auth MCP routes.
-- Map matcher outcomes to MCP success, tool execution error, or JSON-RPC protocol error as documented.
-- Add unit tests for response conversion and error mapping.
-- Add E2E coverage tagged `@mcp-tools-call` for success and negative cases.
+- Add Basic user model/repository/service if not already present.
+- Implement password hashing and credential verification service.
+- Build Basic users screen and APIs.
+- Add unit tests for hashing and built-in immutability.
+- Add UI tests tagged `@ui-basic-users`.
 
 Out of scope:
-- Auth-specific MCP aliases.
-- REST routes.
-- OAuth permission denial.
-- Failure simulation runtime not already represented by matcher outcomes.
+- MCP Basic strict route behavior.
+- REST Basic route behavior unless needed for shared helpers.
+- OAuth users/clients.
+- Admin UI authentication.
 
 Exit criteria:
-1. Configured endpoint calls return expected MCP content.
-2. Unknown tool uses JSON-RPC `-32602` or documented chosen behavior.
-3. Unsupported methods return `-32601`.
-4. No-match behavior is deterministic and tested.
+1. Built-in Basic user remains protected.
+2. Additional Basic users can be managed through UI/API.
+3. Password verification works against hashes.
+4. `@ui-basic-users` passes with screenshot/responsive/accessibility proof.
 5. All required checks pass.
 
 Required checks:
 - npm run test:unit
-- npm run test:e2e -- --grep @mcp-tools-call
+- npm run test:e2e -- --grep @ui-basic-users
 - npm run verify
 
 Evaluator notes:
 Required commands are mandatory promotion gates, not suggestions.
 Do not promote if any required check fails.
 Do not accept broad feature work outside this task.
-Confirm that this task maps to the primary product spec `mcp-json-rpc-runtime.md` or is explicitly final hardening.
+Confirm that this task maps to the primary product spec `basic-auth-management.md` or is explicitly final hardening.
 
 Required repository artifacts for this task:
 - none
 
 Required commands for this task:
 - npm run test:unit
-- npm run test:e2e -- --grep @mcp-tools-call
+- npm run test:e2e -- --grep @ui-basic-users
 - npm run verify
 
 Previous known gaps from the last evaluation:

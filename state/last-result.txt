@@ -1,10 +1,14 @@
-Implemented `mcp-tools-call-and-errors` and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+Implemented `basic-auth-users-domain-ui` and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
 
-Changed no-auth MCP `tools/call` to execute enabled endpoints through the shared endpoint runtime matcher, return MCP text content plus `structuredContent` for JSON objects, use the default response case for no exact match, and return JSON-RPC `-32602` / `-32601` for the documented error cases. Added unit coverage and `@mcp-tools-call` E2E coverage, and updated the MCP runtime/reliability/product docs plus the active task log.
+Changed:
+- Added `BasicUser` persistence, migration, seed/reset support for locked `default/default`.
+- Added scrypt password hashing and credential verification service.
+- Added `/api/basic-users` CRUD and `/basic-users` management UI.
+- Added unit tests and `@ui-basic-users` Playwright coverage with desktop/mobile screenshots.
 
 Required checks passed:
 - `npm run test:unit`
-- `npm run test:e2e -- --grep @mcp-tools-call`
+- `npm run test:e2e -- --grep @ui-basic-users`
 - `npm run verify`
 
 Exit criteria appear satisfied. Remaining work: none for this task.

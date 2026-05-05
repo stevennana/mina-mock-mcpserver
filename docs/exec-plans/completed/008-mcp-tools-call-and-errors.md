@@ -5,7 +5,7 @@
   "id": "mcp-tools-call-and-errors",
   "title": "MCP Tools Call and Error Semantics",
   "order": 8,
-  "status": "active",
+  "status": "completed",
   "next_task_on_success": "basic-auth-users-domain-ui",
   "prompt_docs": [
     "AGENTS.md",
@@ -25,7 +25,8 @@
     "Required checks do not prove the claimed behavior.",
     "Implementation changes contradict the product spec or security/reliability docs."
   ],
-  "promotion_mode": "deterministic"
+  "promotion_mode": "deterministic",
+  "completed_at": "2026-05-05T10:49:01.250Z"
 }
 ```
 
@@ -105,3 +106,4 @@ Confirm that this task maps to the primary product spec `mcp-json-rpc-runtime.md
 - 2026-05-05T10:39:05.356Z: restored as current task after mcp-initialize-and-tools-list promotion.
 - 2026-05-05T10:44:37Z: found initialize/tools-list MCP adapter and endpoint schema helpers already implemented, but no reusable endpoint call matcher in the current tree; added shared endpoint runtime matching and no-auth MCP `tools/call` protocol mapping.
 - 2026-05-05T10:44:37Z: documented no-auth `tools/call` success, default no-match fallback, JSON-RPC `-32602` invalid/unknown-tool behavior, and `-32601` unsupported-method behavior; added unit and `@mcp-tools-call` E2E coverage.
+- 2026-05-05T10:49:01.250Z: automatically promoted after deterministic checks and evaluator approval.

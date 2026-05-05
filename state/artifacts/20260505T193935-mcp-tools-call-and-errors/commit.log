@@ -1,0 +1,13 @@
+[main adf2780] ralph: mcp-tools-call-and-errors 2026-05-05T19:49:01+09:00
+ 32 files changed, 3339 insertions(+), 114 deletions(-)
+ rename docs/exec-plans/{active => completed}/007-mcp-initialize-and-tools-list.md (94%)
+ create mode 100644 lib/endpoints/runtime.ts
+ create mode 100644 state/artifacts/20260505T193136-mcp-initialize-and-tools-list/backlog.log
+ create mode 100644 state/artifacts/20260505T193136-mcp-initialize-and-tools-list/promote.log
+ create mode 100644 state/artifacts/20260505T193935-mcp-tools-call-and-errors/commit.log
+ create mode 100644 state/artifacts/20260505T193935-mcp-tools-call-and-errors/evaluator.log
+ create mode 100644 state/artifacts/20260505T193935-mcp-tools-call-and-errors/task-prompt.log
+ create mode 100644 state/artifacts/20260505T193935-mcp-tools-call-and-errors/worker.jsonl
+ create mode 100644 tests/e2e/mcp-tools-call.spec.ts
+ create mode 100644 tests/unit/endpoint-runtime.test.ts
+commit: created

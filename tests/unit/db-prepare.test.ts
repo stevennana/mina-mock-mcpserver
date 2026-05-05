@@ -15,7 +15,7 @@ async function runDbPrepare(databaseUrl: string) {
   });
 }
 
-test("db:prepare is repeatable and keeps endpoint seed rows singular", async () => {
+test("db:prepare is repeatable and keeps seed rows singular", async () => {
   const directory = await mkdtemp(join(tmpdir(), "mcp-mock-db-"));
   const databaseUrl = `file:${join(directory, "runtime.sqlite")}`;
 
@@ -30,6 +30,7 @@ test("db:prepare is repeatable and keeps endpoint seed rows singular", async () 
     assert.equal(await prisma.endpoint.count(), 1);
     assert.equal(await prisma.endpointParam.count(), 1);
     assert.equal(await prisma.responseCase.count(), 2);
+    assert.equal(await prisma.basicUser.count(), 1);
 
     const endpoint = await prisma.endpoint.findUniqueOrThrow({
       where: { id: "endpoint_default_echo" },
@@ -48,6 +49,12 @@ test("db:prepare is repeatable and keeps endpoint seed rows singular", async () 
     assert.equal(helloCase?.delayMs, 0);
     assert.equal(helloCase?.errorMode, "none");
     assert.equal(helloCase?.errorStatusCode, null);
+
+    const basicUser = await prisma.basicUser.findUniqueOrThrow({ where: { id: "basic_user_default" } });
+    assert.equal(basicUser.username, "default");
+    assert.equal(basicUser.enabled, true);
+    assert.equal(basicUser.builtIn, true);
+    assert.notEqual(basicUser.passwordHash, "default");
   } finally {
     await prisma.$disconnect();
     if (previousDatabaseUrl === undefined) {
