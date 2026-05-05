@@ -370,3 +370,18 @@
 - evaluator: started
 - evaluator: status=done promotion=true The task is complete in substance. The repository has Prisma/SQLite endpoint persistence, migrations, deterministic db preparation, idempotent protected seed defaults, generated schema documentation, and unit coverage proving repeatable db:prepare behavior. The provided mandatory gate results all passed, and the implementation stays within the endpoint persistence scope mapped to endpoint-tool-management.md. -> state/artifacts/20260505T180557-endpoint-domain-and-schema/evaluator.log
 - next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T180557-endpoint-domain-and-schema/npm-run-verify-next-server.log
+- commit: commit: created
+- promote: failed -> state/artifacts/20260505T180557-endpoint-domain-and-schema/promote.log
+- backlog: rendered current=endpoint-domain-and-schema
+- health: xxxxxxxxxxxxxxxxxxxxxxxxx
+- cycle: finished
+
+### cycle 2026-05-05T18:10:45+09:00 task=endpoint-domain-and-schema
+- artifacts: state/artifacts/20260505T181045-endpoint-domain-and-schema
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260505T181045-endpoint-domain-and-schema/worker.jsonl
+- worker-summary: Completed `endpoint-domain-and-schema`.
+- evaluator: started
+- evaluator: status=done promotion=true The task is complete in substance. The repository has Prisma/SQLite dependencies, configuration, migrations, generated client setup, deterministic db preparation, idempotent endpoint seed defaults, schema documentation, and repeatability unit coverage. The implementation remains scoped to endpoint persistence and maps to endpoint-tool-management.md. I could not rerun write-producing commands in this read-only evaluation environment, but the provided deterministic check summary shows all mandatory gates passing. -> state/artifacts/20260505T181045-endpoint-domain-and-schema/evaluator.log
+- next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T181045-endpoint-domain-and-schema/npm-run-verify-next-server.log
