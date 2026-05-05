@@ -55,3 +55,18 @@
 - evaluator: started
 - evaluator: status=done promotion=true The task is complete in substance. The implementation adds Prisma/SQLite wiring, migrations, generated client setup, deterministic db preparation, idempotent endpoint seed defaults, generated schema documentation, and repeatability coverage. The inspected changes stay scoped to endpoint persistence and do not add out-of-scope UI, MCP, REST, auth, or reset behavior. I did not rerun write-producing commands in this read-only evaluator sandbox, but the provided deterministic check summary reports all required gates passing. -> state/artifacts/20260505T162727-endpoint-domain-and-schema/evaluator.log
 - next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T162727-endpoint-domain-and-schema/npm-run-verify-next-server.log
+- commit: commit: created
+- promote: failed -> state/artifacts/20260505T162727-endpoint-domain-and-schema/promote.log
+- backlog: rendered current=endpoint-domain-and-schema
+- health: xxxx
+- cycle: finished
+
+### cycle 2026-05-05T16:32:32+09:00 task=endpoint-domain-and-schema
+- artifacts: state/artifacts/20260505T163232-endpoint-domain-and-schema
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260505T163232-endpoint-domain-and-schema/worker.jsonl
+- worker-summary: Verified `endpoint-domain-and-schema` against the required docs and gates. The Prisma/SQLite persistence foundation is already in place and scoped correctly, so I only appended the required progress note and wrote the operator handoff to `state/last-result.txt`.
+- evaluator: started
+- evaluator: status=done promotion=true The endpoint persistence task is complete in substance. The repository has Prisma/SQLite dependencies, schema and migrations, generated client setup, deterministic `db:prepare`, idempotent protected seed defaults, schema documentation, and repeatability coverage. The implementation maps directly to `endpoint-tool-management.md` and stays within the persistence foundation scope without adding out-of-scope UI, MCP, REST, auth, or reset behavior. I did not rerun required commands because the evaluator sandbox is read-only, but the supplied deterministic check summary reports all mandatory gates passing. -> state/artifacts/20260505T163232-endpoint-domain-and-schema/evaluator.log
+- next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260505T163232-endpoint-domain-and-schema/npm-run-verify-next-server.log
