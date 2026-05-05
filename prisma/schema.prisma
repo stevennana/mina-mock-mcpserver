@@ -9,6 +9,7 @@ datasource db {
 model Endpoint {
   id                    String          @id
   name                  String          @unique
+  title                 String          @default("")
   description           String          @default("")
   enabled               Boolean         @default(true)
   protectedDefault      Boolean         @default(false)
@@ -45,17 +46,24 @@ model EndpointParam {
 }
 
 model ResponseCase {
-  id            String   @id
-  endpointId    String
-  name          String
-  matchArgsJson String   @default("{}")
-  responseJson  String
-  statusCode    Int      @default(200)
-  isDefault     Boolean  @default(false)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  endpoint      Endpoint @relation(fields: [endpointId], references: [id], onDelete: Cascade)
+  id              String   @id
+  endpointId      String
+  name            String
+  priority        Int      @default(0)
+  matchArgsJson   String   @default("{}")
+  responseJson    String
+  statusCode      Int      @default(200)
+  delayMs         Int      @default(0)
+  errorMode       String   @default("none")
+  errorStatusCode Int?
+  errorMessage    String?
+  errorBodyJson   String?
+  isDefault       Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  endpoint        Endpoint @relation(fields: [endpointId], references: [id], onDelete: Cascade)
 
   @@unique([endpointId, name])
+  @@index([endpointId, priority])
   @@index([endpointId])
 }

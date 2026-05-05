@@ -1,9 +1,14 @@
-The endpoint persistence task is complete in the current checkout. I found the Prisma/SQLite slice already implemented, verified it against the task contract, and updated the active plan progress log plus [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt) with the operator handoff.
+Implemented the persistence hardening for `endpoint-domain-and-schema`.
+
+Changed:
+- Added `Endpoint.title`.
+- Added `ResponseCase.priority`, `delayMs`, and case-level error config fields.
+- Added migration `prisma/migrations/202605050002_endpoint_title_response_case_config/`.
+- Updated seed defaults, generated DB docs, active task progress log, repeatability test, and `state/last-result.txt`.
 
 Required gates passed:
-
 - `npm run db:prepare`
 - `npm run test:unit`
 - `npm run verify`
 
-Exit criteria appear satisfied. No remaining work for `endpoint-domain-and-schema`.
+Exit criteria appear satisfied. No known remaining work for this task.

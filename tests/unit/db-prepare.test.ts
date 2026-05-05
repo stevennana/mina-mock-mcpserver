@@ -37,10 +37,17 @@ test("db:prepare is repeatable and keeps endpoint seed rows singular", async () 
     });
 
     assert.equal(endpoint.name, "echo");
+    assert.equal(endpoint.title, "Echo");
     assert.equal(endpoint.enabled, true);
     assert.equal(endpoint.protectedDefault, true);
     assert.equal(endpoint.parameters[0]?.position, 0);
     assert.equal(endpoint.responseCases.some((responseCase) => responseCase.isDefault), true);
+
+    const helloCase = endpoint.responseCases.find((responseCase) => responseCase.name === "hello-world");
+    assert.equal(helloCase?.priority, 10);
+    assert.equal(helloCase?.delayMs, 0);
+    assert.equal(helloCase?.errorMode, "none");
+    assert.equal(helloCase?.errorStatusCode, null);
   } finally {
     await prisma.$disconnect();
     if (previousDatabaseUrl === undefined) {

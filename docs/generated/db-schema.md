@@ -18,6 +18,7 @@ Stores durable mock tool records. `id` is the immutable internal identifier used
 |---|---|---|
 | `id` | `String` | Primary key, assigned by domain/seed code. |
 | `name` | `String` | Unique tool name. |
+| `title` | `String` | User-facing display title from the endpoint create/edit model. |
 | `description` | `String` | Human-readable endpoint description. |
 | `enabled` | `Boolean` | Runtime visibility toggle. |
 | `protectedDefault` | `Boolean` | Marks built-in defaults that normal flows should protect. |
@@ -64,9 +65,15 @@ Stores exact-match response cases and a default case marker. Matching semantics 
 | `id` | `String` | Primary key, assigned by domain/seed code. |
 | `endpointId` | `String` | Required relation to `Endpoint`, cascades on endpoint delete. |
 | `name` | `String` | Case name. Unique per endpoint. |
+| `priority` | `Int` | Case selection ordering placeholder for later matching logic. |
 | `matchArgsJson` | `String` | JSON-encoded exact-match argument object. |
 | `responseJson` | `String` | JSON-encoded response body. |
 | `statusCode` | `Int` | HTTP/runtime status placeholder for later adapters. |
+| `delayMs` | `Int` | Case-level delay duration for later failure simulation/runtime slices. |
+| `errorMode` | `String` | Case-level error mode placeholder, seeded as `none`. |
+| `errorStatusCode` | `Int?` | Optional case-level forced-error status. |
+| `errorMessage` | `String?` | Optional case-level forced-error message. |
+| `errorBodyJson` | `String?` | Optional JSON-encoded case-level error body. |
 | `isDefault` | `Boolean` | Marks the default/no-match case. |
 | `createdAt` | `DateTime` | Audit-ready creation timestamp. |
 | `updatedAt` | `DateTime` | Audit-ready update timestamp maintained by Prisma. |
@@ -74,6 +81,7 @@ Stores exact-match response cases and a default case marker. Matching semantics 
 Indexes and constraints:
 
 - `@@unique([endpointId, name])`
+- `@@index([endpointId, priority])`
 - `@@index([endpointId])`
 
 ## Seed Defaults
@@ -82,8 +90,9 @@ Indexes and constraints:
 
 - Endpoint ID: `endpoint_default_echo`
 - Tool name: `echo`
+- Title: `Echo`
 - Delete code: `12345678`
 - Parameter: `message` at position `0`
-- Response cases: `default` and `hello-world`
+- Response cases: `default` at priority `0` and `hello-world` at priority `10`, both with no case-level delay/error configured
 
 The seed uses immutable IDs and unique endpoint-scoped keys, so repeated preparation updates the built-in records without duplicating rows.
