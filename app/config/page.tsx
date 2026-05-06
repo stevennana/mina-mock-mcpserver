@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { headers } from "next/headers";
+import { AppNav } from "@/app/app-nav";
 import { ConfigManager } from "@/app/config/config-manager";
 import { getPublicOperatorConfig } from "@/lib/operator/config";
 
@@ -14,16 +14,7 @@ export default async function ConfigPage() {
 
   return (
     <main className="shell app-shell">
-      <nav className="top-nav" aria-label="Primary">
-        <Link href="/">Dashboard</Link>
-        <Link href="/endpoints">Endpoints</Link>
-        <Link href="/basic-users">Basic Users</Link>
-        <Link href="/oauth-users">OAuth Users</Link>
-        <Link href="/oauth-clients">OAuth Clients</Link>
-        <Link href="/config" aria-current="page">Config</Link>
-        <Link href="/reset">Reset</Link>
-        <Link href="/audit">Audit</Link>
-      </nav>
+      <AppNav current="config" />
 
       <section className="page-header" aria-labelledby="config-title">
         <div>

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { AppNav } from "@/app/app-nav";
 import { OAuthClientsManager } from "@/app/oauth-clients/oauth-clients-manager";
 import { listOAuthClients } from "@/lib/oauth/service";
 
@@ -7,17 +7,7 @@ export default async function OAuthClientsPage() {
 
   return (
     <main className="shell app-shell">
-      <nav className="top-nav" aria-label="Primary">
-        <Link href="/">Dashboard</Link>
-        <Link href="/endpoints">Endpoints</Link>
-        <Link href="/basic-users">Basic Users</Link>
-        <Link href="/oauth-users">OAuth Users</Link>
-        <Link href="/oauth-clients" aria-current="page">OAuth Clients</Link>
-        <Link href="/tokens">Tokens</Link>
-        <Link href="/config">Config</Link>
-        <Link href="/reset">Reset</Link>
-        <Link href="/audit">Audit</Link>
-      </nav>
+      <AppNav current="oauth-clients" />
       <header className="page-header">
         <div>
           <p className="eyebrow">OAuth relying parties</p>

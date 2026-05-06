@@ -1,5 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
 
+const E2E_DATABASE_URL = "file:./data/e2e-runtime.sqlite";
+process.env.DATABASE_URL = E2E_DATABASE_URL;
+
 export default defineConfig({
   testDir: "./tests/e2e",
   timeout: 30_000,
@@ -12,12 +15,13 @@ export default defineConfig({
   },
   workers: 1,
   webServer: {
-    command: "npm run db:prepare && npm run dev",
+    command: "node --import tsx scripts/e2e-prepare.mjs && npm run dev",
     env: {
+      DATABASE_URL: E2E_DATABASE_URL,
       ROOT_PASSWORD: "e2e-root-password",
     },
     url: "http://127.0.0.1:3100",
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false,
     timeout: 120_000,
   },
   projects: [

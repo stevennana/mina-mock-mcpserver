@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import { formatShortDate } from "@/lib/date-format";
 import { generateMcpInputSchema } from "@/lib/endpoints/schema";
 import type { EndpointDetail, EndpointInput, EndpointListResult, EndpointSummary } from "@/lib/endpoints/types";
 
@@ -486,7 +487,7 @@ export function EndpointManager({ initialData }: { initialData: EndpointListResu
                     <span className={endpoint.enabled ? "status-pill enabled" : "status-pill"}>{endpoint.enabled ? "Enabled" : "Disabled"}</span>
                   </td>
                   <td>{endpoint.parameterCount} params / {endpoint.responseCaseCount} cases</td>
-                  <td>{new Date(endpoint.updatedAt).toLocaleDateString()}</td>
+                  <td>{formatShortDate(endpoint.updatedAt)}</td>
                 </tr>
               ))}
               {filteredEndpoints.length === 0 ? (
@@ -778,7 +779,7 @@ export function EndpointManager({ initialData }: { initialData: EndpointListResu
               </label>
               <label className="field-block wide">
                 <span>OAuth bearer token</span>
-                <input className="text-input" value={oauthToken} onChange={(event) => setOauthToken(event.target.value)} placeholder="Token issuance lands in the OAuth runtime tasks." />
+                <input className="text-input" value={oauthToken} onChange={(event) => setOauthToken(event.target.value)} placeholder="Paste an issued OAuth access token." />
               </label>
               <label className="field-block wide">
                 <span>Arguments JSON</span>
@@ -786,7 +787,7 @@ export function EndpointManager({ initialData }: { initialData: EndpointListResu
                 {argumentsError ? <p className="field-error">{argumentsError}</p> : <p className="field-hint">Validated locally before REST execution.</p>}
               </label>
               <div className="console-actions">
-                <button className="secondary-button" type="button" disabled>MCP call unavailable until task 008</button>
+                <button className="secondary-button" type="button" disabled>Use REST execution from this console</button>
                 <button className="secondary-button" type="button" onClick={() => void runRestCall()} disabled={consoleState.status === "running" || authMode === "oauth" || Boolean(argumentsError)}>
                   {consoleState.status === "running" ? "Running REST call" : "Run REST call"}
                 </button>

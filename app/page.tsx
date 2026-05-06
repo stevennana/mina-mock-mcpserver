@@ -1,6 +1,7 @@
 import { getBootstrapStatus } from "@/lib/bootstrap-status";
 import { listEndpoints } from "@/lib/endpoints/service";
 import Link from "next/link";
+import { AppNav } from "@/app/app-nav";
 
 const plannedSurfaces = [
   "Endpoint and tool management",
@@ -18,17 +19,7 @@ export default async function Home() {
 
   return (
     <main className="shell app-shell">
-      <nav className="top-nav" aria-label="Primary">
-        <Link href="/" aria-current="page">Dashboard</Link>
-        <Link href="/endpoints">Endpoints</Link>
-        <Link href="/basic-users">Basic Users</Link>
-        <Link href="/oauth-users">OAuth Users</Link>
-        <Link href="/oauth-clients">OAuth Clients</Link>
-        <Link href="/tokens">Tokens</Link>
-        <Link href="/config">Config</Link>
-        <Link href="/reset">Reset</Link>
-        <Link href="/audit">Audit</Link>
-      </nav>
+      <AppNav current="dashboard" />
       <section className="hero" aria-labelledby="page-title">
         <p className="eyebrow">Public test bench</p>
         <h1 id="page-title">MCP Mock Server</h1>

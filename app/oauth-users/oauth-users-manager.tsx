@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import { formatShortDate } from "@/lib/date-format";
 import type { OAuthUserListResult, OAuthUserSummary } from "@/lib/oauth/types";
 
 type FormState = {
@@ -217,7 +218,7 @@ export function OAuthUsersManager({ initialData }: { initialData: OAuthUserListR
                     </span>
                   </td>
                   <td>{formatTtl(user.accessTokenTtlSeconds)}</td>
-                  <td>{new Date(user.updatedAt).toLocaleDateString()}</td>
+                  <td>{formatShortDate(user.updatedAt)}</td>
                 </tr>
               ))}
               {filteredUsers.length === 0 ? (

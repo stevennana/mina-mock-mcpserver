@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import { formatShortDate } from "@/lib/date-format";
 import type { BasicUserListResult, BasicUserSummary } from "@/lib/basic-auth/types";
 
 type FormState = {
@@ -195,7 +196,7 @@ export function BasicUsersManager({ initialData }: { initialData: BasicUserListR
                       {user.builtIn ? "Locked" : "Editable"}
                     </span>
                   </td>
-                  <td>{new Date(user.updatedAt).toLocaleDateString()}</td>
+                  <td>{formatShortDate(user.updatedAt)}</td>
                 </tr>
               ))}
               {filteredUsers.length === 0 ? (

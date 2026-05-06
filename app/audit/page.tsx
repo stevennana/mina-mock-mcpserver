@@ -1,20 +1,13 @@
-import Link from "next/link";
+import { AppNav } from "@/app/app-nav";
 import { listAuditEvents } from "@/lib/audit/service";
+import { formatDateTime } from "@/lib/date-format";
 
 export default async function AuditPage() {
   const events = await listAuditEvents();
 
   return (
     <main className="shell app-shell">
-      <nav className="top-nav" aria-label="Primary">
-        <Link href="/">Dashboard</Link>
-        <Link href="/endpoints">Endpoints</Link>
-        <Link href="/basic-users">Basic Users</Link>
-        <Link href="/oauth-users">OAuth Users</Link>
-        <Link href="/oauth-clients">OAuth Clients</Link>
-        <Link href="/reset">Reset</Link>
-        <Link href="/audit" aria-current="page">Audit</Link>
-      </nav>
+      <AppNav current="audit" />
       <header className="page-header">
         <div>
           <p className="eyebrow">Mutation evidence</p>
@@ -39,7 +32,7 @@ export default async function AuditPage() {
           <tbody>
             {events.map((event) => (
               <tr key={event.id}>
-                <td>{new Date(event.createdAt).toLocaleString()}</td>
+                <td>{formatDateTime(event.createdAt)}</td>
                 <td>{event.eventType}</td>
                 <td>{event.subjectName ?? event.subjectId ?? "unknown"}</td>
                 <td>

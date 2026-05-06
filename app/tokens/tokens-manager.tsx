@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import { formatDateTime } from "@/lib/date-format";
 import type { OAuthIssuedTokenDetail, OAuthIssuedTokenListResult, OAuthIssuedTokenSummary } from "@/lib/oauth/types";
 
 type LoadState = {
@@ -9,13 +10,8 @@ type LoadState = {
   message: string;
 };
 
-const dateFormatter = new Intl.DateTimeFormat("en", {
-  dateStyle: "medium",
-  timeStyle: "medium",
-});
-
 function formatDate(value: string | null) {
-  return value ? dateFormatter.format(new Date(value)) : "Not set";
+  return formatDateTime(value);
 }
 
 function statusClass(status: OAuthIssuedTokenSummary["status"]) {

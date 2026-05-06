@@ -30,7 +30,7 @@ test("endpoint schema preview and console shell stay stable on desktop and mobil
   await expect(consoleRegion.getByLabel("Basic password")).toBeVisible();
   await expect(consoleRegion.getByLabel("OAuth bearer token")).toBeVisible();
   await expect(consoleRegion.getByLabel("Arguments JSON")).toBeVisible();
-  await expect(consoleRegion.getByRole("button", { name: /MCP call unavailable/ })).toBeDisabled();
+  await expect(consoleRegion.getByRole("button", { name: "Use REST execution from this console" })).toBeDisabled();
   await expect(consoleRegion.getByRole("button", { name: "Run REST call" })).toBeEnabled();
   await expect(consoleRegion.getByRole("region", { name: "Raw request" })).toContainText(endpointName);
   await expect(consoleRegion.getByRole("region", { name: "Raw response" })).toContainText("Run a REST call");
