@@ -8,6 +8,7 @@ OAuth users and clients management
 
 ## User-Visible Behavior
 - OAuth users and clients management
+- OAuth user and client catalog pages are list/search/status focused only; create, detail, edit, secret, allowed-endpoint, and delete actions use focused pages
 - OAuth user management lists the locked built-in `default/default` login fixture and allows non-built-in users to be created, password-edited, TTL-edited, enabled/disabled, and deleted
 - OAuth login-user token TTLs use MVP presets only: 15 minutes, 1 hour, 8 hours, and 24 hours; never-expiring tokens are not available in this slice
 - OAuth user passwords are stored as hashes and never returned through the public management API
@@ -54,5 +55,6 @@ OAuth users and clients management
 - Revocation lookup
 - 401 versus 403 mapping
 - Issued-token management must distinguish active, expired, and revoked rows while retaining historical metadata for debugging
+- Issued-token catalog remains list/filter focused; token claims, endpoint permissions, and revoke actions are shown on token detail pages
 - Authorization-code browser flow selects endpoint permissions, exchanges code for token, calls /mcp/oauth successfully for allowed endpoint, receives 403 for denied endpoint, revokes token and receives 401
 - User-facing docs explain that an unavailable local callback page can still be a successful mock authorization result when the redirect URL contains a code

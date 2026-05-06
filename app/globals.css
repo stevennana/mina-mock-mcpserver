@@ -219,11 +219,17 @@ h1 {
   font-size: 1.35rem;
 }
 
-.endpoint-layout {
+.endpoint-layout,
+.catalog-layout,
+.focused-layout {
   display: grid;
   grid-template-columns: 1fr;
   gap: 16px;
   align-items: start;
+}
+
+.focused-layout {
+  max-width: 900px;
 }
 
 .endpoint-list-panel,
@@ -270,6 +276,13 @@ h1 {
   padding: 0 14px;
   font-weight: 800;
   cursor: pointer;
+}
+
+.button-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
 }
 
 .primary-button {
@@ -526,6 +539,36 @@ h1 {
   cursor: pointer;
 }
 
+.sub-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  border: 1px solid #e4e9f0;
+  border-radius: 8px;
+  margin-bottom: 14px;
+  padding: 8px;
+  background: #fbfcfe;
+}
+
+.sub-nav a {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 0 12px;
+  color: var(--muted);
+  font-size: 0.88rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.sub-nav a[aria-current="page"] {
+  border-color: #8ac8c0;
+  background: #e8f5f3;
+  color: #084d48;
+}
+
 .status-pill {
   display: inline-flex;
   width: fit-content;
@@ -572,6 +615,57 @@ h1 {
   grid-template-columns: 1fr;
   gap: 10px;
   margin: 0;
+}
+
+.quick-action-grid,
+.workflow-grid > div,
+.impact-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.quick-action-grid {
+  margin-top: 14px;
+}
+
+.workflow-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.workflow-grid h2 {
+  margin: 0;
+  font-size: 1.18rem;
+}
+
+.workflow-card,
+.impact-grid > div {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  background: var(--panel);
+}
+
+.workflow-card {
+  display: grid;
+  gap: 6px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.workflow-card strong,
+.impact-grid strong {
+  color: #26313f;
+  font-size: 0.98rem;
+}
+
+.workflow-card span,
+.impact-grid span {
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
 }
 
 .detail-grid div {
@@ -724,6 +818,23 @@ h1 {
   overflow-wrap: anywhere;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
   font-size: 0.86rem;
+}
+
+.step-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding-left: 22px;
+  color: #26313f;
+  line-height: 1.5;
+}
+
+.step-list code {
+  border: 1px solid #d8e0ea;
+  border-radius: 6px;
+  padding: 2px 5px;
+  background: #f8fafc;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
 }
 
 .console-shell {
@@ -948,7 +1059,9 @@ h1 {
   .panel ul,
   .summary-strip,
   .guide-list div,
-  .oauth-detail-grid {
+  .oauth-detail-grid,
+  .workflow-grid > div,
+  .impact-grid {
     grid-template-columns: 1fr;
   }
 }
@@ -976,6 +1089,9 @@ h1 {
   }
 
   .checkbox-grid,
+  .quick-action-grid,
+  .workflow-grid > div,
+  .impact-grid,
   .secret-callout,
   .oauth-detail-grid,
   .permission-list > div {

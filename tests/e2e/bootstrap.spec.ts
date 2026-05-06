@@ -4,8 +4,10 @@ test("foundation dashboard renders planned MCP mock server surfaces", async ({ p
   await page.goto("/");
 
   await expect(page.getByRole("heading", { name: "MCP Mock Server" })).toBeVisible();
-  await expect(page.getByText("MCP JSON-RPC runtime")).toBeVisible();
-  await expect(page.getByText("OAuth consent and token runtime")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Workflows" })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Build tools/ })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Verify protocol/ })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Prepare OAuth/ })).toBeVisible();
 });
 
 test("health endpoint reports ok status", async ({ request }) => {

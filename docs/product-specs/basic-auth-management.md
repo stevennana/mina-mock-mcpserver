@@ -8,7 +8,8 @@ Basic users list
 
 ## User-Visible Behavior
 - Basic users list
-- Create/edit/disable/delete Basic users
+- Basic users catalog page is list/search/status focused only
+- Create/edit/disable/delete Basic users use focused create/detail pages
 - Locked built-in user state
 - Basic credentials in test console
 - Strict `/mcp/basic` requires valid Basic credentials.
@@ -20,3 +21,4 @@ Basic users list
 - 401 behavior for invalid headers
 - Auth precedence
 - Create a Basic user and call strict /mcp/basic and REST routes
+- Catalog-to-detail navigation keeps the list separate from password and destructive actions

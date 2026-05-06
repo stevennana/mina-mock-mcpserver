@@ -96,8 +96,9 @@ test("malformed response modes show console evidence and audit records @malforme
 
   await page.goto("/endpoints");
   await page.getByLabel("Search").fill(invalidName);
-  await page.getByRole("button", { name: invalidName }).click();
+  await page.getByRole("link", { name: invalidName }).click();
   await expect(page.getByText("Saving this endpoint will make only this endpoint return invalid JSON responses")).toBeVisible();
+  await page.getByRole("link", { name: "Console", exact: true }).click();
   const consoleRegion = page.getByRole("region", { name: "Endpoint test console" });
   await expect(consoleRegion.getByText("Running the console will show the raw invalid JSON HTTP response")).toBeVisible();
   await consoleRegion.getByRole("button", { name: "Run REST call" }).click();

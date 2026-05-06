@@ -6,9 +6,13 @@ test("endpoint schema preview and console shell stay stable on desktop and mobil
   const endpointName = `console_endpoint_${Date.now()}`;
 
   await page.goto("/endpoints");
-  await page.getByRole("button", { name: "New endpoint" }).click();
+  await page.getByRole("link", { name: "New endpoint" }).click();
   await page.getByRole("textbox", { name: /^Name/ }).fill(endpointName);
   await page.getByRole("textbox", { name: /^Title/ }).fill("Console Endpoint");
+  await page.getByRole("button", { name: "Save" }).click();
+  await expect(page.getByText("Endpoint saved.")).toBeVisible();
+
+  await page.getByRole("link", { name: "Parameters", exact: true }).click();
   await page.getByRole("button", { name: "Add parameter" }).click();
   await page.getByLabel("Parameter 1 name").fill("city");
   await page.getByLabel("Parameter 1 type").selectOption("string");
@@ -23,7 +27,10 @@ test("endpoint schema preview and console shell stay stable on desktop and mobil
   await page.getByLabel("Parameter 2 name").fill("includeHumidity");
   await page.getByLabel("Parameter 2 type").selectOption("boolean");
   await expect(schemaRegion.getByLabel("Generated MCP input schema")).toContainText('"includeHumidity"');
+  await page.getByRole("button", { name: "Save" }).click();
+  await expect(page.getByText("Endpoint saved.")).toBeVisible();
 
+  await page.getByRole("link", { name: "Console", exact: true }).click();
   const consoleRegion = page.getByRole("region", { name: "Endpoint test console" });
   await expect(consoleRegion.getByLabel("Auth mode")).toBeVisible();
   await expect(consoleRegion.getByLabel("Basic username")).toBeVisible();
@@ -49,8 +56,7 @@ test("endpoint schema preview and console shell stay stable on desktop and mobil
   await page.screenshot({ path: "test-results/ui-endpoint-console-desktop.png", fullPage: true });
 
   await page.setViewportSize({ width: 390, height: 900 });
-  await expect(page.getByRole("heading", { name: "Endpoint management" })).toBeVisible();
-  await expect(schemaRegion.getByLabel("Generated MCP input schema")).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: "Endpoint console" })).toBeVisible();
   await expect(consoleRegion.getByLabel("Arguments JSON")).toBeVisible();
   const hasHorizontalOverflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
   expect(hasHorizontalOverflow).toBeFalsy();

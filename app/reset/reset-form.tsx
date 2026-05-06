@@ -50,6 +50,21 @@ export function ResetForm() {
         </p>
       </div>
 
+      <div className="impact-grid" aria-label="Reset impact summary">
+        <div>
+          <strong>Cleared</strong>
+          <span>Endpoints, Basic users, OAuth users, OAuth clients, issued-token runtime state.</span>
+        </div>
+        <div>
+          <strong>Recreated</strong>
+          <span>Default echo endpoint, default Basic fixture, default OAuth user, and default OAuth client.</span>
+        </div>
+        <div>
+          <strong>Retained</strong>
+          <span>Non-secret audit evidence so destructive operation history remains inspectable.</span>
+        </div>
+      </div>
+
       {state.message ? <p className={`form-message ${state.status}`}>{state.message}</p> : null}
 
       <label className="field-block">

@@ -9,8 +9,9 @@ Dashboard endpoint counts
 ## User-Visible Behavior
 - Dashboard endpoint counts
 - Endpoint list/search
-- Endpoint create/edit/delete forms
-- Generated MCP schema preview
+- Endpoint catalog page is list/search/status focused only
+- Endpoint create, overview, edit, parameters/schema, responses, failure simulation, console, and delete flows use focused pages instead of one dense all-in-one editor
+- Generated MCP schema preview is shown with parameter editing and endpoint overview
 - Delete code or root password protected deletion
 - Successful and failed endpoint delete attempts appear in audit evidence without submitted secrets
 - Reset to defaults
@@ -22,3 +23,4 @@ Dashboard endpoint counts
 - Protected deletion and reset invariants
 - Audit evidence for endpoint delete success, failed confirmation, and root-password override
 - Create endpoint, test via UI console, edit enabled state, delete with code, and verify list updates
+- Catalog-to-detail navigation keeps the list usable without inline editor overload

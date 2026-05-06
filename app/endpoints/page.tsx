@@ -22,7 +22,7 @@ export default async function EndpointsPage() {
           <span><strong>{endpointData.disabled}</strong>Disabled</span>
         </div>
       </header>
-      <EndpointManager initialData={endpointData} />
+      <EndpointManager initialData={endpointData} view="catalog" />
     </main>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { formatDateTime } from "@/lib/date-format";
@@ -28,12 +29,20 @@ function queryString(filters: { status: string; subject: string; client: string;
   return params.toString();
 }
 
-export function TokensManager({ initialData }: { initialData: OAuthIssuedTokenListResult }) {
+export function TokensManager({
+  initialData,
+  initialDetail = null,
+  view = "catalog",
+}: {
+  initialData: OAuthIssuedTokenListResult;
+  initialDetail?: OAuthIssuedTokenDetail | null;
+  view?: "catalog" | "detail";
+}) {
   const router = useRouter();
   const [listData, setListData] = useState(initialData);
   const [filters, setFilters] = useState({ status: "all", subject: "", client: "", grantType: "all" });
-  const [selectedJti, setSelectedJti] = useState<string | null>(initialData.tokens[0]?.jti ?? null);
-  const [detail, setDetail] = useState<OAuthIssuedTokenDetail | null>(null);
+  const [selectedJti, setSelectedJti] = useState<string | null>(initialDetail?.jti ?? null);
+  const [detail, setDetail] = useState<OAuthIssuedTokenDetail | null>(initialDetail);
   const [loadState, setLoadState] = useState<LoadState>({ status: "idle", message: "" });
   const [revokeState, setRevokeState] = useState<LoadState>({ status: "idle", message: "" });
 
@@ -49,10 +58,6 @@ export function TokensManager({ initialData }: { initialData: OAuthIssuedTokenLi
     if (!response.ok) throw new Error("Unable to load issued tokens.");
     const payload = (await response.json()) as OAuthIssuedTokenListResult;
     setListData(payload);
-    if (selectedJti && !payload.tokens.some((token) => token.jti === selectedJti)) {
-      setSelectedJti(payload.tokens[0]?.jti ?? null);
-      setDetail(null);
-    }
     return payload;
   }
 
@@ -100,7 +105,8 @@ export function TokensManager({ initialData }: { initialData: OAuthIssuedTokenLi
   const displayDetail = activeDetail ?? selectedSummary;
 
   return (
-    <div className="endpoint-layout">
+    <div className={view === "catalog" ? "catalog-layout" : "focused-layout"}>
+      {view === "catalog" ? (
       <section className="endpoint-list-panel" aria-labelledby="token-list-title">
         <div className="section-heading-row">
           <div>
@@ -192,9 +198,9 @@ export function TokensManager({ initialData }: { initialData: OAuthIssuedTokenLi
               {listData.tokens.map((token) => (
                 <tr key={token.jti}>
                   <td>
-                    <button className="table-link" type="button" onClick={() => void selectToken(token)}>
+                    <Link className="table-link" href={`/tokens/${encodeURIComponent(token.jti)}`}>
                       {token.jti}
-                    </button>
+                    </Link>
                     <span>{formatDate(token.issuedAt)}</span>
                   </td>
                   <td><span className={statusClass(token.status)}>{token.status}</span></td>
@@ -217,7 +223,9 @@ export function TokensManager({ initialData }: { initialData: OAuthIssuedTokenLi
           </table>
         </div>
       </section>
+      ) : null}
 
+      {view === "detail" ? (
       <section className="endpoint-editor-panel" aria-labelledby="token-detail-title">
         <div className="section-heading-row">
           <div>
@@ -293,6 +301,7 @@ export function TokensManager({ initialData }: { initialData: OAuthIssuedTokenLi
           <p className="section-note">Issue an OAuth access token, then return here to inspect it.</p>
         )}
       </section>
+      ) : null}
     </div>
   );
 }

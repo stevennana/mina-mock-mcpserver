@@ -8,6 +8,7 @@ Connection guide
 
 ## User-Visible Behavior
 - Connection guide
+- Config UI is focused on health, effective base URL, root-protected base URL override, and core connection URLs
 - Health endpoint reports runtime status, database reachability, log level, and persisted runtime counts without secrets
 - Public config endpoint reports the effective base URL, route map, connection examples, public admin warning, health summary, and logging command
 - Base URL precedence is `APP_BASE_URL`, database override, forwarded headers, Host, then `http://localhost:3000`
@@ -19,6 +20,9 @@ Connection guide
 - Browser-facing dates in admin tables use explicit UTC string formatting instead of locale-dependent rendering, preventing server/client hydration mismatches across operator locales
 - Connection guide examples cover `/mcp`, `/mcp/none`, `/mcp/basic`, `/mcp/oauth`, `/rest/tools`, `/rest/tools/{tool_name}/call`, OAuth discovery metadata, `/oauth/token`, and `/oauth/jwks`
 - MCP Inspector integration is documented as an external `npx` tool with local Streamable HTTP targets for `/mcp`, `/mcp/none`, `/mcp/basic`, and `/mcp/oauth`
+- The Mock UI exposes an `/inspector` verification hub for standalone inspector UI launch, Mock Server scenario execution, local inspector commands, upstream Inspector targets, Basic/OAuth preparation, and diagnostics interpretation
+- The standalone inspector UI runs outside the Mock Server app and can inspect any MCP Streamable HTTP endpoint using URL, headers, and optional `tools/call` arguments
+- The standalone inspector UI also provides a Mock Server scenario runner that creates temporary data, verifies REST/MCP/Basic/OAuth/token/audit/reset-guard behavior, and cleans up mutable temporary records
 - A project-specific local inspector command verifies the main local Mock Server surfaces across admin APIs, REST, MCP, Basic Auth, OAuth, token revocation, audit, and reset guards
 - The local inspector prints a final diagnostics report covering target URL, OAuth discovery linkage, MCP protocol negotiation, protocol-version rejection, Origin rejection, Bearer challenge metadata, JWT audience, permission filtering, denial, revocation, and cleanup mode
 - Docker Compose exposes port `3000`, persists SQLite at `/app/data`, and keeps logs available at `/app/logs`

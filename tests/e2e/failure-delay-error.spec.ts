@@ -237,7 +237,8 @@ test("delay and forced error runtime behavior stays protocol-specific @failure-d
 
   await page.goto("/endpoints");
   await page.getByLabel("Search").fill(delayedName);
-  await page.getByRole("button", { name: delayedName }).click();
+  await page.getByRole("link", { name: delayedName }).click();
+  await page.getByRole("link", { name: "Failure", exact: true }).click();
   await page.getByRole("button", { name: "Set 30s delay" }).click();
   await expect(page.getByLabel("Failure mode")).toHaveValue("delay");
   await expect(page.getByLabel("Failure delay ms")).toHaveValue("30000");

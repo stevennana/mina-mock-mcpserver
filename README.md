@@ -58,6 +58,66 @@ The local development server uses port `3100`. Docker Compose exposes port `3000
 
 ## Verify Everything Locally
 
+### Standalone Inspector UI
+
+Use the standalone Inspector UI when you want a local browser page for either a broad Mock Server scenario or a portable MCP endpoint check:
+
+```bash
+npm run inspector:ui
+```
+
+Open:
+
+```text
+http://127.0.0.1:3200
+```
+
+For the broad Mock Server scenario, keep the default base URL:
+
+```text
+http://127.0.0.1:3100
+```
+
+Then click **Run Mock Server scenario**. The UI creates temporary endpoint, Basic user, OAuth user, OAuth client, and token records; verifies the main REST/MCP/Auth flows; and cleans up mutable temporary records when it finishes.
+
+The scenario covers:
+
+- health, public config, OAuth discovery metadata, protected-resource metadata, and JWKS
+- endpoint create/detail/update, REST list/call, MCP list/call, forced-error response case, and cleanup
+- Basic Auth creation, strict Basic MCP success, disabled-user rejection, and cleanup
+- OAuth `client_credentials`, Bearer permission filtering, allowed call, denied call, token listing, revocation, and revoked-token rejection
+- audit evidence and invalid reset-credential rejection
+
+Root reset is skipped unless you explicitly enable the destructive reset checkbox and provide the root password.
+
+For a portable generic MCP check, enter an MCP endpoint URL such as:
+
+```text
+http://127.0.0.1:3100/mcp/none
+```
+
+Then click **Run generic inspection**. The page runs from its own lightweight local server, so browser CORS does not block calls to local MCP targets. It checks:
+
+- `initialize`
+- `tools/list`
+- optional `tools/call`
+- protocol-version response evidence
+- an unsupported protocol-version probe
+
+Use the **Extra headers JSON** field for Basic, Bearer, API key, or custom headers:
+
+```json
+{"Authorization":"Bearer ey..."}
+```
+
+Use a different port if `3200` is already taken:
+
+```bash
+npm run inspector:ui -- --port 3201
+```
+
+### Mock Server Full Smoke Inspector
+
 After the server is running, use the project-specific local inspector to confirm that the Mock Server works from a user's machine:
 
 ```bash

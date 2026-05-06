@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { formatShortDate } from "@/lib/date-format";
@@ -45,12 +46,23 @@ function errorFor(fieldErrors: Record<string, string>, field: string) {
   return fieldErrors[field] ? <p className="field-error">{fieldErrors[field]}</p> : null;
 }
 
-export function BasicUsersManager({ initialData }: { initialData: BasicUserListResult }) {
+type BasicUserView = "catalog" | "detail" | "create";
+
+export function BasicUsersManager({
+  initialData,
+  view = "catalog",
+  initialSelectedId = null,
+}: {
+  initialData: BasicUserListResult;
+  view?: BasicUserView;
+  initialSelectedId?: string | null;
+}) {
   const router = useRouter();
   const [listData, setListData] = useState(initialData);
   const [query, setQuery] = useState("");
-  const [form, setForm] = useState<FormState>(blankUser);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const initialUser = initialSelectedId ? initialData.users.find((user) => user.id === initialSelectedId) ?? null : null;
+  const [form, setForm] = useState<FormState>(initialUser ? userToForm(initialUser) : blankUser);
+  const [selectedId, setSelectedId] = useState<string | null>(initialUser?.id ?? null);
   const [saveState, setSaveState] = useState<SaveState>({ status: "idle", message: "", fieldErrors: {} });
   const [deleteState, setDeleteState] = useState<DeleteState>({ status: "idle", message: "" });
 
@@ -75,13 +87,6 @@ export function BasicUsersManager({ initialData }: { initialData: BasicUserListR
   function startCreate() {
     setForm(blankUser);
     setSelectedId(null);
-    setSaveState({ status: "idle", message: "", fieldErrors: {} });
-    setDeleteState({ status: "idle", message: "" });
-  }
-
-  function selectUser(user: BasicUserSummary) {
-    setForm(userToForm(user));
-    setSelectedId(user.id);
     setSaveState({ status: "idle", message: "", fieldErrors: {} });
     setDeleteState({ status: "idle", message: "" });
   }
@@ -115,6 +120,9 @@ export function BasicUsersManager({ initialData }: { initialData: BasicUserListR
       setSelectedId(user.id);
       await refreshList();
       router.refresh();
+      if (!selectedId) {
+        router.push(`/basic-users/${user.id}`);
+      }
       setSaveState({ status: "success", message: "Basic user saved.", fieldErrors: {} });
     } catch (error) {
       setSaveState({ status: "error", message: error instanceof Error ? error.message : "Save failed.", fieldErrors: {} });
@@ -140,6 +148,7 @@ export function BasicUsersManager({ initialData }: { initialData: BasicUserListR
       setSelectedId(null);
       await refreshList();
       router.refresh();
+      router.push("/basic-users");
       setSaveState({ status: "idle", message: "", fieldErrors: {} });
       setDeleteState({ status: "success", message: "Basic user deleted." });
     } catch (error) {
@@ -148,16 +157,17 @@ export function BasicUsersManager({ initialData }: { initialData: BasicUserListR
   }
 
   return (
-    <div className="endpoint-layout">
+    <div className={view === "catalog" ? "catalog-layout" : "focused-layout"}>
+      {view === "catalog" ? (
       <section className="endpoint-list-panel" aria-labelledby="basic-user-list-title">
         <div className="section-heading-row">
           <div>
             <h2 id="basic-user-list-title">User catalog</h2>
             <p>{listData.total} Basic users, {listData.enabled} enabled</p>
           </div>
-          <button className="primary-button" type="button" onClick={startCreate}>
+          <Link className="primary-button button-link" href="/basic-users/new">
             New Basic user
-          </button>
+          </Link>
         </div>
 
         <label className="field-label" htmlFor="basic-user-search">Search</label>
@@ -183,9 +193,9 @@ export function BasicUsersManager({ initialData }: { initialData: BasicUserListR
               {filteredUsers.map((user) => (
                 <tr key={user.id}>
                   <td>
-                    <button className="table-link" type="button" onClick={() => selectUser(user)}>
+                    <Link className="table-link" href={`/basic-users/${user.id}`}>
                       {user.username}
-                    </button>
+                    </Link>
                     <span>{user.builtIn ? "Built-in fixture" : "Managed test identity"}</span>
                   </td>
                   <td>
@@ -208,14 +218,18 @@ export function BasicUsersManager({ initialData }: { initialData: BasicUserListR
           </table>
         </div>
       </section>
+      ) : null}
 
+      {view !== "catalog" ? (
       <section className="endpoint-editor-panel" aria-labelledby="basic-user-editor-title">
         <div className="section-heading-row">
           <div>
             <h2 id="basic-user-editor-title">{selectedId ? "Edit Basic user" : "Create Basic user"}</h2>
             <p>{locked ? "Built-in default/default is permanent and locked." : "Passwords are stored only as hashes."}</p>
           </div>
-          {locked ? <span className="status-pill danger">Locked fixture</span> : null}
+          {locked ? <span className="status-pill danger">Locked fixture</span> : (
+            <span className={form.enabled ? "status-pill enabled" : "status-pill"}>{form.enabled ? "Enabled" : "Disabled"}</span>
+          )}
         </div>
 
         {saveState.message ? <p className={`form-message ${saveState.status}`}>{saveState.message}</p> : null}
@@ -264,7 +278,7 @@ export function BasicUsersManager({ initialData }: { initialData: BasicUserListR
               Save
             </button>
             <button className="secondary-button" type="button" onClick={startCreate}>
-              Clear
+              Reset form
             </button>
             <button
               className="danger-button"
@@ -281,6 +295,7 @@ export function BasicUsersManager({ initialData }: { initialData: BasicUserListR
           </p>
         </div>
       </section>
+      ) : null}
     </div>
   );
 }

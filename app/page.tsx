@@ -3,14 +3,11 @@ import { listEndpoints } from "@/lib/endpoints/service";
 import Link from "next/link";
 import { AppNav } from "@/app/app-nav";
 
-const plannedSurfaces = [
-  "Endpoint and tool management",
-  "MCP JSON-RPC runtime",
-  "REST mock API",
-  "Basic Auth management",
-  "OAuth consent and token runtime",
-  "Failure simulation and audit",
-  "Operator configuration and startup proof",
+const workflows = [
+  { href: "/endpoints", title: "Build tools", description: "Create endpoints, configure schema, responses, failure modes, and console calls." },
+  { href: "/inspector", title: "Verify protocol", description: "Run MCP Inspector and local smoke checks against no-auth, Basic, and OAuth routes." },
+  { href: "/oauth-clients", title: "Prepare OAuth", description: "Manage clients, users, token permissions, and issued-token revocation evidence." },
+  { href: "/config", title: "Connect clients", description: "Confirm base URL, health, MCP routes, OAuth metadata, JWKS, and operator logs." },
 ];
 
 export default async function Home() {
@@ -59,13 +56,16 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="panel" aria-labelledby="queue-title">
-        <h2 id="queue-title">Queued feature fronts</h2>
-        <ul>
-          {plannedSurfaces.map((surface) => (
-            <li key={surface}>{surface}</li>
+      <section className="workflow-grid" aria-labelledby="workflow-title">
+        <h2 id="workflow-title">Workflows</h2>
+        <div>
+          {workflows.map((workflow) => (
+            <Link className="workflow-card" href={workflow.href} key={workflow.href}>
+              <strong>{workflow.title}</strong>
+              <span>{workflow.description}</span>
+            </Link>
           ))}
-        </ul>
+        </div>
       </section>
     </main>
   );

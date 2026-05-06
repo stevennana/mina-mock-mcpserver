@@ -120,10 +120,15 @@ test("operator config health, base URL override, connection guide, and logs guid
   await expect(
     page.locator(".guide-list code").filter({ hasText: "https://operator.example/.well-known/oauth-authorization-server" }),
   ).toBeVisible();
-  await expect(page.getByLabel("MCP client config example")).toContainText("mcp-mock-oauth");
-  await expect(page.getByLabel("REST and OAuth curl examples")).toContainText("curl https://operator.example/rest/tools");
+  await expect(page.getByRole("link", { name: "Open Inspector" })).toBeVisible();
   await expect(page.getByText("LOG_LEVEL=info npm run start:logged")).toBeVisible();
   await expect(page.getByText("trace, debug, info, warn, error")).toBeVisible();
+
+  await page.getByRole("link", { name: "Open Inspector" }).click();
+  await expect(page.getByRole("heading", { name: "Inspector", exact: true })).toBeVisible();
+  await expect(page.getByLabel("MCP client config example")).toContainText("mcp-mock-oauth");
+  await expect(page.getByLabel("REST and OAuth curl examples")).toContainText("curl https://operator.example/rest/tools");
+  await page.goto("/config");
 
   await page.getByLabel("Database base URL override").fill("https://ui-operator.example");
   await page.getByLabel("Root password").fill("e2e-root-password");

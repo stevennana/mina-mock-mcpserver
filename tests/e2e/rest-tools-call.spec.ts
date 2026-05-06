@@ -140,8 +140,8 @@ test("REST tools call executes exact matches, Basic auth, errors, and console ev
 
   await page.goto("/endpoints");
   await page.getByLabel("Search").fill(endpointName);
-  await page.getByRole("button", { name: endpointName }).click();
-  await expect(page.getByRole("textbox", { name: /^Name/ })).toHaveValue(endpointName);
+  await page.getByRole("link", { name: endpointName }).click();
+  await page.getByRole("link", { name: "Console", exact: true }).click();
 
   const consoleRegion = page.getByRole("region", { name: "Endpoint test console" });
   await consoleRegion.getByLabel("Arguments JSON").fill('{"city":"Seoul"}');

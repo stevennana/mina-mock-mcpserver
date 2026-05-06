@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import type { OAuthClientListResult, OAuthClientSummary } from "@/lib/oauth/types";
@@ -65,12 +66,23 @@ function errorFor(fieldErrors: Record<string, string>, field: string) {
   return fieldErrors[field] ? <p className="field-error">{fieldErrors[field]}</p> : null;
 }
 
-export function OAuthClientsManager({ initialData }: { initialData: OAuthClientListResult }) {
+type OAuthClientView = "catalog" | "detail" | "create";
+
+export function OAuthClientsManager({
+  initialData,
+  view = "catalog",
+  initialSelectedId = null,
+}: {
+  initialData: OAuthClientListResult;
+  view?: OAuthClientView;
+  initialSelectedId?: string | null;
+}) {
   const router = useRouter();
   const [listData, setListData] = useState(initialData);
   const [query, setQuery] = useState("");
-  const [form, setForm] = useState<FormState>(blankClient);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const initialClient = initialSelectedId ? initialData.clients.find((client) => client.id === initialSelectedId) ?? null : null;
+  const [form, setForm] = useState<FormState>(initialClient ? clientToForm(initialClient) : blankClient);
+  const [selectedId, setSelectedId] = useState<string | null>(initialClient?.id ?? null);
   const [issuedSecret, setIssuedSecret] = useState("");
   const [saveState, setSaveState] = useState<SaveState>({ status: "idle", message: "", fieldErrors: {} });
   const [deleteState, setDeleteState] = useState<DeleteState>({ status: "idle", message: "" });
@@ -100,14 +112,6 @@ export function OAuthClientsManager({ initialData }: { initialData: OAuthClientL
   function startCreate() {
     setForm(blankClient);
     setSelectedId(null);
-    setIssuedSecret("");
-    setSaveState({ status: "idle", message: "", fieldErrors: {} });
-    setDeleteState({ status: "idle", message: "" });
-  }
-
-  function selectClient(client: OAuthClientSummary) {
-    setForm(clientToForm(client));
-    setSelectedId(client.id);
     setIssuedSecret("");
     setSaveState({ status: "idle", message: "", fieldErrors: {} });
     setDeleteState({ status: "idle", message: "" });
@@ -166,6 +170,9 @@ export function OAuthClientsManager({ initialData }: { initialData: OAuthClientL
       setIssuedSecret(typeof payload.clientSecret === "string" ? payload.clientSecret : "");
       await refreshList();
       router.refresh();
+      if (!selectedId) {
+        router.push(`/oauth-clients/${client.id}`);
+      }
       setSaveState({
         status: "success",
         message: payload.clientSecret ? "OAuth client saved. Copy the generated secret now." : "OAuth client saved.",
@@ -222,6 +229,7 @@ export function OAuthClientsManager({ initialData }: { initialData: OAuthClientL
       setIssuedSecret("");
       await refreshList();
       router.refresh();
+      router.push("/oauth-clients");
       setSaveState({ status: "idle", message: "", fieldErrors: {} });
       setDeleteState({ status: "success", message: "OAuth client deleted." });
     } catch (error) {
@@ -230,16 +238,17 @@ export function OAuthClientsManager({ initialData }: { initialData: OAuthClientL
   }
 
   return (
-    <div className="endpoint-layout">
+    <div className={view === "catalog" ? "catalog-layout" : "focused-layout"}>
+      {view === "catalog" ? (
       <section className="endpoint-list-panel" aria-labelledby="oauth-client-list-title">
         <div className="section-heading-row">
           <div>
             <h2 id="oauth-client-list-title">Clients</h2>
             <p>{listData.total} OAuth clients, {listData.enabled} enabled</p>
           </div>
-          <button className="primary-button" type="button" onClick={startCreate}>
+          <Link className="primary-button button-link" href="/oauth-clients/new">
             New OAuth client
-          </button>
+          </Link>
         </div>
 
         <label className="field-label" htmlFor="oauth-client-search">Search</label>
@@ -266,9 +275,9 @@ export function OAuthClientsManager({ initialData }: { initialData: OAuthClientL
               {filteredClients.map((client) => (
                 <tr key={client.id}>
                   <td>
-                    <button className="table-link" type="button" onClick={() => selectClient(client)}>
+                    <Link className="table-link" href={`/oauth-clients/${client.id}`}>
                       {client.clientId}
-                    </button>
+                    </Link>
                     <span>{client.displayName || "No display name"}</span>
                   </td>
                   <td>
@@ -292,14 +301,18 @@ export function OAuthClientsManager({ initialData }: { initialData: OAuthClientL
           </table>
         </div>
       </section>
+      ) : null}
 
+      {view !== "catalog" ? (
       <section className="endpoint-editor-panel" aria-labelledby="oauth-client-editor-title">
         <div className="section-heading-row">
           <div>
             <h2 id="oauth-client-editor-title">{selectedId ? "Edit OAuth client" : "Create OAuth client"}</h2>
             <p>{locked ? "Built-in default/default client is permanent and locked." : "Client secrets are shown only when generated."}</p>
           </div>
-          {locked ? <span className="status-pill danger">Locked fixture</span> : null}
+          {locked ? <span className="status-pill danger">Locked fixture</span> : (
+            <span className={form.enabled ? "status-pill enabled" : "status-pill"}>{form.enabled ? "Enabled" : "Disabled"}</span>
+          )}
         </div>
 
         {saveState.message ? <p className={`form-message ${saveState.status}`}>{saveState.message}</p> : null}
@@ -407,7 +420,7 @@ export function OAuthClientsManager({ initialData }: { initialData: OAuthClientL
               Save
             </button>
             <button className="secondary-button" type="button" onClick={startCreate}>
-              Clear
+              Reset form
             </button>
             <button
               className="secondary-button"
@@ -432,6 +445,7 @@ export function OAuthClientsManager({ initialData }: { initialData: OAuthClientL
           </p>
         </div>
       </section>
+      ) : null}
     </div>
   );
 }

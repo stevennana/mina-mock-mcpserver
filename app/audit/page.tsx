@@ -1,6 +1,7 @@
 import { AppNav } from "@/app/app-nav";
 import { listAuditEvents } from "@/lib/audit/service";
 import { formatDateTime } from "@/lib/date-format";
+import Link from "next/link";
 
 export default async function AuditPage() {
   const events = await listAuditEvents();
@@ -33,7 +34,11 @@ export default async function AuditPage() {
             {events.map((event) => (
               <tr key={event.id}>
                 <td>{formatDateTime(event.createdAt)}</td>
-                <td>{event.eventType}</td>
+                <td>
+                  <Link className="table-link" href={`/audit/${event.id}`}>
+                    {event.eventType}
+                  </Link>
+                </td>
                 <td>{event.subjectName ?? event.subjectId ?? "unknown"}</td>
                 <td>
                   <span className={event.outcome === "success" ? "status-pill enabled" : "status-pill danger"}>

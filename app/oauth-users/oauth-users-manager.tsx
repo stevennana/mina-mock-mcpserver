@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { formatShortDate } from "@/lib/date-format";
@@ -56,12 +57,23 @@ function errorFor(fieldErrors: Record<string, string>, field: string) {
   return fieldErrors[field] ? <p className="field-error">{fieldErrors[field]}</p> : null;
 }
 
-export function OAuthUsersManager({ initialData }: { initialData: OAuthUserListResult }) {
+type OAuthUserView = "catalog" | "detail" | "create";
+
+export function OAuthUsersManager({
+  initialData,
+  view = "catalog",
+  initialSelectedId = null,
+}: {
+  initialData: OAuthUserListResult;
+  view?: OAuthUserView;
+  initialSelectedId?: string | null;
+}) {
   const router = useRouter();
   const [listData, setListData] = useState(initialData);
   const [query, setQuery] = useState("");
-  const [form, setForm] = useState<FormState>(blankUser);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const initialUser = initialSelectedId ? initialData.users.find((user) => user.id === initialSelectedId) ?? null : null;
+  const [form, setForm] = useState<FormState>(initialUser ? userToForm(initialUser) : blankUser);
+  const [selectedId, setSelectedId] = useState<string | null>(initialUser?.id ?? null);
   const [saveState, setSaveState] = useState<SaveState>({ status: "idle", message: "", fieldErrors: {} });
   const [deleteState, setDeleteState] = useState<DeleteState>({ status: "idle", message: "" });
 
@@ -86,13 +98,6 @@ export function OAuthUsersManager({ initialData }: { initialData: OAuthUserListR
   function startCreate() {
     setForm(blankUser);
     setSelectedId(null);
-    setSaveState({ status: "idle", message: "", fieldErrors: {} });
-    setDeleteState({ status: "idle", message: "" });
-  }
-
-  function selectUser(user: OAuthUserSummary) {
-    setForm(userToForm(user));
-    setSelectedId(user.id);
     setSaveState({ status: "idle", message: "", fieldErrors: {} });
     setDeleteState({ status: "idle", message: "" });
   }
@@ -135,6 +140,9 @@ export function OAuthUsersManager({ initialData }: { initialData: OAuthUserListR
       setSelectedId(user.id);
       await refreshList();
       router.refresh();
+      if (!selectedId) {
+        router.push(`/oauth-users/${user.id}`);
+      }
       setSaveState({ status: "success", message: "OAuth user saved.", fieldErrors: {} });
     } catch (error) {
       setSaveState({ status: "error", message: error instanceof Error ? error.message : "Save failed.", fieldErrors: {} });
@@ -160,6 +168,7 @@ export function OAuthUsersManager({ initialData }: { initialData: OAuthUserListR
       setSelectedId(null);
       await refreshList();
       router.refresh();
+      router.push("/oauth-users");
       setSaveState({ status: "idle", message: "", fieldErrors: {} });
       setDeleteState({ status: "success", message: "OAuth user deleted." });
     } catch (error) {
@@ -168,16 +177,17 @@ export function OAuthUsersManager({ initialData }: { initialData: OAuthUserListR
   }
 
   return (
-    <div className="endpoint-layout">
+    <div className={view === "catalog" ? "catalog-layout" : "focused-layout"}>
+      {view === "catalog" ? (
       <section className="endpoint-list-panel" aria-labelledby="oauth-user-list-title">
         <div className="section-heading-row">
           <div>
             <h2 id="oauth-user-list-title">Login users</h2>
             <p>{listData.total} OAuth users, {listData.enabled} enabled</p>
           </div>
-          <button className="primary-button" type="button" onClick={startCreate}>
+          <Link className="primary-button button-link" href="/oauth-users/new">
             New OAuth user
-          </button>
+          </Link>
         </div>
 
         <label className="field-label" htmlFor="oauth-user-search">Search</label>
@@ -204,9 +214,9 @@ export function OAuthUsersManager({ initialData }: { initialData: OAuthUserListR
               {filteredUsers.map((user) => (
                 <tr key={user.id}>
                   <td>
-                    <button className="table-link" type="button" onClick={() => selectUser(user)}>
+                    <Link className="table-link" href={`/oauth-users/${user.id}`}>
                       {user.username}
-                    </button>
+                    </Link>
                     <span>{user.builtIn ? "Built-in login fixture" : "Managed login identity"}</span>
                   </td>
                   <td>
@@ -230,14 +240,18 @@ export function OAuthUsersManager({ initialData }: { initialData: OAuthUserListR
           </table>
         </div>
       </section>
+      ) : null}
 
+      {view !== "catalog" ? (
       <section className="endpoint-editor-panel" aria-labelledby="oauth-user-editor-title">
         <div className="section-heading-row">
           <div>
             <h2 id="oauth-user-editor-title">{selectedId ? "Edit OAuth user" : "Create OAuth user"}</h2>
             <p>{locked ? "Built-in default/default is permanent and locked." : "Passwords are stored only as hashes."}</p>
           </div>
-          {locked ? <span className="status-pill danger">Locked fixture</span> : null}
+          {locked ? <span className="status-pill danger">Locked fixture</span> : (
+            <span className={form.enabled ? "status-pill enabled" : "status-pill"}>{form.enabled ? "Enabled" : "Disabled"}</span>
+          )}
         </div>
 
         {saveState.message ? <p className={`form-message ${saveState.status}`}>{saveState.message}</p> : null}
@@ -302,7 +316,7 @@ export function OAuthUsersManager({ initialData }: { initialData: OAuthUserListR
               Save
             </button>
             <button className="secondary-button" type="button" onClick={startCreate}>
-              Clear
+              Reset form
             </button>
             <button
               className="danger-button"
@@ -319,6 +333,7 @@ export function OAuthUsersManager({ initialData }: { initialData: OAuthUserListR
           </p>
         </div>
       </section>
+      ) : null}
     </div>
   );
 }

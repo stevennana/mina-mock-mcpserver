@@ -22,7 +22,7 @@ export default async function OAuthUsersPage() {
           <span><strong>{userData.disabled}</strong>Disabled</span>
         </div>
       </header>
-      <OAuthUsersManager initialData={userData} />
+      <OAuthUsersManager initialData={userData} view="catalog" />
     </main>
   );
 }

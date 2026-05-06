@@ -13,14 +13,21 @@ Describe the user-facing structure of MCP Mock Server so an agent can implement 
 | Route | Surface | Notes |
 |---|---|---|
 | / | Dashboard | Counts, URL examples, public UI warning |
-| /endpoints | Endpoint tools | List/search/create/edit/delete/test |
-| /basic-users | Basic Auth users | Built-in default locked |
-| /oauth-users | OAuth users | Built-in default locked |
-| /oauth-clients | OAuth clients | Redirect URIs and allowed endpoints |
-| /tokens | Issued tokens | Claims, permissions, revoke, filters |
-| /config | Server config | Base URL, MCP/REST/OAuth examples, discovery metadata, JWKS, operator log guidance |
+| /endpoints | Endpoint catalog | List/search/status only |
+| /endpoints/new, /endpoints/[id]/* | Endpoint workflows | Create, overview, edit, parameters/schema, responses, failure, console, delete |
+| /basic-users | Basic Auth user catalog | List/search/status only |
+| /basic-users/new, /basic-users/[id] | Basic Auth user workflows | Create, detail, edit/delete actions |
+| /oauth-users | OAuth user catalog | List/search/status only |
+| /oauth-users/new, /oauth-users/[id] | OAuth login-user workflows | Create, detail, TTL, edit/delete actions |
+| /oauth-clients | OAuth client catalog | List/search/status only |
+| /oauth-clients/new, /oauth-clients/[id] | OAuth client workflows | Create, detail, redirects, allowed endpoints, secret actions |
+| /tokens | Issued token catalog | List/filter/status only |
+| /tokens/[jti] | Issued token detail | Claims, permissions, revoke |
+| /config | Server config | Base URL, health, core connection URLs |
+| /inspector | Inspector/verification hub | Standalone inspector UI command, Mock Server scenario runner, local inspector command, MCP Inspector targets, OAuth/Bearer setup guide |
 | /reset | Reset | Root-password protected reset |
-| /audit | Audit log | Public mutation, protected delete, and token evidence |
+| /audit | Audit log | List/filter mutation evidence |
+| /audit/[id] | Audit event detail | Full evidence payload |
 | /oauth/login | OAuth login | Separate from admin UI |
 | /oauth/consent | OAuth consent | Endpoint permission checklist |
 | /api/* | Admin/API | Health, CRUD, config, reset, audit |
@@ -46,6 +53,9 @@ Describe the user-facing structure of MCP Mock Server so an agent can implement 
 
 ## UI Rules
 - favor quiet, dense, operational layouts over marketing composition
+- admin pages must follow a single-purpose rule: catalog pages list and search only; create, edit, test, delete, inspect, and diagnostic work moves to focused pages or focused sub-nav destinations
+- list rows should navigate to detail pages with links instead of opening dense inline editors in the catalog
+- detail pages should expose local sub-nav for closely related workflows and should keep destructive actions behind a dedicated delete/revoke/reset destination or confirmation panel
 - use icons for copy, edit, delete, revoke, reset, refresh, and external-link actions where available
 - every destructive action has a confirmation path and explains whether delete code or root password is accepted
 - endpoint deletion keeps confirmation inputs separate from the endpoint editor values and clears submitted secrets after attempts
@@ -68,7 +78,8 @@ Describe the user-facing structure of MCP Mock Server so an agent can implement 
 - root-password fields are used only for protected actions and must not be logged
 - reset confirmation must make clear that currently implemented endpoint data is deleted and seed defaults are recreated
 - copy buttons should exist for MCP URLs, REST URLs, client config, curl examples, client secrets at issuance, and JWTs at issuance
-- Inspector guidance should keep Inspector framed as an MCP protocol debugger, not as a replacement for REST, OAuth setup, token, audit, reset, or config workflows
+- Inspector guidance should live in the Mock UI `/inspector` hub and distinguish the standalone generic MCP endpoint inspector from the Mock Server scenario runner that covers REST, OAuth setup, token, audit, reset guard, and config workflows
+- The standalone inspector UI should keep one primary action per mode: generic MCP inspection for arbitrary endpoints, and Mock Server scenario execution for local product E2E evidence
 - OAuth consent should make selected endpoint permissions unambiguous
 - OAuth consent must show client, redirect URI, resource, login user, authorization-code TTL, and the endpoint checklist outside the public admin navigation
 

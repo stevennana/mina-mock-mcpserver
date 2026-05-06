@@ -74,17 +74,17 @@ test("issued token UI inspects metadata and revocation changes OAuth runtime 401
 
     await page.goto("/tokens");
     await expect(page.getByRole("heading", { name: "Issued tokens" })).toBeVisible();
-    await expect(page.getByText("Raw access token values are not stored or redisplayed here.")).toBeVisible();
     await page.getByRole("textbox", { name: "Client" }).fill(clientId);
     await page.getByRole("button", { name: "Apply filters" }).click();
     await expect(page.getByText("1 shown")).toBeVisible();
-    const tokenRow = page.getByRole("row").filter({ has: page.getByRole("button", { name: claims.jti }) });
-    await expect(page.getByRole("button", { name: claims.jti })).toBeVisible();
+    const tokenRow = page.getByRole("row").filter({ has: page.getByRole("link", { name: claims.jti }) });
+    await expect(page.getByRole("link", { name: claims.jti })).toBeVisible();
     await expect(tokenRow.getByRole("cell", { name: clientId, exact: true })).toBeVisible();
     await expect(tokenRow.getByRole("cell", { name: "client_credentials", exact: true })).toBeVisible();
     await expect(page.getByText(accessToken)).toHaveCount(0);
 
-    await page.getByRole("button", { name: claims.jti }).click();
+    await page.getByRole("link", { name: claims.jti }).click();
+    await expect(page.getByText("Raw access token values are not stored or redisplayed here.")).toBeVisible();
     await expect(page.getByText('"endpoint_permissions"')).toBeVisible();
     await expect(page.getByText(endpointId, { exact: true })).toBeVisible();
 
@@ -98,13 +98,14 @@ test("issued token UI inspects metadata and revocation changes OAuth runtime 401
     });
     expect(revokedCall.status()).toBe(401);
 
+    await page.goto("/tokens");
     await page.getByLabel("Status").selectOption("revoked");
     await page.getByRole("button", { name: "Apply filters" }).click();
-    await expect(page.getByRole("button", { name: claims.jti })).toBeVisible();
+    await expect(page.getByRole("link", { name: claims.jti })).toBeVisible();
 
     await page.getByLabel("Status").selectOption("active");
     await page.getByRole("button", { name: "Apply filters" }).click();
-    await expect(page.getByRole("button", { name: claims.jti })).toHaveCount(0);
+    await expect(page.getByRole("link", { name: claims.jti })).toHaveCount(0);
   } finally {
     await prisma.$disconnect();
   }

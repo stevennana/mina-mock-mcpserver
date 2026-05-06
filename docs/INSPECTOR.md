@@ -7,7 +7,12 @@ The Inspector is used as an external tool through `npx`; this repository does no
 
 This keeps the mock server focused on its own runtime, REST, OAuth, admin UI, audit, and persistence behavior while still giving users a familiar MCP-native debugger for `initialize`, `tools/list`, and `tools/call`.
 
-This repository also provides a project-specific local inspector script for full mock-server smoke coverage across HTTP admin APIs, REST, MCP, Basic Auth, OAuth, tokens, audit, and reset guards.
+This repository provides two local inspector paths:
+
+- a standalone Inspector UI that can inspect any MCP Streamable HTTP endpoint, even when the target is not this Mock Server
+- a Mock Server scenario runner, available from both the standalone UI and the project-specific CLI, for full mock-server smoke coverage across HTTP admin APIs, REST, MCP, Basic Auth, OAuth, tokens, audit, and reset guards
+
+The Mock Server admin UI also includes `/inspector`, a focused verification hub that collects the standalone UI command, local inspector commands, upstream Inspector targets, Basic/OAuth setup steps, and protocol diagnostics guidance in one place.
 
 ## What Inspector Covers
 
@@ -28,9 +33,58 @@ Use the admin UI, curl, Playwright, or future project-specific smoke clients for
 - token issuance and revocation
 - health, startup, Docker, and Nginx verification
 
+## Standalone Inspector UI
+
+Run this when you want a local web page that can inspect any MCP Streamable HTTP endpoint:
+
+```bash
+npm run inspector:ui
+```
+
+Open:
+
+```text
+http://127.0.0.1:3200
+```
+
+The page is served by `scripts/standalone-inspector-server.mjs`, independently from the Next.js Mock Server app. It accepts:
+
+- MCP endpoint URL
+- MCP protocol version
+- extra headers as JSON, such as `{"Authorization":"Bearer ..."}` or Basic Auth
+- optional tool name and JSON arguments for `tools/call`
+
+The standalone UI has two modes.
+
+Generic MCP mode performs standard-facing checks against any compatible MCP HTTP target:
+
+- `initialize`
+- `tools/list`
+- optional `tools/call`
+- response protocol header evidence
+- intentionally unsupported protocol-version probe
+
+This mode does not require Mock Server admin APIs, REST routes, OAuth setup APIs, token APIs, audit, reset, or database state. Use it for any compatible MCP HTTP target where you need a quick local pass/fail page.
+
+Mock Server scenario mode expects a running MCP Mock Server base URL and drives the richer product flow from the browser:
+
+- health, operator config, OAuth discovery metadata, protected-resource metadata, and JWKS
+- temporary endpoint creation, detail read, update, REST list/call, MCP list/call, forced-error case, and cleanup
+- temporary Basic user creation, strict Basic MCP success, disable behavior, and rejection
+- temporary OAuth user/client creation, `client_credentials` token issuance, Bearer permission filtering, allowed call, denied call, token listing, revocation, and revoked-token rejection
+- audit evidence and invalid reset-credential rejection
+
+The UI scenario runner intentionally skips destructive root reset unless an operator explicitly enables it and provides the root password.
+
+If port `3200` is already taken:
+
+```bash
+npm run inspector:ui -- --port 3201
+```
+
 ## Project Local Inspector
 
-Run the project-specific inspector when you want one command to prove the local Mock Server works end to end:
+Run the project-specific inspector when you want the same Mock Server scenario coverage from a command line:
 
 ```bash
 npm run inspector:mock
@@ -71,8 +125,8 @@ The local inspector creates temporary endpoint, user, client, and token records,
 
 The current v1 mock server intentionally focuses on tools over Streamable HTTP `POST`, Basic Auth, and mock OAuth Bearer permissions. The next compatibility updates should land in this order:
 
-1. Strengthen the local inspector diagnostics report and keep it aligned with MCP/OAuth runtime behavior.
-2. Add a UI-based end-to-end verification guide that mirrors the local inspector flow with copyable commands and visible pass/fail evidence.
+1. Keep the standalone UI scenario runner and CLI inspector aligned so users can choose either visible browser evidence or terminal evidence.
+2. Add scenario presets for external MCP targets where a server advertises tools but does not support Mock Server admin setup.
 3. Add an opt-in OAuth resource strict mode so clients can verify audience/resource mismatches before integrating with production services.
 4. Add OAuth PKCE `S256` support and advertise it only after authorization-code storage, token exchange, tests, and docs all support it.
 5. Add Docker/Nginx discovery smoke coverage for forwarded host/proto, `APP_BASE_URL`, OAuth metadata, and Bearer `resource_metadata` correctness behind a proxy.

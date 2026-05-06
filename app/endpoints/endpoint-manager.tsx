@@ -1,12 +1,25 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import type { ReactNode } from "react";
 import { useMemo, useState } from "react";
 import { formatShortDate } from "@/lib/date-format";
 import { generateMcpInputSchema } from "@/lib/endpoints/schema";
-import type { EndpointDetail, EndpointInput, EndpointListResult, EndpointSummary } from "@/lib/endpoints/types";
+import type { EndpointDetail, EndpointInput, EndpointListResult } from "@/lib/endpoints/types";
 
 type EndpointFormState = EndpointInput & { id?: string };
+
+export type EndpointView =
+  | "catalog"
+  | "create"
+  | "overview"
+  | "edit"
+  | "parameters"
+  | "responses"
+  | "failure"
+  | "console"
+  | "delete";
 
 type SaveState = {
   status: "idle" | "saving" | "error" | "success";
@@ -103,13 +116,20 @@ function errorFor(fieldErrors: Record<string, string>, field: string) {
   return fieldErrors[field] ? <p className="field-error">{fieldErrors[field]}</p> : null;
 }
 
-export function EndpointManager({ initialData }: { initialData: EndpointListResult }) {
+export function EndpointManager({
+  initialData,
+  initialDetail = null,
+  view = "catalog",
+}: {
+  initialData: EndpointListResult;
+  initialDetail?: EndpointDetail | null;
+  view?: EndpointView;
+}) {
   const router = useRouter();
   const [listData, setListData] = useState(initialData);
   const [query, setQuery] = useState("");
-  const [form, setForm] = useState<EndpointFormState>(blankEndpoint);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [loadingEndpoint, setLoadingEndpoint] = useState(false);
+  const [form, setForm] = useState<EndpointFormState>(initialDetail ? detailToForm(initialDetail) : blankEndpoint);
+  const [selectedId, setSelectedId] = useState<string | null>(initialDetail?.id ?? null);
   const [saveState, setSaveState] = useState<SaveState>({ status: "idle", message: "", fieldErrors: {} });
   const [deleteState, setDeleteState] = useState<DeleteState>({ status: "idle", message: "" });
   const [deleteCodeConfirm, setDeleteCodeConfirm] = useState("");
@@ -147,52 +167,6 @@ export function EndpointManager({ initialData }: { initialData: EndpointListResu
     setListData(await response.json());
   }
 
-  async function selectEndpoint(endpoint: EndpointSummary) {
-    setLoadingEndpoint(true);
-    setSaveState({ status: "idle", message: "", fieldErrors: {} });
-    setDeleteState({ status: "idle", message: "" });
-    setDeleteCodeConfirm("");
-    setRootPasswordConfirm("");
-    try {
-      const response = await fetch(`/api/endpoints/${endpoint.id}`);
-      if (!response.ok) throw new Error("Unable to load endpoint.");
-      const payload = (await response.json()) as { endpoint: EndpointDetail };
-      setForm(detailToForm(payload.endpoint));
-      setSelectedId(endpoint.id);
-      setConsoleState({
-        status: "idle",
-        message: "",
-        rawRequest: "",
-        rawResponse: "No response yet. Run a REST call to collect raw HTTP evidence.",
-        matchedCase: "Not run",
-        principal: "anonymous preview",
-        elapsedMs: "-- ms",
-      });
-    } catch (error) {
-      setSaveState({ status: "error", message: error instanceof Error ? error.message : "Load failed.", fieldErrors: {} });
-    } finally {
-      setLoadingEndpoint(false);
-    }
-  }
-
-  function startCreate() {
-    setForm(blankEndpoint);
-    setSelectedId(null);
-    setConsoleState({
-      status: "idle",
-      message: "",
-      rawRequest: "",
-      rawResponse: "No response yet. Run a REST call to collect raw HTTP evidence.",
-      matchedCase: "Not run",
-      principal: "anonymous preview",
-      elapsedMs: "-- ms",
-    });
-    setSaveState({ status: "idle", message: "", fieldErrors: {} });
-    setDeleteState({ status: "idle", message: "" });
-    setDeleteCodeConfirm("");
-    setRootPasswordConfirm("");
-  }
-
   async function saveEndpoint() {
     setSaveState({ status: "saving", message: "Saving endpoint.", fieldErrors: {} });
     const target = selectedId ? `/api/endpoints/${selectedId}` : "/api/endpoints";
@@ -219,6 +193,9 @@ export function EndpointManager({ initialData }: { initialData: EndpointListResu
       setSelectedId(endpoint.id);
       await refreshList();
       router.refresh();
+      if (!selectedId) {
+        router.push(`/endpoints/${endpoint.id}`);
+      }
       setSaveState({ status: "success", message: "Endpoint saved.", fieldErrors: {} });
     } catch (error) {
       setSaveState({ status: "error", message: error instanceof Error ? error.message : "Save failed.", fieldErrors: {} });
@@ -254,6 +231,7 @@ export function EndpointManager({ initialData }: { initialData: EndpointListResu
       setSelectedId(null);
       await refreshList();
       router.refresh();
+      router.push("/endpoints");
       setSaveState({ status: "success", message: "Endpoint deleted.", fieldErrors: {} });
       setDeleteState({ status: "success", message: "Endpoint deleted." });
     } catch (error) {
@@ -343,6 +321,18 @@ export function EndpointManager({ initialData }: { initialData: EndpointListResu
   };
   const malformedModeLabel = malformedModeLabels[form.failureMode] ?? "";
   const isMalformedMode = Boolean(malformedModeLabel);
+  const canSave = ["create", "edit", "parameters", "responses", "failure"].includes(view);
+  const pageTitleByView: Record<EndpointView, string> = {
+    catalog: "Endpoint catalog",
+    create: "Create endpoint",
+    overview: "Endpoint overview",
+    edit: "Edit endpoint",
+    parameters: "Parameters and schema",
+    responses: "Responses",
+    failure: "Failure simulation",
+    console: "Endpoint console",
+    delete: "Delete endpoint",
+  };
 
   function safePrettyJson(text: string) {
     try {
@@ -443,16 +433,17 @@ export function EndpointManager({ initialData }: { initialData: EndpointListResu
   }
 
   return (
-    <div className="endpoint-layout">
+    <div className={view === "catalog" ? "catalog-layout" : "focused-layout"}>
+      {view === "catalog" ? (
       <section className="endpoint-list-panel" aria-labelledby="endpoint-list-title">
         <div className="section-heading-row">
           <div>
             <h2 id="endpoint-list-title">Endpoint catalog</h2>
             <p>{listData.total} persisted endpoints, {listData.enabled} enabled</p>
           </div>
-          <button className="primary-button" type="button" onClick={startCreate}>
+          <Link className="primary-button button-link" href="/endpoints/new">
             New endpoint
-          </button>
+          </Link>
         </div>
 
         <label className="field-label" htmlFor="endpoint-search">Search</label>
@@ -478,9 +469,9 @@ export function EndpointManager({ initialData }: { initialData: EndpointListResu
               {filteredEndpoints.map((endpoint) => (
                 <tr key={endpoint.id}>
                   <td>
-                    <button className="table-link" type="button" onClick={() => void selectEndpoint(endpoint)}>
+                    <Link className="table-link" href={`/endpoints/${endpoint.id}`}>
                       {endpoint.name}
-                    </button>
+                    </Link>
                     <span>{endpoint.title || "Untitled endpoint"}</span>
                   </td>
                   <td>
@@ -499,17 +490,23 @@ export function EndpointManager({ initialData }: { initialData: EndpointListResu
           </table>
         </div>
       </section>
+      ) : null}
 
+      {view !== "catalog" ? (
       <section className="endpoint-editor-panel" aria-labelledby="endpoint-editor-title">
         <div className="section-heading-row">
           <div>
-            <h2 id="endpoint-editor-title">{selectedId ? "Edit endpoint" : "Create endpoint"}</h2>
-            <p>{loadingEndpoint ? "Loading selected endpoint." : "Persisted through the endpoint API."}</p>
+            <h2 id="endpoint-editor-title">{pageTitleByView[view]}</h2>
+            <p>Persisted through the endpoint API.</p>
           </div>
+          {canSave ? (
           <button className="primary-button" type="button" onClick={() => void saveEndpoint()} disabled={saveState.status === "saving"}>
             {saveState.status === "saving" ? "Saving" : "Save"}
           </button>
+          ) : null}
         </div>
+
+        {selectedId ? <EndpointSubNav endpointId={selectedId} current={view} /> : null}
 
         {saveState.message ? (
           <p className={`form-message ${saveState.status}`}>{saveState.message}</p>
@@ -520,6 +517,26 @@ export function EndpointManager({ initialData }: { initialData: EndpointListResu
           </p>
         ) : null}
 
+        {view === "overview" ? (
+          <div className="editor-section">
+            <h3>Runtime summary</h3>
+            <dl className="detail-grid">
+              <div><dt>Name</dt><dd>{form.name}</dd></div>
+              <div><dt>Status</dt><dd>{form.enabled ? "Enabled" : "Disabled"}</dd></div>
+              <div><dt>Parameters</dt><dd>{form.parameters.length}</dd></div>
+              <div><dt>Response cases</dt><dd>{form.responseCases.length}</dd></div>
+              <div><dt>Failure mode</dt><dd>{form.failureMode}</dd></div>
+              <div><dt>Delete code</dt><dd>{form.deleteCode ? "Configured" : "Not set"}</dd></div>
+            </dl>
+            <div className="quick-action-grid">
+              <Link className="secondary-button button-link" href={`/endpoints/${selectedId}/parameters`}>Configure parameters</Link>
+              <Link className="secondary-button button-link" href={`/endpoints/${selectedId}/responses`}>Configure responses</Link>
+              <Link className="secondary-button button-link" href={`/endpoints/${selectedId}/console`}>Open console</Link>
+            </div>
+          </div>
+        ) : null}
+
+        {["create", "edit"].includes(view) ? (
         <div className="form-grid">
           <label className="field-block">
             <span>Name</span>
@@ -546,7 +563,10 @@ export function EndpointManager({ initialData }: { initialData: EndpointListResu
             {errorFor(fieldErrors, "deleteCode")}
           </label>
         </div>
+        ) : null}
 
+        {view === "parameters" ? (
+        <>
         <EditorSection title="Parameters">
           {errorFor(fieldErrors, "parameters")}
           <div className="stack">
@@ -580,7 +600,11 @@ export function EndpointManager({ initialData }: { initialData: EndpointListResu
           <p className="section-note">Generated by the endpoint domain schema service from the current parameter definition.</p>
           <pre className="json-panel schema-preview" aria-label="Generated MCP input schema">{schemaPreviewJson}</pre>
         </EditorSection>
+        </>
+        ) : null}
 
+        {view === "responses" ? (
+        <>
         <EditorSection title="Default response">
           <label className="field-block">
             <span>Default response JSON</span>
@@ -664,7 +688,10 @@ export function EndpointManager({ initialData }: { initialData: EndpointListResu
             Add response case
           </button>
         </EditorSection>
+        </>
+        ) : null}
 
+        {view === "failure" ? (
         <EditorSection title="Failure simulation">
           <div className="form-grid">
             <label className="field-block">
@@ -707,8 +734,9 @@ export function EndpointManager({ initialData }: { initialData: EndpointListResu
             </label>
           </div>
         </EditorSection>
+        ) : null}
 
-        {selectedId ? (
+        {selectedId && view === "delete" ? (
           <EditorSection title="Delete endpoint">
             <p className="section-note">Enter this endpoint's 8-digit delete code or the root password override. Secrets are not written to audit events.</p>
             {deleteState.message ? (
@@ -753,6 +781,7 @@ export function EndpointManager({ initialData }: { initialData: EndpointListResu
           </EditorSection>
         ) : null}
 
+        {view === "console" ? (
         <EditorSection title="Endpoint test console">
           <div className="console-shell">
             <div className="console-controls" aria-label="Console controls">
@@ -804,12 +833,35 @@ export function EndpointManager({ initialData }: { initialData: EndpointListResu
             </div>
           </div>
         </EditorSection>
+        ) : null}
       </section>
+      ) : null}
     </div>
   );
 }
 
-function EditorSection({ title, children }: { title: string; children: React.ReactNode }) {
+function EndpointSubNav({ endpointId, current }: { endpointId: string; current: EndpointView }) {
+  const items: Array<[EndpointView, string, string]> = [
+    ["overview", "Overview", `/endpoints/${endpointId}`],
+    ["edit", "Edit", `/endpoints/${endpointId}/edit`],
+    ["parameters", "Parameters", `/endpoints/${endpointId}/parameters`],
+    ["responses", "Responses", `/endpoints/${endpointId}/responses`],
+    ["failure", "Failure", `/endpoints/${endpointId}/failure`],
+    ["console", "Console", `/endpoints/${endpointId}/console`],
+    ["delete", "Delete", `/endpoints/${endpointId}/delete`],
+  ];
+  return (
+    <nav className="sub-nav" aria-label="Endpoint workflow">
+      {items.map(([key, label, href]) => (
+        <Link key={key} href={href} aria-current={current === key ? "page" : undefined}>
+          {label}
+        </Link>
+      ))}
+    </nav>
+  );
+}
+
+function EditorSection({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="editor-section" aria-label={title}>
       <h3>{title}</h3>

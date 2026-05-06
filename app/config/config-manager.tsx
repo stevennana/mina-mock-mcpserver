@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { FormEvent, useMemo, useState } from "react";
 
 type PublicOperatorConfig = {
@@ -183,16 +184,16 @@ export function ConfigManager({ initialConfig }: { initialConfig: PublicOperator
         </div>
       </section>
 
-      <section className="panel guide-panel" aria-labelledby="client-title">
-        <h2 id="client-title">Sample MCP client config</h2>
-        <pre className="json-panel" aria-label="MCP client config example">
-          {JSON.stringify(config.examples.mcpClient, null, 2)}
-        </pre>
-      </section>
-
-      <section className="panel guide-panel" aria-labelledby="curl-title">
-        <h2 id="curl-title">Curl examples</h2>
-        <pre className="json-panel" aria-label="REST and OAuth curl examples">{Object.values(config.examples.curl).join("\n\n")}</pre>
+      <section className="panel guide-panel" aria-labelledby="verify-title">
+        <div className="section-heading-row">
+          <div>
+            <h2 id="verify-title">Verification hub</h2>
+            <p>Client config, curl examples, and OAuth preparation steps now live in the focused Inspector flow.</p>
+          </div>
+          <Link className="secondary-button button-link" href="/inspector">
+            Open Inspector
+          </Link>
+        </div>
       </section>
 
       <section className="panel guide-panel" aria-labelledby="logs-title">

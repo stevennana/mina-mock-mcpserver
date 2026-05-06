@@ -22,7 +22,7 @@ export default async function BasicUsersPage() {
           <span><strong>{userData.disabled}</strong>Disabled</span>
         </div>
       </header>
-      <BasicUsersManager initialData={userData} />
+      <BasicUsersManager initialData={userData} view="catalog" />
     </main>
   );
 }

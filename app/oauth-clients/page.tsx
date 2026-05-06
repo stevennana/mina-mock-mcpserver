@@ -22,7 +22,7 @@ export default async function OAuthClientsPage() {
           <span><strong>{clientData.disabled}</strong>Disabled</span>
         </div>
       </header>
-      <OAuthClientsManager initialData={clientData} />
+      <OAuthClientsManager initialData={clientData} view="catalog" />
     </main>
   );
 }

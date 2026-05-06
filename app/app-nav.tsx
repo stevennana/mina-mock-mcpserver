@@ -14,6 +14,7 @@ type AppNavGroup = {
 export type AppNavKey =
   | "dashboard"
   | "endpoints"
+  | "inspector"
   | "basic-users"
   | "oauth-users"
   | "oauth-clients"
@@ -29,7 +30,10 @@ const navGroups: AppNavGroup[] = [
   },
   {
     label: "Tools",
-    items: [{ key: "endpoints", href: "/endpoints", label: "Endpoints" }],
+    items: [
+      { key: "endpoints", href: "/endpoints", label: "Endpoints" },
+      { key: "inspector", href: "/inspector", label: "Inspector" },
+    ],
   },
   {
     label: "Auth",

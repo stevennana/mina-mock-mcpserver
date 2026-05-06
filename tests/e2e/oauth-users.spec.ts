@@ -10,12 +10,12 @@ test("OAuth users management UI protects default, validates TTLs, and manages ed
 
   await page.goto("/oauth-users");
   await expect(page.getByRole("heading", { name: "OAuth users" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "default" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "default" })).toBeVisible();
   await expect(page.getByText("Locked")).toBeVisible();
   await expect(page.getByLabel("Search")).toBeVisible();
-  await expect(page.getByLabel("Authorization-code token TTL")).toBeVisible();
 
-  await page.getByRole("button", { name: "default" }).click();
+  await page.getByRole("link", { name: "default" }).click();
+  await expect(page.getByLabel("Authorization-code token TTL")).toBeVisible();
   await expect(page.getByText("Locked fixture")).toBeVisible();
   await expect(page.getByRole("button", { name: "Save" })).toBeDisabled();
   await expect(page.getByRole("button", { name: "Delete" })).toBeDisabled();
@@ -35,7 +35,8 @@ test("OAuth users management UI protects default, validates TTLs, and manages ed
   });
   expect(invalidTtl.status()).toBe(400);
 
-  await page.getByRole("button", { name: "New OAuth user" }).click();
+  await page.goto("/oauth-users");
+  await page.getByRole("link", { name: "New OAuth user" }).click();
   await page.getByLabel("Username").fill("bad username");
   await page.getByLabel("Password").fill("secret-one");
   await page.getByRole("button", { name: "Save" }).click();
@@ -45,31 +46,30 @@ test("OAuth users management UI protects default, validates TTLs, and manages ed
   await page.getByLabel("Password").fill("secret-one");
   await page.getByLabel("Authorization-code token TTL").selectOption("900");
   await page.getByRole("button", { name: "Save" }).click();
-  await expect(page.getByText("OAuth user saved.")).toBeVisible();
-  await expect(page.getByRole("button", { name: username })).toBeVisible();
+  await page.waitForURL(/\/oauth-users\/oauth_user_/);
 
+  await page.goto("/oauth-users");
   await page.getByLabel("Search").fill(username);
-  await expect(page.getByRole("button", { name: username })).toBeVisible();
+  await expect(page.getByRole("link", { name: username })).toBeVisible();
   await page.screenshot({ path: "test-results/ui-oauth-users-desktop.png", fullPage: true });
 
-  await page.getByRole("button", { name: username }).click();
+  await page.getByRole("link", { name: username }).click();
   await page.getByLabel("New password").fill("secret-two");
   await page.getByLabel("Authorization-code token TTL").selectOption("86400");
   await page.getByLabel("Enabled for OAuth login verification").uncheck();
   await page.getByRole("button", { name: "Save" }).click();
   await expect(page.getByText("OAuth user saved.")).toBeVisible();
   await expect(page.getByText("Disabled", { exact: true })).toBeVisible();
-  await expect(page.getByText("24 hr")).toBeVisible();
+  await expect(page.getByLabel("Authorization-code token TTL")).toHaveValue("86400");
 
   await page.setViewportSize({ width: 390, height: 900 });
-  await expect(page.getByRole("heading", { name: "OAuth users" })).toBeVisible();
-  await expect(page.getByLabel("Search")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "OAuth user detail" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Delete" })).toBeVisible();
   const hasHorizontalOverflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth);
   expect(hasHorizontalOverflow).toBeFalsy();
   await page.screenshot({ path: "test-results/ui-oauth-users-mobile.png", fullPage: true });
 
   await page.getByRole("button", { name: "Delete" }).click();
-  await expect(page.getByText("OAuth user deleted.")).toBeVisible();
-  await expect(page.getByRole("button", { name: username })).toHaveCount(0);
+  await page.waitForURL(/\/oauth-users$/);
+  await expect(page.getByRole("link", { name: username })).toHaveCount(0);
 });
