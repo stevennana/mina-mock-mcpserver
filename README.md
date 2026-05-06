@@ -10,6 +10,7 @@ Use it when you need a repeatable test target for MCP clients, agent integration
 - MCP JSON-RPC routes at `/mcp`, `/mcp/none`, `/mcp/basic`, and `/mcp/oauth`
 - REST tool routes for curl and Postman style testing
 - Mock OAuth authorization server with browser consent, authorization-code exchange, client-credentials exchange, discovery metadata, and JWKS
+- MCP Inspector helper config and scripts for interactive MCP protocol debugging
 - SQLite persistence with deterministic seed defaults
 - Operator health, reset, logs, Docker Compose, and Nginx examples
 
@@ -108,6 +109,51 @@ curl -u default:default http://127.0.0.1:3100/rest/tools
 ```
 
 ## Step 3: Call A Tool Through MCP
+
+### Full Local Mock Server Inspection
+
+Run the project-specific local inspector to verify the main Mock Server surfaces end to end:
+
+```bash
+npm run inspector:mock
+```
+
+It creates temporary local test records, exercises health, config, REST, MCP, Basic Auth, OAuth client credentials, token revocation, audit, and reset denial, then cleans up the mutable test records.
+
+Use a different server URL:
+
+```bash
+npm run inspector:mock -- --base-url http://127.0.0.1:3000
+```
+
+Root reset is destructive and skipped by default:
+
+```bash
+ROOT_PASSWORD='change-this' npm run inspector:mock -- --include-reset
+```
+
+### With MCP Inspector
+
+Start the local server, then launch the upstream MCP Inspector against the no-auth MCP route:
+
+```bash
+npm run inspector:mcp:none
+```
+
+Use Inspector to run `initialize`, inspect `tools/list`, review generated schemas, and call tools through `tools/call`.
+This project keeps Inspector as an external `npx` tool instead of vendoring its source.
+
+Quick CLI checks:
+
+```bash
+npm run inspector:cli:list
+npm run inspector:cli:call:echo
+npm run inspector:cli:basic:list
+```
+
+See `docs/INSPECTOR.md` for the full local inspector, OAuth Bearer examples, configured targets, security notes, and licensing notes.
+
+### With curl
 
 Initialize the no-auth MCP route:
 

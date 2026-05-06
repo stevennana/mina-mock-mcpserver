@@ -14,6 +14,7 @@ If a UI or API behavior is visible to users, it should be defined here before im
 | `oauth-consent-and-token-runtime.md` | confirmed | OAuth Consent and Token Runtime |
 | `failure-simulation-and-audit.md` | confirmed | Failure Simulation and Audit |
 | `operator-configuration.md` | confirmed | Operator Configuration and Deployment |
+| `../INSPECTOR.md` | confirmed | MCP Inspector Integration |
 
 ## Editing Rule
 When product behavior changes:

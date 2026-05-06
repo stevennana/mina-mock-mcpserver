@@ -16,6 +16,8 @@ Connection guide
 - Reset requires exact confirmation text and records non-secret audit evidence for failed and successful attempts
 - Operator-visible logs are written by `npm run start:logged` under `logs/`; `LOG_LEVEL` supports `trace`, `debug`, `info`, `warn`, and `error`
 - Connection guide examples cover `/mcp`, `/mcp/none`, `/mcp/basic`, `/mcp/oauth`, `/rest/tools`, `/rest/tools/{tool_name}/call`, OAuth discovery metadata, `/oauth/token`, and `/oauth/jwks`
+- MCP Inspector integration is documented as an external `npx` tool with local Streamable HTTP targets for `/mcp`, `/mcp/none`, `/mcp/basic`, and `/mcp/oauth`
+- A project-specific local inspector command verifies the main local Mock Server surfaces across admin APIs, REST, MCP, Basic Auth, OAuth, token revocation, audit, and reset guards
 - Docker Compose exposes port `3000`, persists SQLite at `/app/data`, and keeps logs available at `/app/logs`
 - Nginx guidance forwards host and forwarded-proto headers so public base URL resolution remains accurate behind a proxy
 - Operator handoff covers one Ralph cycle, unattended loop operation, status files, artifacts, logs, and next-queue creation after queue exhaustion
@@ -27,3 +29,5 @@ Connection guide
 - Log-level filtering without secret leakage
 - Health/config page renders, root reset restores defaults, production-style startup smoke passes
 - Docker/Nginx examples match the documented routes, port `3000`, and SQLite persistence expectations
+- Inspector helper scripts and config target the documented local MCP routes without vendoring upstream Inspector source
+- The project-specific inspector can run without root credentials by default and only performs destructive root reset when explicitly requested

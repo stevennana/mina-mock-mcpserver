@@ -14,6 +14,14 @@
     "test": "npm run test:unit && npm run test:e2e",
     "start:smoke": "node scripts/start-smoke.mjs",
     "start:logged": "node scripts/start-logged.mjs",
+    "inspector": "npx -y @modelcontextprotocol/inspector@0.21.2",
+    "inspector:mcp:none": "npx -y @modelcontextprotocol/inspector@0.21.2 --config ./config/mcp-inspector.local.json --server mina-mock-none",
+    "inspector:mcp:basic": "npx -y @modelcontextprotocol/inspector@0.21.2 --config ./config/mcp-inspector.local.json --server mina-mock-basic",
+    "inspector:mcp:oauth": "npx -y @modelcontextprotocol/inspector@0.21.2 --config ./config/mcp-inspector.local.json --server mina-mock-oauth",
+    "inspector:cli:list": "npx -y @modelcontextprotocol/inspector@0.21.2 --cli http://127.0.0.1:3100/mcp/none --transport http --method tools/list",
+    "inspector:cli:call:echo": "npx -y @modelcontextprotocol/inspector@0.21.2 --cli http://127.0.0.1:3100/mcp/none --transport http --method tools/call --tool-name echo --tool-arg message=hello",
+    "inspector:cli:basic:list": "npx -y @modelcontextprotocol/inspector@0.21.2 --cli http://127.0.0.1:3100/mcp/basic --transport http --method tools/list --header \"Authorization: Basic ZGVmYXVsdDpkZWZhdWx0\"",
+    "inspector:mock": "node scripts/mock-inspector.mjs",
     "verify": "npm run lint && npm run typecheck && npm run build && npm run test:unit && npm run test:e2e && npm run start:smoke"
   },
   "dependencies": {

@@ -1,0 +1,24 @@
+{
+  "mcpServers": {
+    "mina-mock-none": {
+      "type": "streamable-http",
+      "url": "http://127.0.0.1:3100/mcp/none",
+      "note": "No-auth MCP route for local Inspector checks."
+    },
+    "mina-mock-unified": {
+      "type": "streamable-http",
+      "url": "http://127.0.0.1:3100/mcp",
+      "note": "Unified MCP route. Missing Authorization is anonymous; Basic and Bearer headers are fail-closed."
+    },
+    "mina-mock-basic": {
+      "type": "streamable-http",
+      "url": "http://127.0.0.1:3100/mcp/basic",
+      "note": "Strict Basic MCP route. Add Authorization: Basic ZGVmYXVsdDpkZWZhdWx0 for the seeded default/default user."
+    },
+    "mina-mock-oauth": {
+      "type": "streamable-http",
+      "url": "http://127.0.0.1:3100/mcp/oauth",
+      "note": "Strict OAuth MCP route. Add Authorization: Bearer <access_token> after issuing a token."
+    }
+  }
+}
