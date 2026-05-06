@@ -78,7 +78,9 @@ Describe the user-facing structure of MCP Mock Server so an agent can implement 
 - root-password fields are used only for protected actions and must not be logged
 - reset confirmation must make clear that currently implemented endpoint data is deleted and seed defaults are recreated
 - copy buttons should exist for MCP URLs, REST URLs, client config, curl examples, client secrets at issuance, and JWTs at issuance
+- Config and Inspector command rows should expose touch-friendly copy buttons for operational commands and connection URLs, including local TLS and self-signed inspector commands
 - Inspector guidance should live in the Mock UI `/inspector` hub and distinguish the standalone generic MCP endpoint inspector from the Mock Server scenario runner that covers REST, OAuth setup, token, audit, reset guard, and config workflows
+- Config should show local-test TLS commands and current app HTTPS env status while keeping Nginx TLS termination positioned as the public deployment recommendation
 - The standalone inspector UI should keep one primary action per mode: generic MCP inspection for arbitrary endpoints, and Mock Server scenario execution for local product E2E evidence
 - OAuth consent should make selected endpoint permissions unambiguous
 - OAuth consent must show client, redirect URI, resource, login user, authorization-code TTL, and the endpoint checklist outside the public admin navigation

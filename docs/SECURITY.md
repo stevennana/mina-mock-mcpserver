@@ -38,6 +38,8 @@ Define the security posture for MCP Mock Server's current shipped slice.
 - raw JWT values are shown only at issuance unless a config explicitly permits storage
 - LOG_LEVEL controls verbosity but must not expose secrets even at trace/debug
 - Operator logger metadata redacts secret-looking keys before writing to stdout or `start:logged` log files
+- Built-in HTTPS uses `TLS_CERT_FILE` and `TLS_KEY_FILE` for local protocol/client tests; certificate content, key content, and `TLS_KEY_PASSPHRASE` must not be logged or exposed through public config
+- Inspector self-signed HTTPS support must be opt-in per run and must not disable TLS verification process-wide
 
 ## Public Surfaces
 - public admin UI routes and /api/* mutation endpoints
@@ -48,6 +50,7 @@ Define the security posture for MCP Mock Server's current shipped slice.
 
 ## Deployment Notes
 - Run behind TLS when exposing the mock server publicly; the provided Nginx example is a reverse-proxy starting point, not a complete TLS or rate-limit policy.
+- App-level HTTPS via `npm run start:tls` is intended for local testing and integration labs. Prefer reverse-proxy TLS termination for public deployments.
 - Set `APP_BASE_URL` to the public `https://` origin in deployed environments, or rely on trusted `X-Forwarded-Host` and `X-Forwarded-Proto` headers from the reverse proxy.
 - Do not store sensitive customer data in SQLite; the admin UI is intentionally public for the MVP.
 

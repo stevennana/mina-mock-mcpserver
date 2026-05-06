@@ -42,7 +42,9 @@ test("standalone inspector UI runs Mock Server scenario and generic MCP inspecti
   await page.goto(INSPECTOR_URL);
 
   await expect(page.getByRole("heading", { name: "MCP Inspector" })).toBeVisible();
+  await expect(page.getByText("Allow self-signed HTTPS for this run").first()).toBeVisible();
   await page.getByLabel("Mock Server base URL").fill(baseURL ?? "http://127.0.0.1:3101");
+  await page.locator("#mock-form").getByLabel("Allow self-signed HTTPS for this run").check();
   await page.getByRole("button", { name: "Run Mock Server scenario" }).click();
 
   const scenarioResults = page.locator("#mock-results");
@@ -52,6 +54,7 @@ test("standalone inspector UI runs Mock Server scenario and generic MCP inspecti
   await expect(scenarioResults.getByText("delete temporary records")).toBeVisible();
 
   await page.getByLabel("MCP endpoint URL").fill(`${baseURL}/mcp/none`);
+  await page.locator("#inspect-form").getByLabel("Allow self-signed HTTPS for this run").check();
   await page.getByLabel("Optional tool name").fill("echo");
   await page.getByLabel("Optional tool arguments JSON").fill('{"message":"hello"}');
   await page.getByRole("button", { name: "Run generic inspection" }).click();
@@ -60,4 +63,5 @@ test("standalone inspector UI runs Mock Server scenario and generic MCP inspecti
   await expect(genericResults.getByText("MCP initialize")).toBeVisible({ timeout: 10_000 });
   await expect(genericResults.getByText("MCP tools/call")).toBeVisible();
   await expect(genericResults.locator(".summary div").filter({ hasText: "Fail" }).getByText("0")).toBeVisible();
+  await expect(genericResults.getByText("self-signed allowed")).toBeVisible();
 });

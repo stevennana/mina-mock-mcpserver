@@ -4,6 +4,7 @@ playwright-report/
 test-results/
 logs/
 data/
+certs/
 dist/
 *.tsbuildinfo
 .env

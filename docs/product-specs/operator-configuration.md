@@ -16,17 +16,22 @@ Connection guide
 - Root-protected reset
 - Reset requires exact confirmation text and records non-secret audit evidence for failed and successful attempts
 - Operator-visible logs are written by `npm run start:logged` under `logs/`; `LOG_LEVEL` supports `trace`, `debug`, `info`, `warn`, and `error`
+- Built-in HTTPS can be enabled for local protocol/client tests with `TLS_CERT_FILE` and `TLS_KEY_FILE` through `npm run start:tls`; `start:logged` uses the same HTTPS path when those variables are set
+- A helper command, `npm run cert:dev`, creates a short-lived self-signed localhost certificate for Mac/Linux test use
+- `npm run start:tls:smoke` proves local certificate availability, app-level HTTPS startup, `/api/health`, and public config TLS reporting
 - Playwright E2E validation runs against an isolated SQLite database and a dedicated local port separate from the manual development server, so deterministic checks do not require users to stop `npm run dev`
 - Browser-facing dates in admin tables use explicit UTC string formatting instead of locale-dependent rendering, preventing server/client hydration mismatches across operator locales
 - Connection guide examples cover `/mcp`, `/mcp/none`, `/mcp/basic`, `/mcp/oauth`, `/rest/tools`, `/rest/tools/{tool_name}/call`, OAuth discovery metadata, `/oauth/token`, and `/oauth/jwks`
+- Config and Inspector expose copy buttons for operational commands and connection URLs so users can move from UI guidance to terminal/client tests without manual selection errors
 - MCP Inspector integration is documented as an external `npx` tool with local Streamable HTTP targets for `/mcp`, `/mcp/none`, `/mcp/basic`, and `/mcp/oauth`
 - The Mock UI exposes an `/inspector` verification hub for standalone inspector UI launch, Mock Server scenario execution, local inspector commands, upstream Inspector targets, Basic/OAuth preparation, and diagnostics interpretation
 - The standalone inspector UI runs outside the Mock Server app and can inspect any MCP Streamable HTTP endpoint using URL, headers, and optional `tools/call` arguments
+- The standalone inspector UI and project-specific inspector expose an explicit self-signed HTTPS option for local app-level TLS tests, without disabling TLS verification globally
 - The standalone inspector UI also provides a Mock Server scenario runner that creates temporary data, verifies REST/MCP/Basic/OAuth/token/audit/reset-guard behavior, and cleans up mutable temporary records
 - A project-specific local inspector command verifies the main local Mock Server surfaces across admin APIs, REST, MCP, Basic Auth, OAuth, token revocation, audit, and reset guards
 - The local inspector prints a final diagnostics report covering target URL, OAuth discovery linkage, MCP protocol negotiation, protocol-version rejection, Origin rejection, Bearer challenge metadata, JWT audience, permission filtering, denial, revocation, and cleanup mode
 - Docker Compose exposes port `3000`, persists SQLite at `/app/data`, and keeps logs available at `/app/logs`
-- Nginx guidance forwards host and forwarded-proto headers so public base URL resolution remains accurate behind a proxy
+- Nginx guidance remains the preferred public TLS path and forwards host and forwarded-proto headers so public base URL resolution remains accurate behind a proxy
 - Operator handoff covers one Ralph cycle, unattended loop operation, status files, artifacts, logs, and next-queue creation after queue exhaustion
 
 ## Validation
@@ -38,6 +43,8 @@ Connection guide
 - E2E startup does not collide with the default development server port
 - Date and datetime displays are deterministic between server-rendered and client-rendered UI
 - Docker/Nginx examples match the documented routes, port `3000`, and SQLite persistence expectations
+- TLS runtime config reports whether app-level HTTPS certificate and key inputs are configured without exposing certificate material or passphrases
+- TLS startup smoke checks must pass against a self-signed local HTTPS server with scoped insecure verification
 - Inspector helper scripts and config target the documented local MCP routes without vendoring upstream Inspector source
 - The project-specific inspector can run without root credentials by default and only performs destructive root reset when explicitly requested
 - The local inspector diagnostics report must fail the command when protocol-facing invariants are missing, not merely print warnings

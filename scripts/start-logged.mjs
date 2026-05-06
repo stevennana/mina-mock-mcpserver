@@ -18,9 +18,12 @@ function writeLine(line) {
 }
 
 writeLine(`Writing server logs to ${logPath}`);
-writeLine(`Starting Next.js on port ${port} with LOG_LEVEL=${level}`);
+const tlsEnabled = Boolean(process.env.TLS_CERT_FILE && process.env.TLS_KEY_FILE);
+const startCommand = tlsEnabled ? ["node", ["scripts/start-tls.mjs"]] : ["npx", ["next", "start", "--hostname", process.env.HOST || "127.0.0.1", "--port", port]];
 
-const child = spawn("npx", ["next", "start", "--hostname", process.env.HOST || "127.0.0.1", "--port", port], {
+writeLine(`Starting ${tlsEnabled ? "HTTPS" : "HTTP"} Next.js on port ${port} with LOG_LEVEL=${level}`);
+
+const child = spawn(startCommand[0], startCommand[1], {
   stdio: ["ignore", "pipe", "pipe"],
   env: { ...process.env, LOG_LEVEL: level },
 });

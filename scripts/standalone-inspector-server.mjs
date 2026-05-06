@@ -4,6 +4,7 @@ import { createServer } from "node:http";
 import { Buffer } from "node:buffer";
 import { performance } from "node:perf_hooks";
 import { URL, URLSearchParams } from "node:url";
+import { fetchWithTls } from "./lib/fetch-with-tls.mjs";
 
 const DEFAULT_HOST = process.env.INSPECTOR_UI_HOST ?? "127.0.0.1";
 const DEFAULT_PORT = Number(process.env.INSPECTOR_UI_PORT ?? "3200");
@@ -118,13 +119,13 @@ function normalizeBaseUrl(value) {
   return baseUrl.replace(/\/+$/, "");
 }
 
-async function fetchJson(url, payload, headers) {
+async function fetchJson(url, payload, headers, options = {}) {
   const startedAt = performance.now();
-  const response = await fetch(url, {
+  const response = await fetchWithTls(url, {
     method: "POST",
     headers,
     body: JSON.stringify(payload),
-  });
+  }, { insecureTls: options.insecureTls });
   const elapsedMs = Math.round(performance.now() - startedAt);
   const contentType = response.headers.get("content-type") ?? "";
   const text = await response.text();
@@ -168,8 +169,9 @@ function isRecord(value) {
 }
 
 class MockClient {
-  constructor(baseUrl) {
+  constructor(baseUrl, options = {}) {
     this.baseUrl = baseUrl;
+    this.insecureTls = Boolean(options.insecureTls);
   }
 
   url(path) {
@@ -178,7 +180,7 @@ class MockClient {
 
   async request(path, options = {}) {
     const startedAt = performance.now();
-    const response = await fetch(this.url(path), options);
+    const response = await fetchWithTls(this.url(path), options, { insecureTls: this.insecureTls });
     const elapsedMs = Math.round(performance.now() - startedAt);
     const contentType = response.headers.get("content-type") ?? "";
     const text = await response.text();
@@ -320,8 +322,9 @@ async function runScenarioStep(steps, name, action, options = {}) {
 async function inspectMockServerScenario(input) {
   const baseUrl = normalizeBaseUrl(input.baseUrl);
   const includeReset = input.includeReset === true || input.includeReset === "on";
+  const insecureTls = input.insecureTls === true || input.insecureTls === "on";
   const rootPassword = String(input.rootPassword ?? "");
-  const client = new MockClient(baseUrl);
+  const client = new MockClient(baseUrl, { insecureTls });
   const stamp = Date.now();
   const endpointName = `ui_inspector_${stamp}`;
   const basicUsername = `ui_basic_${stamp}`;
@@ -332,6 +335,7 @@ async function inspectMockServerScenario(input) {
   const protectedResourceMetadataUrl = `${baseUrl}/.well-known/oauth-protected-resource`;
   const diagnostics = [];
   const steps = [];
+  addDiagnostic(diagnostics, "tls verification", insecureTls ? "self-signed allowed" : "default");
   const cleanup = {
     endpointId: "",
     basicUserId: "",
@@ -609,6 +613,7 @@ async function inspectMcpTarget(input) {
   }
 
   const protocolVersion = String(input.protocolVersion || DEFAULT_PROTOCOL_VERSION);
+  const insecureTls = input.insecureTls === true || input.insecureTls === "on";
   const userHeaders = parseHeadersJson(input.headersJson);
   const baseHeaders = {
     "content-type": "application/json",
@@ -621,6 +626,7 @@ async function inspectMcpTarget(input) {
   };
   const steps = [];
   const diagnostics = [];
+  diagnostics.push(["tls verification", insecureTls ? "self-signed allowed" : "default"]);
 
   const initializePayload = {
     jsonrpc: "2.0",
@@ -632,7 +638,7 @@ async function inspectMcpTarget(input) {
       clientInfo: { name: "standalone-local-inspector", version: "1.0.0" },
     },
   };
-  const initialize = await fetchJson(targetUrl, initializePayload, baseHeaders);
+  const initialize = await fetchJson(targetUrl, initializePayload, baseHeaders, { insecureTls });
   steps.push(makeStep("MCP initialize", initialize.ok ? "pass" : "fail", {
     request: { url: targetUrl, headers: redactHeaders(baseHeaders), body: initializePayload },
     response: initialize,
@@ -642,7 +648,7 @@ async function inspectMcpTarget(input) {
   diagnostics.push(["negotiated protocol", negotiated]);
 
   const listPayload = { jsonrpc: "2.0", id: "inspector-tools-list", method: "tools/list" };
-  const list = await fetchJson(targetUrl, listPayload, protocolHeaders);
+  const list = await fetchJson(targetUrl, listPayload, protocolHeaders, { insecureTls });
   const tools = Array.isArray(list.body?.result?.tools) ? list.body.result.tools : [];
   steps.push(makeStep("MCP tools/list", list.ok && Array.isArray(tools) ? "pass" : "fail", {
     request: { url: targetUrl, headers: redactHeaders(protocolHeaders), body: listPayload },
@@ -661,7 +667,7 @@ async function inspectMcpTarget(input) {
       method: "tools/call",
       params: { name: toolName, arguments: args },
     };
-    const call = await fetchJson(targetUrl, callPayload, protocolHeaders);
+    const call = await fetchJson(targetUrl, callPayload, protocolHeaders, { insecureTls });
     const hasResultOrJsonRpcError = Boolean(call.body?.result || call.body?.error);
     steps.push(makeStep("MCP tools/call", call.ok && hasResultOrJsonRpcError ? "pass" : "fail", {
       request: { url: targetUrl, headers: redactHeaders(protocolHeaders), body: callPayload },
@@ -675,10 +681,15 @@ async function inspectMcpTarget(input) {
   }
 
   const badVersionPayload = { jsonrpc: "2.0", id: "inspector-bad-version", method: "tools/list" };
-  const badVersion = await fetchJson(targetUrl, badVersionPayload, {
-    ...baseHeaders,
-    "MCP-Protocol-Version": "1900-01-01",
-  });
+  const badVersion = await fetchJson(
+    targetUrl,
+    badVersionPayload,
+    {
+      ...baseHeaders,
+      "MCP-Protocol-Version": "1900-01-01",
+    },
+    { insecureTls },
+  );
   const badVersionStatus = badVersion.status >= 400 ? "pass" : "warn";
   steps.push(makeStep("Unsupported protocol-version probe", badVersionStatus, {
     request: {
@@ -868,11 +879,15 @@ function renderHtml() {
             <input name="includeReset" type="checkbox" />
             Include destructive root reset
           </label>
+          <label class="check-row">
+            <input name="insecureTls" type="checkbox" />
+            Allow self-signed HTTPS for this run
+          </label>
           <label>
             Root password for optional reset
             <input name="rootPassword" type="password" placeholder="Only needed when reset is enabled" />
           </label>
-          <p class="hint">Default run covers health, config, discovery, endpoint admin, REST, MCP, Basic, OAuth Bearer, token revocation, audit, reset denial, and cleanup. Root reset stays off unless you opt in.</p>
+          <p class="hint">Default run covers health, config, discovery, endpoint admin, REST, MCP, Basic, OAuth Bearer, token revocation, audit, reset denial, and cleanup. Root reset stays off unless you opt in. Use self-signed HTTPS only for local certificates you control.</p>
           <div class="actions">
             <button id="run-mock-button" type="submit">Run Mock Server scenario</button>
           </div>
@@ -905,6 +920,11 @@ function renderHtml() {
             <textarea name="headersJson" placeholder='{"Authorization":"Bearer ..."}'></textarea>
           </label>
           <p class="hint">Use headers for Basic, Bearer, API keys, or custom local server requirements. Secrets are redacted in displayed request evidence.</p>
+          <label class="check-row">
+            <input name="insecureTls" type="checkbox" />
+            Allow self-signed HTTPS for this run
+          </label>
+          <p class="hint">Enable this only for local HTTPS targets such as an MCP Mock Server started with <code>npm run start:tls</code>.</p>
           <label>
             Optional tool name
             <input name="toolName" placeholder="echo" />
@@ -968,6 +988,7 @@ function renderHtml() {
       results.textContent = "Running inspection.";
       try {
         const payload = Object.fromEntries(new FormData(form).entries());
+        payload.insecureTls = form.elements.insecureTls.checked;
         const response = await fetch("/api/inspect", {
           method: "POST",
           headers: { "content-type": "application/json" },
@@ -992,6 +1013,7 @@ function renderHtml() {
       try {
         const payload = Object.fromEntries(new FormData(mockForm).entries());
         payload.includeReset = mockForm.elements.includeReset.checked;
+        payload.insecureTls = mockForm.elements.insecureTls.checked;
         const response = await fetch("/api/mock-scenario", {
           method: "POST",
           headers: { "content-type": "application/json" },

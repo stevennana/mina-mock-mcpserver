@@ -10,6 +10,7 @@ import { seedAllDefaults } from "@/lib/db/seed";
 import {
   getOperatorHealth,
   getPublicOperatorConfig,
+  getTlsRuntimeConfig,
   normalizeBaseUrl,
   resolveBaseUrl,
   updateOperatorBaseUrl,
@@ -23,11 +24,17 @@ async function withIsolatedDb(fn: (client: ReturnType<typeof createPrismaClient>
   const previousDatabaseUrl = process.env.DATABASE_URL;
   const previousAppBaseUrl = process.env.APP_BASE_URL;
   const previousRootPassword = process.env.ROOT_PASSWORD;
+  const previousTlsCertFile = process.env.TLS_CERT_FILE;
+  const previousTlsKeyFile = process.env.TLS_KEY_FILE;
+  const previousTlsCaFile = process.env.TLS_CA_FILE;
   const databasePath = join(directory, "runtime.sqlite");
   await writeFile(databasePath, "", { flag: "a" });
   process.env.DATABASE_URL = `file:${databasePath}`;
   process.env.ROOT_PASSWORD = "unit-root-password";
   delete process.env.APP_BASE_URL;
+  delete process.env.TLS_CERT_FILE;
+  delete process.env.TLS_KEY_FILE;
+  delete process.env.TLS_CA_FILE;
 
   await execFileAsync("npx", ["prisma", "migrate", "deploy"], { env: { ...process.env } });
 
@@ -51,6 +58,21 @@ async function withIsolatedDb(fn: (client: ReturnType<typeof createPrismaClient>
       delete process.env.ROOT_PASSWORD;
     } else {
       process.env.ROOT_PASSWORD = previousRootPassword;
+    }
+    if (previousTlsCertFile === undefined) {
+      delete process.env.TLS_CERT_FILE;
+    } else {
+      process.env.TLS_CERT_FILE = previousTlsCertFile;
+    }
+    if (previousTlsKeyFile === undefined) {
+      delete process.env.TLS_KEY_FILE;
+    } else {
+      process.env.TLS_KEY_FILE = previousTlsKeyFile;
+    }
+    if (previousTlsCaFile === undefined) {
+      delete process.env.TLS_CA_FILE;
+    } else {
+      process.env.TLS_CA_FILE = previousTlsCaFile;
     }
   }
 }
@@ -106,7 +128,49 @@ test("operator public config and health report persisted runtime state", async (
     assert.equal(config.routes.rest.tools, "https://guide.example/rest/tools");
     assert.equal(config.routes.oauth.authorizationServerMetadata, "https://guide.example/.well-known/oauth-authorization-server");
     assert.equal(config.examples.curl.callTool.includes("https://guide.example/rest/tools/echo/call"), true);
+    assert.equal(config.tls.enabled, false);
+    assert.equal(config.tls.mode, "http_or_proxy");
+    assert.equal(config.examples.tls.devCertCommand, "npm run cert:dev");
+    assert.equal(config.examples.tls.smokeCommand, "npm run start:tls:smoke");
+    assert.equal(config.examples.tls.inspectorCommand, "npm run inspector:mock -- --base-url https://127.0.0.1:3443 --insecure-tls");
   });
+});
+
+test("operator TLS runtime config reports app HTTPS when certificate inputs are configured", () => {
+  const previousTlsCertFile = process.env.TLS_CERT_FILE;
+  const previousTlsKeyFile = process.env.TLS_KEY_FILE;
+  const previousTlsCaFile = process.env.TLS_CA_FILE;
+  try {
+    process.env.TLS_CERT_FILE = "certs/localhost-cert.pem";
+    process.env.TLS_KEY_FILE = "certs/localhost-key.pem";
+    process.env.TLS_CA_FILE = "certs/local-ca.pem";
+    assert.deepEqual(getTlsRuntimeConfig(), {
+      enabled: true,
+      mode: "app_https",
+      recommendedPublicMode: "nginx_tls_termination",
+      certFileConfigured: true,
+      keyFileConfigured: true,
+      caFileConfigured: true,
+      command: "TLS_CERT_FILE=certs/localhost-cert.pem TLS_KEY_FILE=certs/localhost-key.pem PORT=3443 npm run start:tls",
+      loggedCommand: "TLS_CERT_FILE=certs/localhost-cert.pem TLS_KEY_FILE=certs/localhost-key.pem PORT=3443 npm run start:logged",
+    });
+  } finally {
+    if (previousTlsCertFile === undefined) {
+      delete process.env.TLS_CERT_FILE;
+    } else {
+      process.env.TLS_CERT_FILE = previousTlsCertFile;
+    }
+    if (previousTlsKeyFile === undefined) {
+      delete process.env.TLS_KEY_FILE;
+    } else {
+      process.env.TLS_KEY_FILE = previousTlsKeyFile;
+    }
+    if (previousTlsCaFile === undefined) {
+      delete process.env.TLS_CA_FILE;
+    } else {
+      process.env.TLS_CA_FILE = previousTlsCaFile;
+    }
+  }
 });
 
 test("operator base URL validation failures with valid root password write non-secret audit evidence", async () => {

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { FormEvent, useMemo, useState } from "react";
+import { CopyButton } from "@/app/copy-button";
 
 type PublicOperatorConfig = {
   baseUrl: {
@@ -9,6 +10,16 @@ type PublicOperatorConfig = {
     source: string;
     databaseOverride: string | null;
     appBaseUrl: string | null;
+  };
+  tls: {
+    enabled: boolean;
+    mode: string;
+    recommendedPublicMode: string;
+    certFileConfigured: boolean;
+    keyFileConfigured: boolean;
+    caFileConfigured: boolean;
+    command: string;
+    loggedCommand: string;
   };
   health: {
     status: string;
@@ -46,6 +57,7 @@ type PublicOperatorConfig = {
     mcpClient: Record<string, unknown>;
     curl: Record<string, string>;
     logging: { command: string; levels: string[]; directory: string };
+    tls: { devCertCommand: string; command: string; loggedCommand: string; smokeCommand: string; inspectorCommand: string };
   };
 };
 
@@ -178,7 +190,10 @@ export function ConfigManager({ initialConfig }: { initialConfig: PublicOperator
           {routeRows.map(([label, url]) => (
             <div key={label}>
               <span>{label}</span>
-              <code>{url}</code>
+              <div className="copy-row">
+                <code>{url}</code>
+                <CopyButton value={url} />
+              </div>
             </div>
           ))}
         </div>
@@ -201,7 +216,10 @@ export function ConfigManager({ initialConfig }: { initialConfig: PublicOperator
         <dl className="detail-grid">
           <div>
             <dt>Command</dt>
-            <dd>{config.examples.logging.command}</dd>
+            <dd className="copy-row">
+              <code>{config.examples.logging.command}</code>
+              <CopyButton value={config.examples.logging.command} />
+            </dd>
           </div>
           <div>
             <dt>Directory</dt>
@@ -220,6 +238,62 @@ export function ConfigManager({ initialConfig }: { initialConfig: PublicOperator
               </dd>
             </div>
           ) : null}
+        </dl>
+      </section>
+
+      <section className="panel guide-panel" aria-labelledby="tls-title">
+        <div className="section-heading-row">
+          <div>
+            <h2 id="tls-title">TLS for local tests</h2>
+            <p>Nginx TLS termination is still recommended for public deployments. Built-in HTTPS is for local client tests.</p>
+          </div>
+          <strong className={config.tls.enabled ? "status-pill enabled" : "status-pill"}>
+            {config.tls.enabled ? "app HTTPS configured" : "HTTP or proxy TLS"}
+          </strong>
+        </div>
+        <dl className="detail-grid">
+          <div>
+            <dt>Generate localhost cert</dt>
+            <dd className="copy-row">
+              <code>{config.examples.tls.devCertCommand}</code>
+              <CopyButton value={config.examples.tls.devCertCommand} />
+            </dd>
+          </div>
+          <div>
+            <dt>Start HTTPS</dt>
+            <dd className="copy-row">
+              <code>{config.examples.tls.command}</code>
+              <CopyButton value={config.examples.tls.command} />
+            </dd>
+          </div>
+          <div>
+            <dt>Start HTTPS with logs</dt>
+            <dd className="copy-row">
+              <code>{config.examples.tls.loggedCommand}</code>
+              <CopyButton value={config.examples.tls.loggedCommand} />
+            </dd>
+          </div>
+          <div>
+            <dt>TLS smoke</dt>
+            <dd className="copy-row">
+              <code>{config.examples.tls.smokeCommand}</code>
+              <CopyButton value={config.examples.tls.smokeCommand} />
+            </dd>
+          </div>
+          <div>
+            <dt>HTTPS inspector</dt>
+            <dd className="copy-row">
+              <code>{config.examples.tls.inspectorCommand}</code>
+              <CopyButton value={config.examples.tls.inspectorCommand} />
+            </dd>
+          </div>
+          <div>
+            <dt>Configured inputs</dt>
+            <dd>
+              cert {config.tls.certFileConfigured ? "set" : "missing"}, key {config.tls.keyFileConfigured ? "set" : "missing"}
+              {config.tls.caFileConfigured ? ", CA set" : ""}
+            </dd>
+          </div>
         </dl>
       </section>
     </div>

@@ -1,6 +1,7 @@
 import { AppNav } from "@/app/app-nav";
 import { headers } from "next/headers";
 import { getPublicOperatorConfig } from "@/lib/operator/config";
+import { CopyButton } from "@/app/copy-button";
 
 export const dynamic = "force-dynamic";
 
@@ -30,7 +31,10 @@ export default async function InspectorPage() {
           <p className="section-note">
             Launch a separate local browser page. Use its Mock Server scenario to verify REST, MCP, Basic, OAuth bearer, token revocation, audit evidence, and reset guards through UI, or use generic mode for any MCP endpoint.
           </p>
-          <pre className="json-panel" aria-label="Standalone inspector UI command">npm run inspector:ui</pre>
+          <div className="command-strip">
+            <code>npm run inspector:ui</code>
+            <CopyButton value="npm run inspector:ui" />
+          </div>
         </section>
 
         <section className="panel guide-panel" aria-labelledby="mock-inspector-title">
@@ -38,7 +42,37 @@ export default async function InspectorPage() {
           <p className="section-note">
             This project-specific command verifies admin APIs, REST, MCP no-auth, Basic, OAuth bearer, token revocation, audit evidence, and reset guards.
           </p>
-          <pre className="json-panel" aria-label="Local inspector command">npm run inspector:mock</pre>
+          <div className="command-strip">
+            <code>npm run inspector:mock</code>
+            <CopyButton value="npm run inspector:mock" />
+          </div>
+        </section>
+
+        <section className="panel guide-panel" aria-labelledby="tls-inspector-title">
+          <h2 id="tls-inspector-title">HTTPS self-signed local flow</h2>
+          <p className="section-note">
+            Use app-level TLS only for local protocol/client tests. The Inspector allows self-signed certificates per run, without changing global TLS verification.
+          </p>
+          <div className="guide-list">
+            <div>
+              <span>Prove HTTPS startup</span>
+              <div className="copy-row">
+                <code>{config.examples.tls.smokeCommand}</code>
+                <CopyButton value={config.examples.tls.smokeCommand} />
+              </div>
+            </div>
+            <div>
+              <span>Inspect HTTPS Mock Server</span>
+              <div className="copy-row">
+                <code>{config.examples.tls.inspectorCommand}</code>
+                <CopyButton value={config.examples.tls.inspectorCommand} />
+              </div>
+            </div>
+            <div>
+              <span>Standalone UI checkbox</span>
+              <code>Allow self-signed HTTPS for this run</code>
+            </div>
+          </div>
         </section>
 
         <section className="panel guide-panel" aria-labelledby="upstream-title">
@@ -46,15 +80,24 @@ export default async function InspectorPage() {
           <div className="guide-list">
             <div>
               <span>No-auth Streamable HTTP</span>
-              <code>npm run inspector:mcp:none</code>
+              <div className="copy-row">
+                <code>npm run inspector:mcp:none</code>
+                <CopyButton value="npm run inspector:mcp:none" />
+              </div>
             </div>
             <div>
               <span>Basic Auth Streamable HTTP</span>
-              <code>npm run inspector:mcp:basic</code>
+              <div className="copy-row">
+                <code>npm run inspector:mcp:basic</code>
+                <CopyButton value="npm run inspector:mcp:basic" />
+              </div>
             </div>
             <div>
               <span>OAuth Bearer Streamable HTTP</span>
-              <code>npm run inspector:mcp:oauth</code>
+              <div className="copy-row">
+                <code>npm run inspector:mcp:oauth</code>
+                <CopyButton value="npm run inspector:mcp:oauth" />
+              </div>
             </div>
           </div>
         </section>
@@ -62,14 +105,24 @@ export default async function InspectorPage() {
         <section className="panel guide-panel" aria-labelledby="targets-title">
           <h2 id="targets-title">Current connection targets</h2>
           <div className="guide-list">
-            <div><span>MCP unified</span><code>{config.routes.mcp.unified}</code></div>
-            <div><span>MCP no auth</span><code>{config.routes.mcp.noAuth}</code></div>
-            <div><span>MCP Basic</span><code>{config.routes.mcp.basic}</code></div>
-            <div><span>MCP OAuth bearer</span><code>{config.routes.mcp.oauth}</code></div>
-            <div><span>REST tools</span><code>{config.routes.rest.tools}</code></div>
-            <div><span>OAuth authorization metadata</span><code>{config.routes.oauth.authorizationServerMetadata}</code></div>
-            <div><span>OAuth protected resource metadata</span><code>{config.routes.oauth.protectedResourceMetadata}</code></div>
-            <div><span>JWKS</span><code>{config.routes.oauth.jwksUri}</code></div>
+            {[
+              ["MCP unified", config.routes.mcp.unified],
+              ["MCP no auth", config.routes.mcp.noAuth],
+              ["MCP Basic", config.routes.mcp.basic],
+              ["MCP OAuth bearer", config.routes.mcp.oauth],
+              ["REST tools", config.routes.rest.tools],
+              ["OAuth authorization metadata", config.routes.oauth.authorizationServerMetadata],
+              ["OAuth protected resource metadata", config.routes.oauth.protectedResourceMetadata],
+              ["JWKS", config.routes.oauth.jwksUri],
+            ].map(([label, value]) => (
+              <div key={label}>
+                <span>{label}</span>
+                <div className="copy-row">
+                  <code>{value}</code>
+                  <CopyButton value={value} />
+                </div>
+              </div>
+            ))}
           </div>
         </section>
 

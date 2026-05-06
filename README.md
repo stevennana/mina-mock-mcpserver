@@ -112,6 +112,8 @@ Use the **Extra headers JSON** field for Basic, Bearer, API key, or custom heade
 {"Authorization":"Bearer ey..."}
 ```
 
+If your target is a local HTTPS server with a self-signed certificate, enable **Allow self-signed HTTPS for this run**. Keep it off for public or production-like targets.
+
 Use a different port if `3200` is already taken:
 
 ```bash
@@ -150,6 +152,12 @@ Use a different target when testing a production-style local server or container
 
 ```bash
 npm run inspector:mock -- --base-url http://127.0.0.1:3000
+```
+
+Use `--insecure-tls` only for local HTTPS targets that use a self-signed or untrusted certificate:
+
+```bash
+npm run inspector:mock -- --base-url https://127.0.0.1:3443 --insecure-tls
 ```
 
 Root reset is destructive, so the inspector skips it by default. Only include it when you intentionally want to verify reset behavior:
@@ -373,6 +381,10 @@ Useful environment variables:
 | `APP_BASE_URL` | inferred from request, then `http://localhost:3000` fallback | Public issuer and URL generation |
 | `ROOT_PASSWORD` | unset | Reset, delete override, and base URL override password |
 | `LOG_LEVEL` | `info` | `trace`, `debug`, `info`, `warn`, or `error` |
+| `TLS_CERT_FILE` | unset | PEM certificate path for app-level HTTPS test starts |
+| `TLS_KEY_FILE` | unset | PEM private key path for app-level HTTPS test starts |
+| `TLS_CA_FILE` | unset | Optional CA bundle path for app-level HTTPS test starts |
+| `TLS_KEY_PASSPHRASE` | unset | Optional private-key passphrase for app-level HTTPS test starts |
 | `OAUTH_JWT_PRIVATE_KEY_PEM` | development key | RS256 signing key for mock OAuth tokens |
 
 If `APP_BASE_URL` is set, it takes precedence over the database base URL override and request headers.
@@ -399,6 +411,52 @@ Run a startup smoke check:
 npm run start:smoke
 ```
 
+## Local App-Level TLS
+
+Nginx or another reverse proxy is still the preferred TLS termination layer for public deployments. For local protocol/client tests, you can run MCP Mock Server directly over HTTPS.
+
+Create a short-lived self-signed localhost certificate:
+
+```bash
+npm run cert:dev
+```
+
+Build, prepare state, and start the HTTPS server:
+
+```bash
+npm run build
+npm run db:prepare
+TLS_CERT_FILE=certs/localhost-cert.pem \
+TLS_KEY_FILE=certs/localhost-key.pem \
+PORT=3443 \
+APP_BASE_URL=https://127.0.0.1:3443 \
+npm run start:tls
+```
+
+Then open:
+
+```text
+https://127.0.0.1:3443
+```
+
+Self-signed certificates are not trusted by default. Browser and curl clients may require a local trust exception or `curl -k`:
+
+```bash
+curl -k https://127.0.0.1:3443/api/health
+```
+
+Use the same TLS variables with logged operation when you want HTTPS plus `logs/` output:
+
+```bash
+TLS_CERT_FILE=certs/localhost-cert.pem TLS_KEY_FILE=certs/localhost-key.pem PORT=3443 npm run start:logged
+```
+
+Run the automated TLS startup smoke check when you want to prove certificate generation, HTTPS startup, health, and public config TLS reporting in one command:
+
+```bash
+npm run start:tls:smoke
+```
+
 ## Docker Compose
 
 1. Edit `docker-compose.yml`.
@@ -421,6 +479,7 @@ For public deployments:
 - Terminate TLS with your certificate tooling.
 - Forward `Host`, `X-Forwarded-Host`, and `X-Forwarded-Proto`.
 - Set `APP_BASE_URL` to the final public `https://` origin when possible.
+- Use app-level TLS only for local tests or controlled integration labs; prefer the reverse proxy for public TLS.
 - Do not store sensitive customer data in this mock server.
 
 ## Reset To Defaults

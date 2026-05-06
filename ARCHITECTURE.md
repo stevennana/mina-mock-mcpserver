@@ -9,6 +9,7 @@ MCP Mock Server is a web application with:
 - server-side route handlers for admin APIs, MCP, REST, OAuth, and discovery metadata
 - SQLite persistence prepared by npm run db:prepare
 - operator logs under logs/ with LOG_LEVEL selection
+- optional app-level HTTPS for local test runs through TLS_CERT_FILE/TLS_KEY_FILE, while public deployments should still terminate TLS at a reverse proxy
 - Ralph scripts under scripts/ralph/ driving active task promotion
 
 ## Architectural Priorities

@@ -35,6 +35,7 @@ If the app depends on persistent runtime state, document how runtime preparation
 `LOG_LEVEL` controls app log verbosity and supports `trace`, `debug`, `info`, `warn`, and `error`; invalid values fall back to `info`.
 Generated server code exposes those levels through the operator logger and redacts secret-looking metadata keys, including passwords, secrets, tokens, authorization headers, JWTs, and codes.
 For container operation, mount `/app/data` for SQLite persistence and `/app/logs` if `start:logged` or equivalent log capture is used.
+When `TLS_CERT_FILE` and `TLS_KEY_FILE` are set, `start:logged` uses the app-level HTTPS starter. This is for local protocol/client tests; public deployments should still use reverse-proxy TLS termination.
 
 ## Base URL Resolution
 Runtime URL examples and OAuth issuer metadata use a shared base URL resolver.

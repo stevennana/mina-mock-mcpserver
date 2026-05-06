@@ -27,6 +27,26 @@ PORT=3000 HOST=0.0.0.0 LOG_LEVEL=info npm run start:logged
 
 `start:logged` writes timestamped server output under `logs/`. Supported `LOG_LEVEL` values are `trace`, `debug`, `info`, `warn`, and `error`.
 
+For local HTTPS client testing without Nginx, create a short-lived localhost certificate and start the app-level TLS server:
+
+```bash
+npm run cert:dev
+npm run build
+npm run db:prepare
+TLS_CERT_FILE=certs/localhost-cert.pem TLS_KEY_FILE=certs/localhost-key.pem PORT=3443 APP_BASE_URL=https://127.0.0.1:3443 npm run start:tls
+```
+
+Use `npm run start:logged` with the same `TLS_CERT_FILE` and `TLS_KEY_FILE` values when you want HTTPS plus log capture. This path is for local protocol/client tests; keep Nginx or another reverse proxy as the preferred public TLS termination layer.
+
+To prove the local HTTPS path end to end:
+
+```bash
+npm run start:tls:smoke
+npm run inspector:mock -- --base-url https://127.0.0.1:3443 --insecure-tls
+```
+
+Use `--insecure-tls` only for local self-signed certificates under your control.
+
 ## Docker Compose
 
 Build and run the packaged app:
@@ -39,7 +59,7 @@ The compose file exposes host port `3000`, persists SQLite under the `mcp-mock-d
 
 ## Nginx
 
-Use `deploy/nginx.conf` as a starting point for reverse proxying to a process listening on `127.0.0.1:3000`. The proxy forwards `Host`, `X-Forwarded-Host`, and `X-Forwarded-Proto`; the app uses those headers in base URL resolution when `APP_BASE_URL` and the database override are unset.
+Use `deploy/nginx.conf` as a starting point for reverse proxying to a process listening on `127.0.0.1:3000`. The proxy forwards `Host`, `X-Forwarded-Host`, and `X-Forwarded-Proto`; the app uses those headers in base URL resolution when `APP_BASE_URL` and the database override are unset. This remains the recommended TLS shape for public deployments.
 
 ## Routes
 

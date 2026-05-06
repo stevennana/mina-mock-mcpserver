@@ -52,6 +52,7 @@ The page is served by `scripts/standalone-inspector-server.mjs`, independently f
 - MCP endpoint URL
 - MCP protocol version
 - extra headers as JSON, such as `{"Authorization":"Bearer ..."}` or Basic Auth
+- an opt-in self-signed HTTPS mode for local certificates created with `npm run cert:dev` or similar tooling
 - optional tool name and JSON arguments for `tools/call`
 
 The standalone UI has two modes.
@@ -75,6 +76,7 @@ Mock Server scenario mode expects a running MCP Mock Server base URL and drives 
 - audit evidence and invalid reset-credential rejection
 
 The UI scenario runner intentionally skips destructive root reset unless an operator explicitly enables it and provides the root password.
+The self-signed HTTPS checkbox should be used only for local targets under your control, such as `https://127.0.0.1:3443` from `npm run start:tls`.
 
 If port `3200` is already taken:
 
@@ -111,6 +113,12 @@ Use a different target with:
 
 ```bash
 npm run inspector:mock -- --base-url http://127.0.0.1:3000
+```
+
+For a local app-level HTTPS target with a self-signed certificate:
+
+```bash
+npm run inspector:mock -- --base-url https://127.0.0.1:3443 --insecure-tls
 ```
 
 Root reset is intentionally skipped by default because it is destructive. To include it:

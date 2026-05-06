@@ -691,6 +691,48 @@ h1 {
   font-weight: 750;
 }
 
+.copy-row,
+.command-strip {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.copy-row code,
+.command-strip code {
+  min-width: 0;
+  flex: 1 1 220px;
+  overflow-wrap: anywhere;
+}
+
+.command-strip {
+  margin-top: 12px;
+  border: 1px solid #d8e0ea;
+  border-radius: 8px;
+  padding: 10px;
+  background: #fbfcfe;
+}
+
+.copy-button {
+  min-height: 44px;
+  border: 1px solid #bfd0df;
+  border-radius: 8px;
+  padding: 0 12px;
+  background: #fff;
+  color: #26313f;
+  font: inherit;
+  font-size: 0.84rem;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.copy-button:hover {
+  border-color: #8ab5c9;
+  background: #f5fafc;
+}
+
 .permission-list {
   display: grid;
   gap: 8px;

@@ -2,6 +2,7 @@
 
 import { Buffer } from "node:buffer";
 import { URLSearchParams } from "node:url";
+import { fetchWithTls } from "./lib/fetch-with-tls.mjs";
 
 const DEFAULT_BASE_URL = process.env.MCP_MOCK_BASE_URL ?? "http://127.0.0.1:3100";
 const DEFAULT_DELETE_CODE = "87654321";
@@ -11,6 +12,7 @@ function parseArgs(argv) {
     baseUrl: DEFAULT_BASE_URL,
     includeReset: false,
     rootPassword: process.env.ROOT_PASSWORD ?? "",
+    insecureTls: false,
   };
 
   for (let index = 0; index < argv.length; index += 1) {
@@ -23,6 +25,8 @@ function parseArgs(argv) {
     } else if (arg === "--root-password") {
       options.rootPassword = argv[index + 1] ?? "";
       index += 1;
+    } else if (arg === "--insecure-tls") {
+      options.insecureTls = true;
     } else if (arg === "--help" || arg === "-h") {
       printHelp();
       process.exit(0);
@@ -47,6 +51,7 @@ Options:
   --base-url <url>       Mock server base URL. Defaults to MCP_MOCK_BASE_URL or ${DEFAULT_BASE_URL}
   --include-reset        Also verify root-protected reset. Requires --root-password or ROOT_PASSWORD.
   --root-password <pw>   Root password for reset verification.
+  --insecure-tls         Allow self-signed or untrusted HTTPS certificates for local tests.
 `);
 }
 
@@ -92,8 +97,9 @@ function isRecord(value) {
 }
 
 class Client {
-  constructor(baseUrl) {
+  constructor(baseUrl, options = {}) {
     this.baseUrl = baseUrl;
+    this.insecureTls = Boolean(options.insecureTls);
   }
 
   url(path) {
@@ -101,7 +107,7 @@ class Client {
   }
 
   async request(path, options = {}) {
-    const response = await fetch(this.url(path), options);
+    const response = await fetchWithTls(this.url(path), options, { insecureTls: this.insecureTls });
     const contentType = response.headers.get("content-type") ?? "";
     const text = await response.text();
     const body = contentType.includes("application/json") && text ? JSON.parse(text) : text;
@@ -219,7 +225,7 @@ async function safeDelete(client, label, path, body) {
 }
 
 async function run(options) {
-  const client = new Client(options.baseUrl);
+  const client = new Client(options.baseUrl, { insecureTls: options.insecureTls });
   const stamp = Date.now();
   const endpointName = `inspector_${stamp}`;
   const basicUsername = `inspector_basic_${stamp}`;
@@ -237,6 +243,7 @@ async function run(options) {
   };
   const diagnostics = [];
   addDiagnostic(diagnostics, "target", options.baseUrl);
+  addDiagnostic(diagnostics, "tls verification", options.insecureTls ? "self-signed allowed" : "default");
 
   try {
     logStep("Health and operator config");

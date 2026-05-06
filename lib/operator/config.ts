@@ -22,6 +22,7 @@ type ConfigClient = Pick<
 >;
 
 export type BaseUrlSource = "app_base_url" | "database" | "forwarded_headers" | "host" | "local_fallback";
+export type TlsRuntimeMode = "http_or_proxy" | "app_https";
 
 export class OperatorConfigAuthorizationError extends Error {
   constructor() {
@@ -57,6 +58,24 @@ export function normalizeBaseUrl(value: string) {
   parsed.search = "";
   parsed.pathname = parsed.pathname.replace(/\/+$/, "");
   return parsed.toString().replace(/\/+$/, "");
+}
+
+export function getTlsRuntimeConfig() {
+  const certFileConfigured = Boolean(process.env.TLS_CERT_FILE);
+  const keyFileConfigured = Boolean(process.env.TLS_KEY_FILE);
+  const caFileConfigured = Boolean(process.env.TLS_CA_FILE);
+  const enabled = certFileConfigured && keyFileConfigured;
+
+  return {
+    enabled,
+    mode: enabled ? ("app_https" as TlsRuntimeMode) : ("http_or_proxy" as TlsRuntimeMode),
+    recommendedPublicMode: "nginx_tls_termination",
+    certFileConfigured,
+    keyFileConfigured,
+    caFileConfigured,
+    command: "TLS_CERT_FILE=certs/localhost-cert.pem TLS_KEY_FILE=certs/localhost-key.pem PORT=3443 npm run start:tls",
+    loggedCommand: "TLS_CERT_FILE=certs/localhost-cert.pem TLS_KEY_FILE=certs/localhost-key.pem PORT=3443 npm run start:logged",
+  };
 }
 
 async function recordBaseUrlAuditEvent(
@@ -170,8 +189,10 @@ export async function getOperatorHealth(client: ConfigClient = createPrismaClien
 export async function getPublicOperatorConfig(request?: Request, client: ConfigClient = createPrismaClient()) {
   const [baseUrl, health] = await Promise.all([resolveBaseUrl(request, client), getOperatorHealth(client)]);
   const urls = oauthDiscoveryUrls(baseUrl.baseUrl);
+  const tls = getTlsRuntimeConfig();
   return {
     baseUrl,
+    tls,
     health,
     publicAdminWarning: "The admin UI and mutation APIs are public. Do not store sensitive customer data here.",
     routes: {
@@ -219,6 +240,13 @@ export async function getPublicOperatorConfig(request?: Request, client: ConfigC
         command: "LOG_LEVEL=info npm run start:logged",
         levels: ["trace", "debug", "info", "warn", "error"],
         directory: "logs/",
+      },
+      tls: {
+        devCertCommand: "npm run cert:dev",
+        command: tls.command,
+        loggedCommand: tls.loggedCommand,
+        smokeCommand: "npm run start:tls:smoke",
+        inspectorCommand: "npm run inspector:mock -- --base-url https://127.0.0.1:3443 --insecure-tls",
       },
     },
   };

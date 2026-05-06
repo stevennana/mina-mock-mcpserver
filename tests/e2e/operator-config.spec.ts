@@ -123,9 +123,20 @@ test("operator config health, base URL override, connection guide, and logs guid
   await expect(page.getByRole("link", { name: "Open Inspector" })).toBeVisible();
   await expect(page.getByText("LOG_LEVEL=info npm run start:logged")).toBeVisible();
   await expect(page.getByText("trace, debug, info, warn, error")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "TLS for local tests" })).toBeVisible();
+  await expect(page.getByText("Nginx TLS termination is still recommended for public deployments.")).toBeVisible();
+  await expect(page.getByText("HTTP or proxy TLS")).toBeVisible();
+  await expect(page.getByText("npm run cert:dev")).toBeVisible();
+  await expect(page.getByText("TLS_CERT_FILE=certs/localhost-cert.pem TLS_KEY_FILE=certs/localhost-key.pem PORT=3443 npm run start:tls")).toBeVisible();
+  await expect(page.getByText("npm run start:tls:smoke")).toBeVisible();
+  await expect(page.getByText("npm run inspector:mock -- --base-url https://127.0.0.1:3443 --insecure-tls")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Copy: npm run start:tls:smoke" })).toBeVisible();
 
   await page.getByRole("link", { name: "Open Inspector" }).click();
   await expect(page.getByRole("heading", { name: "Inspector", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "HTTPS self-signed local flow" })).toBeVisible();
+  await expect(page.getByText("npm run start:tls:smoke")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Copy: npm run inspector:mock -- --base-url https://127.0.0.1:3443 --insecure-tls" })).toBeVisible();
   await expect(page.getByLabel("MCP client config example")).toContainText("mcp-mock-oauth");
   await expect(page.getByLabel("REST and OAuth curl examples")).toContainText("curl https://operator.example/rest/tools");
   await page.goto("/config");
