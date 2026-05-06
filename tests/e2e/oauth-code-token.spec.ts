@@ -12,9 +12,10 @@ function decodeJwt(token: string) {
 test("OAuth authorization code exchanges once for endpoint-permission JWT @oauth-code-token", async ({
   page,
   request,
-}) => {
+}, testInfo) => {
+  const baseURL = testInfo.project.use.baseURL as string;
   const clientId = `token-client-${Date.now()}`;
-  const redirectUri = "http://127.0.0.1:3100/oauth/callback";
+  const redirectUri = new URL("/oauth/callback", baseURL).toString();
   const createResponse = await request.post("/api/oauth-clients", {
     data: {
       clientId,
@@ -66,7 +67,7 @@ test("OAuth authorization code exchanges once for endpoint-permission JWT @oauth
   expect(tokenPayload.access_token).toMatch(/^eyJ/);
 
   const claims = decodeJwt(tokenPayload.access_token);
-  expect(claims.iss).toMatch(/^http:\/\/(127\.0\.0\.1|localhost):3100$/);
+  expect(claims.iss).toBe(baseURL);
   expect(claims.aud).toBe("https://resource.example/token-e2e");
   expect(claims.resource).toBe("https://resource.example/token-e2e");
   expect(claims.client_id).toBe(clientId);

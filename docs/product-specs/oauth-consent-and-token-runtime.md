@@ -19,6 +19,7 @@ OAuth users and clients management
 - mock login verifies enabled OAuth users and carries the request to consent with a short-lived signed login ticket
 - consent displays client, redirect URI, resource, user, authorization-code TTL, and an endpoint permission checklist constrained to the client's allowed endpoint set
 - approving consent creates a single-use-ready authorization code bound to client, redirect URI, user, selected endpoints, resource/audience, state, expiry, and unused status, then redirects with `code` and `state`
+- local callback redirects may land on an unavailable test callback host; this is acceptable for manual mock testing as long as the redirect URL contains the authorization `code` and `state`
 - Token issuance
 - `/oauth/token` supports the `authorization_code` grant with form-encoded `grant_type`, `code`, `redirect_uri`, `client_id`, and `client_secret`
 - valid code exchange marks the code used, returns `access_token`, `token_type`, `expires_in`, and `scope`, and stores issued token metadata by JWT `jti`
@@ -35,6 +36,8 @@ OAuth users and clients management
 - `/.well-known/oauth-protected-resource`, `/.well-known/oauth-authorization-server`, `/.well-known/openid-configuration`, and `/oauth/jwks` expose the mock server's implemented OAuth capabilities only
 - Discovery advertises authorization code and client credentials grants, `code` response type, `client_secret_post` token authentication, endpoint scope format, token endpoint, authorization endpoint, and JWKS URI
 - Discovery must not advertise refresh tokens, PKCE, external identity providers, revocation, or OAuth-protected MCP route URLs until those behaviors are implemented
+- Future PKCE support must implement authorization request validation, code challenge storage, token-time verifier checks, `S256` tests, and discovery updates in the same change; discovery must continue to report an empty `code_challenge_methods_supported` array until then
+- Future resource strict mode must be opt-in at first and must prove authorization-code, client-credentials, JWT audience, Bearer validation, and user-facing docs against explicit resource/audience mismatches
 - `/oauth/jwks` exposes only the public RS256 verification key matching issued token `kid` and never private signing material
 
 ## Validation
@@ -52,3 +55,4 @@ OAuth users and clients management
 - 401 versus 403 mapping
 - Issued-token management must distinguish active, expired, and revoked rows while retaining historical metadata for debugging
 - Authorization-code browser flow selects endpoint permissions, exchanges code for token, calls /mcp/oauth successfully for allowed endpoint, receives 403 for denied endpoint, revokes token and receives 401
+- User-facing docs explain that an unavailable local callback page can still be a successful mock authorization result when the redirect URL contains a code

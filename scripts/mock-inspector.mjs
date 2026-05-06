@@ -58,6 +58,25 @@ function pass(message) {
   console.log(`OK ${message}`);
 }
 
+function addDiagnostic(diagnostics, check, value) {
+  diagnostics.push({ check, value: String(value) });
+}
+
+function printDiagnostics(diagnostics) {
+  const checkWidth = Math.max("Check".length, ...diagnostics.map((item) => item.check.length));
+  const valueWidth = Math.max("Evidence".length, ...diagnostics.map((item) => item.value.length));
+  const line = `+-${"-".repeat(checkWidth)}-+-${"-".repeat(valueWidth)}-+`;
+
+  console.log("\n== Protocol diagnostics");
+  console.log(line);
+  console.log(`| ${"Check".padEnd(checkWidth)} | ${"Evidence".padEnd(valueWidth)} |`);
+  console.log(line);
+  for (const item of diagnostics) {
+    console.log(`| ${item.check.padEnd(checkWidth)} | ${item.value.padEnd(valueWidth)} |`);
+  }
+  console.log(line);
+}
+
 function decodeJwt(token) {
   const [, payload] = token.split(".");
   if (!payload) throw new Error("Access token is not a JWT.");
@@ -208,6 +227,7 @@ async function run(options) {
   const oauthUsername = `inspector_oauth_${stamp}`;
   const oauthPassword = "inspector-oauth-secret";
   const clientId = `inspector-client-${stamp}`;
+  const protectedResourceMetadataUrl = `${options.baseUrl}/.well-known/oauth-protected-resource`;
   const cleanup = {
     endpointId: "",
     basicUserId: "",
@@ -215,6 +235,8 @@ async function run(options) {
     oauthClientId: "",
     revokedTokenJti: "",
   };
+  const diagnostics = [];
+  addDiagnostic(diagnostics, "target", options.baseUrl);
 
   try {
     logStep("Health and operator config");
@@ -226,13 +248,31 @@ async function run(options) {
     const config = await client.request("/api/config");
     assertStatus(config, 200, "Operator config");
     assert(isRecord(config.body.routes?.mcp), "Operator config must expose MCP routes.");
+    addDiagnostic(diagnostics, "health", health.body.status);
+    addDiagnostic(diagnostics, "mcp route", config.body.routes.mcp.noAuth ?? "/mcp/none");
     pass("operator config exposes route map");
 
     const discovery = await client.request("/.well-known/oauth-authorization-server");
     assertStatus(discovery, 200, "OAuth authorization metadata");
+    assert(discovery.body.issuer === options.baseUrl, "OAuth issuer must match inspector base URL.");
+    assert(discovery.body.token_endpoint === `${options.baseUrl}/oauth/token`, "OAuth token endpoint must match base URL.");
+    assert(Array.isArray(discovery.body.code_challenge_methods_supported), "OAuth discovery must report PKCE support state.");
+    assert(discovery.body.code_challenge_methods_supported.length === 0, "OAuth discovery must not advertise PKCE before it is implemented.");
+    addDiagnostic(diagnostics, "oauth issuer", discovery.body.issuer);
+    addDiagnostic(diagnostics, "pkce advertised", discovery.body.code_challenge_methods_supported.length ? "yes" : "no");
+
+    const protectedResource = await client.request("/.well-known/oauth-protected-resource");
+    assertStatus(protectedResource, 200, "OAuth protected-resource metadata");
+    assert(
+      protectedResource.body.authorization_servers?.includes(`${options.baseUrl}/.well-known/oauth-authorization-server`),
+      "Protected-resource metadata must link to authorization-server metadata.",
+    );
+    addDiagnostic(diagnostics, "protected resource", protectedResource.body.resource);
+
     const jwks = await client.request("/oauth/jwks");
     assertStatus(jwks, 200, "OAuth JWKS");
     assert(Array.isArray(jwks.body.keys), "JWKS must contain keys.");
+    addDiagnostic(diagnostics, "jwks keys", jwks.body.keys.length);
     pass("OAuth discovery and JWKS respond");
 
     logStep("Endpoint, REST, and MCP runtime");
@@ -264,6 +304,55 @@ async function run(options) {
     assertStatus(restForcedError, 503, "REST forced error");
     assert(restForcedError.body.error === "inspector_forced_error", "REST forced error body mismatch.");
     pass("REST list, call, and forced error work");
+
+    const mcpInitialize = await mcp(client, "/mcp/none", {
+      jsonrpc: "2.0",
+      id: "initialize",
+      method: "initialize",
+      params: {
+        protocolVersion: "2025-06-18",
+        capabilities: {},
+        clientInfo: { name: "mina-mock-local-inspector", version: "1.0.0" },
+      },
+    });
+    assertStatus(mcpInitialize, 200, "MCP initialize");
+    assert(mcpInitialize.body.result.protocolVersion === "2025-06-18", "MCP initialize must negotiate 2025-06-18.");
+    assert(
+      mcpInitialize.response.headers.get("mcp-protocol-version") === "2025-06-18",
+      "MCP response must include MCP-Protocol-Version.",
+    );
+    addDiagnostic(diagnostics, "mcp negotiated", mcpInitialize.body.result.protocolVersion);
+    addDiagnostic(diagnostics, "mcp response header", mcpInitialize.response.headers.get("mcp-protocol-version"));
+
+    const unsupportedMcpVersion = await client.json(
+      "POST",
+      "/mcp/none",
+      { jsonrpc: "2.0", id: "bad-version", method: "tools/list" },
+      {
+        Accept: "application/json, text/event-stream",
+        "MCP-Protocol-Version": "1900-01-01",
+      },
+    );
+    assertStatus(unsupportedMcpVersion, 400, "Unsupported MCP protocol version");
+    assert(
+      unsupportedMcpVersion.body.error?.message === "Unsupported MCP protocol version.",
+      "Unsupported MCP protocol version must return deterministic JSON-RPC error.",
+    );
+    addDiagnostic(diagnostics, "bad mcp version", "400");
+
+    const foreignOrigin = await client.json(
+      "POST",
+      "/mcp/none",
+      { jsonrpc: "2.0", id: "bad-origin", method: "tools/list" },
+      {
+        Accept: "application/json, text/event-stream",
+        "MCP-Protocol-Version": "2025-06-18",
+        Origin: "https://invalid.example",
+      },
+    );
+    assertStatus(foreignOrigin, 403, "Foreign Origin rejection");
+    assert(foreignOrigin.body.error === "forbidden_origin", "Foreign Origin must be rejected before MCP execution.");
+    addDiagnostic(diagnostics, "foreign origin", "403");
 
     const mcpList = await mcp(client, "/mcp/none", { jsonrpc: "2.0", id: 1, method: "tools/list" });
     assertStatus(mcpList, 200, "MCP tools/list");
@@ -313,6 +402,16 @@ async function run(options) {
     pass("Basic user create, runtime auth, disable, and rejection work");
 
     logStep("OAuth users, clients, Bearer permissions, tokens, and revocation");
+    const missingBearer = await mcp(client, "/mcp/oauth", { jsonrpc: "2.0", id: "missing-bearer", method: "tools/list" });
+    assertStatus(missingBearer, 401, "Strict OAuth missing Bearer challenge");
+    const missingBearerChallenge = missingBearer.response.headers.get("www-authenticate") ?? "";
+    assert(missingBearerChallenge.includes("Bearer"), "Strict OAuth 401 must include Bearer challenge.");
+    assert(
+      missingBearerChallenge.includes(`resource_metadata="${protectedResourceMetadataUrl}"`),
+      "Strict OAuth 401 must point to protected-resource metadata.",
+    );
+    addDiagnostic(diagnostics, "bearer challenge", "resource_metadata");
+
     const oauthUserCreate = await client.json("POST", "/api/oauth-users", {
       username: oauthUsername,
       password: oauthPassword,
@@ -352,6 +451,9 @@ async function run(options) {
     const claims = decodeJwt(token.body.access_token);
     cleanup.revokedTokenJti = claims.jti;
     assert(claims.endpoint_permissions.includes(endpoint.id), "OAuth token must include endpoint permission.");
+    assert(claims.aud === options.baseUrl, "OAuth token audience must match requested resource.");
+    addDiagnostic(diagnostics, "jwt audience", claims.aud);
+    addDiagnostic(diagnostics, "jwt permissions", claims.endpoint_permissions.length);
 
     const tokenList = await client.request("/api/oauth/tokens");
     assertStatus(tokenList, 200, "Issued token list");
@@ -373,11 +475,19 @@ async function run(options) {
 
     const oauthRestDenied = await client.json("POST", "/rest/tools/echo/call", { arguments: { message: "hello" } }, bearerHeader);
     assertStatus(oauthRestDenied, 403, "OAuth REST denied call");
+    addDiagnostic(diagnostics, "oauth denied call", "403");
 
     const revoke = await client.request(`/api/oauth/tokens/${claims.jti}/revoke`, { method: "POST" });
     assertStatus(revoke, 200, "Token revocation");
     const revokedCall = await client.request("/rest/tools", { headers: bearerHeader });
     assertStatus(revokedCall, 401, "Revoked token rejection");
+    const revokedChallenge = revokedCall.response.headers.get("www-authenticate") ?? "";
+    assert(revokedChallenge.includes('error="invalid_token"'), "Revoked token challenge must include invalid_token.");
+    assert(
+      revokedChallenge.includes(`resource_metadata="${protectedResourceMetadataUrl}"`),
+      "Revoked token challenge must point to protected-resource metadata.",
+    );
+    addDiagnostic(diagnostics, "revoked token", "401 invalid_token");
     pass("OAuth user/client/token, permission filtering, denial, and revocation work");
 
     logStep("Audit and reset guard");
@@ -408,6 +518,8 @@ async function run(options) {
       pass("root reset restored defaults");
     }
 
+    addDiagnostic(diagnostics, "cleanup mode", options.includeReset ? "root reset" : "delete temporary records");
+    printDiagnostics(diagnostics);
     console.log("\nInspector completed successfully.");
   } finally {
     if (!options.includeReset) {

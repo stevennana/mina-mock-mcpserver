@@ -40,6 +40,7 @@ It connects to `http://127.0.0.1:3100` by default and verifies:
 
 - health and public operator config
 - OAuth discovery metadata and JWKS
+- protocol diagnostics for target URL, OAuth discovery linkage, MCP version negotiation, MCP protocol-version rejection, Origin rejection, Bearer challenge metadata, JWT audience, permission filtering, denial, revocation, and cleanup mode
 - endpoint create/detail/update/delete
 - REST tool list, exact-match call, and forced-error call
 - no-auth MCP `tools/list` and `tools/call`
@@ -49,6 +50,8 @@ It connects to `http://127.0.0.1:3100` by default and verifies:
 - Bearer permission filtering, allowed call, denied call, issued-token listing, revocation, and revoked-token rejection
 - audit evidence for inspector-created activity
 - root reset denial for invalid credentials
+
+At the end of a successful run, the local inspector prints a compact diagnostics report. Treat this report as the user-facing proof that the target is speaking standard-facing MCP/OAuth behavior rather than only passing project-internal happy paths.
 
 Use a different target with:
 
@@ -63,6 +66,17 @@ ROOT_PASSWORD='change-this' npm run inspector:mock -- --include-reset
 ```
 
 The local inspector creates temporary endpoint, user, client, and token records, then removes the mutable records before exiting. Audit and token history may remain as non-secret evidence, matching the product's audit behavior.
+
+## Interoperability Roadmap
+
+The current v1 mock server intentionally focuses on tools over Streamable HTTP `POST`, Basic Auth, and mock OAuth Bearer permissions. The next compatibility updates should land in this order:
+
+1. Strengthen the local inspector diagnostics report and keep it aligned with MCP/OAuth runtime behavior.
+2. Add a UI-based end-to-end verification guide that mirrors the local inspector flow with copyable commands and visible pass/fail evidence.
+3. Add an opt-in OAuth resource strict mode so clients can verify audience/resource mismatches before integrating with production services.
+4. Add OAuth PKCE `S256` support and advertise it only after authorization-code storage, token exchange, tests, and docs all support it.
+5. Add Docker/Nginx discovery smoke coverage for forwarded host/proto, `APP_BASE_URL`, OAuth metadata, and Bearer `resource_metadata` correctness behind a proxy.
+6. Treat MCP sessions, GET SSE streams, and DELETE session termination as a separate Phase 2 transport feature, not a small extension of the current stateless `POST` runtime.
 
 ## Local Setup
 

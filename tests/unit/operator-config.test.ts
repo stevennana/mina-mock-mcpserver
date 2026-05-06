@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
-import { mkdtemp } from "node:fs/promises";
+import { mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
@@ -23,7 +23,9 @@ async function withIsolatedDb(fn: (client: ReturnType<typeof createPrismaClient>
   const previousDatabaseUrl = process.env.DATABASE_URL;
   const previousAppBaseUrl = process.env.APP_BASE_URL;
   const previousRootPassword = process.env.ROOT_PASSWORD;
-  process.env.DATABASE_URL = `file:${join(directory, "runtime.sqlite")}`;
+  const databasePath = join(directory, "runtime.sqlite");
+  await writeFile(databasePath, "", { flag: "a" });
+  process.env.DATABASE_URL = `file:${databasePath}`;
   process.env.ROOT_PASSWORD = "unit-root-password";
   delete process.env.APP_BASE_URL;
 

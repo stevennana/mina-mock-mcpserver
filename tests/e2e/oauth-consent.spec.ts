@@ -6,9 +6,10 @@ test.setTimeout(60_000);
 test("OAuth authorization login and consent creates an endpoint-bound code @oauth-consent", async ({
   page,
   request,
-}) => {
+}, testInfo) => {
+  const baseURL = testInfo.project.use.baseURL as string;
   const clientId = `consent-client-${Date.now()}`;
-  const redirectUri = "http://127.0.0.1:3100/oauth/callback";
+  const redirectUri = new URL("/oauth/callback", baseURL).toString();
   const createResponse = await request.post("/api/oauth-clients", {
     data: {
       clientId,
@@ -78,12 +79,13 @@ test("OAuth authorization login and consent creates an endpoint-bound code @oaut
   expect(deleteResponse.status()).toBe(200);
 });
 
-test("OAuth authorize and login invalid paths fail deterministically @oauth-consent", async ({ page }) => {
+test("OAuth authorize and login invalid paths fail deterministically @oauth-consent", async ({ page }, testInfo) => {
+  const baseURL = testInfo.project.use.baseURL as string;
   await page.goto(
     `/oauth/authorize?${new URLSearchParams({
       response_type: "code",
       client_id: "missing-client",
-      redirect_uri: "http://127.0.0.1:3100/oauth/callback",
+      redirect_uri: new URL("/oauth/callback", baseURL).toString(),
     }).toString()}`,
   );
   await expect(page.getByRole("heading", { name: "Authorization request failed" })).toBeVisible();
@@ -93,7 +95,7 @@ test("OAuth authorize and login invalid paths fail deterministically @oauth-cons
     `/oauth/authorize?${new URLSearchParams({
       response_type: "code",
       client_id: "default",
-      redirect_uri: "http://127.0.0.1:3100/unregistered",
+      redirect_uri: new URL("/unregistered", baseURL).toString(),
     }).toString()}`,
   );
   await expect(page.getByRole("heading", { name: "Authorization request failed" })).toBeVisible();

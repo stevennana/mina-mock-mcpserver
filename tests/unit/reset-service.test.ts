@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtemp } from "node:fs/promises";
+import { mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
@@ -13,7 +13,9 @@ async function withIsolatedDb(fn: (client: ReturnType<typeof createPrismaClient>
   const directory = await mkdtemp(join(tmpdir(), "mcp-mock-reset-"));
   const previousDatabaseUrl = process.env.DATABASE_URL;
   const previousRootPassword = process.env.ROOT_PASSWORD;
-  process.env.DATABASE_URL = `file:${join(directory, "runtime.sqlite")}`;
+  const databasePath = join(directory, "runtime.sqlite");
+  await writeFile(databasePath, "", { flag: "a" });
+  process.env.DATABASE_URL = `file:${databasePath}`;
   process.env.ROOT_PASSWORD = "unit-root-password";
 
   const { execFile } = await import("node:child_process");

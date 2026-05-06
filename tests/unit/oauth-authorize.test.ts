@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
-import { mkdtemp } from "node:fs/promises";
+import { mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
@@ -23,7 +23,9 @@ const execFileAsync = promisify(execFile);
 async function withIsolatedDb(fn: (client: ReturnType<typeof createPrismaClient>) => Promise<void>) {
   const directory = await mkdtemp(join(tmpdir(), "mcp-mock-oauth-authorize-"));
   const previousDatabaseUrl = process.env.DATABASE_URL;
-  process.env.DATABASE_URL = `file:${join(directory, "runtime.sqlite")}`;
+  const databasePath = join(directory, "runtime.sqlite");
+  await writeFile(databasePath, "", { flag: "a" });
+  process.env.DATABASE_URL = `file:${databasePath}`;
 
   await execFileAsync("npx", ["prisma", "migrate", "deploy"], { env: { ...process.env } });
 

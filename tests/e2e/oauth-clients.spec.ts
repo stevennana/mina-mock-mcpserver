@@ -5,7 +5,8 @@ test.setTimeout(60_000);
 test("OAuth clients management UI protects default, shows secrets once, and persists allowed endpoints @ui-oauth-clients", async ({
   page,
   request,
-}) => {
+}, testInfo) => {
+  const baseURL = testInfo.project.use.baseURL as string;
   const clientId = `ui-client-${Date.now()}`;
 
   await page.goto("/oauth-clients");
@@ -45,7 +46,7 @@ test("OAuth clients management UI protects default, shows secrets once, and pers
 
   await page.getByLabel("Client ID").fill(clientId);
   await page.getByLabel("Display name").fill("UI OAuth Client");
-  await page.getByLabel("Redirect URIs").fill("http://localhost:3000/oauth/callback\nhttp://127.0.0.1:3100/callback");
+  await page.getByLabel("Redirect URIs").fill(`http://localhost:3000/oauth/callback\n${new URL("/callback", baseURL).toString()}`);
   await page.getByLabel("Client credentials TTL").selectOption("900");
   await page.getByLabel(/echo/).check();
   await page.getByRole("button", { name: "Save" }).click();

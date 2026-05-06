@@ -54,6 +54,7 @@ Use it when you need a repeatable test target for MCP clients, agent integration
    ```
 
 The local development server uses port `3100`. Docker Compose exposes port `3000`.
+`npm run db:prepare` is idempotent: it creates missing seed defaults but does not delete existing local endpoints, clients, tokens, or audit events. Use reset when you want a clean seeded runtime.
 
 ## Verify Everything Locally
 
@@ -64,6 +65,7 @@ npm run inspector:mock
 ```
 
 The inspector connects to `http://127.0.0.1:3100`, creates temporary test data, exercises the public runtime paths, and removes mutable test records before it exits.
+It also prints a final protocol diagnostics report so users can confirm the target URL, OAuth discovery linkage, MCP protocol negotiation, Bearer challenge metadata, JWT audience, permission filtering, denial, revocation, and cleanup mode in one place.
 
 It verifies:
 
@@ -77,6 +79,8 @@ It verifies:
 Expected ending:
 
 ```text
+== Protocol diagnostics
+...
 Inspector completed successfully.
 ```
 
@@ -107,6 +111,7 @@ After `npm run db:prepare`, the app creates:
 - Default OAuth redirect URI: `http://localhost:3000/oauth/callback`
 
 The built-in Basic user, OAuth user, OAuth client, and default endpoint are protected from normal destructive changes.
+If your local database already contains previous test records, they will remain after `db:prepare`. For a clean manual demo, use the reset flow below with `ROOT_PASSWORD` set, or remove the local SQLite file before preparing state.
 
 ## Step 1: Create Or Edit A Mock Tool
 
@@ -226,7 +231,7 @@ For browser authorization-code flow:
 
 4. Log in with `default` / `default`.
 5. Select endpoint permissions on the consent page.
-6. Copy the `code` from the redirect URL.
+6. Copy the `code` from the redirect URL. The default redirect URI points to `http://localhost:3000/oauth/callback`; if nothing is listening there, your browser may show a "site can't be reached" page. That is expected for this mock flow. Copy the `code` query parameter from that failed callback URL.
 7. Exchange the code for a token:
 
    ```bash
@@ -379,6 +384,13 @@ npm run build
 npm run test:unit
 npm run test:e2e
 npm run start:smoke
+```
+
+`npm run test:e2e` starts its own isolated Playwright server on `http://127.0.0.1:3101` with `data/e2e-runtime.sqlite`, so it can run while your manual `npm run dev` server remains on `http://127.0.0.1:3100`.
+Set a different E2E port only if `3101` is already in use:
+
+```bash
+E2E_PORT=3111 npm run test:e2e
 ```
 
 ## Public Admin Warning

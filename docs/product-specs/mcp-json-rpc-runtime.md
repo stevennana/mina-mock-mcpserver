@@ -36,6 +36,7 @@ MCP connection guide examples
 - Response-case tool errors return MCP `tools/call` results with `isError: true`; endpoint-level or response-case protocol errors return JSON-RPC `-32000` errors with `protocol_error` data.
 - Unsupported JSON-RPC methods return `-32601` with HTTP `200`.
 - `GET` and `DELETE` on the MVP MCP endpoints return deterministic `405 Method Not Allowed` responses with `Allow: POST`.
+- Future MCP sessions, GET SSE streams, resumability, and DELETE session termination must be designed and tested as a separate transport feature. The server must not advertise session or SSE capabilities before those runtime paths exist.
 
 ## Validation
 - JSON-RPC parsing/formatting
