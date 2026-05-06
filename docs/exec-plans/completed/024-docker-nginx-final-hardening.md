@@ -5,7 +5,7 @@
   "id": "docker-nginx-final-hardening",
   "title": "Docker, Nginx, Final Docs, and Queue Completion Hardening",
   "order": 24,
-  "status": "active",
+  "status": "completed",
   "next_task_on_success": null,
   "prompt_docs": [
     "AGENTS.md",
@@ -32,7 +32,8 @@
     "Required checks do not prove the claimed behavior.",
     "Implementation changes contradict the product spec or security/reliability docs."
   ],
-  "promotion_mode": "deterministic"
+  "promotion_mode": "deterministic",
+  "completed_at": "2026-05-05T14:34:27.875Z"
 }
 ```
 
@@ -120,3 +121,4 @@ Confirm that this task maps to the primary product spec `operator-configuration.
 - 2026-05-05T14:10:35.380Z: restored as current task after operator-config-health-logs promotion.
 - 2026-05-05T14:13:08Z: found no existing Docker/Nginx artifacts; added Dockerfile, docker-compose, Nginx example, operator handoff doc, and reconciled quality/reliability/security/schema/debt docs without adding new product features.
 - 2026-05-05T14:26:10Z: reconciled evaluator-found route doc drift by adding `/mcp/oauth` to frontend/security route maps and replacing stale `/oauth/revoke` documentation with implemented `/api/oauth/tokens/[jti]/revoke`.
+- 2026-05-05T14:34:27.875Z: automatically promoted after deterministic checks and evaluator approval.

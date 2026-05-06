@@ -2,7 +2,7 @@
   "task_id": "docker-nginx-final-hardening",
   "started_at": "2026-05-05T23:25:06+09:00",
   "artifact_dir": "state/artifacts/20260505T232506-docker-nginx-final-hardening",
-  "phase": "commit",
-  "status": "running",
-  "updated_at": "2026-05-05T14:34:27.700Z"
+  "phase": "finished",
+  "status": "finished",
+  "updated_at": "2026-05-05T14:34:27.961Z"
 }
