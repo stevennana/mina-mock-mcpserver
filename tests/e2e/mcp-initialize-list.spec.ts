@@ -71,6 +71,10 @@ test("no-auth MCP initialize, initialized notification, and tools/list use enabl
   expect(disabledCreate.status()).toBe(201);
 
   const initialize = await request.post("/mcp", {
+    headers: {
+      Accept: "application/json, text/event-stream",
+      "MCP-Protocol-Version": "2025-06-18",
+    },
     data: {
       jsonrpc: "2.0",
       id: 1,
@@ -84,6 +88,7 @@ test("no-auth MCP initialize, initialized notification, and tools/list use enabl
   });
   expect(initialize.status()).toBe(200);
   expect(initialize.headers()["content-type"]).toMatch(/application\/json/);
+  expect(initialize.headers()["mcp-protocol-version"]).toBe("2025-06-18");
   expect(initialize.headers()["mcp-session-id"]).toBeUndefined();
   expect(await initialize.json()).toEqual({
     jsonrpc: "2.0",
@@ -96,6 +101,10 @@ test("no-auth MCP initialize, initialized notification, and tools/list use enabl
   });
 
   const initialized = await request.post("/mcp/none", {
+    headers: {
+      Accept: "application/json, text/event-stream",
+      "MCP-Protocol-Version": "2025-06-18",
+    },
     data: {
       jsonrpc: "2.0",
       method: "notifications/initialized",
@@ -105,6 +114,10 @@ test("no-auth MCP initialize, initialized notification, and tools/list use enabl
   expect(await initialized.text()).toBe("");
 
   const listResponse = await request.post("/mcp/none", {
+    headers: {
+      Accept: "application/json, text/event-stream",
+      "MCP-Protocol-Version": "2025-06-18",
+    },
     data: {
       jsonrpc: "2.0",
       id: "tools-1",
@@ -145,4 +158,60 @@ test("no-auth MCP initialize, initialized notification, and tools/list use enabl
   const deleteResponse = await request.delete("/mcp");
   expect(deleteResponse.status()).toBe(405);
   expect(deleteResponse.headers().allow).toBe("POST");
+});
+
+test("MCP HTTP transport rejects unsupported protocol versions and foreign origins @mcp-http-hardening", async ({
+  baseURL,
+  request,
+}) => {
+  const unsupportedProtocol = await request.post("/mcp/none", {
+    headers: {
+      Accept: "application/json, text/event-stream",
+      "MCP-Protocol-Version": "1900-01-01",
+    },
+    data: {
+      jsonrpc: "2.0",
+      id: 1,
+      method: "tools/list",
+    },
+  });
+  expect(unsupportedProtocol.status()).toBe(400);
+  expect(unsupportedProtocol.headers()["mcp-protocol-version"]).toBe("2025-06-18");
+  expect(await unsupportedProtocol.json()).toMatchObject({
+    jsonrpc: "2.0",
+    id: null,
+    error: { code: -32600, message: "Unsupported MCP protocol version." },
+  });
+
+  const foreignOrigin = await request.post("/mcp/none", {
+    headers: {
+      Accept: "application/json, text/event-stream",
+      "MCP-Protocol-Version": "2025-06-18",
+      Origin: "https://evil.example",
+    },
+    data: {
+      jsonrpc: "2.0",
+      id: 2,
+      method: "tools/list",
+    },
+  });
+  expect(foreignOrigin.status()).toBe(403);
+  expect(await foreignOrigin.json()).toEqual({
+    error: "forbidden_origin",
+    message: "Origin is not allowed for this MCP endpoint.",
+  });
+
+  const allowedOrigin = await request.post("/mcp/none", {
+    headers: {
+      Accept: "application/json, text/event-stream",
+      "MCP-Protocol-Version": "2025-06-18",
+      Origin: new URL(baseURL ?? "http://127.0.0.1:3100").origin,
+    },
+    data: {
+      jsonrpc: "2.0",
+      id: 3,
+      method: "tools/list",
+    },
+  });
+  expect(allowedOrigin.status()).toBe(200);
 });

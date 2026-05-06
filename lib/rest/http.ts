@@ -7,6 +7,8 @@ import {
   listEnabledRestTools,
   resolvePermittedEndpointByName,
 } from "@/lib/endpoints/service";
+import { oauthDiscoveryUrls } from "@/lib/oauth/discovery";
+import { resolveBaseUrl } from "@/lib/operator/config";
 import { restToolCallResponseFromEndpointCall } from "@/lib/rest/tools";
 import type { RestToolCallResponse } from "@/lib/rest/tools";
 
@@ -27,7 +29,19 @@ function unauthorizedRestResponse(message = "Authorization header was invalid.")
   );
 }
 
-function unauthorizedBearerRestResponse(message = "Authorization header was invalid.") {
+async function bearerChallenge(request: Request, error?: string) {
+  const { baseUrl } = await resolveBaseUrl(request);
+  const challenge = [
+    'Bearer realm="MCP Mock Server"',
+    `resource_metadata="${oauthDiscoveryUrls(baseUrl).protectedResourceMetadata}"`,
+  ];
+  if (error) {
+    challenge.push(`error="${error}"`);
+  }
+  return challenge.join(", ");
+}
+
+async function unauthorizedBearerRestResponse(request: Request, message = "Authorization header was invalid.", error?: string) {
   return NextResponse.json(
     {
       error: "unauthorized",
@@ -36,7 +50,7 @@ function unauthorizedBearerRestResponse(message = "Authorization header was inva
     {
       status: 401,
       headers: {
-        "WWW-Authenticate": 'Bearer realm="MCP Mock Server"',
+        "WWW-Authenticate": await bearerChallenge(request, error),
       },
     },
   );
@@ -47,7 +61,7 @@ export async function handleRestToolsGet(request: Request) {
   if (bearer.kind === "bearer" || bearer.kind === "invalid") {
     const resolution = await resolveOAuthBearerAuthorizationHeader(request.headers.get("Authorization"), request);
     if (resolution.kind !== "authenticated") {
-      return unauthorizedBearerRestResponse();
+      return unauthorizedBearerRestResponse(request, "Authorization header was invalid.", "invalid_token");
     }
     return NextResponse.json(await listEnabledRestTools(undefined, { endpointIds: resolution.principal.endpointIds }));
   }
@@ -102,7 +116,7 @@ export async function handleRestToolCallPost(request: Request, name: string) {
   if (bearer.kind === "bearer" || bearer.kind === "invalid") {
     const resolution = await resolveOAuthBearerAuthorizationHeader(request.headers.get("Authorization"), request);
     if (resolution.kind !== "authenticated") {
-      return unauthorizedBearerRestResponse();
+      return unauthorizedBearerRestResponse(request, "Authorization header was invalid.", "invalid_token");
     }
 
     const permission = await resolvePermittedEndpointByName(name, resolution.principal.endpointIds);

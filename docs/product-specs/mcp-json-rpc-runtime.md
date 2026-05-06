@@ -18,7 +18,11 @@ MCP connection guide examples
 - `/mcp` with a Bearer authorization header uses OAuth Bearer precedence; invalid, expired, revoked, wrong-issuer, or otherwise unverifiable Bearer tokens return HTTP `401` and never downgrade to no-auth or Basic.
 - `/mcp/basic` is a strict Basic route: missing, malformed, or invalid Basic credentials return HTTP `401` with `WWW-Authenticate`, while valid Basic credentials may list and call all enabled endpoint tools.
 - `/mcp/oauth` is a strict OAuth route: missing, malformed, invalid, expired, or revoked Bearer tokens return HTTP `401` with `WWW-Authenticate: Bearer`.
+- Bearer `401` challenges on MCP routes include `resource_metadata` pointing to `/.well-known/oauth-protected-resource` so standard clients can discover the mock authorization-server metadata before retrying with a token.
 - The MVP server supports JSON-RPC over Streamable HTTP `POST`; it does not assign MCP sessions or expose SSE streams.
+- MCP `POST` responses include the server protocol version header. Requests that provide an unsupported `MCP-Protocol-Version` header return HTTP `400` with a JSON-RPC invalid-request error; requests without that header remain accepted for compatibility with simple curl/Postman probes.
+- MCP `POST` requests with an `Origin` header must match the request origin or configured base URL origin. Foreign or malformed origins return HTTP `403` before JSON-RPC execution.
+- MCP clients should send `Accept: application/json, text/event-stream`; the MVP server is lenient and does not reject missing `Accept` headers because many manual test clients omit them.
 - `initialize` returns protocol version `2025-06-18` when requested, otherwise the newest MVP-supported version from `2025-06-18` and `2025-03-26`.
 - `initialize` advertises only the `tools` capability with `listChanged: false`; resources, prompts, logging, sampling, and SSE/session capabilities are not claimed.
 - `serverInfo` is `name: "mina-mock-mcpserver"` and `version: "1.0.0"`.

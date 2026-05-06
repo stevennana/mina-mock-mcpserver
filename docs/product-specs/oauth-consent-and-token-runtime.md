@@ -30,6 +30,7 @@ OAuth users and clients management
 - `/tokens` and `/api/oauth/tokens` list issued token metadata by stored `jti`, with filters for active, expired, revoked, subject, client, and grant type
 - token detail shows reconstructed JWT claims and `endpoint_permissions` endpoint metadata from stored records, but does not redisplay raw access token values after issuance
 - revoking an issued token sets `revokedAt` on the historical token record and subsequent Bearer runtime validation treats the token as invalid, returning `401`
+- Bearer-protected MCP and REST runtime `401` responses include a `WWW-Authenticate: Bearer` challenge with `resource_metadata` pointing to the protected-resource discovery document; invalid token cases also include `error="invalid_token"`
 - Discovery metadata
 - `/.well-known/oauth-protected-resource`, `/.well-known/oauth-authorization-server`, `/.well-known/openid-configuration`, and `/oauth/jwks` expose the mock server's implemented OAuth capabilities only
 - Discovery advertises authorization code and client credentials grants, `code` response type, `client_secret_post` token authentication, endpoint scope format, token endpoint, authorization endpoint, and JWKS URI

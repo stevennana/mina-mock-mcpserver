@@ -55,6 +55,45 @@ Use it when you need a repeatable test target for MCP clients, agent integration
 
 The local development server uses port `3100`. Docker Compose exposes port `3000`.
 
+## Verify Everything Locally
+
+After the server is running, use the project-specific local inspector to confirm that the Mock Server works from a user's machine:
+
+```bash
+npm run inspector:mock
+```
+
+The inspector connects to `http://127.0.0.1:3100`, creates temporary test data, exercises the public runtime paths, and removes mutable test records before it exits.
+
+It verifies:
+
+- health and public operator config
+- OAuth discovery metadata and JWKS
+- endpoint create, detail, update, REST call, MCP call, forced error, and cleanup
+- Basic Auth user creation, strict Basic MCP access, disable behavior, and cleanup
+- OAuth user/client creation, `client_credentials` token issuance, Bearer permission filtering, denied calls, token listing, revocation, and revoked-token rejection
+- audit evidence and reset denial for invalid root credentials
+
+Expected ending:
+
+```text
+Inspector completed successfully.
+```
+
+Use a different target when testing a production-style local server or container:
+
+```bash
+npm run inspector:mock -- --base-url http://127.0.0.1:3000
+```
+
+Root reset is destructive, so the inspector skips it by default. Only include it when you intentionally want to verify reset behavior:
+
+```bash
+ROOT_PASSWORD='change-this' npm run inspector:mock -- --include-reset
+```
+
+Audit entries and issued-token history may remain as non-secret evidence. Temporary endpoint, Basic user, OAuth user, and OAuth client records are cleaned up.
+
 ## Seed Defaults
 
 After `npm run db:prepare`, the app creates:
@@ -110,28 +149,6 @@ curl -u default:default http://127.0.0.1:3100/rest/tools
 
 ## Step 3: Call A Tool Through MCP
 
-### Full Local Mock Server Inspection
-
-Run the project-specific local inspector to verify the main Mock Server surfaces end to end:
-
-```bash
-npm run inspector:mock
-```
-
-It creates temporary local test records, exercises health, config, REST, MCP, Basic Auth, OAuth client credentials, token revocation, audit, and reset denial, then cleans up the mutable test records.
-
-Use a different server URL:
-
-```bash
-npm run inspector:mock -- --base-url http://127.0.0.1:3000
-```
-
-Root reset is destructive and skipped by default:
-
-```bash
-ROOT_PASSWORD='change-this' npm run inspector:mock -- --include-reset
-```
-
 ### With MCP Inspector
 
 Start the local server, then launch the upstream MCP Inspector against the no-auth MCP route:
@@ -160,6 +177,7 @@ Initialize the no-auth MCP route:
 ```bash
 curl -X POST http://127.0.0.1:3100/mcp/none \
   -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
   -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"curl","version":"1.0.0"}}}'
 ```
 
@@ -168,6 +186,8 @@ List MCP tools:
 ```bash
 curl -X POST http://127.0.0.1:3100/mcp/none \
   -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -H 'MCP-Protocol-Version: 2025-06-18' \
   -d '{"jsonrpc":"2.0","id":2,"method":"tools/list"}'
 ```
 
@@ -176,6 +196,8 @@ Call the seeded `echo` tool:
 ```bash
 curl -X POST http://127.0.0.1:3100/mcp/none \
   -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -H 'MCP-Protocol-Version: 2025-06-18' \
   -d '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"echo","arguments":{"message":"hello"}}}'
 ```
 
@@ -185,6 +207,8 @@ Use the strict Basic route:
 curl -X POST http://127.0.0.1:3100/mcp/basic \
   -u default:default \
   -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -H 'MCP-Protocol-Version: 2025-06-18' \
   -d '{"jsonrpc":"2.0","id":4,"method":"tools/list"}'
 ```
 
@@ -220,6 +244,8 @@ For browser authorization-code flow:
    ```bash
    curl -X POST http://127.0.0.1:3100/mcp/oauth \
      -H 'content-type: application/json' \
+     -H 'accept: application/json, text/event-stream' \
+     -H 'MCP-Protocol-Version: 2025-06-18' \
      -H 'authorization: Bearer PASTE_ACCESS_TOKEN_HERE' \
      -d '{"jsonrpc":"2.0","id":5,"method":"tools/list"}'
    ```

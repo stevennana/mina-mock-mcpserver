@@ -90,6 +90,7 @@ test("OAuth Bearer permissions filter MCP and REST and distinguish 401 from 403 
     });
     expect(strictMissing.status()).toBe(401);
     expect(strictMissing.headers()["www-authenticate"]).toContain("Bearer");
+    expect(strictMissing.headers()["www-authenticate"]).toContain("resource_metadata=");
 
     const invalidUnified = await request.post("/mcp", {
       headers: { Authorization: "Bearer invalid-token" },
@@ -97,6 +98,8 @@ test("OAuth Bearer permissions filter MCP and REST and distinguish 401 from 403 
     });
     expect(invalidUnified.status()).toBe(401);
     expect(invalidUnified.headers()["www-authenticate"]).toContain("Bearer");
+    expect(invalidUnified.headers()["www-authenticate"]).toContain("resource_metadata=");
+    expect(invalidUnified.headers()["www-authenticate"]).toContain('error="invalid_token"');
 
     const restList = await request.get("/rest/tools", { headers: { Authorization: bearer } });
     expect(restList.status()).toBe(200);
@@ -173,6 +176,8 @@ test("OAuth Bearer permissions filter MCP and REST and distinguish 401 from 403 
     });
     const revoked = await request.get("/rest/tools", { headers: { Authorization: bearer } });
     expect(revoked.status()).toBe(401);
+    expect(revoked.headers()["www-authenticate"]).toContain("resource_metadata=");
+    expect(revoked.headers()["www-authenticate"]).toContain('error="invalid_token"');
   } finally {
     await prisma.$disconnect();
   }

@@ -121,7 +121,11 @@ function assert(condition, message) {
 }
 
 async function mcp(client, path, message, headers = {}) {
-  return client.json("POST", path, message, headers);
+  return client.json("POST", path, message, {
+    Accept: "application/json, text/event-stream",
+    "MCP-Protocol-Version": "2025-06-18",
+    ...headers,
+  });
 }
 
 async function createEndpoint(client, name) {

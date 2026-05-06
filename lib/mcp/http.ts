@@ -3,8 +3,64 @@ import { resolveBasicAuthorizationHeader } from "@/lib/auth/basic";
 import { parseBearerAuthorizationHeader, resolveOAuthBearerAuthorizationHeader } from "@/lib/auth/oauth";
 import { callEndpointByName, callPermittedEndpointByName, listEnabledMcpTools } from "@/lib/endpoints/service";
 import { handleMcpJsonRpcMessage } from "@/lib/mcp/protocol";
+import { DEFAULT_MCP_PROTOCOL_VERSION, SUPPORTED_MCP_PROTOCOL_VERSIONS } from "@/lib/mcp/types";
+import { oauthDiscoveryUrls } from "@/lib/oauth/discovery";
+import { resolveBaseUrl } from "@/lib/operator/config";
 
 export const dynamic = "force-dynamic";
+
+function mcpResponseHeaders(headers: Record<string, string> = {}) {
+  return {
+    "MCP-Protocol-Version": DEFAULT_MCP_PROTOCOL_VERSION,
+    ...headers,
+  };
+}
+
+function isSupportedMcpProtocolVersion(value: string) {
+  return SUPPORTED_MCP_PROTOCOL_VERSIONS.includes(value as (typeof SUPPORTED_MCP_PROTOCOL_VERSIONS)[number]);
+}
+
+function originIsAllowed(origin: string | null, request: Request, baseUrl: string) {
+  if (!origin) {
+    return true;
+  }
+
+  try {
+    const originUrl = new URL(origin).origin;
+    const requestOrigin = new URL(request.url).origin;
+    const configuredOrigin = new URL(baseUrl).origin;
+    return originUrl === requestOrigin || originUrl === configuredOrigin;
+  } catch {
+    return false;
+  }
+}
+
+async function validateMcpHttpRequest(request: Request) {
+  const protocolVersion = request.headers.get("MCP-Protocol-Version");
+  if (protocolVersion && !isSupportedMcpProtocolVersion(protocolVersion)) {
+    return NextResponse.json(
+      {
+        jsonrpc: "2.0",
+        id: null,
+        error: { code: -32600, message: "Unsupported MCP protocol version." },
+      },
+      { status: 400, headers: mcpResponseHeaders() },
+    );
+  }
+
+  const { baseUrl } = await resolveBaseUrl(request);
+  if (!originIsAllowed(request.headers.get("Origin"), request, baseUrl)) {
+    return NextResponse.json(
+      {
+        error: "forbidden_origin",
+        message: "Origin is not allowed for this MCP endpoint.",
+      },
+      { status: 403, headers: mcpResponseHeaders() },
+    );
+  }
+
+  return null;
+}
 
 function unauthorizedBasicResponse(message = "Valid Basic credentials are required.") {
   return NextResponse.json(
@@ -14,14 +70,26 @@ function unauthorizedBasicResponse(message = "Valid Basic credentials are requir
     },
     {
       status: 401,
-      headers: {
+      headers: mcpResponseHeaders({
         "WWW-Authenticate": 'Basic realm="MCP Mock Server"',
-      },
+      }),
     },
   );
 }
 
-function unauthorizedBearerResponse(message = "Valid Bearer token is required.") {
+async function bearerChallenge(request: Request, error?: string) {
+  const { baseUrl } = await resolveBaseUrl(request);
+  const challenge = [
+    'Bearer realm="MCP Mock Server"',
+    `resource_metadata="${oauthDiscoveryUrls(baseUrl).protectedResourceMetadata}"`,
+  ];
+  if (error) {
+    challenge.push(`error="${error}"`);
+  }
+  return challenge.join(", ");
+}
+
+async function unauthorizedBearerResponse(request: Request, message = "Valid Bearer token is required.", error?: string) {
   return NextResponse.json(
     {
       error: "unauthorized",
@@ -29,9 +97,9 @@ function unauthorizedBearerResponse(message = "Valid Bearer token is required.")
     },
     {
       status: 401,
-      headers: {
-        "WWW-Authenticate": 'Bearer realm="MCP Mock Server"',
-      },
+      headers: mcpResponseHeaders({
+        "WWW-Authenticate": await bearerChallenge(request, error),
+      }),
     },
   );
 }
@@ -42,6 +110,11 @@ async function handleMcpJsonRpcPost(
     endpointIds?: string[];
   } = {},
 ) {
+  const invalidHttpRequest = await validateMcpHttpRequest(request);
+  if (invalidHttpRequest) {
+    return invalidHttpRequest;
+  }
+
   let body: unknown;
   try {
     body = await request.json();
@@ -52,7 +125,7 @@ async function handleMcpJsonRpcPost(
         id: null,
         error: { code: -32700, message: "Parse error" },
       },
-      { status: 400 },
+      { status: 400, headers: mcpResponseHeaders() },
     );
   }
 
@@ -64,19 +137,19 @@ async function handleMcpJsonRpcPost(
       : callEndpointByName,
   );
   if (result.kind === "accepted") {
-    return new Response(null, { status: 202 });
+    return new Response(null, { status: 202, headers: mcpResponseHeaders() });
   }
   if (result.kind === "raw") {
     return new Response(result.body, {
       status: result.status,
-      headers: {
+      headers: mcpResponseHeaders({
         ...(result.contentType ? { "content-type": result.contentType } : {}),
         ...(result.matchedCase ? { "X-MCP-Mock-Matched-Case": result.matchedCase } : {}),
-      },
+      }),
     });
   }
 
-  return NextResponse.json(result.body, { status: result.status });
+  return NextResponse.json(result.body, { status: result.status, headers: mcpResponseHeaders() });
 }
 
 export async function handleNoAuthMcpPost(request: Request) {
@@ -89,7 +162,7 @@ export async function handleUnifiedMcpPost(request: Request) {
   if (bearer.kind === "bearer" || bearer.kind === "invalid") {
     const resolution = await resolveOAuthBearerAuthorizationHeader(authorization, request);
     if (resolution.kind !== "authenticated") {
-      return unauthorizedBearerResponse("Authorization header was invalid.");
+      return unauthorizedBearerResponse(request, "Authorization header was invalid.", "invalid_token");
     }
     return handleMcpJsonRpcPost(request, { endpointIds: resolution.principal.endpointIds });
   }
@@ -109,7 +182,7 @@ export async function handleUnifiedMcpPost(request: Request) {
 export async function handleStrictOAuthMcpPost(request: Request) {
   const resolution = await resolveOAuthBearerAuthorizationHeader(request.headers.get("Authorization"), request);
   if (resolution.kind !== "authenticated") {
-    return unauthorizedBearerResponse();
+    return unauthorizedBearerResponse(request);
   }
 
   return handleMcpJsonRpcPost(request, { endpointIds: resolution.principal.endpointIds });
@@ -132,7 +205,7 @@ export function unsupportedStreamableHttpMethod() {
     },
     {
       status: 405,
-      headers: { Allow: "POST" },
+      headers: mcpResponseHeaders({ Allow: "POST" }),
     },
   );
 }
