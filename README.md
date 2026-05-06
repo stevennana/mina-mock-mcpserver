@@ -90,6 +90,8 @@ The scenario covers:
 
 Root reset is skipped unless you explicitly enable the destructive reset checkbox and provide the root password.
 
+This broad scenario is the fastest user-facing proof that the standalone Inspector can reach the Mock Server and exercise the server's protocol/runtime surfaces. It intentionally uses the non-interactive OAuth `client_credentials` grant so the whole scenario can run from one button. To verify the browser authorization-code and consent flow, follow **Step 4: Test OAuth Bearer Permissions** below.
+
 For a portable generic MCP check, enter an MCP endpoint URL such as:
 
 ```text
@@ -176,11 +178,14 @@ If your local database already contains previous test records, they will remain 
 ## Step 1: Create Or Edit A Mock Tool
 
 1. Open `http://127.0.0.1:3100/endpoints`.
-2. Select the seeded `echo` endpoint, or create a new endpoint.
-3. Configure up to three parameters.
-4. Add response cases with exact `matchArgsJson` values.
-5. Save the endpoint.
-6. Use the endpoint console on the same screen to preview schema and call evidence.
+2. Select the seeded `echo` endpoint to open its overview, or click **Create** to add a new endpoint.
+3. Use the endpoint sub-navigation for the task you need:
+   - **Edit** for name, description, enabled state, and delete code.
+   - **Parameters** for up to three parameters and the generated MCP `inputSchema`.
+   - **Responses** for the default response and exact `matchArgsJson` response cases.
+   - **Failure** for delay, forced error, malformed JSON, wrong content type, or empty body behavior.
+   - **Console** for REST/MCP test evidence.
+4. Save each focused page before moving to the next one.
 
 The tool name is the endpoint `name`. For example, the seeded endpoint is called as `echo`.
 
@@ -342,10 +347,11 @@ Raw access tokens are shown only at issuance. Stored token records keep metadata
 
 1. Open `http://127.0.0.1:3100/endpoints`.
 2. Select an endpoint.
-3. Configure delay, forced error, malformed JSON, wrong content type, or empty body behavior.
-4. Save the endpoint.
-5. Call it from the endpoint console, REST, or MCP route.
-6. Check `http://127.0.0.1:3100/audit` for failure-simulation evidence.
+3. Open the endpoint's **Failure** page.
+4. Configure delay, forced error, malformed JSON, wrong content type, or empty body behavior.
+5. Save the endpoint.
+6. Open the endpoint's **Console** page, or call it through REST or MCP.
+7. Check `http://127.0.0.1:3100/audit` for failure-simulation evidence.
 
 Delays are bounded to protect the test server from unbounded waits.
 
