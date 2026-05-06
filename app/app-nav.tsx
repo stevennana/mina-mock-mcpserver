@@ -6,6 +6,11 @@ type AppNavItem = {
   key: AppNavKey;
 };
 
+type AppNavGroup = {
+  label: string;
+  items: AppNavItem[];
+};
+
 export type AppNavKey =
   | "dashboard"
   | "endpoints"
@@ -17,26 +22,53 @@ export type AppNavKey =
   | "reset"
   | "audit";
 
-const navItems: AppNavItem[] = [
-  { key: "dashboard", href: "/", label: "Dashboard" },
-  { key: "endpoints", href: "/endpoints", label: "Endpoints" },
-  { key: "basic-users", href: "/basic-users", label: "Basic Users" },
-  { key: "oauth-users", href: "/oauth-users", label: "OAuth Users" },
-  { key: "oauth-clients", href: "/oauth-clients", label: "OAuth Clients" },
-  { key: "tokens", href: "/tokens", label: "Tokens" },
-  { key: "config", href: "/config", label: "Config" },
-  { key: "reset", href: "/reset", label: "Reset" },
-  { key: "audit", href: "/audit", label: "Audit" },
+const navGroups: AppNavGroup[] = [
+  {
+    label: "Overview",
+    items: [{ key: "dashboard", href: "/", label: "Dashboard" }],
+  },
+  {
+    label: "Tools",
+    items: [{ key: "endpoints", href: "/endpoints", label: "Endpoints" }],
+  },
+  {
+    label: "Auth",
+    items: [
+      { key: "basic-users", href: "/basic-users", label: "Basic Users" },
+      { key: "oauth-users", href: "/oauth-users", label: "OAuth Users" },
+      { key: "oauth-clients", href: "/oauth-clients", label: "OAuth Clients" },
+      { key: "tokens", href: "/tokens", label: "Tokens" },
+    ],
+  },
+  {
+    label: "Operations",
+    items: [
+      { key: "config", href: "/config", label: "Config" },
+      { key: "reset", href: "/reset", label: "Reset" },
+      { key: "audit", href: "/audit", label: "Audit" },
+    ],
+  },
 ];
 
 export function AppNav({ current }: { current: AppNavKey }) {
   return (
     <nav className="top-nav" aria-label="Primary">
-      {navItems.map((item) => (
-        <Link key={item.key} href={item.href} aria-current={item.key === current ? "page" : undefined}>
-          {item.label}
-        </Link>
-      ))}
+      {navGroups.map((group) => {
+        const isActiveGroup = group.items.some((item) => item.key === current);
+
+        return (
+          <div key={group.label} className="top-nav-group" data-active={isActiveGroup ? "true" : undefined}>
+            <span className="top-nav-group-label">{group.label}</span>
+            <div className="top-nav-links">
+              {group.items.map((item) => (
+                <Link key={item.key} href={item.href} aria-current={item.key === current ? "page" : undefined}>
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+        );
+      })}
     </nav>
   );
 }
