@@ -1,13 +1,10 @@
 import type { PrismaClient } from "@prisma/client";
 import { createPrismaClient, getDatabaseUrl } from "@/lib/db/client";
 import { oauthDiscoveryUrls } from "@/lib/oauth/discovery";
-import { recordAuditEvent } from "@/lib/audit/service";
-import { verifyRootPassword } from "@/lib/security/root-password";
 import { getBootstrapStatus } from "@/lib/bootstrap-status";
 import { operatorLog } from "@/lib/operator/logger";
 import packageJson from "../../package.json";
 
-const BASE_URL_SETTING_KEY = "baseUrl";
 const LOCAL_FALLBACK_BASE_URL = "http://localhost:3000";
 const APP_VERSION = process.env.APP_VERSION ?? packageJson.version;
 
@@ -23,15 +20,8 @@ type ConfigClient = Pick<
   | "$queryRaw"
 >;
 
-export type BaseUrlSource = "app_base_url" | "database" | "forwarded_headers" | "host" | "local_fallback";
+export type BaseUrlSource = "app_base_url" | "forwarded_headers" | "host" | "local_fallback";
 export type TlsRuntimeMode = "http_or_proxy" | "app_https";
-
-export class OperatorConfigAuthorizationError extends Error {
-  constructor() {
-    super("Root password is required to change operator config.");
-    this.name = "OperatorConfigAuthorizationError";
-  }
-}
 
 export class OperatorConfigValidationError extends Error {
   constructor(
@@ -80,26 +70,6 @@ export function getTlsRuntimeConfig() {
   };
 }
 
-async function recordBaseUrlAuditEvent(
-  input: {
-    outcome: "success" | "failure";
-    metadata: Record<string, string | number | boolean | null>;
-  },
-  client: ConfigClient,
-) {
-  await recordAuditEvent(
-    {
-      eventType: "system.config.base_url",
-      subjectType: "server_setting",
-      subjectId: BASE_URL_SETTING_KEY,
-      subjectName: "baseUrl",
-      outcome: input.outcome,
-      metadata: input.metadata,
-    },
-    client,
-  );
-}
-
 function firstHeaderValue(value: string | null) {
   return value?.split(",")[0]?.trim() || null;
 }
@@ -123,30 +93,22 @@ function originFromRequest(request?: Request): { value: string; source: BaseUrlS
   return { value: normalizeBaseUrl(new URL(request.url).origin), source: "host" };
 }
 
-async function readDatabaseBaseUrl(client: ConfigClient) {
-  const setting = await client.serverSetting.findUnique({ where: { key: BASE_URL_SETTING_KEY } });
-  return setting?.value ? normalizeBaseUrl(setting.value) : null;
-}
-
 export async function resolveBaseUrl(
   request?: Request,
-  client: ConfigClient = createPrismaClient(),
-): Promise<{ baseUrl: string; source: BaseUrlSource; databaseOverride: string | null; appBaseUrl: string | null }> {
+  _client: ConfigClient = createPrismaClient(),
+): Promise<{ baseUrl: string; source: BaseUrlSource; appBaseUrl: string | null }> {
+  void _client;
   const appBaseUrl = process.env.APP_BASE_URL ? normalizeBaseUrl(process.env.APP_BASE_URL) : null;
-  const databaseOverride = await readDatabaseBaseUrl(client);
   if (appBaseUrl) {
-    return { baseUrl: appBaseUrl, source: "app_base_url", databaseOverride, appBaseUrl };
-  }
-  if (databaseOverride) {
-    return { baseUrl: databaseOverride, source: "database", databaseOverride, appBaseUrl };
+    return { baseUrl: appBaseUrl, source: "app_base_url", appBaseUrl };
   }
 
   const requestOrigin = originFromRequest(request);
   if (requestOrigin) {
-    return { baseUrl: requestOrigin.value, source: requestOrigin.source, databaseOverride, appBaseUrl };
+    return { baseUrl: requestOrigin.value, source: requestOrigin.source, appBaseUrl };
   }
 
-  return { baseUrl: LOCAL_FALLBACK_BASE_URL, source: "local_fallback", databaseOverride, appBaseUrl };
+  return { baseUrl: LOCAL_FALLBACK_BASE_URL, source: "local_fallback", appBaseUrl };
 }
 
 export async function getOperatorHealth(client: ConfigClient = createPrismaClient()) {
@@ -261,46 +223,4 @@ export async function getPublicOperatorConfig(request?: Request, client: ConfigC
       },
     },
   };
-}
-
-export async function updateOperatorBaseUrl(
-  input: { rootPassword: string | null; baseUrl: string | null },
-  client: ConfigClient = createPrismaClient(),
-) {
-  if (!verifyRootPassword(input.rootPassword)) {
-    await recordBaseUrlAuditEvent({ outcome: "failure", metadata: { reason: "invalid_root_password" } }, client);
-    operatorLog("warn", "base URL override rejected", { reason: "invalid_root_password" });
-    throw new OperatorConfigAuthorizationError();
-  }
-
-  const rawBaseUrl = input.baseUrl?.trim() ?? "";
-  if (!rawBaseUrl) {
-    await client.serverSetting.deleteMany({ where: { key: BASE_URL_SETTING_KEY } });
-    await recordBaseUrlAuditEvent({ outcome: "success", metadata: { action: "clear" } }, client);
-    operatorLog("info", "base URL override cleared");
-    return { databaseOverride: null };
-  }
-
-  let baseUrl: string;
-  try {
-    baseUrl = normalizeBaseUrl(rawBaseUrl);
-  } catch (error) {
-    if (error instanceof OperatorConfigValidationError) {
-      await recordBaseUrlAuditEvent(
-        { outcome: "failure", metadata: { reason: "validation_failed", fields: Object.keys(error.fieldErrors).join(",") } },
-        client,
-      );
-      operatorLog("warn", "base URL override rejected", { reason: "validation_failed" });
-    }
-    throw error;
-  }
-
-  await client.serverSetting.upsert({
-    where: { key: BASE_URL_SETTING_KEY },
-    update: { value: baseUrl },
-    create: { key: BASE_URL_SETTING_KEY, value: baseUrl },
-  });
-  await recordBaseUrlAuditEvent({ outcome: "success", metadata: { action: "set", baseUrl } }, client);
-  operatorLog("info", "base URL override updated", { baseUrl });
-  return { databaseOverride: baseUrl };
 }

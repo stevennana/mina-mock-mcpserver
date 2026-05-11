@@ -23,7 +23,7 @@ Describe the user-facing structure of MCP Mock Server so an agent can implement 
 | /oauth-clients/new, /oauth-clients/[id] | OAuth client workflows | Create, detail, redirects, allowed endpoints, secret actions |
 | /tokens | Issued token catalog | List/filter/status with initial refresh and manual refresh |
 | /tokens/[jti] | Issued token detail | Claims, permissions, revoke |
-| /config | Server config | Base URL, health, core connection URLs |
+| /config | Server config | Effective base URL, health, core connection URLs |
 | /inspector | Inspector/verification hub | Standalone inspector UI command, Mock Server scenario runner, local inspector command, MCP Inspector targets, OAuth authorization-code/Bearer setup guide, base URL diagnostics |
 | /reset | Reset | Root-password protected reset |
 | /audit | Audit log | Filtered, incrementally loaded mutation evidence |
@@ -47,7 +47,7 @@ Describe the user-facing structure of MCP Mock Server so an agent can implement 
 | OAuth clients | Manage generated client secrets, redirect URIs, client credentials TTL presets, and allowed endpoint set |
 | OAuth login/consent | Complete authorization-code flow and select endpoint permissions |
 | Issued tokens | Inspect claims, permissions, expiration, and revoke tokens |
-| Config/guide | Show base URL, health summary, MCP/REST/OAuth URLs, OAuth discovery metadata, JWKS, sample client config, curl, public UI warning, and log command |
+| Config/guide | Show effective base URL, health summary, MCP/REST/OAuth URLs, OAuth discovery metadata, JWKS, sample client config, curl, public UI warning, and log command |
 | Inspector guide | Explain how to launch upstream MCP Inspector against local MCP routes and when to use project UI/curl instead |
 | Reset | Root-protected reset to current seed defaults with exact confirmation text |
 | Audit | Filter and incrementally review mutation and security-relevant event history without exposing submitted secrets |
@@ -66,7 +66,7 @@ Describe the user-facing structure of MCP Mock Server so an agent can implement 
 - audit tables must not force-load the full event history; use filters plus cursor/incremental loading for large records
 - endpoint editor forms must surface API/domain validation errors next to the affected fields
 - endpoint editor forms must show generated MCP `inputSchema` from the shared endpoint domain schema helper
-- Mock Server admin forms should use concise hover tooltips for beginner-facing concepts such as MCP tool names, inputSchema parameters, response case matching, failure simulation, auth modes, OAuth client permissions, token filters, base URL overrides, and destructive reset inputs
+- Mock Server admin forms should use concise hover tooltips for beginner-facing concepts such as MCP tool names, inputSchema parameters, response case matching, failure simulation, auth modes, OAuth client permissions, token filters, and destructive reset inputs
 - endpoint console REST execution is available for no-auth and Basic modes and shows raw request, raw response, principal, matched case, and elapsed time
 - endpoint failure simulation controls must make endpoint-level delay/error/malformed settings and case-level tool/protocol errors explicit
 - malformed-response modes must show inline warnings before save and console execution because they intentionally break normal client parsing expectations
@@ -85,7 +85,7 @@ Describe the user-facing structure of MCP Mock Server so an agent can implement 
 - Config and Inspector command rows should expose touch-friendly copy buttons for operational commands and connection URLs, including local TLS and self-signed inspector commands
 - Inspector guidance should live in the Mock UI `/inspector` hub and distinguish the standalone generic MCP endpoint inspector from the Mock Server scenario runner that covers REST, OAuth setup, token, audit, reset guard, and config workflows
 - `/inspector` should surface authorization-code verification from the currently effective base URL and configured OAuth client so users can copy the browser authorization URL, token exchange curl, and Bearer MCP call without reconstructing OAuth parameters by hand
-- Config should show local-test TLS commands and current app HTTPS env status while keeping Nginx TLS termination positioned as the public deployment recommendation
+- Config should show read-only base URL diagnostics, local-test TLS commands, and current app HTTPS env status while keeping Nginx TLS termination positioned as the public deployment recommendation
 - The standalone inspector UI should keep one primary action per mode: generic MCP inspection for arbitrary endpoints, and Mock Server scenario execution for local product E2E evidence
 - The standalone inspector UI should route users through focused pages: `/` as the workflow choice screen, `/mock` for Mock Server scenario execution, `/generic` for one generic MCP target inspection, and `/oauth` for Mock OAuth authorization-code popup verification
 - `/mock` and `/generic` should provide a direct workflow switch link so users do not have to return to `/` to move between the two focused modes

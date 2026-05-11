@@ -1,15 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { CopyButton } from "@/app/copy-button";
-import { HelpTooltip } from "@/app/help-tooltip";
 
 type PublicOperatorConfig = {
   baseUrl: {
     baseUrl: string;
     source: string;
-    databaseOverride: string | null;
     appBaseUrl: string | null;
   };
   tls: {
@@ -71,85 +69,49 @@ type PublicOperatorConfig = {
   };
 };
 
-type SaveState = {
-  status: "idle" | "saving" | "success" | "error";
-  message: string;
-  fieldErrors: Record<string, string>;
-};
-
 function sourceLabel(source: string) {
   return source.replace(/_/g, " ");
 }
 
 export function ConfigManager({ initialConfig }: { initialConfig: PublicOperatorConfig }) {
-  const [config, setConfig] = useState(initialConfig);
-  const [baseUrl, setBaseUrl] = useState(initialConfig.baseUrl.databaseOverride ?? "");
-  const [rootPassword, setRootPassword] = useState("");
-  const [saveState, setSaveState] = useState<SaveState>({ status: "idle", message: "", fieldErrors: {} });
-
-  const healthCounts = config.health.database.counts;
+  const healthCounts = initialConfig.health.database.counts;
   const routeRows = useMemo(
     () => [
-      ["MCP unified", config.routes.mcp.unified],
-      ["MCP no auth", config.routes.mcp.noAuth],
-      ["MCP Basic", config.routes.mcp.basic],
-      ["MCP OAuth bearer", config.routes.mcp.oauth],
-      ["SSE no auth", config.routes.mcp.sseNoAuth],
-      ["SSE Basic", config.routes.mcp.sseBasic],
-      ["SSE OAuth bearer", config.routes.mcp.sseOAuth],
-      ["REST tools", config.routes.rest.tools],
-      ["REST call", config.routes.rest.callTemplate],
-      ["OAuth protected resource", config.routes.oauth.protectedResourceMetadata],
-      ["OAuth authorization server", config.routes.oauth.authorizationServerMetadata],
-      ["OpenID configuration", config.routes.oauth.openidConfiguration],
-      ["OAuth JWKS", config.routes.oauth.jwksUri],
+      ["MCP unified", initialConfig.routes.mcp.unified],
+      ["MCP no auth", initialConfig.routes.mcp.noAuth],
+      ["MCP Basic", initialConfig.routes.mcp.basic],
+      ["MCP OAuth bearer", initialConfig.routes.mcp.oauth],
+      ["SSE no auth", initialConfig.routes.mcp.sseNoAuth],
+      ["SSE Basic", initialConfig.routes.mcp.sseBasic],
+      ["SSE OAuth bearer", initialConfig.routes.mcp.sseOAuth],
+      ["REST tools", initialConfig.routes.rest.tools],
+      ["REST call", initialConfig.routes.rest.callTemplate],
+      ["OAuth protected resource", initialConfig.routes.oauth.protectedResourceMetadata],
+      ["OAuth authorization server", initialConfig.routes.oauth.authorizationServerMetadata],
+      ["OpenID configuration", initialConfig.routes.oauth.openidConfiguration],
+      ["OAuth JWKS", initialConfig.routes.oauth.jwksUri],
     ],
-    [config],
+    [initialConfig],
   );
-
-  async function submitConfig(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setSaveState({ status: "saving", message: "Saving base URL override.", fieldErrors: {} });
-    const response = await fetch("/api/config", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ baseUrl, rootPassword }),
-    });
-    const payload = await response.json();
-    setRootPassword("");
-
-    if (!response.ok) {
-      setSaveState({
-        status: "error",
-        message: typeof payload.message === "string" ? payload.message : "Config save failed.",
-        fieldErrors: payload.fieldErrors ?? {},
-      });
-      return;
-    }
-
-    setConfig(payload.config);
-    setBaseUrl(payload.config.baseUrl.databaseOverride ?? "");
-    setSaveState({ status: "success", message: "Base URL override saved.", fieldErrors: {} });
-  }
 
   return (
     <div className="config-stack">
       <section className="warning-callout" role="note">
-        {config.publicAdminWarning}
+        {initialConfig.publicAdminWarning}
       </section>
 
       <section className="summary-strip" aria-label="Operator health summary">
         <span>
           Runtime
-          <strong>{config.health.runtime.runtimeState}</strong>
+          <strong>{initialConfig.health.runtime.runtimeState}</strong>
         </span>
         <span>
           Database
-          <strong>{config.health.database.status}</strong>
+          <strong>{initialConfig.health.database.status}</strong>
         </span>
         <span>
           Log level
-          <strong>{config.health.runtime.logLevel}</strong>
+          <strong>{initialConfig.health.runtime.logLevel}</strong>
         </span>
       </section>
 
@@ -157,44 +119,18 @@ export function ConfigManager({ initialConfig }: { initialConfig: PublicOperator
         <div className="section-heading-row">
           <div>
             <h2 id="base-url-title">Base URL</h2>
-            <p>Effective source: {sourceLabel(config.baseUrl.source)}</p>
+            <p>Effective source: {sourceLabel(initialConfig.baseUrl.source)}</p>
           </div>
-          <code className="inline-code">{config.baseUrl.baseUrl}</code>
+          <code className="inline-code">{initialConfig.baseUrl.baseUrl}</code>
         </div>
-        {config.baseUrl.appBaseUrl ? (
-          <p className="field-hint">APP_BASE_URL is set, so it takes precedence over the saved database override.</p>
-        ) : null}
-        <form className="form-grid config-form" onSubmit={(event) => void submitConfig(event)}>
-          {saveState.message ? <p className={`form-message ${saveState.status}`}>{saveState.message}</p> : null}
-          <label className="field-block wide">
-            <span className="field-label-row">Database base URL override <HelpTooltip text="Optional public base URL saved in SQLite. It affects generated MCP, REST, OAuth discovery, and curl examples when APP_BASE_URL is not set." /></span>
-            <input
-              className="text-input"
-              value={baseUrl}
-              onChange={(event) => setBaseUrl(event.target.value)}
-              placeholder="https://mock.example.com"
-              aria-describedby="base-url-hint"
-            />
-            <p className="field-hint" id="base-url-hint">Leave blank and save to clear the database override.</p>
-            {saveState.fieldErrors.baseUrl ? <p className="field-error">{saveState.fieldErrors.baseUrl}</p> : null}
-          </label>
-          <label className="field-block">
-            <span className="field-label-row">Root password <HelpTooltip text="Required to save operator configuration changes. It is sent only for this request and is not stored by the UI." /></span>
-            <input
-              className="text-input"
-              type="password"
-              value={rootPassword}
-              onChange={(event) => setRootPassword(event.target.value)}
-              autoComplete="current-password"
-            />
-          </label>
-          <div className="field-block">
-            <span>Action</span>
-            <button className="primary-button" type="submit" disabled={saveState.status === "saving"}>
-              Save config
-            </button>
-          </div>
-        </form>
+        {initialConfig.baseUrl.appBaseUrl ? (
+          <p className="field-hint">APP_BASE_URL is set and controls generated MCP, REST, OAuth discovery, and curl URLs.</p>
+        ) : (
+          <p className="field-hint">
+            Set APP_BASE_URL before startup for a fixed public origin. Without it, this page uses trusted forwarded headers, Host,
+            then the local fallback.
+          </p>
+        )}
       </section>
 
       <section className="panel guide-panel" aria-labelledby="routes-title">
@@ -230,17 +166,17 @@ export function ConfigManager({ initialConfig }: { initialConfig: PublicOperator
           <div>
             <dt>Command</dt>
             <dd className="copy-row">
-              <code>{config.examples.logging.command}</code>
-              <CopyButton value={config.examples.logging.command} />
+              <code>{initialConfig.examples.logging.command}</code>
+              <CopyButton value={initialConfig.examples.logging.command} />
             </dd>
           </div>
           <div>
             <dt>Directory</dt>
-            <dd>{config.examples.logging.directory}</dd>
+            <dd>{initialConfig.examples.logging.directory}</dd>
           </div>
           <div>
             <dt>Levels</dt>
-            <dd>{config.examples.logging.levels.join(", ")}</dd>
+            <dd>{initialConfig.examples.logging.levels.join(", ")}</dd>
           </div>
           {healthCounts ? (
             <div>
@@ -260,51 +196,52 @@ export function ConfigManager({ initialConfig }: { initialConfig: PublicOperator
             <h2 id="tls-title">TLS for local tests</h2>
             <p>Nginx TLS termination is still recommended for public deployments. Built-in HTTPS is for local client tests.</p>
           </div>
-          <strong className={config.tls.enabled ? "status-pill enabled" : "status-pill"}>
-            {config.tls.enabled ? "app HTTPS configured" : "HTTP or proxy TLS"}
+          <strong className={initialConfig.tls.enabled ? "status-pill enabled" : "status-pill"}>
+            {initialConfig.tls.enabled ? "app HTTPS configured" : "HTTP or proxy TLS"}
           </strong>
         </div>
         <dl className="detail-grid">
           <div>
             <dt>Generate localhost cert</dt>
             <dd className="copy-row">
-              <code>{config.examples.tls.devCertCommand}</code>
-              <CopyButton value={config.examples.tls.devCertCommand} />
+              <code>{initialConfig.examples.tls.devCertCommand}</code>
+              <CopyButton value={initialConfig.examples.tls.devCertCommand} />
             </dd>
           </div>
           <div>
             <dt>Start HTTPS</dt>
             <dd className="copy-row">
-              <code>{config.examples.tls.command}</code>
-              <CopyButton value={config.examples.tls.command} />
+              <code>{initialConfig.examples.tls.command}</code>
+              <CopyButton value={initialConfig.examples.tls.command} />
             </dd>
           </div>
           <div>
             <dt>Start HTTPS with logs</dt>
             <dd className="copy-row">
-              <code>{config.examples.tls.loggedCommand}</code>
-              <CopyButton value={config.examples.tls.loggedCommand} />
+              <code>{initialConfig.examples.tls.loggedCommand}</code>
+              <CopyButton value={initialConfig.examples.tls.loggedCommand} />
             </dd>
           </div>
           <div>
             <dt>TLS smoke</dt>
             <dd className="copy-row">
-              <code>{config.examples.tls.smokeCommand}</code>
-              <CopyButton value={config.examples.tls.smokeCommand} />
+              <code>{initialConfig.examples.tls.smokeCommand}</code>
+              <CopyButton value={initialConfig.examples.tls.smokeCommand} />
             </dd>
           </div>
           <div>
             <dt>HTTPS inspector</dt>
             <dd className="copy-row">
-              <code>{config.examples.tls.inspectorCommand}</code>
-              <CopyButton value={config.examples.tls.inspectorCommand} />
+              <code>{initialConfig.examples.tls.inspectorCommand}</code>
+              <CopyButton value={initialConfig.examples.tls.inspectorCommand} />
             </dd>
           </div>
           <div>
             <dt>Configured inputs</dt>
             <dd>
-              cert {config.tls.certFileConfigured ? "set" : "missing"}, key {config.tls.keyFileConfigured ? "set" : "missing"}
-              {config.tls.caFileConfigured ? ", CA set" : ""}
+              cert {initialConfig.tls.certFileConfigured ? "set" : "missing"}, key{" "}
+              {initialConfig.tls.keyFileConfigured ? "set" : "missing"}
+              {initialConfig.tls.caFileConfigured ? ", CA set" : ""}
             </dd>
           </div>
         </dl>

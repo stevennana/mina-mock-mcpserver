@@ -59,7 +59,7 @@ The compose file exposes host port `3000`, persists SQLite under the `mcp-mock-d
 
 ## Nginx
 
-Use `deploy/nginx.conf` as a starting point for reverse proxying to a process listening on `127.0.0.1:3000`. The proxy forwards `Host`, `X-Forwarded-Host`, and `X-Forwarded-Proto`; the app uses those headers in base URL resolution when `APP_BASE_URL` and the database override are unset. This remains the recommended TLS shape for public deployments.
+Use `deploy/nginx.conf` as a starting point for reverse proxying to a process listening on `127.0.0.1:3000`. The proxy forwards `Host`, `X-Forwarded-Host`, and `X-Forwarded-Proto`; the app uses those headers in base URL resolution when `APP_BASE_URL` is unset. This remains the recommended TLS shape for public deployments.
 
 ## Routes
 

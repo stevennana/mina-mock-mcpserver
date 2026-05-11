@@ -580,7 +580,7 @@ Delays are bounded to protect the test server from unbounded waits.
 
 ## Operator Configuration
 
-Set a root password before using reset or base URL override flows:
+Set a root password before using reset or protected delete override flows:
 
 ```bash
 ROOT_PASSWORD='change-this' npm run dev
@@ -594,7 +594,7 @@ Useful environment variables:
 | `PORT` | `3100` for helper scripts, `3000` in Docker | Server port |
 | `HOST` | `127.0.0.1` for logged start, `0.0.0.0` in Docker | Bind host |
 | `APP_BASE_URL` | inferred from request, then `http://localhost:3000` fallback | Public issuer and URL generation |
-| `ROOT_PASSWORD` | unset | Reset, delete override, and base URL override password |
+| `ROOT_PASSWORD` | unset | Reset and protected delete override password |
 | `LOG_LEVEL` | `info` | `trace`, `debug`, `info`, `warn`, or `error` |
 | `TLS_CERT_FILE` | unset | PEM certificate path for app-level HTTPS test starts |
 | `TLS_KEY_FILE` | unset | PEM private key path for app-level HTTPS test starts |
@@ -602,7 +602,8 @@ Useful environment variables:
 | `TLS_KEY_PASSPHRASE` | unset | Optional private-key passphrase for app-level HTTPS test starts |
 | `OAUTH_JWT_PRIVATE_KEY_PEM` | development key | RS256 signing key for mock OAuth tokens |
 
-If `APP_BASE_URL` is set, it takes precedence over the database base URL override and request headers.
+If `APP_BASE_URL` is set, it takes precedence over request headers for generated MCP, REST, OAuth discovery, and curl URLs.
+The `/config` page is read-only at runtime; change public URL behavior by restarting with the desired environment variables or trusted proxy headers.
 
 ## Production-Style Local Start
 

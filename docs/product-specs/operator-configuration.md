@@ -8,11 +8,11 @@ Connection guide
 
 ## User-Visible Behavior
 - Connection guide
-- Config UI is focused on health, effective base URL, root-protected base URL override, and core connection URLs
+- Config UI is focused on health, read-only effective base URL diagnostics, and core connection URLs
 - Health endpoint reports runtime status, database reachability, log level, and persisted runtime counts without secrets
 - Public config endpoint reports the effective base URL, route map, connection examples, public admin warning, health summary, and logging command
-- Base URL precedence is `APP_BASE_URL`, database override, forwarded headers, Host, then `http://localhost:3000`
-- Root-protected database base URL override
+- Base URL precedence is `APP_BASE_URL`, forwarded headers, Host, then `http://localhost:3000`
+- Runtime base URL changes are handled by startup environment such as `APP_BASE_URL`, not by a public UI form
 - Root-protected reset
 - Reset requires exact confirmation text and records non-secret audit evidence for failed and successful attempts
 - Operator-visible logs are written by `npm run start:logged` under `logs/`; `LOG_LEVEL` supports `trace`, `debug`, `info`, `warn`, and `error`
@@ -23,7 +23,7 @@ Connection guide
 - Browser-facing dates in admin tables use explicit UTC string formatting instead of locale-dependent rendering, preventing server/client hydration mismatches across operator locales
 - Connection guide examples cover `/mcp`, `/mcp/none`, `/mcp/basic`, `/mcp/oauth`, `/sse/none`, `/sse/basic`, `/sse/oauth`, `/rest/tools`, `/rest/tools/{tool_name}/call`, OAuth discovery metadata, `/oauth/token`, `/oauth/revoke`, and `/oauth/jwks`
 - Config and Inspector expose copy buttons for operational commands and connection URLs so users can move from UI guidance to terminal/client tests without manual selection errors
-- Mock Server admin forms expose concise hover tooltips on operator-facing inputs such as base URL override, root password, and reset confirmation so first-time users can understand why each value matters before saving
+- Mock Server admin forms expose concise hover tooltips on operator-facing inputs such as root password and reset confirmation so first-time users can understand why each value matters before saving
 - MCP Inspector integration is documented as an external `npx` tool with local Streamable HTTP targets for `/mcp`, `/mcp/none`, `/mcp/basic`, `/mcp/oauth`, and legacy SSE targets for `/sse`, `/sse/none`, `/sse/basic`, and `/sse/oauth`
 - The Mock UI exposes an `/inspector` verification hub for standalone inspector UI launch, Mock Server scenario execution, local inspector commands, upstream Inspector targets, Basic/OAuth preparation, and diagnostics interpretation
 - The Inspector hub exposes authorization-code verification aids generated from current config and OAuth client state: authorization URL, token-exchange curl, Bearer MCP curl, effective base URL source, issuer, token endpoint, selected client, redirect callback origin, and allowed endpoint count
@@ -48,7 +48,7 @@ Connection guide
 
 ## Validation
 - Base URL precedence
-- Root password checks
+- Root password checks for reset and protected endpoint deletion
 - Seed default recreation for currently implemented endpoint defaults
 - Log-level filtering without secret leakage
 - Health/config page renders, root reset restores defaults, production-style startup smoke passes

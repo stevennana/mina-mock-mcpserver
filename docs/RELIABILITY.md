@@ -39,7 +39,7 @@ When `TLS_CERT_FILE` and `TLS_KEY_FILE` are set, `start:logged` uses the app-lev
 
 ## Base URL Resolution
 Runtime URL examples and OAuth issuer metadata use a shared base URL resolver.
-Precedence is `APP_BASE_URL`, root-protected database override, forwarded headers, Host, then `http://localhost:3000`.
+Precedence is `APP_BASE_URL`, forwarded headers, Host, then `http://localhost:3000`.
 Startup smoke must still probe the real `/api/health` route; a successful build alone does not prove runtime readiness.
 
 ## Test Strategy

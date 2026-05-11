@@ -14,7 +14,6 @@ import {
   getTlsRuntimeConfig,
   normalizeBaseUrl,
   resolveBaseUrl,
-  updateOperatorBaseUrl,
 } from "@/lib/operator/config";
 import { redactLogMetadata } from "@/lib/operator/logger";
 
@@ -78,7 +77,7 @@ async function withIsolatedDb(fn: (client: ReturnType<typeof createPrismaClient>
   }
 }
 
-test("operator base URL precedence is APP_BASE_URL, database, forwarded headers, Host, local fallback", async () => {
+test("operator base URL precedence is APP_BASE_URL, forwarded headers, Host, local fallback", async () => {
   await withIsolatedDb(async (client) => {
     assert.equal((await resolveBaseUrl(undefined, client)).baseUrl, "http://localhost:3000");
     assert.equal((await resolveBaseUrl(undefined, client)).source, "local_fallback");
@@ -87,7 +86,6 @@ test("operator base URL precedence is APP_BASE_URL, database, forwarded headers,
     assert.deepEqual(await resolveBaseUrl(hostRequest, client), {
       baseUrl: "http://host.example:3100",
       source: "host",
-      databaseOverride: null,
       appBaseUrl: null,
     });
 
@@ -101,14 +99,9 @@ test("operator base URL precedence is APP_BASE_URL, database, forwarded headers,
     assert.equal((await resolveBaseUrl(forwardedRequest, client)).baseUrl, "https://forwarded.example");
     assert.equal((await resolveBaseUrl(forwardedRequest, client)).source, "forwarded_headers");
 
-    await updateOperatorBaseUrl({ rootPassword: "unit-root-password", baseUrl: "https://db.example/" }, client);
-    assert.equal((await resolveBaseUrl(forwardedRequest, client)).baseUrl, "https://db.example");
-    assert.equal((await resolveBaseUrl(forwardedRequest, client)).source, "database");
-
     process.env.APP_BASE_URL = "https://env.example/";
     assert.equal((await resolveBaseUrl(forwardedRequest, client)).baseUrl, "https://env.example");
     assert.equal((await resolveBaseUrl(forwardedRequest, client)).source, "app_base_url");
-    assert.equal((await resolveBaseUrl(forwardedRequest, client)).databaseOverride, "https://db.example");
   });
 });
 
@@ -124,7 +117,7 @@ test("operator public config and health report persisted runtime state", async (
     assert.equal(health.database.counts.basicUsers, 1);
     assert.equal(health.database.counts.oauthClients, 1);
 
-    await updateOperatorBaseUrl({ rootPassword: "unit-root-password", baseUrl: "https://guide.example" }, client);
+    process.env.APP_BASE_URL = "https://guide.example";
     const config = await getPublicOperatorConfig(undefined, client);
     assert.equal(config.routes.mcp.noAuth, "https://guide.example/mcp/none");
     assert.equal(config.routes.rest.tools, "https://guide.example/rest/tools");
@@ -173,32 +166,6 @@ test("operator TLS runtime config reports app HTTPS when certificate inputs are 
       process.env.TLS_CA_FILE = previousTlsCaFile;
     }
   }
-});
-
-test("operator base URL validation failures with valid root password write non-secret audit evidence", async () => {
-  await withIsolatedDb(async (client) => {
-    await assert.rejects(
-      () => updateOperatorBaseUrl({ rootPassword: "unit-root-password", baseUrl: "https://root:secret@mock.example" }, client),
-      { name: "OperatorConfigValidationError" },
-    );
-
-    const auditEvent = await client.auditEvent.findFirst({
-      where: {
-        eventType: "system.config.base_url",
-        outcome: "failure",
-      },
-      orderBy: { createdAt: "desc" },
-    });
-
-    assert.ok(auditEvent);
-    assert.equal(auditEvent.subjectName, "baseUrl");
-    assert.deepEqual(JSON.parse(auditEvent.metadataJson), {
-      reason: "validation_failed",
-      fields: "baseUrl",
-    });
-    assert.equal(auditEvent.metadataJson.includes("secret"), false);
-    assert.equal(await client.serverSetting.count(), 0);
-  });
 });
 
 test("operator config validation and log redaction avoid secrets", () => {

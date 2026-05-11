@@ -16,9 +16,9 @@ Define the security posture for MCP Mock Server's current shipped slice.
 - root password comparisons must avoid logging and should use constant-time comparison where practical
 
 ## Secrets and Config
-- ROOT_PASSWORD gates reset, delete override, base URL override, and optional historical token deletion
+- ROOT_PASSWORD gates reset, delete override, and optional historical token deletion
 - Docker Compose includes a placeholder `ROOT_PASSWORD`; operators must replace it before public use.
-- Base URL override changes require ROOT_PASSWORD and write non-secret audit evidence for success and failure
+- Public base URL is configured at startup with `APP_BASE_URL` or trusted reverse-proxy headers, not through the public config UI.
 - client secrets and passwords are never logged
 - endpoint delete audit entries store method/reason metadata, not submitted delete codes or root passwords
 - reset audit entries store success/failure reason and seed counts, not submitted root passwords
