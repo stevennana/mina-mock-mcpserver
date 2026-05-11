@@ -24,7 +24,7 @@ Describe the user-facing structure of MCP Mock Server so an agent can implement 
 | /tokens | Issued token catalog | List/filter/status only |
 | /tokens/[jti] | Issued token detail | Claims, permissions, revoke |
 | /config | Server config | Base URL, health, core connection URLs |
-| /inspector | Inspector/verification hub | Standalone inspector UI command, Mock Server scenario runner, local inspector command, MCP Inspector targets, OAuth/Bearer setup guide |
+| /inspector | Inspector/verification hub | Standalone inspector UI command, Mock Server scenario runner, local inspector command, MCP Inspector targets, OAuth authorization-code/Bearer setup guide, base URL diagnostics |
 | /reset | Reset | Root-password protected reset |
 | /audit | Audit log | List/filter mutation evidence |
 | /audit/[id] | Audit event detail | Full evidence payload |
@@ -80,8 +80,13 @@ Describe the user-facing structure of MCP Mock Server so an agent can implement 
 - copy buttons should exist for MCP URLs, REST URLs, client config, curl examples, client secrets at issuance, and JWTs at issuance
 - Config and Inspector command rows should expose touch-friendly copy buttons for operational commands and connection URLs, including local TLS and self-signed inspector commands
 - Inspector guidance should live in the Mock UI `/inspector` hub and distinguish the standalone generic MCP endpoint inspector from the Mock Server scenario runner that covers REST, OAuth setup, token, audit, reset guard, and config workflows
+- `/inspector` should surface authorization-code verification from the currently effective base URL and configured OAuth client so users can copy the browser authorization URL, token exchange curl, and Bearer MCP call without reconstructing OAuth parameters by hand
 - Config should show local-test TLS commands and current app HTTPS env status while keeping Nginx TLS termination positioned as the public deployment recommendation
 - The standalone inspector UI should keep one primary action per mode: generic MCP inspection for arbitrary endpoints, and Mock Server scenario execution for local product E2E evidence
+- The standalone inspector UI should provide a no-auth/Basic/Bearer authorization helper for generic MCP targets so users do not have to hand-build common Authorization headers
+- The standalone inspector UI should provide Mock route presets for `/mcp/none`, `/mcp/basic`, and `/mcp/oauth`, using the visible Mock Server base URL and filling common auth fields only when the user selects a preset
+- The standalone inspector UI should provide a Mock OAuth `client_credentials` token helper for the `/mcp/oauth` preset while still using the standard Mock Server `/oauth/token` endpoint
+- The standalone inspector UI may remember non-secret local target settings in browser storage, but must not persist headers, Basic passwords, Bearer tokens, OAuth client secrets, root passwords, reset choices, or tool argument payloads
 - OAuth consent should make selected endpoint permissions unambiguous
 - OAuth consent must show client, redirect URI, resource, login user, authorization-code TTL, and the endpoint checklist outside the public admin navigation
 

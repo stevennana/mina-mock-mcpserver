@@ -719,6 +719,42 @@ async function inspectMcpTarget(input) {
   };
 }
 
+async function issueMockOAuthToken(input) {
+  const baseUrl = normalizeBaseUrl(input.baseUrl);
+  const clientId = String(input.clientId || "default").trim();
+  const clientSecret = String(input.clientSecret || "");
+  const scope = String(input.scope || "").trim();
+  const insecureTls = input.insecureTls === true || input.insecureTls === "on";
+  if (!clientId || !clientSecret) {
+    throw new Error("OAuth client id and secret are required.");
+  }
+
+  const client = new MockClient(baseUrl, { insecureTls });
+  const token = await client.form("/oauth/token", {
+    grant_type: "client_credentials",
+    client_id: clientId,
+    client_secret: clientSecret,
+    resource: baseUrl,
+    ...(scope ? { scope } : {}),
+  });
+  assertStatus(token, 200, "OAuth client_credentials token");
+  const claims = decodeJwt(token.body.access_token);
+  return {
+    ok: true,
+    tokenType: token.body.token_type,
+    accessToken: token.body.access_token,
+    expiresIn: token.body.expires_in,
+    scope: token.body.scope,
+    diagnostics: [
+      { check: "target", value: baseUrl },
+      { check: "client", value: clientId },
+      { check: "grant", value: "client_credentials" },
+      { check: "jwt audience", value: claims.aud },
+      { check: "jwt permissions", value: String(claims.endpoint_permissions?.length ?? 0) },
+    ],
+  };
+}
+
 function renderHtml() {
   return `<!doctype html>
 <html lang="en">
@@ -774,13 +810,14 @@ function renderHtml() {
     .mode-head p { margin: 0; color: var(--muted); line-height: 1.45; font-size: .88rem; }
     h2 { margin: 0 0 12px; font-size: 1.08rem; }
     label { display: grid; gap: 6px; margin-bottom: 12px; color: #26313f; font-weight: 800; font-size: .9rem; }
-    input, textarea {
+    input, select, textarea {
       width: 100%;
       min-height: 44px;
       border: 1px solid #cbd3df;
       border-radius: 8px;
       padding: 10px 11px;
       font: inherit;
+      background: #fff;
     }
     input[type="checkbox"] {
       width: 18px;
@@ -812,8 +849,15 @@ function renderHtml() {
       font-weight: 850;
       cursor: pointer;
     }
+    .secondary-button {
+      border: 1px solid #bfd0df;
+      background: #eef6f5;
+      color: #0b5f58;
+    }
     button:disabled { opacity: .55; cursor: not-allowed; }
     .hint { color: var(--muted); font-size: .84rem; line-height: 1.45; margin: -4px 0 12px; }
+    .auth-fields { display: none; gap: 10px; }
+    .auth-fields.active { display: grid; }
     .summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-bottom: 12px; }
     .summary div { border: 1px solid var(--line); border-radius: 8px; padding: 10px; background: #fbfcfe; }
     .summary span { display: block; color: var(--muted); font-size: .74rem; font-weight: 800; text-transform: uppercase; }
@@ -888,6 +932,7 @@ function renderHtml() {
             <input name="rootPassword" type="password" placeholder="Only needed when reset is enabled" />
           </label>
           <p class="hint">Default run covers health, config, discovery, endpoint admin, REST, MCP, Basic, OAuth Bearer, token revocation, audit, reset denial, and cleanup. Root reset stays off unless you opt in. Use self-signed HTTPS only for local certificates you control.</p>
+          <p class="hint">This page remembers recent target URLs and protocol/tool names in this browser only. Headers, tool arguments, root passwords, and other secret-like fields are not stored.</p>
           <div class="actions">
             <button id="run-mock-button" type="submit">Run Mock Server scenario</button>
           </div>
@@ -908,6 +953,16 @@ function renderHtml() {
             <span class="pill pass">portable</span>
           </div>
           <label>
+            Mock route preset
+            <select name="mockRoutePreset">
+              <option value="custom">Custom endpoint URL</option>
+              <option value="none">Mock no-auth /mcp/none</option>
+              <option value="basic">Mock Basic /mcp/basic with default/default</option>
+              <option value="oauth">Mock OAuth /mcp/oauth with Bearer token</option>
+            </select>
+          </label>
+          <p class="hint">Presets use the Mock Server base URL from the scenario form above, then fill the endpoint and common auth helper fields for you.</p>
+          <label>
             MCP endpoint URL
             <input name="mcpUrl" value="http://127.0.0.1:3100/mcp/none" placeholder="http://127.0.0.1:3100/mcp/none" />
           </label>
@@ -916,10 +971,52 @@ function renderHtml() {
             <input name="protocolVersion" value="${DEFAULT_PROTOCOL_VERSION}" />
           </label>
           <label>
+            Authorization helper
+            <select name="authMode">
+              <option value="none">No Authorization header</option>
+              <option value="basic">Basic username/password</option>
+              <option value="bearer">Bearer token</option>
+            </select>
+          </label>
+          <div id="basic-auth-fields" class="auth-fields">
+            <label>
+              Basic username
+              <input name="basicUsername" autocomplete="off" placeholder="default" />
+            </label>
+            <label>
+              Basic password
+              <input name="basicPassword" type="password" autocomplete="off" placeholder="default" />
+            </label>
+          </div>
+          <div id="bearer-auth-fields" class="auth-fields">
+            <label>
+              Bearer token
+              <textarea name="bearerToken" autocomplete="off" placeholder="eyJ..."></textarea>
+            </label>
+            <div class="stack">
+              <label>
+                Mock OAuth client id
+                <input name="oauthClientId" autocomplete="off" placeholder="default" value="default" />
+              </label>
+              <label>
+                Mock OAuth client secret
+                <input name="oauthClientSecret" type="password" autocomplete="off" placeholder="default" />
+              </label>
+              <label>
+                Optional OAuth scope
+                <input name="oauthScope" autocomplete="off" placeholder="endpoint:endpoint_default_echo" />
+              </label>
+              <div class="actions">
+                <button id="issue-token-button" class="secondary-button" type="button">Issue Mock OAuth token</button>
+              </div>
+              <div id="token-helper-status" class="hint" aria-live="polite"></div>
+            </div>
+          </div>
+          <label>
             Extra headers JSON
             <textarea name="headersJson" placeholder='{"Authorization":"Bearer ..."}'></textarea>
           </label>
-          <p class="hint">Use headers for Basic, Bearer, API keys, or custom local server requirements. Secrets are redacted in displayed request evidence.</p>
+          <p class="hint">Use the helper for common Basic or Bearer calls. Extra headers JSON is still available for API keys or custom local server requirements. Secrets are redacted in displayed request evidence and are not stored in browser history for this page.</p>
           <label class="check-row">
             <input name="insecureTls" type="checkbox" />
             Allow self-signed HTTPS for this run
@@ -949,6 +1046,105 @@ function renderHtml() {
     const mockForm = document.querySelector("#mock-form");
     const mockButton = document.querySelector("#run-mock-button");
     const mockResults = document.querySelector("#mock-results");
+    const basicAuthFields = document.querySelector("#basic-auth-fields");
+    const bearerAuthFields = document.querySelector("#bearer-auth-fields");
+    const issueTokenButton = document.querySelector("#issue-token-button");
+    const tokenHelperStatus = document.querySelector("#token-helper-status");
+    const storageKey = "mcp-mock-standalone-inspector:v1";
+
+    function readRecentSettings() {
+      try {
+        return JSON.parse(window.localStorage.getItem(storageKey) || "{}") || {};
+      } catch {
+        return {};
+      }
+    }
+
+    function writeRecentSettings(nextSettings) {
+      const current = readRecentSettings();
+      window.localStorage.setItem(storageKey, JSON.stringify({ ...current, ...nextSettings }));
+    }
+
+    function hydrateRecentSettings() {
+      const settings = readRecentSettings();
+      if (settings.mockBaseUrl) mockForm.elements.baseUrl.value = settings.mockBaseUrl;
+      if (settings.mockInsecureTls === true) mockForm.elements.insecureTls.checked = true;
+      if (settings.mcpUrl) form.elements.mcpUrl.value = settings.mcpUrl;
+      if (settings.protocolVersion) form.elements.protocolVersion.value = settings.protocolVersion;
+      if (settings.genericInsecureTls === true) form.elements.insecureTls.checked = true;
+      if (settings.toolName) form.elements.toolName.value = settings.toolName;
+    }
+
+    function updateAuthFields() {
+      const mode = form.elements.authMode.value;
+      basicAuthFields.classList.toggle("active", mode === "basic");
+      bearerAuthFields.classList.toggle("active", mode === "bearer");
+    }
+
+    function currentMockBaseUrl() {
+      return String(mockForm.elements.baseUrl.value || "${DEFAULT_MOCK_BASE_URL}").trim().replace(/\\/+$/, "");
+    }
+
+    function applyMockRoutePreset() {
+      const preset = form.elements.mockRoutePreset.value;
+      if (preset === "custom") return;
+      const baseUrl = currentMockBaseUrl();
+      if (preset === "none") {
+        form.elements.mcpUrl.value = baseUrl + "/mcp/none";
+        form.elements.authMode.value = "none";
+      } else if (preset === "basic") {
+        form.elements.mcpUrl.value = baseUrl + "/mcp/basic";
+        form.elements.authMode.value = "basic";
+        form.elements.basicUsername.value = "default";
+        form.elements.basicPassword.value = "default";
+      } else if (preset === "oauth") {
+        form.elements.mcpUrl.value = baseUrl + "/mcp/oauth";
+        form.elements.authMode.value = "bearer";
+        form.elements.oauthClientId.value = form.elements.oauthClientId.value || "default";
+        form.elements.oauthClientSecret.value = form.elements.oauthClientSecret.value || "default";
+      }
+      updateAuthFields();
+    }
+
+    function parseHeaderInput(value) {
+      if (!String(value || "").trim()) return {};
+      const parsed = JSON.parse(value);
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+        throw new Error("Extra headers JSON must be an object.");
+      }
+      return parsed;
+    }
+
+    function authorizationHeader(payload) {
+      if (payload.authMode === "basic") {
+        const username = String(payload.basicUsername || "").trim();
+        const password = String(payload.basicPassword || "");
+        if (!username || !password) throw new Error("Basic username and password are required.");
+        return "Basic " + btoa(username + ":" + password);
+      }
+      if (payload.authMode === "bearer") {
+        const token = String(payload.bearerToken || "").trim();
+        if (!token) throw new Error("Bearer token is required.");
+        return "Bearer " + token;
+      }
+      return "";
+    }
+
+    function mergeAuthorizationHeader(payload) {
+      const headers = parseHeaderInput(payload.headersJson);
+      const authorization = authorizationHeader(payload);
+      if (authorization) headers.Authorization = authorization;
+      payload.headersJson = Object.keys(headers).length ? JSON.stringify(headers) : "";
+      delete payload.authMode;
+      delete payload.basicUsername;
+      delete payload.basicPassword;
+      delete payload.bearerToken;
+      delete payload.mockRoutePreset;
+      delete payload.oauthClientId;
+      delete payload.oauthClientSecret;
+      delete payload.oauthScope;
+      return payload;
+    }
 
     function escapeHtml(value) {
       return String(value)
@@ -989,6 +1185,13 @@ function renderHtml() {
       try {
         const payload = Object.fromEntries(new FormData(form).entries());
         payload.insecureTls = form.elements.insecureTls.checked;
+        mergeAuthorizationHeader(payload);
+        writeRecentSettings({
+          mcpUrl: String(payload.mcpUrl || ""),
+          protocolVersion: String(payload.protocolVersion || ""),
+          genericInsecureTls: payload.insecureTls,
+          toolName: String(payload.toolName || ""),
+        });
         const response = await fetch("/api/inspect", {
           method: "POST",
           headers: { "content-type": "application/json" },
@@ -1014,6 +1217,10 @@ function renderHtml() {
         const payload = Object.fromEntries(new FormData(mockForm).entries());
         payload.includeReset = mockForm.elements.includeReset.checked;
         payload.insecureTls = mockForm.elements.insecureTls.checked;
+        writeRecentSettings({
+          mockBaseUrl: String(payload.baseUrl || ""),
+          mockInsecureTls: payload.insecureTls,
+        });
         const response = await fetch("/api/mock-scenario", {
           method: "POST",
           headers: { "content-type": "application/json" },
@@ -1029,6 +1236,39 @@ function renderHtml() {
         mockButton.disabled = false;
       }
     });
+
+    issueTokenButton.addEventListener("click", async () => {
+      issueTokenButton.disabled = true;
+      tokenHelperStatus.textContent = "Issuing token.";
+      try {
+        const response = await fetch("/api/mock-oauth-token", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            baseUrl: currentMockBaseUrl(),
+            clientId: form.elements.oauthClientId.value,
+            clientSecret: form.elements.oauthClientSecret.value,
+            scope: form.elements.oauthScope.value,
+            insecureTls: form.elements.insecureTls.checked,
+          }),
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || "Token issuance failed.");
+        form.elements.authMode.value = "bearer";
+        form.elements.bearerToken.value = data.accessToken;
+        updateAuthFields();
+        tokenHelperStatus.textContent = "Token issued and filled. Scope: " + (data.scope || "all allowed endpoints");
+      } catch (error) {
+        tokenHelperStatus.textContent = error.message || String(error);
+      } finally {
+        issueTokenButton.disabled = false;
+      }
+    });
+
+    form.elements.authMode.addEventListener("change", updateAuthFields);
+    form.elements.mockRoutePreset.addEventListener("change", applyMockRoutePreset);
+    updateAuthFields();
+    hydrateRecentSettings();
   </script>
 </body>
 </html>`;
@@ -1055,6 +1295,12 @@ function createInspectorServer() {
       if (request.method === "POST" && url.pathname === "/api/mock-scenario") {
         const body = await readJson(request);
         const result = await inspectMockServerScenario(body);
+        jsonResponse(response, 200, result);
+        return;
+      }
+      if (request.method === "POST" && url.pathname === "/api/mock-oauth-token") {
+        const body = await readJson(request);
+        const result = await issueMockOAuthToken(body);
         jsonResponse(response, 200, result);
         return;
       }

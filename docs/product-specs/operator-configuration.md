@@ -25,7 +25,12 @@ Connection guide
 - Config and Inspector expose copy buttons for operational commands and connection URLs so users can move from UI guidance to terminal/client tests without manual selection errors
 - MCP Inspector integration is documented as an external `npx` tool with local Streamable HTTP targets for `/mcp`, `/mcp/none`, `/mcp/basic`, and `/mcp/oauth`
 - The Mock UI exposes an `/inspector` verification hub for standalone inspector UI launch, Mock Server scenario execution, local inspector commands, upstream Inspector targets, Basic/OAuth preparation, and diagnostics interpretation
+- The Inspector hub exposes authorization-code verification aids generated from current config and OAuth client state: authorization URL, token-exchange curl, Bearer MCP curl, effective base URL source, issuer, token endpoint, selected client, redirect callback origin, and allowed endpoint count
 - The standalone inspector UI runs outside the Mock Server app and can inspect any MCP Streamable HTTP endpoint using URL, headers, and optional `tools/call` arguments
+- The standalone inspector UI provides a generic-target Authorization helper for no-auth, Basic username/password, and Bearer token requests before merging those values into the standard headers sent to the inspection API
+- The standalone inspector UI provides Mock route presets for `/mcp/none`, `/mcp/basic`, and `/mcp/oauth` based on the visible Mock Server base URL, including seeded Basic test credentials only after explicit preset selection
+- The standalone inspector UI provides a Mock OAuth `client_credentials` token helper for `/mcp/oauth` preset checks by calling the target Mock Server `/oauth/token` endpoint and filling the Bearer field
+- The standalone inspector UI remembers only non-secret local target settings in browser storage and intentionally avoids persisting headers, Basic passwords, Bearer tokens, OAuth client secrets, root passwords, reset choices, and tool argument payloads
 - The standalone inspector UI and project-specific inspector expose an explicit self-signed HTTPS option for local app-level TLS tests, without disabling TLS verification globally
 - The standalone inspector UI also provides a Mock Server scenario runner that creates temporary data, verifies REST/MCP/Basic/OAuth/token/audit/reset-guard behavior, and cleans up mutable temporary records
 - A project-specific local inspector command verifies the main local Mock Server surfaces across admin APIs, REST, MCP, Basic Auth, OAuth, token revocation, audit, and reset guards
@@ -46,5 +51,6 @@ Connection guide
 - TLS runtime config reports whether app-level HTTPS certificate and key inputs are configured without exposing certificate material or passphrases
 - TLS startup smoke checks must pass against a self-signed local HTTPS server with scoped insecure verification
 - Inspector helper scripts and config target the documented local MCP routes without vendoring upstream Inspector source
+- Inspector hub E2E checks cover authorization-code guidance and base URL diagnostics in addition to command/target rendering
 - The project-specific inspector can run without root credentials by default and only performs destructive root reset when explicitly requested
 - The local inspector diagnostics report must fail the command when protocol-facing invariants are missing, not merely print warnings

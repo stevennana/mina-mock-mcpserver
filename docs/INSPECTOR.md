@@ -13,6 +13,7 @@ This repository provides two local inspector paths:
 - a Mock Server scenario runner, available from both the standalone UI and the project-specific CLI, for full mock-server smoke coverage across HTTP admin APIs, REST, MCP, Basic Auth, OAuth, tokens, audit, and reset guards
 
 The Mock Server admin UI also includes `/inspector`, a focused verification hub that collects the standalone UI command, local inspector commands, upstream Inspector targets, Basic/OAuth setup steps, and protocol diagnostics guidance in one place.
+The hub also renders an authorization-code guide from the current base URL and configured OAuth clients: authorization URL, token-exchange curl, Bearer MCP curl, issuer/token endpoint diagnostics, selected client, redirect callback origin, and allowed endpoint count.
 
 ## What Inspector Covers
 
@@ -51,9 +52,14 @@ The page is served by `scripts/standalone-inspector-server.mjs`, independently f
 
 - MCP endpoint URL
 - MCP protocol version
-- extra headers as JSON, such as `{"Authorization":"Bearer ..."}` or Basic Auth
+- Mock Server route presets for `/mcp/none`, `/mcp/basic`, and `/mcp/oauth`
+- an Authorization helper for no-auth, Basic username/password, or Bearer token calls
+- a Mock OAuth token helper that issues a standard `client_credentials` token from the configured Mock Server base URL and fills the Bearer token field
+- extra headers as JSON for API keys or custom local server requirements
 - an opt-in self-signed HTTPS mode for local certificates created with `npm run cert:dev` or similar tooling
 - optional tool name and JSON arguments for `tools/call`
+
+The standalone page remembers recent target URLs, protocol version, self-signed TLS preference, and tool name in browser `localStorage` so repeated local checks are quicker. It does not persist extra headers, Basic passwords, Bearer tokens, OAuth client secrets, tool arguments, root passwords, access tokens, or reset choices.
 
 The standalone UI has two modes.
 

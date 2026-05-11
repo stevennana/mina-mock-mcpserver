@@ -137,6 +137,13 @@ test("operator config health, base URL override, connection guide, and logs guid
   await expect(page.getByRole("heading", { name: "HTTPS self-signed local flow" })).toBeVisible();
   await expect(page.getByText("npm run start:tls:smoke")).toBeVisible();
   await expect(page.getByRole("button", { name: "Copy: npm run inspector:mock -- --base-url https://127.0.0.1:3443 --insecure-tls" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "OAuth authorization-code guide" })).toBeVisible();
+  await expect(page.getByText("https://operator.example/oauth/authorize?response_type=code")).toBeVisible();
+  await expect(page.getByText("-d 'grant_type=authorization_code'")).toBeVisible();
+  await expect(page.getByRole("button", { name: /Copy authorization URL/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Base URL diagnostics" })).toBeVisible();
+  await expect(page.getByText("OAuth issuer")).toBeVisible();
+  await expect(page.getByText("Selected client")).toBeVisible();
   await expect(page.getByLabel("MCP client config example")).toContainText("mcp-mock-oauth");
   await expect(page.getByLabel("REST and OAuth curl examples")).toContainText("curl https://operator.example/rest/tools");
   await page.goto("/config");

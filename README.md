@@ -79,6 +79,7 @@ http://127.0.0.1:3100
 ```
 
 Then click **Run Mock Server scenario**. The UI creates temporary endpoint, Basic user, OAuth user, OAuth client, and token records; verifies the main REST/MCP/Auth flows; and cleans up mutable temporary records when it finishes.
+The page remembers recent target URLs, protocol version, self-signed TLS preference, and optional tool name in your browser only. It does not store extra headers, Basic passwords, Bearer tokens, client secrets, root passwords, reset choices, or tool argument payloads.
 
 The scenario covers:
 
@@ -91,6 +92,8 @@ The scenario covers:
 Root reset is skipped unless you explicitly enable the destructive reset checkbox and provide the root password.
 
 This broad scenario is the fastest user-facing proof that the standalone Inspector can reach the Mock Server and exercise the server's protocol/runtime surfaces. It intentionally uses the non-interactive OAuth `client_credentials` grant so the whole scenario can run from one button. To verify the browser authorization-code and consent flow, follow **Step 4: Test OAuth Bearer Permissions** below.
+
+The Mock Server admin UI also has an `/inspector` page. Open **Operations > Inspector** when you want copy-ready commands plus an OAuth authorization-code guide generated from the current base URL and OAuth client state. That page shows the authorization URL, token exchange curl, Bearer MCP curl, issuer, token endpoint, selected client, redirect callback origin, and allowed endpoint count.
 
 For a portable generic MCP check, enter an MCP endpoint URL such as:
 
@@ -106,7 +109,7 @@ Then click **Run generic inspection**. The page runs from its own lightweight lo
 - protocol-version response evidence
 - an unsupported protocol-version probe
 
-Use the **Extra headers JSON** field for Basic, Bearer, API key, or custom headers:
+Use **Mock route preset** when you want the page to fill `/mcp/none`, `/mcp/basic`, or `/mcp/oauth` from the Mock Server base URL. The Basic preset fills the seeded `default/default` test credentials. For the OAuth preset, click **Issue Mock OAuth token** to request a standard `client_credentials` token from the Mock Server and fill the Bearer field. Use **Authorization helper** directly for other Basic username/password or Bearer token calls. Use **Extra headers JSON** for API keys or custom headers:
 
 ```json
 {"Authorization":"Bearer ey..."}

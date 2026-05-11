@@ -2,6 +2,7 @@ import { AppNav } from "@/app/app-nav";
 import { headers } from "next/headers";
 import { getPublicOperatorConfig } from "@/lib/operator/config";
 import { CopyButton } from "@/app/copy-button";
+import { listOAuthClients } from "@/lib/oauth/service";
 
 export const dynamic = "force-dynamic";
 
@@ -10,7 +11,38 @@ export default async function InspectorPage() {
   const host = requestHeaders.get("host") ?? "localhost:3000";
   const protocol = requestHeaders.get("x-forwarded-proto") ?? "http";
   const request = new Request(`${protocol}://${host}/inspector`, { headers: requestHeaders });
-  const config = await getPublicOperatorConfig(request);
+  const [config, oauthClientData] = await Promise.all([getPublicOperatorConfig(request), listOAuthClients()]);
+  const oauthClient = oauthClientData.clients.find((client) => client.builtIn) ?? oauthClientData.clients[0] ?? null;
+  const redirectUri = oauthClient?.redirectUris[0] ?? "";
+  const authorizeUrl = oauthClient && redirectUri
+    ? `${config.routes.oauth.authorizationEndpoint}?${new URLSearchParams({
+      response_type: "code",
+      client_id: oauthClient.clientId,
+      redirect_uri: redirectUri,
+      resource: config.baseUrl.baseUrl,
+      state: "local-inspector-demo",
+    })}`
+    : "";
+  const clientSecretHint = oauthClient?.builtIn ? "default" : "PASTE_CLIENT_SECRET";
+  const tokenExchangeCurl = oauthClient && redirectUri
+    ? [
+      `curl -X POST ${config.routes.oauth.tokenEndpoint}`,
+      "-H 'content-type: application/x-www-form-urlencoded'",
+      "-d 'grant_type=authorization_code'",
+      "-d 'code=PASTE_AUTHORIZATION_CODE'",
+      `-d 'redirect_uri=${redirectUri}'`,
+      `-d 'client_id=${oauthClient.clientId}'`,
+      `-d 'client_secret=${clientSecretHint}'`,
+    ].join(" \\\n  ")
+    : "";
+  const oauthMcpCurl = `curl -X POST ${config.routes.mcp.oauth} \\
+  -H 'content-type: application/json' \\
+  -H 'accept: application/json, text/event-stream' \\
+  -H 'MCP-Protocol-Version: 2025-06-18' \\
+  -H 'authorization: Bearer PASTE_ACCESS_TOKEN' \\
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'`;
+  const redirectOrigin = redirectUri ? new URL(redirectUri).origin : "No redirect URI configured";
+  const baseOrigin = new URL(config.baseUrl.baseUrl).origin;
 
   return (
     <main className="shell app-shell">
@@ -134,6 +166,70 @@ export default async function InspectorPage() {
             <li>Pass the token to MCP Inspector as an Authorization bearer header for the OAuth target.</li>
             <li>Use Tokens to inspect claims and revoke the token, then rerun the same call to confirm 401 behavior.</li>
           </ol>
+        </section>
+
+        <section className="panel guide-panel" aria-labelledby="oauth-code-title">
+          <h2 id="oauth-code-title">OAuth authorization-code guide</h2>
+          <p className="section-note">
+            Use this when you want to verify the browser login and consent flow before pasting the Bearer token into Inspector or another MCP client.
+          </p>
+          {oauthClient && redirectUri ? (
+            <div className="guide-list">
+              <div>
+                <span>1. Open authorization URL</span>
+                <div className="copy-row">
+                  <code>{authorizeUrl}</code>
+                  <CopyButton value={authorizeUrl} label="Copy authorization URL" />
+                </div>
+              </div>
+              <div>
+                <span>2. Exchange returned code</span>
+                <div className="copy-row">
+                  <code>{tokenExchangeCurl}</code>
+                  <CopyButton value={tokenExchangeCurl} label="Copy token exchange curl" />
+                </div>
+              </div>
+              <div>
+                <span>3. Call OAuth MCP route</span>
+                <div className="copy-row">
+                  <code>{oauthMcpCurl}</code>
+                  <CopyButton value={oauthMcpCurl} label="Copy OAuth MCP curl" />
+                </div>
+              </div>
+            </div>
+          ) : (
+            <p className="empty-state">Create an OAuth client with at least one redirect URI before running the authorization-code flow.</p>
+          )}
+        </section>
+
+        <section className="panel guide-panel" aria-labelledby="diagnostics-title">
+          <h2 id="diagnostics-title">Base URL diagnostics</h2>
+          <dl className="detail-grid">
+            <div>
+              <dt>Effective base URL</dt>
+              <dd>{config.baseUrl.baseUrl}</dd>
+            </div>
+            <div>
+              <dt>Source</dt>
+              <dd>{config.baseUrl.source}</dd>
+            </div>
+            <div>
+              <dt>OAuth issuer</dt>
+              <dd>{config.routes.oauth.issuer}</dd>
+            </div>
+            <div>
+              <dt>Token endpoint</dt>
+              <dd>{config.routes.oauth.tokenEndpoint}</dd>
+            </div>
+            <div>
+              <dt>Selected client</dt>
+              <dd>{oauthClient ? `${oauthClient.clientId} (${oauthClient.allowedEndpointIds.length} endpoints)` : "No OAuth client"}</dd>
+            </div>
+            <div>
+              <dt>Redirect callback origin</dt>
+              <dd>{redirectOrigin === baseOrigin ? "Same as base URL" : redirectOrigin}</dd>
+            </div>
+          </dl>
         </section>
 
         <section className="panel guide-panel" aria-labelledby="examples-title">
