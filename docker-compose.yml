@@ -1,8 +1,6 @@
 services:
   mcp-mock-server:
-    build:
-      context: .
-    image: mina-mock-mcpserver:local
+    image: stevenna050/mina-mock-mcpserver:v1.0.0
     ports:
       - "3000:3000"
     environment:
