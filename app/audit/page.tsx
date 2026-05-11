@@ -3,6 +3,8 @@ import { listAuditEvents } from "@/lib/audit/service";
 import { formatDateTime } from "@/lib/date-format";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 export default async function AuditPage() {
   const events = await listAuditEvents();
 
