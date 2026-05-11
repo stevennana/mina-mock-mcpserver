@@ -7,6 +7,7 @@ import { promisify } from "node:util";
 import test from "node:test";
 import { createPrismaClient } from "@/lib/db/client";
 import { seedAllDefaults } from "@/lib/db/seed";
+import packageJson from "../../package.json";
 import {
   getOperatorHealth,
   getPublicOperatorConfig,
@@ -115,6 +116,7 @@ test("operator public config and health report persisted runtime state", async (
   await withIsolatedDb(async (client) => {
     const health = await getOperatorHealth(client);
     assert.equal(health.status, "ok");
+    assert.equal(health.version, packageJson.version);
     assert.equal(health.database.status, "ok");
     assert.ok(health.database.counts);
     assert.equal(health.database.counts.endpoints, 1);

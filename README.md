@@ -60,7 +60,7 @@ The local development server uses port `3100`. Docker Compose exposes port `3000
 
 ### Standalone Inspector UI
 
-Use the standalone Inspector UI when you want a local browser page for either a broad Mock Server scenario or a portable MCP endpoint check:
+Use the standalone Inspector UI when you want a local browser page for a broad Mock Server scenario, a portable MCP endpoint check, or the Mock OAuth browser authorization flow:
 
 ```bash
 npm run inspector:ui
@@ -72,11 +72,12 @@ Open:
 http://127.0.0.1:3200
 ```
 
-The standalone Inspector opens to a choice screen with **Mock scenario** and **Generic MCP target**. Direct URLs are also available:
+The standalone Inspector opens to a choice screen with **Mock scenario**, **Generic MCP target**, and **OAuth popup flow**. Direct URLs are also available:
 
 ```text
 http://127.0.0.1:3200/mock
 http://127.0.0.1:3200/generic
+http://127.0.0.1:3200/oauth
 ```
 
 For the broad Mock Server scenario, keep the default base URL:
@@ -98,7 +99,7 @@ The scenario covers:
 
 Root reset is skipped unless you explicitly enable the destructive reset checkbox and provide the root password.
 
-This broad scenario is the fastest user-facing proof that the standalone Inspector can reach the Mock Server and exercise the server's protocol/runtime surfaces. It intentionally uses the non-interactive OAuth `client_credentials` grant so the whole scenario can run from one button. To verify the browser authorization-code and consent flow, follow **Step 4: Test OAuth Bearer Permissions** below.
+This broad scenario is the fastest user-facing proof that the standalone Inspector can reach the Mock Server and exercise the server's protocol/runtime surfaces. It intentionally uses the non-interactive OAuth `client_credentials` grant so the whole scenario can run from one button. To verify the browser authorization-code and consent flow, use the standalone **OAuth popup flow** at `/oauth`.
 
 The Mock Server admin UI also has an `/inspector` page. Open **Operations > Inspector** when you want copy-ready commands plus an OAuth authorization-code guide generated from the current base URL and OAuth client state. That page shows the authorization URL, token exchange curl, Bearer MCP curl, issuer, token endpoint, selected client, redirect callback origin, and allowed endpoint count.
 
@@ -123,6 +124,10 @@ Use **Mock route preset** when you want the page to fill `/mcp/none`, `/mcp/basi
 ```
 
 If your target is a local HTTPS server with a self-signed certificate, enable **Allow self-signed HTTPS for this run**. Keep it off for public or production-like targets.
+
+The Generic MCP target page also includes **Copy target config JSON**, **Import target config JSON**, and a compact request history for the current browser tab. The copied config intentionally excludes passwords and Bearer tokens.
+
+Use **OAuth popup flow** at `/oauth` when you want to verify the full Mock OAuth browser path. The page prepares a temporary local callback client, opens the Mock Server login/consent pages in a popup, captures the returned authorization code, exchanges it with PKCE S256, and sends the Bearer token into the Generic MCP target page for `/mcp/oauth` verification. The seeded OAuth login user is `default` / `default`.
 
 The Mock Server MCP routes also allow browser-based Inspector origins directly. `/mcp`, `/mcp/none`, `/mcp/basic`, `/mcp/oauth`, `/sse`, `/sse/none`, `/sse/basic`, and `/sse/oauth` answer `OPTIONS` preflight requests and return `Access-Control-Allow-Origin: *` on protocol responses so the upstream MCP Inspector UI can call them from `http://localhost:6274`.
 
