@@ -5,9 +5,11 @@ import { recordAuditEvent } from "@/lib/audit/service";
 import { verifyRootPassword } from "@/lib/security/root-password";
 import { getBootstrapStatus } from "@/lib/bootstrap-status";
 import { operatorLog } from "@/lib/operator/logger";
+import packageJson from "../../package.json";
 
 const BASE_URL_SETTING_KEY = "baseUrl";
 const LOCAL_FALLBACK_BASE_URL = "http://localhost:3000";
+const APP_VERSION = process.env.APP_VERSION ?? packageJson.version;
 
 type ConfigClient = Pick<
   PrismaClient,
@@ -161,7 +163,7 @@ export async function getOperatorHealth(client: ConfigClient = createPrismaClien
     ]);
     return {
       status: "ok",
-      version: "1.0.0",
+      version: APP_VERSION,
       runtime: status,
       database: {
         status: "ok",
@@ -174,7 +176,7 @@ export async function getOperatorHealth(client: ConfigClient = createPrismaClien
     operatorLog("error", "health check failed", { error: error instanceof Error ? error.message : "unknown_error" });
     return {
       status: "error",
-      version: "1.0.0",
+      version: APP_VERSION,
       runtime: status,
       database: {
         status: "error",
