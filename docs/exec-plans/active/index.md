@@ -30,6 +30,7 @@ Task filenames are ordered for human scanning, while Ralph state and promotion u
 23. `023-operator-config-health-logs.md` -> `operator-config-health-logs` -> Complete operator-facing health, public config, base URL behavior, connection guide, root-protected config changes, and server logging.
 24. `024-docker-nginx-final-hardening.md` -> `docker-nginx-final-hardening` -> Package and reconcile the MVP for operator handoff with Docker/Nginx examples, final docs, debt tracking, and full deterministic proof.
 25. `025-inspector-compatibility-pack.md` -> `inspector-compatibility-pack` -> Improve upstream Inspector compatibility with broader runtime CORS, Streamable HTTP GET SSE, legacy SSE aliases, PKCE, standard revoke, Inspector launch/config docs, and verification coverage.
+26. `026-inspector-popup-oauth-flow.md` -> `inspector-popup-oauth-flow` -> Add project-owned standalone Inspector popup OAuth authorization-code verification and upstream Inspector-inspired target workflow helpers.
 
 ## Split Rationale
 

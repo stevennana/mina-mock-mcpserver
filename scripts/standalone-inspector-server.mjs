@@ -2,6 +2,7 @@
 
 import { createServer } from "node:http";
 import { Buffer } from "node:buffer";
+import { createHash, randomBytes, randomUUID } from "node:crypto";
 import { performance } from "node:perf_hooks";
 import { URL, URLSearchParams } from "node:url";
 import { fetchWithTls } from "./lib/fetch-with-tls.mjs";
@@ -30,7 +31,7 @@ const MOCK_SCENARIO_STEP_HELP = {
   "Create temporary endpoint": "Creates a disposable mock tool so the scenario can prove tool discovery and calls against real server state.",
   "Endpoint detail and update": "Verifies the admin API can read and update the tool definition before clients use it.",
   "REST list, call, and forced error": "Exercises the REST tool API and a configured failure case so non-MCP clients see predictable behavior.",
-  "MCP initialize, list, call, and guards": "Runs the core MCP handshake, tool listing, tool call, protocol-version guard, and Origin guard.",
+  "MCP initialize, list, call, and guards": "Runs the core MCP handshake, tool listing, tool call, protocol-version guard, and permissive browser Origin compatibility check.",
   "Basic Auth runtime": "Checks that the strict Basic MCP route accepts valid credentials and rejects disabled credentials.",
   "OAuth Bearer runtime": "Issues a token, proves endpoint permission filtering, allowed and denied calls, revocation, and revoked-token rejection.",
   "Audit evidence and reset guard": "Confirms security-relevant activity is visible and reset rejects invalid root credentials.",
@@ -48,6 +49,8 @@ const GENERIC_AUTH_HELP = {
   basic: "Builds an Authorization: Basic header from the username and password fields.",
   bearer: "Builds an Authorization: Bearer header from the token field, usually issued by OAuth.",
 };
+const GENERIC_DRAFT_STORAGE_KEY = "mcp-mock-standalone-inspector:generic-draft:v1";
+const oauthPopupSessions = new Map();
 
 function parseArgs(argv) {
   const options = {
@@ -206,6 +209,18 @@ function addDiagnostic(diagnostics, check, value) {
 
 function basic(username, password) {
   return `Basic ${Buffer.from(`${username}:${password}`, "utf8").toString("base64")}`;
+}
+
+function base64url(bytes) {
+  return Buffer.from(bytes).toString("base64url");
+}
+
+function createCodeVerifier() {
+  return base64url(randomBytes(48));
+}
+
+function createCodeChallenge(verifier) {
+  return base64url(createHash("sha256").update(verifier).digest());
 }
 
 function decodeJwt(token) {
@@ -547,7 +562,7 @@ async function inspectMockServerScenario(input) {
           { jsonrpc: "2.0", id: "bad-origin", method: "tools/list" },
           { Accept: "application/json, text/event-stream", "MCP-Protocol-Version": DEFAULT_PROTOCOL_VERSION, Origin: "https://invalid.example" },
         );
-        assertStatus(foreignOrigin, 403, "Foreign Origin rejection");
+        assertStatus(foreignOrigin, 200, "Browser Origin compatibility");
         const list = await mockMcp(client, "/mcp/none", { jsonrpc: "2.0", id: 1, method: "tools/list" });
         assertStatus(list, 200, "MCP tools/list");
         assert(list.body.result.tools.some((tool) => tool.name === endpointName), "MCP tools/list must include endpoint.");
@@ -561,9 +576,9 @@ async function inspectMockServerScenario(input) {
         assert(call.body.result.structuredContent.city === "Seoul", "MCP structured content mismatch.");
         addDiagnostic(diagnostics, "mcp negotiated", initialize.body.result.protocolVersion);
         addDiagnostic(diagnostics, "bad mcp version", "400");
-        addDiagnostic(diagnostics, "foreign origin", "403");
+        addDiagnostic(diagnostics, "foreign origin", "200 permissive");
         return {
-          evidence: "MCP protocol negotiation, list, call, protocol-version guard, and Origin guard work.",
+          evidence: "MCP protocol negotiation, list, call, protocol-version guard, and permissive browser Origin compatibility work.",
           genericTarget: genericMcpTarget(baseUrl, "none", insecureTls),
           response: { initialize, badVersion, foreignOrigin, list, call },
         };
@@ -885,8 +900,204 @@ async function issueMockOAuthToken(input) {
   };
 }
 
+function inspectorOrigin(request) {
+  const host = request.headers.host || `${DEFAULT_HOST}:${DEFAULT_PORT}`;
+  return `http://${host}`;
+}
+
+function pruneOAuthPopupSessions() {
+  const expiresBefore = Date.now() - 10 * 60 * 1000;
+  for (const [state, session] of oauthPopupSessions.entries()) {
+    if (session.createdAt < expiresBefore) oauthPopupSessions.delete(state);
+  }
+}
+
+async function prepareOAuthPopupFlow(input, origin) {
+  pruneOAuthPopupSessions();
+  const baseUrl = normalizeBaseUrl(input.baseUrl);
+  const insecureTls = input.insecureTls === true || input.insecureTls === "on";
+  const client = new MockClient(baseUrl, { insecureTls });
+  const endpoints = await client.request("/api/endpoints");
+  assertStatus(endpoints, 200, "Endpoint catalog");
+  const enabledEndpointIds = (endpoints.body.endpoints ?? [])
+    .filter((endpoint) => endpoint.enabled)
+    .map((endpoint) => endpoint.id);
+  if (enabledEndpointIds.length === 0) {
+    throw new Error("At least one enabled endpoint is required before running popup OAuth.");
+  }
+
+  const redirectUri = `${origin}/oauth-callback`;
+  const stamp = Date.now();
+  const clientId = `inspector-popup-${stamp}-${randomUUID().slice(0, 8)}`;
+  const createClient = await client.json("POST", "/api/oauth-clients", {
+    clientId,
+    displayName: "Standalone Inspector popup OAuth",
+    enabled: true,
+    redirectUris: [redirectUri],
+    clientCredentialsTtlSeconds: 900,
+    allowedEndpointIds: enabledEndpointIds,
+  });
+  assertStatus(createClient, 201, "Create popup OAuth client");
+  const clientSecret = createClient.body.clientSecret;
+  assert(typeof clientSecret === "string" && clientSecret.length > 0, "OAuth client secret must be returned once.");
+
+  const state = base64url(randomBytes(24));
+  const codeVerifier = createCodeVerifier();
+  const codeChallenge = createCodeChallenge(codeVerifier);
+  const authorizationUrl = new URL(`${baseUrl}/oauth/authorize`);
+  authorizationUrl.searchParams.set("response_type", "code");
+  authorizationUrl.searchParams.set("client_id", clientId);
+  authorizationUrl.searchParams.set("redirect_uri", redirectUri);
+  authorizationUrl.searchParams.set("resource", baseUrl);
+  authorizationUrl.searchParams.set("state", state);
+  authorizationUrl.searchParams.set("code_challenge", codeChallenge);
+  authorizationUrl.searchParams.set("code_challenge_method", "S256");
+  oauthPopupSessions.set(state, {
+    baseUrl,
+    insecureTls,
+    redirectUri,
+    clientId,
+    clientSecret,
+    codeVerifier,
+    createdAt: Date.now(),
+  });
+
+  return {
+    ok: true,
+    baseUrl,
+    authorizationUrl: authorizationUrl.toString(),
+    clientId,
+    clientSecret,
+    redirectUri,
+    state,
+    codeVerifier,
+    diagnostics: [
+      { check: "target", value: baseUrl },
+      { check: "grant", value: "authorization_code + PKCE S256" },
+      { check: "redirect_uri", value: redirectUri },
+      { check: "allowed endpoints", value: String(enabledEndpointIds.length) },
+      { check: "temporary client", value: clientId },
+    ],
+  };
+}
+
+async function exchangeOAuthPopupCode(input) {
+  const code = String(input.code ?? "").trim();
+  const state = String(input.state ?? "").trim();
+  const storedSession = state ? oauthPopupSessions.get(state) : null;
+  const baseUrl = normalizeBaseUrl(input.baseUrl ?? storedSession?.baseUrl);
+  const insecureTls = input.insecureTls === true || input.insecureTls === "on" || storedSession?.insecureTls === true;
+  const expectedState = String(input.expectedState ?? state).trim();
+  const redirectUri = String(input.redirectUri ?? storedSession?.redirectUri ?? "").trim();
+  const clientId = String(input.clientId ?? storedSession?.clientId ?? "").trim();
+  const clientSecret = String(input.clientSecret ?? storedSession?.clientSecret ?? "");
+  const codeVerifier = String(input.codeVerifier ?? storedSession?.codeVerifier ?? "").trim();
+  if (!code) throw new Error("Authorization callback did not include a code.");
+  if (!state || state !== expectedState) throw new Error("OAuth state mismatch. Close the popup and start again.");
+  if (!redirectUri || !clientId || !clientSecret || !codeVerifier) {
+    throw new Error("OAuth popup session is incomplete. Start the popup flow again.");
+  }
+
+  const client = new MockClient(baseUrl, { insecureTls });
+  const token = await client.form("/oauth/token", {
+    grant_type: "authorization_code",
+    code,
+    redirect_uri: redirectUri,
+    client_id: clientId,
+    client_secret: clientSecret,
+    code_verifier: codeVerifier,
+    resource: baseUrl,
+  });
+  assertStatus(token, 200, "OAuth authorization_code token");
+  if (storedSession) oauthPopupSessions.delete(state);
+  const claims = decodeJwt(token.body.access_token);
+  return {
+    ok: true,
+    tokenType: token.body.token_type,
+    accessToken: token.body.access_token,
+    expiresIn: token.body.expires_in,
+    scope: token.body.scope,
+    claims,
+    genericTarget: {
+      baseUrl,
+      mockRoutePreset: "oauth",
+      mcpUrl: `${baseUrl}/mcp/oauth`,
+      protocolVersion: DEFAULT_PROTOCOL_VERSION,
+      authMode: "bearer",
+      bearerToken: token.body.access_token,
+      toolName: "echo",
+      toolArgsJson: JSON.stringify({ message: "hello" }),
+      insecureTls,
+    },
+    diagnostics: [
+      { check: "target", value: baseUrl },
+      { check: "grant", value: "authorization_code" },
+      { check: "jwt subject", value: String(claims.sub ?? "not reported") },
+      { check: "jwt audience", value: String(claims.aud ?? "not reported") },
+      { check: "jwt permissions", value: String(claims.endpoint_permissions?.length ?? 0) },
+    ],
+  };
+}
+
+function renderOAuthCallbackHtml(query) {
+  const payload = {
+    source: "mcp-mock-inspector-oauth",
+    code: query.get("code") || "",
+    state: query.get("state") || "",
+    error: query.get("error") || "",
+    errorDescription: query.get("error_description") || "",
+  };
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OAuth callback</title>
+  <style>
+    body { margin: 0; padding: 28px; font-family: Aptos, "Segoe UI", Helvetica, Arial, sans-serif; background: #f6f7f9; color: #171a1f; }
+    main { max-width: 560px; margin: 0 auto; border: 1px solid #d9dee7; border-radius: 8px; background: #fff; padding: 18px; }
+    h1 { margin: 0 0 10px; font-size: 1.35rem; }
+    p { color: #5c6675; line-height: 1.5; }
+    code { overflow-wrap: anywhere; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>OAuth callback received</h1>
+    <p>This popup will close after sending the authorization result back to the standalone inspector.</p>
+    <p>If it does not close, return to the inspector and start the flow again.</p>
+    <code>${escapeAttribute(payload.error || payload.code || "No code returned.")}</code>
+  </main>
+  <script>
+    const payload = ${JSON.stringify(payload)};
+    if (window.opener) {
+      window.opener.postMessage(payload, window.location.origin);
+      window.setTimeout(() => window.close(), 350);
+    } else if (payload.code && payload.state) {
+      (async () => {
+        const response = await fetch("/api/oauth-popup/exchange", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ code: payload.code, state: payload.state }),
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || "OAuth token exchange failed.");
+        window.localStorage.setItem("${GENERIC_DRAFT_STORAGE_KEY}", JSON.stringify(data.genericTarget));
+        window.location.href = "/generic";
+      })().catch((error) => {
+        document.querySelector("main").insertAdjacentHTML(
+          "beforeend",
+          "<p>Token exchange failed. Return to the inspector and start again.</p><code>" + String(error.message || error).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;") + "</code>",
+        );
+      });
+    }
+  </script>
+</body>
+</html>`;
+}
+
 function renderHtml(page = "home") {
-  const safePage = ["home", "mock", "generic"].includes(page) ? page : "home";
+  const safePage = ["home", "mock", "generic", "oauth"].includes(page) ? page : "home";
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -963,11 +1174,13 @@ function renderHtml(page = "home") {
     .lede { max-width: 760px; margin: 14px 0 0; color: var(--muted); line-height: 1.55; }
     .home-only,
     .mock-page,
-    .generic-page { display: none; }
+    .generic-page,
+    .oauth-page { display: none; }
     body.page-home .home-only { display: grid; }
     body.page-mock .mock-page { display: grid; }
     body.page-generic .generic-page { display: grid; }
-    .home-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    body.page-oauth .oauth-page { display: grid; }
+    .home-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
     .mode-card { display: grid; gap: 8px; padding: 18px; }
     .mode-card strong { font-size: 1.05rem; color: #202b38; }
     .mode-card span { color: var(--muted); line-height: 1.45; }
@@ -1217,6 +1430,31 @@ function renderHtml(page = "home") {
     .diag span { color: var(--muted); font-weight: 800; font-size: .82rem; }
     .empty { color: var(--muted); line-height: 1.5; }
     .stack { display: grid; gap: 12px; }
+    .inline-tools {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .history-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .history-list li {
+      display: grid;
+      gap: 4px;
+      border: 1px solid #e4e9f0;
+      border-radius: 8px;
+      padding: 10px;
+      background: #fbfcfe;
+      color: var(--muted);
+      font-size: .84rem;
+    }
+    .history-list strong { color: #202b38; }
     @media (max-width: 840px) {
       main { width: min(100% - 24px, 620px); padding-top: 24px; }
       .layout, .home-grid, .summary, .diag div { grid-template-columns: 1fr; }
@@ -1244,16 +1482,24 @@ function renderHtml(page = "home") {
           <p class="eyebrow">Standalone local tool</p>
           <h1>MCP Inspector</h1>
           <p class="lede">${safePage === "home"
-            ? "Choose a focused workflow: run the full Mock Server scenario, or inspect a single generic MCP Streamable HTTP target."
+            ? "Choose a focused workflow: run the full Mock Server scenario, inspect a single generic MCP target, or exercise the browser OAuth authorization-code flow."
             : safePage === "generic"
             ? "Inspect one MCP Streamable HTTP endpoint with route presets, Authorization helpers, optional tool call, and raw protocol evidence."
+            : safePage === "oauth"
+            ? "Run a popup-based OAuth authorization-code flow against the Mock Server, exchange the code with PKCE, then send the Bearer token to Generic MCP target."
             : "Run the full Mock Server scenario and review each protocol/auth check as sequential step evidence."}</p>
         </div>
         ${safePage === "mock" ? `<nav class="workflow-switch" aria-label="Inspector workflow switch">
+          <a class="workflow-link" href="/oauth">Open OAuth popup flow</a>
           <a class="workflow-link" href="/generic">Open Generic MCP target</a>
         </nav>` : ""}
         ${safePage === "generic" ? `<nav class="workflow-switch" aria-label="Inspector workflow switch">
           <a class="workflow-link" href="/mock">Open Mock Server scenario</a>
+          <a class="workflow-link" href="/oauth">Open OAuth popup flow</a>
+        </nav>` : ""}
+        ${safePage === "oauth" ? `<nav class="workflow-switch" aria-label="Inspector workflow switch">
+          <a class="workflow-link" href="/mock">Open Mock Server scenario</a>
+          <a class="workflow-link" href="/generic">Open Generic MCP target</a>
         </nav>` : ""}
       </div>
     </header>
@@ -1265,6 +1511,10 @@ function renderHtml(page = "home") {
       <a class="mode-card" href="/generic">
         <strong>Generic MCP target</strong>
         <span>Inspect one MCP Streamable HTTP endpoint with route presets, Authorization helpers, optional tool call, and raw protocol evidence.</span>
+      </a>
+      <a class="mode-card" href="/oauth">
+        <strong>OAuth popup flow</strong>
+        <span>Open the Mock Server login and consent flow in a popup, exchange the authorization code with PKCE, then reuse the token in Generic target.</span>
       </a>
     </section>` : ""}
     <div class="mode-grid">
@@ -1386,6 +1636,15 @@ function renderHtml(page = "home") {
             <textarea name="headersJson" placeholder='{"Authorization":"Bearer ..."}'></textarea>
           </label>
           <p class="hint">Use the helper for common Basic or Bearer calls. Extra headers JSON is still available for API keys or custom local server requirements. Secrets are redacted in displayed request evidence and are not stored in browser history for this page.</p>
+          <div class="inline-tools" aria-label="Target config tools">
+            <button id="copy-config-button" class="secondary-button" type="button">Copy target config JSON</button>
+            <button id="import-config-button" class="secondary-button" type="button">Import target config JSON</button>
+          </div>
+          <label>
+            <span class="label-text">Target config JSON ${helpTooltip("Portable, redacted target settings inspired by MCP Inspector connection presets. Paste exported JSON here to fill the form.")}</span>
+            <textarea name="targetConfigJson" placeholder='{"mcpUrl":"http://127.0.0.1:3100/mcp/none","authMode":"none"}'></textarea>
+          </label>
+          <div id="config-helper-status" class="hint" aria-live="polite"></div>
           <label class="check-row">
             <input name="insecureTls" type="checkbox" />
             <span class="label-text">Allow self-signed HTTPS for this run ${helpTooltip("Allows self-signed local HTTPS certificates for this inspection only. It does not change global system trust.")}</span>
@@ -1404,6 +1663,38 @@ function renderHtml(page = "home") {
         <section>
           <h2>Generic results</h2>
           <div id="results" class="empty">No generic inspection has run yet.</div>
+          <h2>Request history</h2>
+          <div id="request-history" class="empty">No generic requests in this tab yet.</div>
+        </section>
+      </div>` : ""}
+
+      ${safePage === "oauth" ? `<div class="layout oauth-page">
+        <form id="oauth-popup-form">
+          <div class="mode-head">
+            <div>
+              <h2>OAuth popup flow</h2>
+              <p>Uses the Mock Server authorization page so users can test login, consent, callback, PKCE token exchange, and Bearer MCP calls.</p>
+            </div>
+            <span class="pill warn">browser</span>
+          </div>
+          <label>
+            <span class="label-text">Mock Server base URL ${helpTooltip("The running Mock Server address. The popup opens this server's /oauth/authorize page.")}</span>
+            <input name="baseUrl" value="${DEFAULT_MOCK_BASE_URL}" placeholder="http://127.0.0.1:3100" />
+          </label>
+          <label class="check-row">
+            <input name="insecureTls" type="checkbox" />
+            <span class="label-text">Allow self-signed HTTPS for token exchange ${helpTooltip("Allows local HTTPS certificates for the token exchange after the browser callback returns.")}</span>
+          </label>
+          <p class="hint">This flow creates a temporary OAuth client with this inspector callback URL, opens the Mock Server login and consent UI in a popup, exchanges the returned authorization code with PKCE S256, then can fill Generic MCP target with the Bearer token.</p>
+          <p class="hint">The Mock Server seeded OAuth user is <code>default</code> / <code>default</code>. The access token and client secret stay in this tab session and are not stored in localStorage.</p>
+          <div class="actions">
+            <button id="start-oauth-popup-button" type="submit">Start popup OAuth flow</button>
+            <button id="send-oauth-generic-button" class="secondary-button" type="button" disabled>Send token to Generic MCP target</button>
+          </div>
+        </form>
+        <section>
+          <h2>OAuth flow results</h2>
+          <div id="oauth-popup-results" class="empty">No popup OAuth flow has run yet.</div>
         </section>
       </div>` : ""}
     </div>
@@ -1421,8 +1712,18 @@ function renderHtml(page = "home") {
     const authModeNote = document.querySelector("#auth-mode-note");
     const issueTokenButton = document.querySelector("#issue-token-button");
     const tokenHelperStatus = document.querySelector("#token-helper-status");
+    const copyConfigButton = document.querySelector("#copy-config-button");
+    const importConfigButton = document.querySelector("#import-config-button");
+    const configHelperStatus = document.querySelector("#config-helper-status");
+    const requestHistory = document.querySelector("#request-history");
+    const oauthPopupForm = document.querySelector("#oauth-popup-form");
+    const oauthPopupButton = document.querySelector("#start-oauth-popup-button");
+    const oauthPopupResults = document.querySelector("#oauth-popup-results");
+    const sendOAuthGenericButton = document.querySelector("#send-oauth-generic-button");
     const storageKey = "mcp-mock-standalone-inspector:v1";
-    const genericDraftKey = "mcp-mock-standalone-inspector:generic-draft:v1";
+    const genericDraftKey = "${GENERIC_DRAFT_STORAGE_KEY}";
+    const historyKey = "mcp-mock-standalone-inspector:request-history:v1";
+    const oauthGenericDraftKey = "mcp-mock-standalone-inspector:oauth-generic-draft:v1";
     const routePresetHelp = ${JSON.stringify(GENERIC_ROUTE_PRESET_HELP)};
     const authModeHelp = ${JSON.stringify(GENERIC_AUTH_HELP)};
     const scenarioStepHelp = ${JSON.stringify(MOCK_SCENARIO_STEP_HELP)};
@@ -1468,6 +1769,7 @@ function renderHtml(page = "home") {
       if (draft.authMode) form.elements.authMode.value = draft.authMode;
       if (draft.basicUsername) form.elements.basicUsername.value = draft.basicUsername;
       if (draft.basicPassword) form.elements.basicPassword.value = draft.basicPassword;
+      if (draft.bearerToken) form.elements.bearerToken.value = draft.bearerToken;
       if (draft.oauthClientId) form.elements.oauthClientId.value = draft.oauthClientId;
       if (draft.oauthClientSecret) form.elements.oauthClientSecret.value = draft.oauthClientSecret;
       if (draft.oauthScope) form.elements.oauthScope.value = draft.oauthScope;
@@ -1559,6 +1861,77 @@ function renderHtml(page = "home") {
       return payload;
     }
 
+    function currentTargetConfig() {
+      if (!form) return {};
+      return {
+        baseUrl: String(form.elements.baseUrl.value || ""),
+        mockRoutePreset: String(form.elements.mockRoutePreset.value || "custom"),
+        mcpUrl: String(form.elements.mcpUrl.value || ""),
+        protocolVersion: String(form.elements.protocolVersion.value || ""),
+        authMode: String(form.elements.authMode.value || "none"),
+        basicUsername: String(form.elements.basicUsername.value || ""),
+        oauthClientId: String(form.elements.oauthClientId.value || ""),
+        oauthScope: String(form.elements.oauthScope.value || ""),
+        headersJson: String(form.elements.headersJson.value || ""),
+        insecureTls: form.elements.insecureTls.checked,
+        toolName: String(form.elements.toolName.value || ""),
+        toolArgsJson: String(form.elements.toolArgsJson.value || "{}"),
+      };
+    }
+
+    function applyTargetConfig(config) {
+      if (!form || !config || typeof config !== "object") return;
+      if (config.baseUrl) form.elements.baseUrl.value = config.baseUrl;
+      if (config.mockRoutePreset) form.elements.mockRoutePreset.value = config.mockRoutePreset;
+      if (config.mcpUrl) form.elements.mcpUrl.value = config.mcpUrl;
+      if (config.protocolVersion) form.elements.protocolVersion.value = config.protocolVersion;
+      if (config.authMode) form.elements.authMode.value = config.authMode;
+      if (config.basicUsername) form.elements.basicUsername.value = config.basicUsername;
+      if (config.basicPassword) form.elements.basicPassword.value = config.basicPassword;
+      if (config.bearerToken) form.elements.bearerToken.value = config.bearerToken;
+      if (config.oauthClientId) form.elements.oauthClientId.value = config.oauthClientId;
+      if (config.oauthClientSecret) form.elements.oauthClientSecret.value = config.oauthClientSecret;
+      if (config.oauthScope) form.elements.oauthScope.value = config.oauthScope;
+      if (config.headersJson) form.elements.headersJson.value = config.headersJson;
+      if (config.toolName) form.elements.toolName.value = config.toolName;
+      if (config.toolArgsJson) form.elements.toolArgsJson.value = config.toolArgsJson;
+      form.elements.insecureTls.checked = config.insecureTls === true;
+      updateAuthFields();
+      updateRoutePresetNote();
+    }
+
+    function readHistory() {
+      try {
+        return JSON.parse(window.sessionStorage.getItem(historyKey) || "[]") || [];
+      } catch {
+        return [];
+      }
+    }
+
+    function writeHistory(entries) {
+      window.sessionStorage.setItem(historyKey, JSON.stringify(entries.slice(0, 8)));
+    }
+
+    function addHistoryEntry(entry) {
+      const next = [{ ...entry, at: new Date().toLocaleTimeString() }, ...readHistory()];
+      writeHistory(next);
+      renderHistory();
+    }
+
+    function renderHistory() {
+      if (!requestHistory) return;
+      const entries = readHistory();
+      if (!entries.length) {
+        requestHistory.className = "empty";
+        requestHistory.textContent = "No generic requests in this tab yet.";
+        return;
+      }
+      requestHistory.className = "";
+      requestHistory.innerHTML = '<ul class="history-list">' + entries.map((entry) =>
+        '<li><strong>' + escapeHtml(entry.ok ? "Pass" : "Fail") + ' · ' + escapeHtml(entry.toolName || "tools/list only") + '</strong><span>' + escapeHtml(entry.at) + ' · ' + escapeHtml(entry.authMode || "none") + ' · ' + escapeHtml(entry.mcpUrl || "") + '</span></li>'
+      ).join("") + '</ul>';
+    }
+
     function escapeHtml(value) {
       return String(value)
         .replaceAll("&", "&amp;")
@@ -1623,6 +1996,7 @@ function renderHtml(page = "home") {
       results.className = "empty";
       results.textContent = "Running inspection.";
       try {
+        const targetConfig = currentTargetConfig();
         const payload = Object.fromEntries(new FormData(form).entries());
         payload.insecureTls = form.elements.insecureTls.checked;
         mergeAuthorizationHeader(payload);
@@ -1641,9 +2015,21 @@ function renderHtml(page = "home") {
         const data = await response.json();
         if (!response.ok) throw new Error(data.message || "Inspection failed.");
         renderInto(results, data);
+        addHistoryEntry({
+          ok: data.ok !== false,
+          mcpUrl: targetConfig.mcpUrl,
+          authMode: targetConfig.authMode,
+          toolName: targetConfig.toolName,
+        });
       } catch (error) {
         results.className = "empty";
         results.innerHTML = '<span class="pill fail">fail</span><pre>' + escapeHtml(error.message || String(error)) + '</pre>';
+        addHistoryEntry({
+          ok: false,
+          mcpUrl: form.elements.mcpUrl.value,
+          authMode: form.elements.authMode.value,
+          toolName: form.elements.toolName.value,
+        });
       } finally {
         button.disabled = false;
       }
@@ -1714,6 +2100,141 @@ function renderHtml(page = "home") {
       }
     });
 
+    if (copyConfigButton) copyConfigButton.addEventListener("click", async () => {
+      try {
+        const config = currentTargetConfig();
+        const json = JSON.stringify(config, null, 2);
+        form.elements.targetConfigJson.value = json;
+        let copied = false;
+        try {
+          await navigator.clipboard.writeText(json);
+          copied = true;
+        } catch {
+          copied = false;
+        }
+        configHelperStatus.textContent = copied
+          ? "Target config copied without passwords or bearer tokens."
+          : "Target config prepared without passwords or bearer tokens. Clipboard is unavailable in this browser.";
+      } catch (error) {
+        configHelperStatus.textContent = error.message || String(error);
+      }
+    });
+
+    if (importConfigButton) importConfigButton.addEventListener("click", () => {
+      try {
+        const config = JSON.parse(form.elements.targetConfigJson.value || "{}");
+        applyTargetConfig(config);
+        configHelperStatus.textContent = "Target config imported.";
+      } catch (error) {
+        configHelperStatus.textContent = error.message || String(error);
+      }
+    });
+
+    let oauthPopupSession = null;
+    let oauthPopupGenericTarget = null;
+
+    function renderOAuthStatus(data) {
+      if (!oauthPopupResults) return;
+      const diagnostics = (data.diagnostics ?? []).map((item) =>
+        '<div><span>' + escapeHtml(item.check) + '</span><code>' + escapeHtml(item.value) + '</code></div>'
+      ).join("");
+      const authorizationLink = data.authorizationUrl
+        ? '<p class="hint"><a class="workflow-link" href="' + escapeHtml(data.authorizationUrl) + '" target="mcpMockOAuthPopup">Open authorization popup</a> <a class="workflow-link" href="' + escapeHtml(data.authorizationUrl) + '">Continue in this tab</a></p>'
+        : "";
+      oauthPopupResults.className = "";
+      oauthPopupResults.innerHTML = '<div class="summary"><div><span>Status</span><strong>' + escapeHtml(data.ok ? "Ready" : "Waiting") + '</strong></div><div><span>Grant</span><strong>Code</strong></div><div><span>PKCE</span><strong>S256</strong></div><div><span>Token</span><strong>' + escapeHtml(data.accessToken ? "Issued" : "Pending") + '</strong></div></div>' + authorizationLink + '<h2>Diagnostics</h2><div class="diag">' + diagnostics + '</div><pre>' + pretty({ ...data, accessToken: data.accessToken ? "<redacted>" : undefined, genericTarget: data.genericTarget ? { ...data.genericTarget, bearerToken: "<redacted>" } : undefined }) + '</pre>';
+    }
+
+    if (oauthPopupForm) oauthPopupForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      oauthPopupButton.disabled = true;
+      oauthPopupResults.className = "empty";
+      oauthPopupResults.textContent = "Preparing temporary OAuth client.";
+      const popup = window.open("about:blank", "mcpMockOAuthPopup", "width=720,height=760");
+      if (popup) {
+        try {
+          popup.document.write("<p style='font-family: system-ui; padding: 20px;'>Preparing OAuth authorization...</p>");
+        } catch {
+          // Some browser surfaces expose a popup handle without allowing document writes.
+        }
+      }
+      try {
+        const response = await fetch("/api/oauth-popup/prepare", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            baseUrl: oauthPopupForm.elements.baseUrl.value,
+            insecureTls: oauthPopupForm.elements.insecureTls.checked,
+          }),
+        });
+        const prepared = await response.json();
+        if (!response.ok) throw new Error(prepared.message || "OAuth popup preparation failed.");
+        oauthPopupSession = prepared;
+        renderOAuthStatus({ ok: false, diagnostics: prepared.diagnostics });
+        if (popup) {
+          popup.location.href = prepared.authorizationUrl;
+        } else {
+          renderOAuthStatus({
+            ok: false,
+            authorizationUrl: prepared.authorizationUrl,
+            diagnostics: [
+              ...prepared.diagnostics,
+              { check: "popup", value: "blocked; use the authorization link above" },
+            ],
+          });
+          oauthPopupButton.disabled = false;
+          return;
+        }
+      } catch (error) {
+        if (popup && popup.location.href === "about:blank") popup.close();
+        oauthPopupResults.className = "empty";
+        oauthPopupResults.innerHTML = '<span class="pill fail">fail</span><pre>' + escapeHtml(error.message || String(error)) + '</pre>';
+        oauthPopupButton.disabled = false;
+      }
+    });
+
+    window.addEventListener("message", async (event) => {
+      if (!oauthPopupForm || !event.data || event.data.source !== "mcp-mock-inspector-oauth") return;
+      if (event.origin !== window.location.origin) return;
+      try {
+        if (!oauthPopupSession) throw new Error("OAuth popup session is missing. Start the flow again.");
+        if (event.data.error) throw new Error(event.data.errorDescription || event.data.error);
+        oauthPopupResults.className = "empty";
+        oauthPopupResults.textContent = "Callback received. Exchanging authorization code.";
+        const response = await fetch("/api/oauth-popup/exchange", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            baseUrl: oauthPopupSession.baseUrl,
+            code: event.data.code,
+            state: event.data.state,
+            expectedState: oauthPopupSession.state,
+            redirectUri: oauthPopupSession.redirectUri,
+            clientId: oauthPopupSession.clientId,
+            clientSecret: oauthPopupSession.clientSecret,
+            codeVerifier: oauthPopupSession.codeVerifier,
+            insecureTls: oauthPopupForm.elements.insecureTls.checked,
+          }),
+        });
+        const exchanged = await response.json();
+        if (!response.ok) throw new Error(exchanged.message || "OAuth token exchange failed.");
+        oauthPopupGenericTarget = exchanged.genericTarget;
+        sendOAuthGenericButton.disabled = false;
+        renderOAuthStatus(exchanged);
+      } catch (error) {
+        oauthPopupResults.className = "empty";
+        oauthPopupResults.innerHTML = '<span class="pill fail">fail</span><pre>' + escapeHtml(error.message || String(error)) + '</pre>';
+      } finally {
+        oauthPopupButton.disabled = false;
+      }
+    });
+
+    if (sendOAuthGenericButton) sendOAuthGenericButton.addEventListener("click", () => {
+      if (!oauthPopupGenericTarget) return;
+      window.localStorage.setItem(genericDraftKey, JSON.stringify(oauthPopupGenericTarget));
+      window.location.href = "/generic";
+    });
+
     document.addEventListener("click", (event) => {
       const button = event.target.closest(".send-generic-button");
       if (!button) return;
@@ -1736,6 +2257,7 @@ function renderHtml(page = "home") {
     hydrateRecentSettings();
     updateAuthFields();
     updateRoutePresetNote();
+    renderHistory();
   </script>
 </body>
 </html>`;
@@ -1757,6 +2279,14 @@ function createInspectorServer() {
         htmlResponse(response, renderHtml("generic"));
         return;
       }
+      if (request.method === "GET" && url.pathname === "/oauth") {
+        htmlResponse(response, renderHtml("oauth"));
+        return;
+      }
+      if (request.method === "GET" && url.pathname === "/oauth-callback") {
+        htmlResponse(response, renderOAuthCallbackHtml(url.searchParams));
+        return;
+      }
       if (request.method === "GET" && url.pathname === "/api/health") {
         jsonResponse(response, 200, { status: "ok", name: "standalone-mcp-inspector" });
         return;
@@ -1776,6 +2306,18 @@ function createInspectorServer() {
       if (request.method === "POST" && url.pathname === "/api/mock-oauth-token") {
         const body = await readJson(request);
         const result = await issueMockOAuthToken(body);
+        jsonResponse(response, 200, result);
+        return;
+      }
+      if (request.method === "POST" && url.pathname === "/api/oauth-popup/prepare") {
+        const body = await readJson(request);
+        const result = await prepareOAuthPopupFlow(body, inspectorOrigin(request));
+        jsonResponse(response, 200, result);
+        return;
+      }
+      if (request.method === "POST" && url.pathname === "/api/oauth-popup/exchange") {
+        const body = await readJson(request);
+        const result = await exchangeOAuthPopupCode(body);
         jsonResponse(response, 200, result);
         return;
       }

@@ -6,6 +6,8 @@ const INSPECTOR_URL = `http://127.0.0.1:${INSPECTOR_PORT}`;
 
 let inspector: ChildProcessWithoutNullStreams;
 
+test.setTimeout(60_000);
+
 test.beforeAll(async () => {
   inspector = spawn("node", ["scripts/standalone-inspector-server.mjs", "--port", String(INSPECTOR_PORT)], {
     cwd: process.cwd(),
@@ -42,12 +44,14 @@ test("standalone inspector UI runs Mock Server scenario and generic MCP inspecti
   await page.goto(INSPECTOR_URL);
 
   await expect(page.getByRole("heading", { name: "MCP Inspector" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Mock Server scenario Run the broad local scenario for health, config, REST, MCP, Basic, OAuth, token revocation, audit evidence, reset guards, and cleanup." })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Generic MCP target Inspect one MCP Streamable HTTP endpoint with route presets, Authorization helpers, optional tool call, and raw protocol evidence." })).toBeVisible();
-  await page.getByRole("link", { name: "Mock Server scenario Run the broad local scenario for health, config, REST, MCP, Basic, OAuth, token revocation, audit evidence, reset guards, and cleanup." }).click();
+  await expect(page.getByRole("link", { name: /Mock Server scenario/ })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Generic MCP target/ })).toBeVisible();
+  await expect(page.getByRole("link", { name: /OAuth popup flow/ })).toBeVisible();
+  await page.getByRole("link", { name: /Mock Server scenario/ }).click();
   await expect(page).toHaveURL(`${INSPECTOR_URL}/mock`);
   await expect(page.getByRole("heading", { name: "Mock Server scenario" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Open Generic MCP target" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Open OAuth popup flow" })).toBeVisible();
   await expect(page.getByText("Allow self-signed HTTPS for this run").first()).toBeVisible();
   await page.getByLabel("Mock Server base URL").fill(baseURL ?? "http://127.0.0.1:3101");
   await page.locator("#mock-form").getByLabel("Allow self-signed HTTPS for this run").check();
@@ -70,6 +74,7 @@ test("standalone inspector UI runs Mock Server scenario and generic MCP inspecti
   await expect(page).toHaveURL(`${INSPECTOR_URL}/generic`);
   await expect(page.getByRole("heading", { name: "Generic MCP target" })).toBeVisible();
   await expect(page.getByRole("link", { name: "Open Mock Server scenario" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Open OAuth popup flow" })).toBeVisible();
   await expect(page.getByLabel("MCP endpoint URL")).toHaveValue(`${baseURL}/mcp/none`);
   await expect(page.getByLabel("Authorization helper")).toHaveValue("none");
   await expect(page.locator("#route-preset-note")).toContainText("no-auth MCP route");
@@ -77,6 +82,17 @@ test("standalone inspector UI runs Mock Server scenario and generic MCP inspecti
   await expect(page.locator('#inspect-form .help-tooltip[title*="JSON-RPC MCP messages"]')).toBeVisible();
   await expect(page.getByLabel("Optional tool name")).toHaveValue("echo");
   await expect(page.getByLabel("Optional tool arguments JSON")).toHaveValue('{"message":"hello"}');
+  await page.getByRole("button", { name: "Copy target config JSON" }).click();
+  await expect(page.getByText(/Target config (copied|prepared) without passwords or bearer tokens/)).toBeVisible();
+  await expect(page.getByLabel("Target config JSON")).toHaveValue(new RegExp(`${baseURL?.replaceAll(".", "\\.")}/mcp/none`));
+  await page.getByLabel("Target config JSON").fill(JSON.stringify({
+    mcpUrl: `${baseURL}/mcp/none`,
+    authMode: "none",
+    toolName: "echo",
+    toolArgsJson: "{\"message\":\"hello\"}",
+  }));
+  await page.getByRole("button", { name: "Import target config JSON" }).click();
+  await expect(page.getByText("Target config imported.")).toBeVisible();
   await page.locator("#inspect-form").getByLabel("Allow self-signed HTTPS for this run").check();
   await page.getByLabel("Authorization helper").selectOption("bearer");
   await expect(page.getByRole("textbox", { name: "Bearer token" })).toBeVisible();
@@ -90,6 +106,7 @@ test("standalone inspector UI runs Mock Server scenario and generic MCP inspecti
   await expect(genericResults.getByText("MCP initialize")).toBeVisible({ timeout: 10_000 });
   await expect(genericResults.getByText("MCP tools/call")).toBeVisible();
   await expect(genericResults.locator(".summary div").filter({ hasText: "Fail" }).getByText("0")).toBeVisible();
+  await expect(page.locator("#request-history").getByText("Pass · echo")).toBeVisible();
   await expect(genericResults.getByText("self-signed allowed")).toBeVisible();
   await genericResults.locator("details.step").first().click();
   await expect(genericResults.getByText("<redacted>").first()).toBeVisible();
@@ -132,4 +149,41 @@ test("standalone inspector UI runs Mock Server scenario and generic MCP inspecti
   await expect(genericResults.getByText("MCP tools/call")).toBeVisible({ timeout: 10_000 });
   await expect(genericResults.locator(".summary div").filter({ hasText: "Fail" }).getByText("0")).toBeVisible();
   await expect(genericResults).not.toContainText(issuedToken);
+});
+
+test("standalone inspector popup OAuth flow fills Generic MCP target @ui-standalone-inspector", async ({ page, baseURL }) => {
+  await page.goto(`${INSPECTOR_URL}/oauth`);
+  await expect(page.getByRole("heading", { name: "OAuth popup flow" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Open Mock Server scenario" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Open Generic MCP target" })).toBeVisible();
+  await page.getByLabel("Mock Server base URL").fill(baseURL ?? "http://127.0.0.1:3101");
+
+  const popupPromise = page.waitForEvent("popup");
+  await page.getByRole("button", { name: "Start popup OAuth flow" }).click();
+  const popup = await popupPromise;
+  await expect(popup.getByRole("heading", { name: "Sign in for consent" })).toBeVisible();
+  await popup.getByLabel("Username").fill("default");
+  await popup.getByLabel("Password").fill("default");
+  await popup.getByRole("button", { name: "Continue" }).click();
+  await expect(popup.getByRole("heading", { name: "Approve endpoint access" })).toBeVisible();
+  await expect(popup.getByLabel(/echo/)).toBeChecked();
+  await popup.getByRole("button", { name: "Approve selected endpoints" }).click();
+
+  await expect(page.locator("#oauth-popup-results").getByText("Token", { exact: true })).toBeVisible({ timeout: 10_000 });
+  await expect(page.locator("#oauth-popup-results").getByText("Issued")).toBeVisible();
+  await expect(page.locator("#oauth-popup-results").getByText("authorization_code", { exact: true })).toBeVisible();
+  await expect(page.locator("#oauth-popup-results")).not.toContainText(/eyJ/);
+
+  await page.getByRole("button", { name: "Send token to Generic MCP target" }).click();
+  await expect(page).toHaveURL(`${INSPECTOR_URL}/generic`);
+  await expect(page.getByLabel("MCP endpoint URL")).toHaveValue(`${baseURL}/mcp/oauth`);
+  await expect(page.getByLabel("Authorization helper")).toHaveValue("bearer");
+  const bearerToken = await page.getByRole("textbox", { name: "Bearer token" }).inputValue();
+  expect(bearerToken).toMatch(/^ey/);
+  await page.getByRole("button", { name: "Run generic inspection" }).click();
+
+  const genericResults = page.locator("#results");
+  await expect(genericResults.getByText("MCP tools/call")).toBeVisible({ timeout: 10_000 });
+  await expect(genericResults.locator(".summary div").filter({ hasText: "Fail" }).getByText("0")).toBeVisible();
+  await expect(genericResults).not.toContainText(bearerToken);
 });

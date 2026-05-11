@@ -49,10 +49,11 @@ Open:
 http://127.0.0.1:3200
 ```
 
-The page is served by `scripts/standalone-inspector-server.mjs`, independently from the Next.js Mock Server app. The default page lets users choose between the two focused workflows:
+The page is served by `scripts/standalone-inspector-server.mjs`, independently from the Next.js Mock Server app. The default page lets users choose between three focused workflows:
 
 - `http://127.0.0.1:3200/mock` for the Mock Server scenario runner
 - `http://127.0.0.1:3200/generic` for a single generic MCP target inspection
+- `http://127.0.0.1:3200/oauth` for the Mock OAuth browser authorization-code popup flow
 
 The generic page accepts:
 
@@ -64,10 +65,12 @@ The generic page accepts:
 - extra headers as JSON for API keys or custom local server requirements
 - an opt-in self-signed HTTPS mode for local certificates created with `npm run cert:dev` or similar tooling
 - optional tool name and JSON arguments for `tools/call`
+- copy/import target config JSON for redacted, portable connection presets
+- compact per-tab request history for recent generic inspections
 
 The standalone page remembers recent target URLs, protocol version, self-signed TLS preference, and tool name in browser `localStorage` so repeated local checks are quicker. It does not persist extra headers, Basic passwords, Bearer tokens, OAuth client secrets, tool arguments, root passwords, access tokens, or reset choices.
 
-The standalone UI has two focused modes.
+The standalone UI has three focused modes.
 
 Generic MCP mode performs standard-facing checks against any compatible MCP HTTP target:
 
@@ -95,6 +98,17 @@ The UI scenario runner intentionally skips destructive root reset unless an oper
 The self-signed HTTPS checkbox should be used only for local targets under your control, such as `https://127.0.0.1:3443` from `npm run start:tls`.
 
 Generic target inputs include short tooltips for new MCP users. Route preset and authorization-helper selections also show an inline explanation of what the current option changes in the outgoing request.
+
+Mock OAuth popup mode at `/oauth` verifies the browser authorization-code path:
+
+- prepares a Mock OAuth client with the standalone Inspector callback URL
+- opens Mock Server `/oauth/authorize` in a popup
+- lets the user sign in with an enabled OAuth login user and select endpoint permissions on the normal consent page
+- captures the redirect `code` and `state` at `/oauth-callback`
+- exchanges the code with PKCE S256 through `/oauth/token`
+- sends the resulting Bearer token to `/generic` so the user can verify `/mcp/oauth`
+
+The popup helper is intentionally project-specific. It complements upstream Inspector's Bearer-header verification instead of replacing upstream Inspector as the generic protocol debugger.
 
 If port `3200` is already taken:
 
