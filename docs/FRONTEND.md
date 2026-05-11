@@ -54,6 +54,7 @@ Describe the user-facing structure of MCP Mock Server so an agent can implement 
 
 ## UI Rules
 - favor quiet, dense, operational layouts over marketing composition
+- follow the product primitive system in `docs/design-docs/product-ui-primitives.md` before creating page-specific UI; start with shared shell, header, panel, metric, action, form, table, status, code, empty, loading, and error primitives
 - admin pages must follow a single-purpose rule: catalog pages list and search only; create, edit, test, delete, inspect, and diagnostic work moves to focused pages or focused sub-nav destinations
 - list rows should navigate to detail pages with links instead of opening dense inline editors in the catalog
 - detail pages should expose local sub-nav for closely related workflows and should keep destructive actions behind a dedicated delete/revoke/reset destination or confirmation panel
