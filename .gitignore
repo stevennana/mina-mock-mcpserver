@@ -9,3 +9,4 @@ dist/
 *.tsbuildinfo
 .env
 .env.local
+/.idea/

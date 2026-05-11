@@ -193,6 +193,148 @@ After `npm run db:prepare`, the app creates:
 The built-in Basic user, OAuth user, OAuth client, and default endpoint are protected from normal destructive changes.
 If your local database already contains previous test records, they will remain after `db:prepare`. For a clean manual demo, use the reset flow below with `ROOT_PASSWORD` set, or remove the local SQLite file before preparing state.
 
+## Authentication And MCP Flow Maps
+
+Use these flow maps before the step-by-step guide if you want to understand which route, credential, and token is involved in each test.
+
+### No-Auth MCP Tool Call
+
+Use this path when you only need to verify that an MCP client can connect, negotiate the protocol, list tools, and call a mock tool.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Client as MCP client or Inspector
+    participant MCP as Mock Server /mcp/none
+    participant Runtime as Endpoint runtime
+    participant DB as SQLite state
+
+    Client->>MCP: initialize<br/>MCP-Protocol-Version: 2025-06-18
+    MCP-->>Client: negotiated protocol version
+    Client->>MCP: tools/list
+    MCP->>DB: load enabled endpoints
+    DB-->>MCP: endpoint definitions
+    MCP-->>Client: tools with generated inputSchema
+    Client->>MCP: tools/call<br/>name: echo<br/>arguments: {"message":"hello"}
+    MCP->>Runtime: match endpoint response case
+    Runtime->>DB: read parameters, cases, failure settings
+    DB-->>Runtime: endpoint runtime config
+    Runtime-->>MCP: structuredContent and text content
+    MCP-->>Client: JSON-RPC result
+```
+
+### Basic Auth MCP Tool Call
+
+Use this path when a client must prove it can send an HTTP Basic credential and handle strict `401` failures.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Client as MCP client or curl
+    participant MCP as Mock Server /mcp/basic
+    participant Auth as Basic Auth service
+    participant Runtime as Endpoint runtime
+    participant DB as SQLite state
+
+    Client->>MCP: tools/list or tools/call<br/>Authorization: Basic base64(username:password)
+    MCP->>Auth: validate Basic header
+    Auth->>DB: find enabled Basic user
+    DB-->>Auth: password hash and enabled state
+    alt credential is valid
+        Auth-->>MCP: authenticated principal
+        MCP->>Runtime: list or call enabled tools
+        Runtime->>DB: read endpoint definitions
+        DB-->>Runtime: endpoint runtime config
+        Runtime-->>MCP: tool list or call result
+        MCP-->>Client: 200 JSON-RPC response
+    else credential is missing, invalid, or disabled
+        Auth-->>MCP: authentication failure
+        MCP-->>Client: 401 WWW-Authenticate: Basic
+    end
+```
+
+### OAuth Authorization-Code MCP Tool Call
+
+Use this path when you want to test the browser consent flow that many real remote MCP integrations use.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Browser as User browser
+    participant OAuth as Mock OAuth server
+    participant Client as OAuth client app
+    participant MCP as Mock Server /mcp/oauth
+    participant Runtime as Endpoint runtime
+    participant DB as SQLite state
+
+    Browser->>OAuth: GET /oauth/authorize<br/>client_id, redirect_uri, resource, state
+    OAuth->>DB: validate OAuth client and redirect URI
+    DB-->>OAuth: client and allowed endpoint set
+    OAuth-->>Browser: login page
+    Browser->>OAuth: submit OAuth username/password
+    OAuth->>DB: validate enabled OAuth user
+    DB-->>OAuth: OAuth user
+    OAuth-->>Browser: consent page with endpoint checklist
+    Browser->>OAuth: approve selected endpoints
+    OAuth->>DB: store single-use authorization code and selected endpoint permissions
+    OAuth-->>Browser: redirect to redirect_uri?code=...&state=...
+    Browser-->>Client: callback URL with code
+    Client->>OAuth: POST /oauth/token<br/>grant_type=authorization_code<br/>code, client_id, client_secret
+    OAuth->>DB: validate code, client secret, redirect URI
+    DB-->>OAuth: selected endpoint permissions
+    OAuth-->>Client: Bearer JWT access token
+    Client->>MCP: tools/list or tools/call<br/>Authorization: Bearer token
+    MCP->>OAuth: validate JWT, audience, expiration, revocation, permissions
+    OAuth->>DB: check issued-token status
+    DB-->>OAuth: active token record
+    alt token permits the endpoint
+        MCP->>Runtime: run permitted tool
+        Runtime->>DB: read endpoint runtime config
+        DB-->>Runtime: response case and failure settings
+        Runtime-->>MCP: tool result
+        MCP-->>Client: 200 JSON-RPC response
+    else token is valid but endpoint is not permitted
+        MCP-->>Client: 403 forbidden
+    else token is missing, invalid, expired, revoked, or wrong audience
+        MCP-->>Client: 401 Bearer challenge
+    end
+```
+
+### OAuth Client-Credentials MCP Tool Call
+
+Use this path when you want non-interactive service-to-service token issuance. The standalone Mock Server scenario uses this grant so the full verification can run from one button.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant Client as MCP client or Inspector
+    participant OAuth as Mock OAuth server
+    participant MCP as Mock Server /mcp/oauth
+    participant Runtime as Endpoint runtime
+    participant DB as SQLite state
+
+    Client->>OAuth: POST /oauth/token<br/>grant_type=client_credentials<br/>client_id, client_secret, resource
+    OAuth->>DB: validate enabled OAuth client
+    DB-->>OAuth: client TTL and allowed endpoint set
+    OAuth-->>Client: Bearer JWT with endpoint permissions
+    Client->>MCP: tools/list<br/>Authorization: Bearer token
+    MCP->>OAuth: validate token and permissions
+    OAuth->>DB: check token status
+    DB-->>OAuth: active token record
+    MCP-->>Client: only permitted tools
+    Client->>MCP: tools/call for permitted tool
+    MCP->>Runtime: match response case
+    Runtime->>DB: read endpoint runtime config
+    DB-->>Runtime: response case and failure settings
+    Runtime-->>MCP: tool result
+    MCP-->>Client: 200 JSON-RPC response
+    Client->>OAuth: POST /api/oauth/tokens/{jti}/revoke
+    OAuth->>DB: mark token revoked
+    DB-->>OAuth: revoked token record
+    Client->>MCP: retry with revoked token
+    MCP-->>Client: 401 invalid_token
+```
+
 ## Step 1: Create Or Edit A Mock Tool
 
 1. Open `http://127.0.0.1:3100/endpoints`.
