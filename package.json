@@ -1,6 +1,6 @@
 {
   "name": "mina-mock-mcpserver",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "description": "Public remote MCP mock server and web UI for testing MCP auth and tool calls.",
   "scripts": {
     "dev": "next dev --hostname 127.0.0.1 --port 3100",

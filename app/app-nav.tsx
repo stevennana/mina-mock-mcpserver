@@ -56,23 +56,31 @@ const navGroups: AppNavGroup[] = [
 
 export function AppNav({ current }: { current: AppNavKey }) {
   return (
-    <nav className="top-nav" aria-label="Primary">
-      {navGroups.map((group) => {
-        const isActiveGroup = group.items.some((item) => item.key === current);
+    <div className="product-nav-shell">
+      <div className="product-nav-brand" aria-label="Product">
+        <Link href="/" className="product-nav-mark">
+          MCP Mock
+        </Link>
+        <span>Protocol test console</span>
+      </div>
+      <nav className="top-nav" aria-label="Primary">
+        {navGroups.map((group) => {
+          const isActiveGroup = group.items.some((item) => item.key === current);
 
-        return (
-          <div key={group.label} className="top-nav-group" data-active={isActiveGroup ? "true" : undefined}>
-            <span className="top-nav-group-label">{group.label}</span>
-            <div className="top-nav-links">
-              {group.items.map((item) => (
-                <Link key={item.key} href={item.href} aria-current={item.key === current ? "page" : undefined}>
-                  {item.label}
-                </Link>
-              ))}
+          return (
+            <div key={group.label} className="top-nav-group" data-active={isActiveGroup ? "true" : undefined}>
+              <span className="top-nav-group-label">{group.label}</span>
+              <div className="top-nav-links">
+                {group.items.map((item) => (
+                  <Link key={item.key} href={item.href} aria-current={item.key === current ? "page" : undefined}>
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
             </div>
-          </div>
-        );
-      })}
-    </nav>
+          );
+        })}
+      </nav>
+    </div>
   );
 }

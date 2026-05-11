@@ -7,6 +7,7 @@ This directory contains durable design decisions that are deeper than the top-le
 | Doc | Status | Scope |
 |---|---|---|
 | `core-beliefs.md` | confirmed | operating principles for the repo |
+| `product-ui-primitives.md` | confirmed | Stitch-backed product UI direction, tokens, and shared primitive rules |
 | `system-shape.md` | draft | project-specific design constraints |
 
 ## Rule
