@@ -11,6 +11,7 @@ Dashboard endpoint counts
 - Endpoint list/search
 - Endpoint catalog page is list/search/status focused only
 - Endpoint create, overview, edit, parameters/schema, responses, failure simulation, console, and delete flows use focused pages instead of one dense all-in-one editor
+- Endpoint workflow inputs expose concise hover tooltips that explain MCP-facing concepts such as tool name, generated inputSchema parameters, exact-match response cases, failure simulation modes, auth mode, and call arguments
 - Generated MCP schema preview is shown with parameter editing and endpoint overview
 - Delete code or root password protected deletion
 - Successful and failed endpoint delete attempts appear in audit evidence without submitted secrets

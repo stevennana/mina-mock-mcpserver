@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { FormEvent, useMemo, useState } from "react";
 import { CopyButton } from "@/app/copy-button";
+import { HelpTooltip } from "@/app/help-tooltip";
 
 type PublicOperatorConfig = {
   baseUrl: {
@@ -154,7 +155,7 @@ export function ConfigManager({ initialConfig }: { initialConfig: PublicOperator
         <form className="form-grid config-form" onSubmit={(event) => void submitConfig(event)}>
           {saveState.message ? <p className={`form-message ${saveState.status}`}>{saveState.message}</p> : null}
           <label className="field-block wide">
-            <span>Database base URL override</span>
+            <span className="field-label-row">Database base URL override <HelpTooltip text="Optional public base URL saved in SQLite. It affects generated MCP, REST, OAuth discovery, and curl examples when APP_BASE_URL is not set." /></span>
             <input
               className="text-input"
               value={baseUrl}
@@ -166,7 +167,7 @@ export function ConfigManager({ initialConfig }: { initialConfig: PublicOperator
             {saveState.fieldErrors.baseUrl ? <p className="field-error">{saveState.fieldErrors.baseUrl}</p> : null}
           </label>
           <label className="field-block">
-            <span>Root password</span>
+            <span className="field-label-row">Root password <HelpTooltip text="Required to save operator configuration changes. It is sent only for this request and is not stored by the UI." /></span>
             <input
               className="text-input"
               type="password"

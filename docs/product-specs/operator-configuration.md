@@ -23,10 +23,17 @@ Connection guide
 - Browser-facing dates in admin tables use explicit UTC string formatting instead of locale-dependent rendering, preventing server/client hydration mismatches across operator locales
 - Connection guide examples cover `/mcp`, `/mcp/none`, `/mcp/basic`, `/mcp/oauth`, `/rest/tools`, `/rest/tools/{tool_name}/call`, OAuth discovery metadata, `/oauth/token`, and `/oauth/jwks`
 - Config and Inspector expose copy buttons for operational commands and connection URLs so users can move from UI guidance to terminal/client tests without manual selection errors
+- Mock Server admin forms expose concise hover tooltips on operator-facing inputs such as base URL override, root password, and reset confirmation so first-time users can understand why each value matters before saving
 - MCP Inspector integration is documented as an external `npx` tool with local Streamable HTTP targets for `/mcp`, `/mcp/none`, `/mcp/basic`, and `/mcp/oauth`
 - The Mock UI exposes an `/inspector` verification hub for standalone inspector UI launch, Mock Server scenario execution, local inspector commands, upstream Inspector targets, Basic/OAuth preparation, and diagnostics interpretation
 - The Inspector hub exposes authorization-code verification aids generated from current config and OAuth client state: authorization URL, token-exchange curl, Bearer MCP curl, effective base URL source, issuer, token endpoint, selected client, redirect callback origin, and allowed endpoint count
 - The standalone inspector UI runs outside the Mock Server app and can inspect any MCP Streamable HTTP endpoint using URL, headers, and optional `tools/call` arguments
+- The standalone inspector UI separates workflows into `/` as the workflow choice screen, `/mock` for Mock Server scenario execution, and `/generic` for one generic MCP target inspection
+- `/mock` and `/generic` provide a direct workflow switch link so users can move between focused modes without returning to `/`
+- Mock Server scenario results show in-flight step progress, keep the completed progress checklist visible afterward, and are then presented as summary counters, diagnostics, and sequential step cards for per-test request/response review
+- Every scenario step card can send a repeatable seeded target into `/generic`, pre-filling the endpoint, auth mode, and tool call fields for manual reruns from the card header
+- Scenario step cards and generic target inputs include concise hover tooltips that explain each MCP/OAuth/REST check or request option for users new to MCP
+- Generic target route preset and authorization-helper selections show the current option meaning inline so users can predict how the inspection request will change
 - The standalone inspector UI provides a generic-target Authorization helper for no-auth, Basic username/password, and Bearer token requests before merging those values into the standard headers sent to the inspection API
 - The standalone inspector UI provides Mock route presets for `/mcp/none`, `/mcp/basic`, and `/mcp/oauth` based on the visible Mock Server base URL, including seeded Basic test credentials only after explicit preset selection
 - The standalone inspector UI provides a Mock OAuth `client_credentials` token helper for `/mcp/oauth` preset checks by calling the target Mock Server `/oauth/token` endpoint and filling the Bearer field

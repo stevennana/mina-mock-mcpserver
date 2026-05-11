@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import { HelpTooltip } from "@/app/help-tooltip";
 import { formatShortDate } from "@/lib/date-format";
 import type { OAuthUserListResult, OAuthUserSummary } from "@/lib/oauth/types";
 
@@ -55,6 +56,15 @@ function formatTtl(seconds: number) {
 
 function errorFor(fieldErrors: Record<string, string>, field: string) {
   return fieldErrors[field] ? <p className="field-error">{fieldErrors[field]}</p> : null;
+}
+
+function FieldLabel({ label, help }: { label: string; help: string }) {
+  return (
+    <span className="field-label-row">
+      {label}
+      <HelpTooltip text={help} />
+    </span>
+  );
 }
 
 type OAuthUserView = "catalog" | "detail" | "create";
@@ -260,7 +270,7 @@ export function OAuthUsersManager({
           <h3>Identity</h3>
           <div className="form-grid">
             <label className="field-block">
-              <span>Username</span>
+              <FieldLabel label="Username" help="Login username used in the mock OAuth browser authorization flow." />
               <input
                 className="text-input"
                 value={form.username}
@@ -270,7 +280,7 @@ export function OAuthUsersManager({
               {errorFor(saveState.fieldErrors, "username")}
             </label>
             <label className="field-block">
-              <span>{selectedId ? "New password" : "Password"}</span>
+              <FieldLabel label={selectedId ? "New password" : "Password"} help="Stored as a hash only. Leave blank while editing to keep the current password hash." />
               <input
                 className="text-input"
                 type="password"
@@ -282,7 +292,7 @@ export function OAuthUsersManager({
               {errorFor(saveState.fieldErrors, "password")}
             </label>
             <label className="field-block">
-              <span>Authorization-code token TTL</span>
+              <FieldLabel label="Authorization-code token TTL" help="How long access tokens issued from browser login and consent remain valid." />
               <select
                 className="text-input"
                 value={form.accessTokenTtlSeconds}
@@ -304,7 +314,7 @@ export function OAuthUsersManager({
                 onChange={(event) => setForm((current) => ({ ...current, enabled: event.target.checked }))}
                 disabled={locked}
               />
-              Enabled for OAuth login verification
+              <span className="field-label-row">Enabled for OAuth login verification <HelpTooltip text="Disabled login users cannot complete OAuth login, but existing audit evidence remains visible." /></span>
             </label>
           </div>
         </div>

@@ -42,18 +42,41 @@ test("standalone inspector UI runs Mock Server scenario and generic MCP inspecti
   await page.goto(INSPECTOR_URL);
 
   await expect(page.getByRole("heading", { name: "MCP Inspector" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Mock Server scenario Run the broad local scenario for health, config, REST, MCP, Basic, OAuth, token revocation, audit evidence, reset guards, and cleanup." })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Generic MCP target Inspect one MCP Streamable HTTP endpoint with route presets, Authorization helpers, optional tool call, and raw protocol evidence." })).toBeVisible();
+  await page.getByRole("link", { name: "Mock Server scenario Run the broad local scenario for health, config, REST, MCP, Basic, OAuth, token revocation, audit evidence, reset guards, and cleanup." }).click();
+  await expect(page).toHaveURL(`${INSPECTOR_URL}/mock`);
+  await expect(page.getByRole("heading", { name: "Mock Server scenario" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Open Generic MCP target" })).toBeVisible();
   await expect(page.getByText("Allow self-signed HTTPS for this run").first()).toBeVisible();
   await page.getByLabel("Mock Server base URL").fill(baseURL ?? "http://127.0.0.1:3101");
   await page.locator("#mock-form").getByLabel("Allow self-signed HTTPS for this run").check();
   await page.getByRole("button", { name: "Run Mock Server scenario" }).click();
 
   const scenarioResults = page.locator("#mock-results");
+  await expect(scenarioResults.getByText("Scenario progress")).toBeVisible();
+  await expect(scenarioResults.getByText("Health and route config")).toBeVisible();
   await expect(scenarioResults.getByText("Health and route config")).toBeVisible({ timeout: 20_000 });
   await expect(scenarioResults.getByText("OAuth Bearer runtime")).toBeVisible();
-  await expect(scenarioResults.locator(".summary div").filter({ hasText: "Fail" }).getByText("0")).toBeVisible();
+  await expect(scenarioResults.locator(".summary div").filter({ hasText: "Fail" }).getByText("0")).toBeVisible({ timeout: 30_000 });
+  await expect(scenarioResults.getByText("11 of 11 steps complete.")).toBeVisible();
   await expect(scenarioResults.getByText("delete temporary records")).toBeVisible();
+  await expect(scenarioResults.getByRole("heading", { name: "Step logs" })).toBeVisible();
+  await expect(scenarioResults.locator(".step-card").first()).toBeVisible();
+  await expect(scenarioResults.locator('.help-tooltip[title*="Runs the core MCP handshake"]')).toBeVisible();
+  expect(await scenarioResults.getByRole("button", { name: "Send to Generic MCP target" }).count()).toBe(11);
 
-  await page.getByLabel("MCP endpoint URL").fill(`${baseURL}/mcp/none`);
+  await scenarioResults.locator(".step-card").filter({ hasText: "MCP initialize" }).getByRole("button", { name: "Send to Generic MCP target" }).click();
+  await expect(page).toHaveURL(`${INSPECTOR_URL}/generic`);
+  await expect(page.getByRole("heading", { name: "Generic MCP target" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Open Mock Server scenario" })).toBeVisible();
+  await expect(page.getByLabel("MCP endpoint URL")).toHaveValue(`${baseURL}/mcp/none`);
+  await expect(page.getByLabel("Authorization helper")).toHaveValue("none");
+  await expect(page.locator("#route-preset-note")).toContainText("no-auth MCP route");
+  await expect(page.locator("#auth-mode-note")).toContainText("Sends no Authorization header");
+  await expect(page.locator('#inspect-form .help-tooltip[title*="JSON-RPC MCP messages"]')).toBeVisible();
+  await expect(page.getByLabel("Optional tool name")).toHaveValue("echo");
+  await expect(page.getByLabel("Optional tool arguments JSON")).toHaveValue('{"message":"hello"}');
   await page.locator("#inspect-form").getByLabel("Allow self-signed HTTPS for this run").check();
   await page.getByLabel("Authorization helper").selectOption("bearer");
   await expect(page.getByRole("textbox", { name: "Bearer token" })).toBeVisible();
@@ -68,6 +91,7 @@ test("standalone inspector UI runs Mock Server scenario and generic MCP inspecti
   await expect(genericResults.getByText("MCP tools/call")).toBeVisible();
   await expect(genericResults.locator(".summary div").filter({ hasText: "Fail" }).getByText("0")).toBeVisible();
   await expect(genericResults.getByText("self-signed allowed")).toBeVisible();
+  await genericResults.locator("details.step").first().click();
   await expect(genericResults.getByText("<redacted>").first()).toBeVisible();
   await expect(genericResults).not.toContainText("local-test-token");
 
@@ -84,6 +108,8 @@ test("standalone inspector UI runs Mock Server scenario and generic MCP inspecti
   await page.getByLabel("Mock route preset").selectOption("basic");
   await expect(page.getByLabel("MCP endpoint URL")).toHaveValue(`${baseURL}/mcp/basic`);
   await expect(page.getByLabel("Authorization helper")).toHaveValue("basic");
+  await expect(page.locator("#route-preset-note")).toContainText("strict Basic MCP route");
+  await expect(page.locator("#auth-mode-note")).toContainText("Authorization: Basic");
   await expect(page.getByRole("textbox", { name: "Basic username" })).toHaveValue("default");
   await expect(page.getByLabel("Basic password", { exact: true })).toHaveValue("default");
   await expect(page.getByRole("textbox", { name: "Basic username" })).toBeVisible();

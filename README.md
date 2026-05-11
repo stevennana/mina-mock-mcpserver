@@ -72,13 +72,20 @@ Open:
 http://127.0.0.1:3200
 ```
 
+The standalone Inspector opens to a choice screen with **Mock scenario** and **Generic MCP target**. Direct URLs are also available:
+
+```text
+http://127.0.0.1:3200/mock
+http://127.0.0.1:3200/generic
+```
+
 For the broad Mock Server scenario, keep the default base URL:
 
 ```text
 http://127.0.0.1:3100
 ```
 
-Then click **Run Mock Server scenario**. The UI creates temporary endpoint, Basic user, OAuth user, OAuth client, and token records; verifies the main REST/MCP/Auth flows; and cleans up mutable temporary records when it finishes.
+Then click **Run Mock Server scenario**. The UI creates temporary endpoint, Basic user, OAuth user, OAuth client, and token records; verifies the main REST/MCP/Auth flows; and cleans up mutable temporary records when it finishes. Scenario results show progress while the run is active and keep the completed progress checklist visible afterward. After completion, results are shown as counters, diagnostics, and sequential step cards so you can inspect each test one at a time. Each scenario step shows **Send to Generic MCP target** directly on the step card; it opens the generic page and fills a repeatable seeded `echo` test so you can rerun the protocol call yourself. Hover or focus the `?` markers beside scenario steps and input labels to see what each MCP/OAuth/REST check or option is for.
 The page remembers recent target URLs, protocol version, self-signed TLS preference, and optional tool name in your browser only. It does not store extra headers, Basic passwords, Bearer tokens, client secrets, root passwords, reset choices, or tool argument payloads.
 
 The scenario covers:

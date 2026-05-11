@@ -9,6 +9,7 @@ OAuth users and clients management
 ## User-Visible Behavior
 - OAuth users and clients management
 - OAuth user and client catalog pages are list/search/status focused only; create, detail, edit, secret, allowed-endpoint, and delete actions use focused pages
+- OAuth user, client, token filter, and permission inputs expose concise hover tooltips explaining login credentials, token TTLs, client credentials, redirect URIs, allowed endpoints, grants, subjects, and client filters
 - OAuth user management lists the locked built-in `default/default` login fixture and allows non-built-in users to be created, password-edited, TTL-edited, enabled/disabled, and deleted
 - OAuth login-user token TTLs use MVP presets only: 15 minutes, 1 hour, 8 hours, and 24 hours; never-expiring tokens are not available in this slice
 - OAuth user passwords are stored as hashes and never returned through the public management API

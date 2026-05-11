@@ -317,6 +317,68 @@ h1 {
   font-weight: 800;
 }
 
+.field-label-row,
+.field-block > span.field-label-row {
+  display: inline-flex;
+  width: fit-content;
+  max-width: 100%;
+  gap: 6px;
+  align-items: center;
+}
+
+.help-tooltip {
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 auto;
+  width: 20px;
+  height: 20px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #b7c7d8;
+  border-radius: 999px;
+  background-color: #f8fbfd;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Ctext x='10' y='14' text-anchor='middle' font-family='Arial, sans-serif' font-size='13' font-weight='700' fill='%23365064'%3E%3F%3C/text%3E%3C/svg%3E");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 20px 20px;
+  color: #365064;
+  font-size: 0.76rem;
+  font-weight: 900;
+  line-height: 1;
+  cursor: help;
+}
+
+.help-tooltip::before {
+  content: "";
+}
+
+.help-tooltip::after {
+  position: absolute;
+  z-index: 20;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  width: min(300px, 78vw);
+  transform: translateX(-50%);
+  border: 1px solid #cbd6e2;
+  border-radius: 8px;
+  padding: 9px 10px;
+  background: #17202b;
+  color: #f7fafc;
+  box-shadow: 0 10px 28px rgba(15, 23, 32, 0.18);
+  content: attr(data-tooltip);
+  font-size: 0.78rem;
+  font-weight: 650;
+  line-height: 1.4;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.12s ease;
+}
+
+.help-tooltip:hover::after,
+.help-tooltip:focus::after {
+  opacity: 1;
+}
+
 .text-input,
 .text-area {
   width: 100%;
@@ -1095,6 +1157,16 @@ h1 {
 
   .top-nav a {
     justify-content: center;
+  }
+
+  .help-tooltip::after {
+    position: fixed;
+    left: 16px;
+    right: 16px;
+    bottom: auto;
+    top: 76px;
+    width: auto;
+    transform: none;
   }
 
   .status-grid,

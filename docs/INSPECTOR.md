@@ -48,7 +48,12 @@ Open:
 http://127.0.0.1:3200
 ```
 
-The page is served by `scripts/standalone-inspector-server.mjs`, independently from the Next.js Mock Server app. It accepts:
+The page is served by `scripts/standalone-inspector-server.mjs`, independently from the Next.js Mock Server app. The default page lets users choose between the two focused workflows:
+
+- `http://127.0.0.1:3200/mock` for the Mock Server scenario runner
+- `http://127.0.0.1:3200/generic` for a single generic MCP target inspection
+
+The generic page accepts:
 
 - MCP endpoint URL
 - MCP protocol version
@@ -61,7 +66,7 @@ The page is served by `scripts/standalone-inspector-server.mjs`, independently f
 
 The standalone page remembers recent target URLs, protocol version, self-signed TLS preference, and tool name in browser `localStorage` so repeated local checks are quicker. It does not persist extra headers, Basic passwords, Bearer tokens, OAuth client secrets, tool arguments, root passwords, access tokens, or reset choices.
 
-The standalone UI has two modes.
+The standalone UI has two focused modes.
 
 Generic MCP mode performs standard-facing checks against any compatible MCP HTTP target:
 
@@ -81,8 +86,14 @@ Mock Server scenario mode expects a running MCP Mock Server base URL and drives 
 - temporary OAuth user/client creation, `client_credentials` token issuance, Bearer permission filtering, allowed call, denied call, token listing, revocation, and revoked-token rejection
 - audit evidence and invalid reset-credential rejection
 
+Scenario results show step progress while the run is in flight and keep the completed progress checklist visible after the run completes. The final view renders summary counters, diagnostics, and sequential step cards so users can inspect each test's request and response evidence without reading one long page of raw output.
+Every scenario step card exposes **Send to Generic MCP target** directly in the card header. The action opens `/generic` and pre-fills a repeatable seeded test target, such as `echo` on `/mcp/none`, `/mcp/basic`, or `/mcp/oauth`, so the user can rerun the protocol call manually after the broad scenario completes.
+Scenario step cards also include short tooltips that explain what each check proves, such as why `initialize`, `tools/list`, `tools/call`, Basic Auth, OAuth discovery, token revocation, or audit evidence matters.
+The `/mock` and `/generic` pages also include a direct workflow switch link, so users can move between focused modes without returning to the `/` choice page.
 The UI scenario runner intentionally skips destructive root reset unless an operator explicitly enables it and provides the root password.
 The self-signed HTTPS checkbox should be used only for local targets under your control, such as `https://127.0.0.1:3443` from `npm run start:tls`.
+
+Generic target inputs include short tooltips for new MCP users. Route preset and authorization-helper selections also show an inline explanation of what the current option changes in the outgoing request.
 
 If port `3200` is already taken:
 

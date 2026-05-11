@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import { HelpTooltip } from "@/app/help-tooltip";
 
 type ResetState = {
   status: "idle" | "submitting" | "success" | "error";
@@ -68,7 +69,7 @@ export function ResetForm() {
       {state.message ? <p className={`form-message ${state.status}`}>{state.message}</p> : null}
 
       <label className="field-block">
-        <span>Root password</span>
+        <span className="field-label-row">Root password <HelpTooltip text="Operator recovery password required for destructive reset. It is not written to audit metadata." /></span>
         <input
           className="text-input"
           type="password"
@@ -79,7 +80,7 @@ export function ResetForm() {
       </label>
 
       <label className="field-block">
-        <span>Confirmation text</span>
+        <span className="field-label-row">Confirmation text <HelpTooltip text="Typed confirmation prevents accidental resets. It must exactly match RESET DEFAULTS." /></span>
         <input
           className="text-input"
           value={confirmation}

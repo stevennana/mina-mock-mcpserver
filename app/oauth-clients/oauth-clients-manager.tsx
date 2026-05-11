@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import { HelpTooltip } from "@/app/help-tooltip";
 import type { OAuthClientListResult, OAuthClientSummary } from "@/lib/oauth/types";
 
 type FormState = {
@@ -64,6 +65,15 @@ function redirectUrisFromText(value: string) {
 
 function errorFor(fieldErrors: Record<string, string>, field: string) {
   return fieldErrors[field] ? <p className="field-error">{fieldErrors[field]}</p> : null;
+}
+
+function FieldLabel({ label, help }: { label: string; help: string }) {
+  return (
+    <span className="field-label-row">
+      {label}
+      <HelpTooltip text={help} />
+    </span>
+  );
 }
 
 type OAuthClientView = "catalog" | "detail" | "create";
@@ -333,7 +343,7 @@ export function OAuthClientsManager({
           <h3>Client</h3>
           <div className="form-grid">
             <label className="field-block">
-              <span>Client ID</span>
+              <FieldLabel label="Client ID" help="OAuth client identifier used in authorize and token requests." />
               <input
                 className="text-input"
                 value={form.clientId}
@@ -343,7 +353,7 @@ export function OAuthClientsManager({
               {errorFor(saveState.fieldErrors, "clientId")}
             </label>
             <label className="field-block">
-              <span>Display name</span>
+              <FieldLabel label="Display name" help="Human-readable client name shown on admin and consent surfaces." />
               <input
                 className="text-input"
                 value={form.displayName}
@@ -353,7 +363,7 @@ export function OAuthClientsManager({
               {errorFor(saveState.fieldErrors, "displayName")}
             </label>
             <label className="field-block">
-              <span>Client credentials TTL</span>
+              <FieldLabel label="Client credentials TTL" help="How long tokens from the non-interactive client_credentials grant remain valid." />
               <select
                 className="text-input"
                 value={form.clientCredentialsTtlSeconds}
@@ -375,10 +385,10 @@ export function OAuthClientsManager({
                 onChange={(event) => setForm((current) => ({ ...current, enabled: event.target.checked }))}
                 disabled={locked}
               />
-              Enabled for OAuth client validation
+              <span className="field-label-row">Enabled for OAuth client validation <HelpTooltip text="Disabled clients cannot authorize users or exchange client_credentials tokens." /></span>
             </label>
             <label className="field-block wide">
-              <span>Redirect URIs</span>
+              <FieldLabel label="Redirect URIs" help="Allowed callback URLs for browser authorization-code flow. The redirect_uri request parameter must match one exactly." />
               <textarea
                 className="text-area short"
                 value={form.redirectUrisText}
@@ -393,6 +403,7 @@ export function OAuthClientsManager({
 
         <div className="editor-section">
           <h3>Allowed endpoints</h3>
+          <p className="section-note">These endpoints become the maximum permission set this client can request or receive in tokens.</p>
           <div className="checkbox-grid">
             {listData.endpointOptions.map((endpoint) => (
               <label className="compact-check endpoint-check" key={endpoint.id}>

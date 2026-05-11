@@ -11,6 +11,43 @@ const DEFAULT_PORT = Number(process.env.INSPECTOR_UI_PORT ?? "3200");
 const DEFAULT_PROTOCOL_VERSION = "2025-06-18";
 const DEFAULT_MOCK_BASE_URL = process.env.MCP_MOCK_BASE_URL ?? "http://127.0.0.1:3100";
 const DEFAULT_DELETE_CODE = "87654321";
+const MOCK_SCENARIO_STEP_NAMES = [
+  "Health and route config",
+  "OAuth discovery and JWKS",
+  "Create temporary endpoint",
+  "Endpoint detail and update",
+  "REST list, call, and forced error",
+  "MCP initialize, list, call, and guards",
+  "Basic Auth runtime",
+  "OAuth Bearer runtime",
+  "Audit evidence and reset guard",
+  "Optional root reset",
+  "Cleanup temporary records",
+];
+const MOCK_SCENARIO_STEP_HELP = {
+  "Health and route config": "Checks that the Mock Server is alive and publishes the MCP route URLs a client will use.",
+  "OAuth discovery and JWKS": "Checks the standard OAuth metadata and signing keys that Bearer-token clients discover before calling MCP.",
+  "Create temporary endpoint": "Creates a disposable mock tool so the scenario can prove tool discovery and calls against real server state.",
+  "Endpoint detail and update": "Verifies the admin API can read and update the tool definition before clients use it.",
+  "REST list, call, and forced error": "Exercises the REST tool API and a configured failure case so non-MCP clients see predictable behavior.",
+  "MCP initialize, list, call, and guards": "Runs the core MCP handshake, tool listing, tool call, protocol-version guard, and Origin guard.",
+  "Basic Auth runtime": "Checks that the strict Basic MCP route accepts valid credentials and rejects disabled credentials.",
+  "OAuth Bearer runtime": "Issues a token, proves endpoint permission filtering, allowed and denied calls, revocation, and revoked-token rejection.",
+  "Audit evidence and reset guard": "Confirms security-relevant activity is visible and reset rejects invalid root credentials.",
+  "Optional root reset": "Runs only when enabled; otherwise records that destructive reset was intentionally skipped.",
+  "Cleanup temporary records": "Removes scenario-created records so repeated local runs stay predictable.",
+};
+const GENERIC_ROUTE_PRESET_HELP = {
+  custom: "Use any MCP HTTP endpoint URL. No Mock Server path or auth helper fields are changed automatically.",
+  none: "Targets the Mock Server no-auth MCP route. Good for learning initialize, tools/list, and tools/call without credentials.",
+  basic: "Targets the strict Basic MCP route and fills the seeded default/default test credentials.",
+  oauth: "Targets the strict OAuth MCP route. Use Issue Mock OAuth token to fill a Bearer token before running.",
+};
+const GENERIC_AUTH_HELP = {
+  none: "Sends no Authorization header. Use this for public/no-auth MCP routes.",
+  basic: "Builds an Authorization: Basic header from the username and password fields.",
+  bearer: "Builds an Authorization: Bearer header from the token field, usually issued by OAuth.",
+};
 
 function parseArgs(argv) {
   const options = {
@@ -72,6 +109,19 @@ function htmlResponse(response, body) {
     "cache-control": "no-store",
   });
   response.end(body);
+}
+
+function escapeAttribute(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+}
+
+function helpTooltip(text) {
+  const escaped = escapeAttribute(text);
+  return `<span class="help-tooltip" tabindex="0" title="${escaped}" data-tooltip="${escaped}"></span>`;
 }
 
 async function readJson(request) {
@@ -319,6 +369,39 @@ async function runScenarioStep(steps, name, action, options = {}) {
   }
 }
 
+function genericMcpTarget(baseUrl, preset, insecureTls) {
+  const targets = {
+    none: {
+      mockRoutePreset: "none",
+      mcpUrl: `${baseUrl}/mcp/none`,
+      authMode: "none",
+    },
+    basic: {
+      mockRoutePreset: "basic",
+      mcpUrl: `${baseUrl}/mcp/basic`,
+      authMode: "basic",
+      basicUsername: "default",
+      basicPassword: "default",
+    },
+    oauth: {
+      mockRoutePreset: "oauth",
+      mcpUrl: `${baseUrl}/mcp/oauth`,
+      authMode: "bearer",
+      oauthClientId: "default",
+      oauthClientSecret: "default",
+      oauthScope: "endpoint:endpoint_default_echo",
+    },
+  };
+  return {
+    baseUrl,
+    ...targets[preset],
+    toolName: "echo",
+    toolArgsJson: JSON.stringify({ message: "hello" }),
+    protocolVersion: DEFAULT_PROTOCOL_VERSION,
+    insecureTls,
+  };
+}
+
 async function inspectMockServerScenario(input) {
   const baseUrl = normalizeBaseUrl(input.baseUrl);
   const includeReset = input.includeReset === true || input.includeReset === "on";
@@ -359,7 +442,11 @@ async function inspectMockServerScenario(input) {
       assert(isRecord(config.body.routes?.mcp), "Operator config must expose MCP routes.");
       addDiagnostic(diagnostics, "health", health.body.status);
       addDiagnostic(diagnostics, "mcp route", config.body.routes.mcp.noAuth ?? "/mcp/none");
-      return { evidence: "Health is ok and config exposes MCP route URLs.", response: { health, config } };
+      return {
+        evidence: "Health is ok and config exposes MCP route URLs.",
+        genericTarget: genericMcpTarget(baseUrl, "none", insecureTls),
+        response: { health, config },
+      };
     }, { critical: true });
 
     await runScenarioStep(steps, "OAuth discovery and JWKS", async () => {
@@ -380,7 +467,11 @@ async function inspectMockServerScenario(input) {
       addDiagnostic(diagnostics, "oauth issuer", discovery.body.issuer);
       addDiagnostic(diagnostics, "protected resource", protectedResource.body.resource);
       addDiagnostic(diagnostics, "jwks keys", jwks.body.keys.length);
-      return { evidence: "OAuth metadata, protected-resource metadata, and JWKS are reachable.", response: { discovery, protectedResource, jwks } };
+      return {
+        evidence: "OAuth metadata, protected-resource metadata, and JWKS are reachable.",
+        genericTarget: genericMcpTarget(baseUrl, "oauth", insecureTls),
+        response: { discovery, protectedResource, jwks },
+      };
     });
 
     const endpointData = await runScenarioStep(steps, "Create temporary endpoint", async () => {
@@ -390,6 +481,7 @@ async function inspectMockServerScenario(input) {
       addDiagnostic(diagnostics, "temporary endpoint", endpointName);
       return {
         evidence: `Created ${endpointName} with exact-match and forced-error response cases.`,
+        genericTarget: genericMcpTarget(baseUrl, "none", insecureTls),
         response: created.result,
       };
     }, { critical: true });
@@ -405,7 +497,11 @@ async function inspectMockServerScenario(input) {
           deleteCode: DEFAULT_DELETE_CODE,
         });
         assertStatus(update, 200, "Endpoint update");
-        return { evidence: "Endpoint can be read and updated through admin APIs.", response: { detail, update } };
+        return {
+          evidence: "Endpoint can be read and updated through admin APIs.",
+          genericTarget: genericMcpTarget(baseUrl, "none", insecureTls),
+          response: { detail, update },
+        };
       });
 
       await runScenarioStep(steps, "REST list, call, and forced error", async () => {
@@ -418,7 +514,11 @@ async function inspectMockServerScenario(input) {
         const forcedError = await client.json("POST", `/rest/tools/${endpointName}/call`, { arguments: { city: "Error" } });
         assertStatus(forcedError, 503, "REST forced error");
         assert(forcedError.body.error === "inspector_forced_error", "REST forced error body mismatch.");
-        return { evidence: "REST list, exact-match call, and configured forced-error case work.", response: { list, call, forcedError } };
+        return {
+          evidence: "REST list, exact-match call, and configured forced-error case work.",
+          genericTarget: genericMcpTarget(baseUrl, "none", insecureTls),
+          response: { list, call, forcedError },
+        };
       });
 
       await runScenarioStep(steps, "MCP initialize, list, call, and guards", async () => {
@@ -462,7 +562,11 @@ async function inspectMockServerScenario(input) {
         addDiagnostic(diagnostics, "mcp negotiated", initialize.body.result.protocolVersion);
         addDiagnostic(diagnostics, "bad mcp version", "400");
         addDiagnostic(diagnostics, "foreign origin", "403");
-        return { evidence: "MCP protocol negotiation, list, call, protocol-version guard, and Origin guard work.", response: { initialize, badVersion, foreignOrigin, list, call } };
+        return {
+          evidence: "MCP protocol negotiation, list, call, protocol-version guard, and Origin guard work.",
+          genericTarget: genericMcpTarget(baseUrl, "none", insecureTls),
+          response: { initialize, badVersion, foreignOrigin, list, call },
+        };
       });
 
       await runScenarioStep(steps, "Basic Auth runtime", async () => {
@@ -480,7 +584,11 @@ async function inspectMockServerScenario(input) {
         assertStatus(disable, 200, "Disable Basic user");
         const disabled = await mockMcp(client, "/mcp/basic", { jsonrpc: "2.0", id: 4, method: "tools/list" }, basicHeader);
         assertStatus(disabled, 401, "Disabled Basic user rejection");
-        return { evidence: "Basic user create, strict MCP access, disable, and rejection work.", response: { create, strictList, disable, disabled } };
+        return {
+          evidence: "Basic user create, strict MCP access, disable, and rejection work.",
+          genericTarget: genericMcpTarget(baseUrl, "basic", insecureTls),
+          response: { create, strictList, disable, disabled },
+        };
       });
 
       await runScenarioStep(steps, "OAuth Bearer runtime", async () => {
@@ -541,7 +649,11 @@ async function inspectMockServerScenario(input) {
         addDiagnostic(diagnostics, "jwt permissions", claims.endpoint_permissions.length);
         addDiagnostic(diagnostics, "oauth denied call", "403");
         addDiagnostic(diagnostics, "revoked token", "401 invalid_token");
-        return { evidence: "OAuth client credentials, permission filtering, allowed/denied calls, token list, revocation, and revoked-token rejection work.", response: { missingBearer, userCreate, clientCreate: { ...clientCreate, body: { ...clientCreate.body, clientSecret: "<redacted>" } }, token: { ...token, body: { ...token.body, access_token: "<redacted>" } }, tokenList, oauthList, allowed, denied, revoke, revoked } };
+        return {
+          evidence: "OAuth client credentials, permission filtering, allowed/denied calls, token list, revocation, and revoked-token rejection work.",
+          genericTarget: genericMcpTarget(baseUrl, "oauth", insecureTls),
+          response: { missingBearer, userCreate, clientCreate: { ...clientCreate, body: { ...clientCreate.body, clientSecret: "<redacted>" } }, token: { ...token, body: { ...token.body, access_token: "<redacted>" } }, tokenList, oauthList, allowed, denied, revoke, revoked },
+        };
       });
 
       await runScenarioStep(steps, "Audit evidence and reset guard", async () => {
@@ -554,7 +666,11 @@ async function inspectMockServerScenario(input) {
           confirmation: "RESET DEFAULTS",
         });
         assertStatus(resetDenied, 403, "Reset denial");
-        return { evidence: "Audit contains scenario activity and reset rejects invalid root credentials.", response: { audit, resetDenied } };
+        return {
+          evidence: "Audit contains scenario activity and reset rejects invalid root credentials.",
+          genericTarget: genericMcpTarget(baseUrl, "none", insecureTls),
+          response: { audit, resetDenied },
+        };
       });
 
       if (includeReset) {
@@ -569,11 +685,16 @@ async function inspectMockServerScenario(input) {
           cleanup.basicUserId = "";
           cleanup.oauthUserId = "";
           cleanup.oauthClientId = "";
-          return { evidence: "Root reset restored seeded defaults.", response: reset };
+          return {
+            evidence: "Root reset restored seeded defaults.",
+            genericTarget: genericMcpTarget(baseUrl, "none", insecureTls),
+            response: reset,
+          };
         });
       } else {
         steps.push(makeStep("Optional root reset", "skip", {
           evidence: "Destructive root reset is skipped unless explicitly enabled.",
+          genericTarget: genericMcpTarget(baseUrl, "none", insecureTls),
         }));
       }
     }
@@ -584,14 +705,23 @@ async function inspectMockServerScenario(input) {
       if (cleanup.basicUserId) await safeDelete(client, `/api/basic-users/${cleanup.basicUserId}`);
       if (cleanup.endpointId) await safeDelete(client, `/api/endpoints/${cleanup.endpointId}`, { deleteCode: DEFAULT_DELETE_CODE });
       addDiagnostic(diagnostics, "cleanup mode", "delete temporary records");
+      steps.push(makeStep("Cleanup temporary records", "pass", {
+        evidence: "Temporary endpoint, Basic user, OAuth user, and OAuth client records were removed when present.",
+        genericTarget: genericMcpTarget(baseUrl, "none", insecureTls),
+      }));
     } else {
       addDiagnostic(diagnostics, "cleanup mode", "root reset or best-effort cleanup");
+      steps.push(makeStep("Cleanup temporary records", "pass", {
+        evidence: "Optional root reset handled cleanup, or cleanup was already reduced to best-effort recovery.",
+        genericTarget: genericMcpTarget(baseUrl, "none", insecureTls),
+      }));
     }
   }
 
   const failed = steps.filter((step) => step.status === "fail").length;
   return {
     ok: failed === 0,
+    kind: "mock-scenario",
     target: baseUrl,
     diagnostics,
     steps,
@@ -755,7 +885,8 @@ async function issueMockOAuthToken(input) {
   };
 }
 
-function renderHtml() {
+function renderHtml(page = "home") {
+  const safePage = ["home", "mock", "generic"].includes(page) ? page : "home";
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -786,7 +917,41 @@ function renderHtml() {
       margin: 0 auto;
       padding: 34px 0 48px;
     }
-    header { margin-bottom: 22px; }
+    header { display: grid; gap: 14px; margin-bottom: 22px; }
+    .header-row {
+      display: flex;
+      gap: 14px;
+      align-items: end;
+      justify-content: space-between;
+    }
+    .header-copy { min-width: 0; }
+    .workflow-switch {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: flex-end;
+    }
+    .workflow-link {
+      display: inline-flex;
+      min-height: 44px;
+      align-items: center;
+      border: 1px solid #bfd0df;
+      border-radius: 8px;
+      padding: 0 12px;
+      background: var(--panel);
+      color: #0b5f58;
+      font-weight: 850;
+      text-decoration: none;
+    }
+    .mode-card {
+      min-height: 44px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      color: inherit;
+      text-decoration: none;
+    }
     .eyebrow {
       margin: 0 0 10px;
       color: var(--accent);
@@ -796,6 +961,16 @@ function renderHtml() {
     }
     h1 { margin: 0; font-size: 2.5rem; line-height: 1; }
     .lede { max-width: 760px; margin: 14px 0 0; color: var(--muted); line-height: 1.55; }
+    .home-only,
+    .mock-page,
+    .generic-page { display: none; }
+    body.page-home .home-only { display: grid; }
+    body.page-mock .mock-page { display: grid; }
+    body.page-generic .generic-page { display: grid; }
+    .home-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .mode-card { display: grid; gap: 8px; padding: 18px; }
+    .mode-card strong { font-size: 1.05rem; color: #202b38; }
+    .mode-card span { color: var(--muted); line-height: 1.45; }
     .mode-grid { display: grid; gap: 18px; }
     .layout { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 16px; align-items: start; }
     section, form {
@@ -810,6 +985,69 @@ function renderHtml() {
     .mode-head p { margin: 0; color: var(--muted); line-height: 1.45; font-size: .88rem; }
     h2 { margin: 0 0 12px; font-size: 1.08rem; }
     label { display: grid; gap: 6px; margin-bottom: 12px; color: #26313f; font-weight: 800; font-size: .9rem; }
+    .label-text,
+    .step-name-row {
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+      min-width: 0;
+    }
+    .label-text { width: fit-content; }
+    .help-tooltip {
+      position: relative;
+      display: inline-flex;
+      flex: 0 0 auto;
+      width: 20px;
+      height: 20px;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #b7c7d8;
+      border-radius: 999px;
+      background: #f8fbfd;
+      color: #365064;
+      font-size: .76rem;
+      font-weight: 900;
+      line-height: 1;
+      cursor: help;
+    }
+    .help-tooltip::before {
+      content: "?";
+    }
+    .help-tooltip::after {
+      position: absolute;
+      z-index: 20;
+      left: 50%;
+      bottom: calc(100% + 8px);
+      width: min(300px, 78vw);
+      transform: translateX(-50%);
+      border: 1px solid #cbd6e2;
+      border-radius: 8px;
+      padding: 9px 10px;
+      background: #17202b;
+      color: #f7fafc;
+      box-shadow: 0 10px 28px rgba(15, 23, 32, .18);
+      content: attr(data-tooltip);
+      font-size: .78rem;
+      font-weight: 650;
+      line-height: 1.4;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .12s ease;
+    }
+    .help-tooltip:hover::after,
+    .help-tooltip:focus::after {
+      opacity: 1;
+    }
+    .select-note {
+      border: 1px solid #dbe4ee;
+      border-radius: 8px;
+      margin: -4px 0 12px;
+      padding: 9px 10px;
+      background: #fbfcfe;
+      color: var(--muted);
+      font-size: .82rem;
+      line-height: 1.45;
+    }
     input, select, textarea {
       width: 100%;
       min-height: 44px;
@@ -854,6 +1092,49 @@ function renderHtml() {
       background: #eef6f5;
       color: #0b5f58;
     }
+    .send-generic-button { white-space: nowrap; }
+    .progress-wrap { display: grid; gap: 10px; }
+    .progress-meter {
+      width: 100%;
+      height: 10px;
+      overflow: hidden;
+      border-radius: 999px;
+      background: #e5ebf3;
+    }
+    .progress-bar {
+      width: 0%;
+      height: 100%;
+      border-radius: inherit;
+      background: var(--accent);
+      transition: width .18s ease;
+    }
+    .progress-list {
+      display: grid;
+      gap: 6px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .progress-list li {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      border: 1px solid #e4e9f0;
+      border-radius: 8px;
+      padding: 8px 10px;
+      background: #fbfcfe;
+      color: var(--muted);
+      font-size: .84rem;
+      font-weight: 750;
+    }
+    .progress-list li.active {
+      border-color: #8bcac2;
+      background: #eefaf8;
+      color: #075d55;
+    }
+    .progress-list li.done {
+      color: #136337;
+    }
     button:disabled { opacity: .55; cursor: not-allowed; }
     .hint { color: var(--muted); font-size: .84rem; line-height: 1.45; margin: -4px 0 12px; }
     .auth-fields { display: none; gap: 10px; }
@@ -862,7 +1143,53 @@ function renderHtml() {
     .summary div { border: 1px solid var(--line); border-radius: 8px; padding: 10px; background: #fbfcfe; }
     .summary span { display: block; color: var(--muted); font-size: .74rem; font-weight: 800; text-transform: uppercase; }
     .summary strong { display: block; margin-top: 4px; font-size: 1.25rem; }
-    .step { border: 1px solid var(--line); border-radius: 8px; margin-top: 10px; padding: 12px; background: #fbfcfe; }
+    .step-card {
+      display: grid;
+      gap: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      margin-top: 10px;
+      padding: 12px;
+      background: #fbfcfe;
+    }
+    .step-card-head {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .step-title {
+      display: grid;
+      gap: 4px;
+      min-width: 0;
+    }
+    .step-name-row strong { overflow-wrap: anywhere; }
+    .step-title strong { overflow-wrap: anywhere; }
+    .step-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      justify-content: flex-end;
+    }
+    details.step {
+      border: 1px solid #e4e9f0;
+      border-radius: 8px;
+      background: #fff;
+      overflow: hidden;
+    }
+    details.step summary {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 48px;
+      padding: 10px 12px;
+      cursor: pointer;
+      font-weight: 850;
+    }
+    details.step > .step-body { padding: 0 12px 12px; }
+    .step-index { color: var(--muted); font-size: .82rem; font-weight: 850; }
     .step-head { display: flex; gap: 10px; align-items: center; justify-content: space-between; }
     .step h3 { margin: 0; font-size: .98rem; }
     .pill { border-radius: 999px; padding: 5px 9px; font-size: .75rem; font-weight: 900; text-transform: uppercase; }
@@ -892,21 +1219,56 @@ function renderHtml() {
     .stack { display: grid; gap: 12px; }
     @media (max-width: 840px) {
       main { width: min(100% - 24px, 620px); padding-top: 24px; }
-      .layout, .summary, .diag div { grid-template-columns: 1fr; }
+      .layout, .home-grid, .summary, .diag div { grid-template-columns: 1fr; }
       h1 { font-size: 2rem; }
-      .mode-head { display: block; }
+      .mode-head, .header-row, .step-card-head { display: grid; align-items: start; }
+      .workflow-switch, .step-actions { justify-content: start; }
+      .send-generic-button, .workflow-link { width: 100%; justify-content: center; }
+      .help-tooltip::after {
+        position: fixed;
+        left: 16px;
+        right: 16px;
+        bottom: auto;
+        top: 76px;
+        width: auto;
+        transform: none;
+      }
     }
   </style>
 </head>
-<body>
+<body class="page-${safePage}">
   <main>
     <header>
-      <p class="eyebrow">Standalone local tool</p>
-      <h1>MCP Inspector</h1>
-      <p class="lede">Point this page at any MCP Streamable HTTP endpoint for a quick protocol check, or run the Mock Server scenario to verify REST, MCP, Basic Auth, OAuth Bearer, token revocation, audit evidence, and reset guards from one local UI.</p>
+      <div class="header-row">
+        <div class="header-copy">
+          <p class="eyebrow">Standalone local tool</p>
+          <h1>MCP Inspector</h1>
+          <p class="lede">${safePage === "home"
+            ? "Choose a focused workflow: run the full Mock Server scenario, or inspect a single generic MCP Streamable HTTP target."
+            : safePage === "generic"
+            ? "Inspect one MCP Streamable HTTP endpoint with route presets, Authorization helpers, optional tool call, and raw protocol evidence."
+            : "Run the full Mock Server scenario and review each protocol/auth check as sequential step evidence."}</p>
+        </div>
+        ${safePage === "mock" ? `<nav class="workflow-switch" aria-label="Inspector workflow switch">
+          <a class="workflow-link" href="/generic">Open Generic MCP target</a>
+        </nav>` : ""}
+        ${safePage === "generic" ? `<nav class="workflow-switch" aria-label="Inspector workflow switch">
+          <a class="workflow-link" href="/mock">Open Mock Server scenario</a>
+        </nav>` : ""}
+      </div>
     </header>
+    ${safePage === "home" ? `<section class="home-only home-grid" aria-label="Inspector workflow choices">
+      <a class="mode-card" href="/mock">
+        <strong>Mock Server scenario</strong>
+        <span>Run the broad local scenario for health, config, REST, MCP, Basic, OAuth, token revocation, audit evidence, reset guards, and cleanup.</span>
+      </a>
+      <a class="mode-card" href="/generic">
+        <strong>Generic MCP target</strong>
+        <span>Inspect one MCP Streamable HTTP endpoint with route presets, Authorization helpers, optional tool call, and raw protocol evidence.</span>
+      </a>
+    </section>` : ""}
     <div class="mode-grid">
-      <div class="layout">
+      ${safePage === "mock" ? `<div class="layout mock-page">
         <form id="mock-form">
           <div class="mode-head">
             <div>
@@ -916,19 +1278,19 @@ function renderHtml() {
             <span class="pill warn">broad</span>
           </div>
           <label>
-            Mock Server base URL
+            <span class="label-text">Mock Server base URL ${helpTooltip("The running Mock Server address. The scenario sends admin, REST, MCP, and OAuth requests to this server.")}</span>
             <input name="baseUrl" value="${DEFAULT_MOCK_BASE_URL}" placeholder="http://127.0.0.1:3100" />
           </label>
           <label class="check-row">
             <input name="includeReset" type="checkbox" />
-            Include destructive root reset
+            <span class="label-text">Include destructive root reset ${helpTooltip("Optional. When enabled, the scenario also proves root-protected reset. Leave it off for normal non-destructive checks.")}</span>
           </label>
           <label class="check-row">
             <input name="insecureTls" type="checkbox" />
-            Allow self-signed HTTPS for this run
+            <span class="label-text">Allow self-signed HTTPS for this run ${helpTooltip("Allows local HTTPS certificates you created for testing. Keep it off for normal HTTP or publicly trusted HTTPS targets.")}</span>
           </label>
           <label>
-            Root password for optional reset
+            <span class="label-text">Root password for optional reset ${helpTooltip("Only used when destructive reset is enabled. The value is sent to the Mock Server reset API and is not stored by this page.")}</span>
             <input name="rootPassword" type="password" placeholder="Only needed when reset is enabled" />
           </label>
           <p class="hint">Default run covers health, config, discovery, endpoint admin, REST, MCP, Basic, OAuth Bearer, token revocation, audit, reset denial, and cleanup. Root reset stays off unless you opt in. Use self-signed HTTPS only for local certificates you control.</p>
@@ -941,9 +1303,9 @@ function renderHtml() {
           <h2>Scenario results</h2>
           <div id="mock-results" class="empty">No Mock Server scenario has run yet.</div>
         </section>
-      </div>
+      </div>` : ""}
 
-      <div class="layout">
+      ${safePage === "generic" ? `<div class="layout generic-page">
         <form id="inspect-form">
           <div class="mode-head">
             <div>
@@ -953,7 +1315,11 @@ function renderHtml() {
             <span class="pill pass">portable</span>
           </div>
           <label>
-            Mock route preset
+            <span class="label-text">Mock Server base URL ${helpTooltip("Used by Mock route presets and the Mock OAuth token helper. Custom MCP endpoints can still use a different MCP endpoint URL.")}</span>
+            <input name="baseUrl" value="${DEFAULT_MOCK_BASE_URL}" placeholder="http://127.0.0.1:3100" />
+          </label>
+          <label>
+            <span class="label-text">Mock route preset ${helpTooltip("Optional shortcut for this Mock Server's common MCP routes. It fills the endpoint URL and matching auth helper fields.")}</span>
             <select name="mockRoutePreset">
               <option value="custom">Custom endpoint URL</option>
               <option value="none">Mock no-auth /mcp/none</option>
@@ -961,73 +1327,76 @@ function renderHtml() {
               <option value="oauth">Mock OAuth /mcp/oauth with Bearer token</option>
             </select>
           </label>
+          <div id="route-preset-note" class="select-note" aria-live="polite"></div>
           <p class="hint">Presets use the Mock Server base URL from the scenario form above, then fill the endpoint and common auth helper fields for you.</p>
           <label>
-            MCP endpoint URL
+            <span class="label-text">MCP endpoint URL ${helpTooltip("The HTTP endpoint that receives JSON-RPC MCP messages such as initialize, tools/list, and tools/call.")}</span>
             <input name="mcpUrl" value="http://127.0.0.1:3100/mcp/none" placeholder="http://127.0.0.1:3100/mcp/none" />
           </label>
           <label>
-            Protocol version
+            <span class="label-text">Protocol version ${helpTooltip("Sent as the MCP-Protocol-Version header after initialize. Use the version your MCP client or server expects.")}</span>
             <input name="protocolVersion" value="${DEFAULT_PROTOCOL_VERSION}" />
           </label>
           <label>
-            Authorization helper
+            <span class="label-text">Authorization helper ${helpTooltip("Builds the Authorization header for common no-auth, Basic, or Bearer-token MCP calls.")}</span>
             <select name="authMode">
               <option value="none">No Authorization header</option>
               <option value="basic">Basic username/password</option>
               <option value="bearer">Bearer token</option>
             </select>
           </label>
+          <div id="auth-mode-note" class="select-note" aria-live="polite"></div>
           <div id="basic-auth-fields" class="auth-fields">
             <label>
-              Basic username
+              <span class="label-text">Basic username ${helpTooltip("Username for the Basic Authorization header. The seeded Mock Server user is default.")}</span>
               <input name="basicUsername" autocomplete="off" placeholder="default" />
             </label>
             <label>
-              Basic password
+              <span class="label-text">Basic password ${helpTooltip("Password for the Basic Authorization header. It is used for this run only and is not saved in browser storage.")}</span>
               <input name="basicPassword" type="password" autocomplete="off" placeholder="default" />
             </label>
           </div>
           <div id="bearer-auth-fields" class="auth-fields">
             <label>
-              Bearer token
+              <span class="label-text">Bearer token ${helpTooltip("Access token sent as Authorization: Bearer. For Mock Server OAuth, use the token helper below.")}</span>
               <textarea name="bearerToken" autocomplete="off" placeholder="eyJ..."></textarea>
             </label>
             <div class="stack">
               <label>
-                Mock OAuth client id
+                <span class="label-text">Mock OAuth client id ${helpTooltip("Client id used by the token helper when requesting a client_credentials token from the Mock Server.")}</span>
                 <input name="oauthClientId" autocomplete="off" placeholder="default" value="default" />
               </label>
               <label>
-                Mock OAuth client secret
+                <span class="label-text">Mock OAuth client secret ${helpTooltip("Client secret used only for the token-helper request. It is not shown in evidence and is not persisted.")}</span>
                 <input name="oauthClientSecret" type="password" autocomplete="off" placeholder="default" />
               </label>
               <label>
-                Optional OAuth scope
+                <span class="label-text">Optional OAuth scope ${helpTooltip("Limits the token to specific endpoint permissions when the Mock OAuth client allows them.")}</span>
                 <input name="oauthScope" autocomplete="off" placeholder="endpoint:endpoint_default_echo" />
               </label>
               <div class="actions">
                 <button id="issue-token-button" class="secondary-button" type="button">Issue Mock OAuth token</button>
+                ${helpTooltip("Calls the Mock Server OAuth token endpoint with client_credentials, then fills the Bearer token field.")}
               </div>
               <div id="token-helper-status" class="hint" aria-live="polite"></div>
             </div>
           </div>
           <label>
-            Extra headers JSON
+            <span class="label-text">Extra headers JSON ${helpTooltip("Optional JSON object merged into the request headers. Use it for custom local targets, API keys, or non-standard test headers.")}</span>
             <textarea name="headersJson" placeholder='{"Authorization":"Bearer ..."}'></textarea>
           </label>
           <p class="hint">Use the helper for common Basic or Bearer calls. Extra headers JSON is still available for API keys or custom local server requirements. Secrets are redacted in displayed request evidence and are not stored in browser history for this page.</p>
           <label class="check-row">
             <input name="insecureTls" type="checkbox" />
-            Allow self-signed HTTPS for this run
+            <span class="label-text">Allow self-signed HTTPS for this run ${helpTooltip("Allows self-signed local HTTPS certificates for this inspection only. It does not change global system trust.")}</span>
           </label>
           <p class="hint">Enable this only for local HTTPS targets such as an MCP Mock Server started with <code>npm run start:tls</code>.</p>
           <label>
-            Optional tool name
+            <span class="label-text">Optional tool name ${helpTooltip("When set, the inspector sends tools/call after initialize and tools/list. Leave blank to stop after listing tools.")}</span>
             <input name="toolName" placeholder="echo" />
           </label>
           <label>
-            Optional tool arguments JSON
+            <span class="label-text">Optional tool arguments JSON ${helpTooltip("JSON object used as params.arguments for tools/call. It must match the selected tool's input schema.")}</span>
             <textarea name="toolArgsJson" placeholder='{"message":"hello"}'>{}</textarea>
           </label>
           <button id="run-button" type="submit">Run generic inspection</button>
@@ -1036,7 +1405,7 @@ function renderHtml() {
           <h2>Generic results</h2>
           <div id="results" class="empty">No generic inspection has run yet.</div>
         </section>
-      </div>
+      </div>` : ""}
     </div>
   </main>
   <script>
@@ -1048,9 +1417,15 @@ function renderHtml() {
     const mockResults = document.querySelector("#mock-results");
     const basicAuthFields = document.querySelector("#basic-auth-fields");
     const bearerAuthFields = document.querySelector("#bearer-auth-fields");
+    const routePresetNote = document.querySelector("#route-preset-note");
+    const authModeNote = document.querySelector("#auth-mode-note");
     const issueTokenButton = document.querySelector("#issue-token-button");
     const tokenHelperStatus = document.querySelector("#token-helper-status");
     const storageKey = "mcp-mock-standalone-inspector:v1";
+    const genericDraftKey = "mcp-mock-standalone-inspector:generic-draft:v1";
+    const routePresetHelp = ${JSON.stringify(GENERIC_ROUTE_PRESET_HELP)};
+    const authModeHelp = ${JSON.stringify(GENERIC_AUTH_HELP)};
+    const scenarioStepHelp = ${JSON.stringify(MOCK_SCENARIO_STEP_HELP)};
 
     function readRecentSettings() {
       try {
@@ -1067,25 +1442,63 @@ function renderHtml() {
 
     function hydrateRecentSettings() {
       const settings = readRecentSettings();
-      if (settings.mockBaseUrl) mockForm.elements.baseUrl.value = settings.mockBaseUrl;
-      if (settings.mockInsecureTls === true) mockForm.elements.insecureTls.checked = true;
-      if (settings.mcpUrl) form.elements.mcpUrl.value = settings.mcpUrl;
-      if (settings.protocolVersion) form.elements.protocolVersion.value = settings.protocolVersion;
-      if (settings.genericInsecureTls === true) form.elements.insecureTls.checked = true;
-      if (settings.toolName) form.elements.toolName.value = settings.toolName;
+      if (mockForm && settings.mockBaseUrl) mockForm.elements.baseUrl.value = settings.mockBaseUrl;
+      if (mockForm && settings.mockInsecureTls === true) mockForm.elements.insecureTls.checked = true;
+      if (form && settings.mockBaseUrl) form.elements.baseUrl.value = settings.mockBaseUrl;
+      if (form && settings.mcpUrl) form.elements.mcpUrl.value = settings.mcpUrl;
+      if (form && settings.protocolVersion) form.elements.protocolVersion.value = settings.protocolVersion;
+      if (form && settings.genericInsecureTls === true) form.elements.insecureTls.checked = true;
+      if (form && settings.toolName) form.elements.toolName.value = settings.toolName;
+      hydrateGenericDraft();
+    }
+
+    function hydrateGenericDraft() {
+      if (!form || !document.body.classList.contains("page-generic")) return;
+      let draft = null;
+      try {
+        draft = JSON.parse(window.localStorage.getItem(genericDraftKey) || "null");
+      } catch {
+        draft = null;
+      }
+      if (!draft) return;
+      if (draft.baseUrl) form.elements.baseUrl.value = draft.baseUrl;
+      if (draft.mockRoutePreset) form.elements.mockRoutePreset.value = draft.mockRoutePreset;
+      if (draft.mcpUrl) form.elements.mcpUrl.value = draft.mcpUrl;
+      if (draft.protocolVersion) form.elements.protocolVersion.value = draft.protocolVersion;
+      if (draft.authMode) form.elements.authMode.value = draft.authMode;
+      if (draft.basicUsername) form.elements.basicUsername.value = draft.basicUsername;
+      if (draft.basicPassword) form.elements.basicPassword.value = draft.basicPassword;
+      if (draft.oauthClientId) form.elements.oauthClientId.value = draft.oauthClientId;
+      if (draft.oauthClientSecret) form.elements.oauthClientSecret.value = draft.oauthClientSecret;
+      if (draft.oauthScope) form.elements.oauthScope.value = draft.oauthScope;
+      if (draft.toolName) form.elements.toolName.value = draft.toolName;
+      if (draft.toolArgsJson) form.elements.toolArgsJson.value = draft.toolArgsJson;
+      if (draft.headersJson) form.elements.headersJson.value = draft.headersJson;
+      form.elements.insecureTls.checked = draft.insecureTls === true;
+      updateAuthFields();
+      window.localStorage.removeItem(genericDraftKey);
     }
 
     function updateAuthFields() {
+      if (!form) return;
       const mode = form.elements.authMode.value;
-      basicAuthFields.classList.toggle("active", mode === "basic");
-      bearerAuthFields.classList.toggle("active", mode === "bearer");
+      if (basicAuthFields) basicAuthFields.classList.toggle("active", mode === "basic");
+      if (bearerAuthFields) bearerAuthFields.classList.toggle("active", mode === "bearer");
+      if (authModeNote) authModeNote.textContent = authModeHelp[mode] || "";
+    }
+
+    function updateRoutePresetNote() {
+      if (!form || !routePresetNote) return;
+      routePresetNote.textContent = routePresetHelp[form.elements.mockRoutePreset.value] || "";
     }
 
     function currentMockBaseUrl() {
-      return String(mockForm.elements.baseUrl.value || "${DEFAULT_MOCK_BASE_URL}").trim().replace(/\\/+$/, "");
+      const value = form?.elements?.baseUrl?.value || mockForm?.elements?.baseUrl?.value || "${DEFAULT_MOCK_BASE_URL}";
+      return String(value).trim().replace(/\\/+$/, "");
     }
 
     function applyMockRoutePreset() {
+      if (!form) return;
       const preset = form.elements.mockRoutePreset.value;
       if (preset === "custom") return;
       const baseUrl = currentMockBaseUrl();
@@ -1158,18 +1571,45 @@ function renderHtml() {
       return escapeHtml(JSON.stringify(value, null, 2));
     }
 
+    function renderHelpTooltip(text) {
+      if (!text) return "";
+      return '<span class="help-tooltip" tabindex="0" title="' + escapeHtml(text) + '" data-tooltip="' + escapeHtml(text) + '"></span>';
+    }
+
     function render(data) {
       const summary = data.summary ?? { pass: 0, warn: 0, skip: 0, fail: 0 };
       const diagnostics = (data.diagnostics ?? []).map((item) =>
         '<div><span>' + escapeHtml(item.check) + '</span><code>' + escapeHtml(item.value) + '</code></div>'
       ).join("");
-      const steps = (data.steps ?? []).map((step) => {
+      const steps = (data.steps ?? []).map((step, index) => {
         const evidence = step.evidence ? '<p class="hint">' + escapeHtml(step.evidence) + '</p>' : "";
         const request = step.request ? '<pre aria-label="' + escapeHtml(step.name) + ' request">' + pretty(step.request) + '</pre>' : "";
         const response = step.response ? '<pre aria-label="' + escapeHtml(step.name) + ' response">' + pretty(step.response) + '</pre>' : "";
-        return '<article class="step"><div class="step-head"><h3>' + escapeHtml(step.name) + '</h3><span class="pill ' + escapeHtml(step.status) + '">' + escapeHtml(step.status) + '</span></div>' + evidence + request + response + '</article>';
+        const genericAction = step.genericTarget
+          ? '<button type="button" class="secondary-button send-generic-button" data-generic-target="' + escapeHtml(JSON.stringify(step.genericTarget)) + '">Send to Generic MCP target</button>'
+          : "";
+        const stepHelp = data.kind === "mock-scenario" ? renderHelpTooltip(scenarioStepHelp[step.name]) : "";
+        const open = step.status === "fail" ? " open" : "";
+        return '<article class="step-card"><div class="step-card-head"><div class="step-title"><span class="step-index">Step ' + (index + 1) + '</span><span class="step-name-row"><strong>' + escapeHtml(step.name) + '</strong>' + stepHelp + '</span></div><div class="step-actions">' + genericAction + '<span class="pill ' + escapeHtml(step.status) + '">' + escapeHtml(step.status) + '</span></div></div><details class="step"' + open + '><summary>View evidence</summary><div class="step-body">' + evidence + request + response + '</div></details></article>';
       }).join("");
-      return '<div class="summary"><div><span>Pass</span><strong>' + summary.pass + '</strong></div><div><span>Warn</span><strong>' + summary.warn + '</strong></div><div><span>Skip</span><strong>' + summary.skip + '</strong></div><div><span>Fail</span><strong>' + summary.fail + '</strong></div></div><h2>Diagnostics</h2><div class="diag">' + diagnostics + '</div><div class="stack">' + steps + '</div>';
+      const statusByName = Object.fromEntries((data.steps ?? []).map((step) => [step.name, step.status]));
+      const progress = data.kind === "mock-scenario" ? renderScenarioProgress(scenarioStepNames.length - 1, scenarioStepNames.length, statusByName) : "";
+      return progress + '<div class="summary"><div><span>Pass</span><strong>' + summary.pass + '</strong></div><div><span>Warn</span><strong>' + summary.warn + '</strong></div><div><span>Skip</span><strong>' + summary.skip + '</strong></div><div><span>Fail</span><strong>' + summary.fail + '</strong></div></div><h2>Diagnostics</h2><div class="diag">' + diagnostics + '</div><h2>Step logs</h2><div class="stack">' + steps + '</div>';
+    }
+
+    const scenarioStepNames = ${JSON.stringify(MOCK_SCENARIO_STEP_NAMES)};
+
+    function renderScenarioProgress(activeIndex = 0, doneCount = 0, statusByName = {}) {
+      const boundedDone = Math.max(0, Math.min(doneCount, scenarioStepNames.length));
+      const boundedActive = Math.max(0, Math.min(activeIndex, scenarioStepNames.length - 1));
+      const percent = Math.round((boundedDone / scenarioStepNames.length) * 100);
+      const items = scenarioStepNames.map((name, index) => {
+        const finalStatus = statusByName[name];
+        const state = finalStatus ? (finalStatus === "pass" ? "done" : finalStatus) : index < boundedDone ? "done" : index === boundedActive ? "active" : "";
+        const label = finalStatus || (index < boundedDone ? "done" : index === boundedActive ? "running" : "queued");
+        return '<li class="' + state + '"><span>' + escapeHtml(name) + '</span><span>' + label + '</span></li>';
+      }).join("");
+      return '<div class="progress-wrap"><div><strong>Scenario progress</strong><p class="hint">' + boundedDone + ' of ' + scenarioStepNames.length + ' steps complete.</p></div><div class="progress-meter" aria-label="Scenario progress"><div class="progress-bar" style="width:' + percent + '%"></div></div><ul class="progress-list">' + items + '</ul></div>';
     }
 
     function renderInto(container, data) {
@@ -1177,7 +1617,7 @@ function renderHtml() {
       container.innerHTML = render(data);
     }
 
-    form.addEventListener("submit", async (event) => {
+    if (form) form.addEventListener("submit", async (event) => {
       event.preventDefault();
       button.disabled = true;
       results.className = "empty";
@@ -1187,6 +1627,7 @@ function renderHtml() {
         payload.insecureTls = form.elements.insecureTls.checked;
         mergeAuthorizationHeader(payload);
         writeRecentSettings({
+          mockBaseUrl: String(payload.baseUrl || ""),
           mcpUrl: String(payload.mcpUrl || ""),
           protocolVersion: String(payload.protocolVersion || ""),
           genericInsecureTls: payload.insecureTls,
@@ -1208,11 +1649,16 @@ function renderHtml() {
       }
     });
 
-    mockForm.addEventListener("submit", async (event) => {
+    if (mockForm) mockForm.addEventListener("submit", async (event) => {
       event.preventDefault();
       mockButton.disabled = true;
       mockResults.className = "empty";
-      mockResults.textContent = "Running Mock Server scenario.";
+      mockResults.innerHTML = renderScenarioProgress(0, 0);
+      let progressIndex = 0;
+      const progressTimer = window.setInterval(() => {
+        progressIndex = Math.min(progressIndex + 1, scenarioStepNames.length - 1);
+        mockResults.innerHTML = renderScenarioProgress(progressIndex, progressIndex);
+      }, 900);
       try {
         const payload = Object.fromEntries(new FormData(mockForm).entries());
         payload.includeReset = mockForm.elements.includeReset.checked;
@@ -1228,16 +1674,19 @@ function renderHtml() {
         });
         const data = await response.json();
         if (!response.ok) throw new Error(data.message || "Scenario failed.");
+        window.clearInterval(progressTimer);
         renderInto(mockResults, data);
       } catch (error) {
+        window.clearInterval(progressTimer);
         mockResults.className = "empty";
         mockResults.innerHTML = '<span class="pill fail">fail</span><pre>' + escapeHtml(error.message || String(error)) + '</pre>';
       } finally {
+        window.clearInterval(progressTimer);
         mockButton.disabled = false;
       }
     });
 
-    issueTokenButton.addEventListener("click", async () => {
+    if (issueTokenButton) issueTokenButton.addEventListener("click", async () => {
       issueTokenButton.disabled = true;
       tokenHelperStatus.textContent = "Issuing token.";
       try {
@@ -1265,10 +1714,28 @@ function renderHtml() {
       }
     });
 
-    form.elements.authMode.addEventListener("change", updateAuthFields);
-    form.elements.mockRoutePreset.addEventListener("change", applyMockRoutePreset);
+    document.addEventListener("click", (event) => {
+      const button = event.target.closest(".send-generic-button");
+      if (!button) return;
+      try {
+        const draft = JSON.parse(button.dataset.genericTarget || "{}");
+        window.localStorage.setItem(genericDraftKey, JSON.stringify(draft));
+        window.location.href = "/generic";
+      } catch (error) {
+        button.textContent = error.message || "Could not send step.";
+      }
+    });
+
+    if (form) form.elements.authMode.addEventListener("change", updateAuthFields);
+    if (form) form.elements.mockRoutePreset.addEventListener("change", () => {
+      applyMockRoutePreset();
+      updateRoutePresetNote();
+    });
     updateAuthFields();
+    updateRoutePresetNote();
     hydrateRecentSettings();
+    updateAuthFields();
+    updateRoutePresetNote();
   </script>
 </body>
 </html>`;
@@ -1279,7 +1746,15 @@ function createInspectorServer() {
     try {
       const url = new URL(request.url ?? "/", "http://local.inspector");
       if (request.method === "GET" && url.pathname === "/") {
-        htmlResponse(response, renderHtml());
+        htmlResponse(response, renderHtml("home"));
+        return;
+      }
+      if (request.method === "GET" && url.pathname === "/mock") {
+        htmlResponse(response, renderHtml("mock"));
+        return;
+      }
+      if (request.method === "GET" && url.pathname === "/generic") {
+        htmlResponse(response, renderHtml("generic"));
         return;
       }
       if (request.method === "GET" && url.pathname === "/api/health") {

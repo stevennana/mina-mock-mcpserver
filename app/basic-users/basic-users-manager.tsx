@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import { HelpTooltip } from "@/app/help-tooltip";
 import { formatShortDate } from "@/lib/date-format";
 import type { BasicUserListResult, BasicUserSummary } from "@/lib/basic-auth/types";
 
@@ -44,6 +45,15 @@ function userToForm(user: BasicUserSummary): FormState {
 
 function errorFor(fieldErrors: Record<string, string>, field: string) {
   return fieldErrors[field] ? <p className="field-error">{fieldErrors[field]}</p> : null;
+}
+
+function FieldLabel({ label, help }: { label: string; help: string }) {
+  return (
+    <span className="field-label-row">
+      {label}
+      <HelpTooltip text={help} />
+    </span>
+  );
 }
 
 type BasicUserView = "catalog" | "detail" | "create";
@@ -238,7 +248,7 @@ export function BasicUsersManager({
           <h3>Identity</h3>
           <div className="form-grid">
             <label className="field-block">
-              <span>Username</span>
+              <FieldLabel label="Username" help="Basic Auth username used by clients when calling strict Basic MCP or REST routes." />
               <input
                 className="text-input"
                 value={form.username}
@@ -248,7 +258,7 @@ export function BasicUsersManager({
               {errorFor(saveState.fieldErrors, "username")}
             </label>
             <label className="field-block">
-              <span>{selectedId ? "New password" : "Password"}</span>
+              <FieldLabel label={selectedId ? "New password" : "Password"} help="Stored as a hash only. Leave blank while editing to keep the existing password." />
               <input
                 className="text-input"
                 type="password"
@@ -266,7 +276,7 @@ export function BasicUsersManager({
                 onChange={(event) => setForm((current) => ({ ...current, enabled: event.target.checked }))}
                 disabled={locked}
               />
-              Enabled for Basic credential verification
+              <span className="field-label-row">Enabled for Basic credential verification <HelpTooltip text="Disabled users remain visible in admin UI but fail Basic credential checks at runtime." /></span>
             </label>
           </div>
         </div>

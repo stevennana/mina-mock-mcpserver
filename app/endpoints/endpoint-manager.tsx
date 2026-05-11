@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { useMemo, useState } from "react";
+import { HelpTooltip } from "@/app/help-tooltip";
 import { formatShortDate } from "@/lib/date-format";
 import { generateMcpInputSchema } from "@/lib/endpoints/schema";
 import type { EndpointDetail, EndpointInput, EndpointListResult } from "@/lib/endpoints/types";
@@ -114,6 +115,15 @@ function detailToForm(endpoint: EndpointDetail): EndpointFormState {
 
 function errorFor(fieldErrors: Record<string, string>, field: string) {
   return fieldErrors[field] ? <p className="field-error">{fieldErrors[field]}</p> : null;
+}
+
+function FieldLabel({ children, help }: { children: ReactNode; help: string }) {
+  return (
+    <span className="field-label-row">
+      {children}
+      <HelpTooltip text={help} />
+    </span>
+  );
 }
 
 export function EndpointManager({
@@ -539,26 +549,26 @@ export function EndpointManager({
         {["create", "edit"].includes(view) ? (
         <div className="form-grid">
           <label className="field-block">
-            <span>Name</span>
+            <FieldLabel help="The stable tool name clients use in MCP tools/call and REST URLs. Keep it URL-safe and unique.">Name</FieldLabel>
             <input className="text-input" value={form.name} onChange={(event) => updateForm("name", event.target.value)} />
             {errorFor(fieldErrors, "name")}
           </label>
           <label className="field-block">
-            <span>Title</span>
+            <FieldLabel help="Human-readable label shown in the admin UI and client tool metadata.">Title</FieldLabel>
             <input className="text-input" value={form.title} onChange={(event) => updateForm("title", event.target.value)} />
             {errorFor(fieldErrors, "title")}
           </label>
           <label className="field-block wide">
-            <span>Description</span>
+            <FieldLabel help="Client-facing tool description. MCP clients use this to explain what the tool is for.">Description</FieldLabel>
             <textarea className="text-area short" value={form.description} onChange={(event) => updateForm("description", event.target.value)} />
             {errorFor(fieldErrors, "description")}
           </label>
           <label className="toggle-row">
             <input type="checkbox" checked={form.enabled} onChange={(event) => updateForm("enabled", event.target.checked)} />
-            <span>Enabled in runtime catalogs</span>
+            <span className="field-label-row">Enabled in runtime catalogs <HelpTooltip text="When enabled, this tool appears in MCP tools/list and REST tool lists. Disabled tools stay configured but cannot be called." /></span>
           </label>
           <label className="field-block">
-            <span>Delete code</span>
+            <FieldLabel help="Eight-digit endpoint-specific code accepted by the protected delete flow. Root password can still override it.">Delete code</FieldLabel>
             <input className="text-input" value={form.deleteCode ?? ""} onChange={(event) => updateForm("deleteCode", event.target.value)} />
             {errorFor(fieldErrors, "deleteCode")}
           </label>
@@ -594,6 +604,9 @@ export function EndpointManager({
           <button className="secondary-button" type="button" disabled={form.parameters.length >= 3} onClick={() => updateForm("parameters", [...form.parameters, { name: "", label: "", description: "", type: "string", required: false, defaultValueJson: "" }])}>
             Add parameter
           </button>
+          <p className="section-note">
+            Parameter rows define the MCP tool input schema. Name and type become JSON Schema properties; required controls whether clients must send the argument.
+          </p>
         </EditorSection>
 
         <EditorSection title="Generated MCP inputSchema">
@@ -607,7 +620,7 @@ export function EndpointManager({
         <>
         <EditorSection title="Default response">
           <label className="field-block">
-            <span>Default response JSON</span>
+            <FieldLabel help="Fallback JSON body returned when no response case matches the supplied tool arguments.">Default response JSON</FieldLabel>
             <textarea className="text-area" value={form.defaultResponseJson} onChange={(event) => updateForm("defaultResponseJson", event.target.value)} />
             {errorFor(fieldErrors, "defaultResponseJson")}
           </label>
@@ -621,42 +634,42 @@ export function EndpointManager({
               <div className="case-editor" key={`case-${index}`}>
                 <div className="case-grid">
                   <label className="field-block">
-                    <span>Case name</span>
+                    <FieldLabel help="Internal label for this response case, useful when reading console evidence and audit logs.">Case name</FieldLabel>
                     <input className="text-input" value={responseCase.name} onChange={(event) => updateResponseCase(index, { name: event.target.value })} />
                     {errorFor(fieldErrors, `responseCases.${index}.name`)}
                   </label>
                   <label className="field-block">
-                    <span>Priority</span>
+                    <FieldLabel help="Higher priority cases win first when multiple exact-match argument patterns could apply.">Priority</FieldLabel>
                     <input className="text-input" type="number" value={responseCase.priority} onChange={(event) => updateResponseCase(index, { priority: Number(event.target.value) })} />
                   </label>
                   <label className="toggle-row">
                     <input type="radio" name="default-response-case" checked={responseCase.isDefault} onChange={() => setDefaultCase(index)} />
-                    <span>Default case</span>
+                    <span className="field-label-row">Default case <HelpTooltip text="Marks this case as the fallback when no exact argument match is found." /></span>
                   </label>
                 </div>
                 <div className="form-grid">
                   <label className="field-block">
-                    <span>Match args JSON</span>
+                    <FieldLabel help="Exact JSON argument pattern that triggers this case, for example {&quot;city&quot;:&quot;Seoul&quot;}.">Match args JSON</FieldLabel>
                     <textarea className="text-area" value={responseCase.matchArgsJson} onChange={(event) => updateResponseCase(index, { matchArgsJson: event.target.value })} />
                     {errorFor(fieldErrors, `responseCases.${index}.matchArgsJson`)}
                   </label>
                   <label className="field-block">
-                    <span>Response JSON</span>
+                    <FieldLabel help="JSON body returned to REST clients and mapped into MCP structuredContent for successful tool calls.">Response JSON</FieldLabel>
                     <textarea className="text-area" value={responseCase.responseJson} onChange={(event) => updateResponseCase(index, { responseJson: event.target.value })} />
                     {errorFor(fieldErrors, `responseCases.${index}.responseJson`)}
                   </label>
                   <label className="field-block">
-                    <span>Status code</span>
+                    <FieldLabel help="HTTP status for REST calls. MCP success responses still use JSON-RPC result formatting.">Status code</FieldLabel>
                     <input className="text-input" type="number" value={responseCase.statusCode} onChange={(event) => updateResponseCase(index, { statusCode: Number(event.target.value) })} />
                     {errorFor(fieldErrors, `responseCases.${index}.statusCode`)}
                   </label>
                   <label className="field-block">
-                    <span>Delay ms</span>
+                    <FieldLabel help="Artificial delay added before returning this case, useful for timeout and retry tests.">Delay ms</FieldLabel>
                     <input className="text-input" type="number" value={responseCase.delayMs} onChange={(event) => updateResponseCase(index, { delayMs: Number(event.target.value) })} />
                     {errorFor(fieldErrors, `responseCases.${index}.delayMs`)}
                   </label>
                   <label className="field-block">
-                    <span>Error mode</span>
+                    <FieldLabel help="Turns a matching case into a REST error or MCP protocol/tool error instead of a normal success body.">Error mode</FieldLabel>
                     <select className="text-input" value={responseCase.errorMode} onChange={(event) => updateResponseCase(index, { errorMode: event.target.value as EndpointInput["responseCases"][number]["errorMode"] })}>
                       <option value="none">none</option>
                       <option value="error">error</option>
@@ -664,16 +677,16 @@ export function EndpointManager({
                     </select>
                   </label>
                   <label className="field-block">
-                    <span>Error status</span>
+                    <FieldLabel help="HTTP status used when this case simulates an error.">Error status</FieldLabel>
                     <input className="text-input" type="number" value={responseCase.errorStatusCode ?? ""} onChange={(event) => updateResponseCase(index, { errorStatusCode: event.target.value ? Number(event.target.value) : null })} />
                     {errorFor(fieldErrors, `responseCases.${index}.errorStatusCode`)}
                   </label>
                   <label className="field-block wide">
-                    <span>Error message</span>
+                    <FieldLabel help="Human-readable error message returned in configured failure responses.">Error message</FieldLabel>
                     <input className="text-input" value={responseCase.errorMessage ?? ""} onChange={(event) => updateResponseCase(index, { errorMessage: event.target.value })} />
                   </label>
                   <label className="field-block wide">
-                    <span>Error body JSON</span>
+                    <FieldLabel help="Optional JSON error body for REST failure evidence.">Error body JSON</FieldLabel>
                     <textarea className="text-area short" value={responseCase.errorBodyJson ?? ""} onChange={(event) => updateResponseCase(index, { errorBodyJson: event.target.value })} />
                     {errorFor(fieldErrors, `responseCases.${index}.errorBodyJson`)}
                   </label>
@@ -695,7 +708,7 @@ export function EndpointManager({
         <EditorSection title="Failure simulation">
           <div className="form-grid">
             <label className="field-block">
-              <span>Failure mode</span>
+              <FieldLabel help="Endpoint-wide failure behavior applied before normal response case matching. Use it to test client error handling.">Failure mode</FieldLabel>
               <select aria-label="Failure mode" className="text-input" value={form.failureMode} onChange={(event) => updateForm("failureMode", event.target.value as EndpointInput["failureMode"])}>
                 <option value="none">none</option>
                 <option value="delay">delay</option>
@@ -707,27 +720,27 @@ export function EndpointManager({
               {errorFor(fieldErrors, "failureMode")}
             </label>
             <label className="field-block">
-              <span>Failure status</span>
+              <FieldLabel help="HTTP status returned when endpoint-wide error mode is active.">Failure status</FieldLabel>
               <input aria-label="Failure status" className="text-input" type="number" value={form.failureStatusCode ?? ""} onChange={(event) => updateForm("failureStatusCode", event.target.value ? Number(event.target.value) : null)} />
               {errorFor(fieldErrors, "failureStatusCode")}
             </label>
             <label className="field-block">
-              <span>Failure delay ms</span>
+              <FieldLabel help="Endpoint-wide artificial delay before the response is returned.">Failure delay ms</FieldLabel>
               <input aria-label="Failure delay ms" className="text-input" type="number" value={form.failureDelayMs} onChange={(event) => updateForm("failureDelayMs", Number(event.target.value))} />
               {errorFor(fieldErrors, "failureDelayMs")}
             </label>
             <div className="field-block">
-              <span>Timeout shortcut</span>
+              <FieldLabel help="Sets a 30 second endpoint delay quickly for timeout and cancellation checks.">Timeout shortcut</FieldLabel>
               <button className="secondary-button" type="button" onClick={() => setForm((current) => ({ ...current, failureMode: "delay", failureDelayMs: 30_000 }))}>
                 Set 30s delay
               </button>
             </div>
             <label className="field-block wide">
-              <span>Failure message</span>
+              <FieldLabel help="Message included in endpoint-wide error responses.">Failure message</FieldLabel>
               <input aria-label="Failure message" className="text-input" value={form.failureMessage ?? ""} onChange={(event) => updateForm("failureMessage", event.target.value)} />
             </label>
             <label className="field-block wide">
-              <span>Malformed response JSON</span>
+              <FieldLabel help="Optional raw body for wrong_content_type mode. invalid_json and empty_body use fixed malformed evidence.">Malformed response JSON</FieldLabel>
               <textarea className="text-area short" value={form.malformedResponseJson ?? ""} onChange={(event) => updateForm("malformedResponseJson", event.target.value)} />
               <p className="field-hint">Optional body used by wrong_content_type; invalid_json and empty_body use fixed malformed evidence.</p>
               {errorFor(fieldErrors, "malformedResponseJson")}
@@ -745,7 +758,7 @@ export function EndpointManager({
             {["confirming", "deleting", "error"].includes(deleteState.status) ? (
               <div className="delete-confirmation">
                 <label className="field-block">
-                  <span>Delete code</span>
+                  <FieldLabel help="Endpoint-specific delete code. Use this for normal protected deletion without exposing the root password.">Delete code</FieldLabel>
                   <input
                     className="text-input"
                     inputMode="numeric"
@@ -755,7 +768,7 @@ export function EndpointManager({
                   />
                 </label>
                 <label className="field-block">
-                  <span>Root password override</span>
+                  <FieldLabel help="Root password can override the endpoint delete code for operator recovery. It is not written to audit metadata.">Root password override</FieldLabel>
                   <input
                     className="text-input"
                     type="password"
@@ -791,7 +804,7 @@ export function EndpointManager({
                 </p>
               ) : null}
               <label className="field-block">
-                <span>Auth mode</span>
+                <FieldLabel help="Select how the console calls this tool through REST. OAuth bearer requires a token issued with permission for this endpoint.">Auth mode</FieldLabel>
                 <select className="text-input" value={authMode} onChange={(event) => setAuthMode(event.target.value as AuthMode)}>
                   <option value="none">No auth</option>
                   <option value="basic">Basic</option>
@@ -799,19 +812,19 @@ export function EndpointManager({
                 </select>
               </label>
               <label className="field-block">
-                <span>Basic username</span>
+                <FieldLabel help="Username for REST Basic Auth calls. The seeded test user is default.">Basic username</FieldLabel>
                 <input className="text-input" value={basicUsername} onChange={(event) => setBasicUsername(event.target.value)} placeholder="default" autoComplete="username" />
               </label>
               <label className="field-block">
-                <span>Basic password</span>
+                <FieldLabel help="Password for REST Basic Auth calls. It is only used for this browser action.">Basic password</FieldLabel>
                 <input className="text-input" type="password" value={basicPassword} onChange={(event) => setBasicPassword(event.target.value)} placeholder="default" autoComplete="current-password" />
               </label>
               <label className="field-block wide">
-                <span>OAuth bearer token</span>
+                <FieldLabel help="Access token sent as Authorization: Bearer. It must include permission for this endpoint.">OAuth bearer token</FieldLabel>
                 <input className="text-input" value={oauthToken} onChange={(event) => setOauthToken(event.target.value)} placeholder="Paste an issued OAuth access token." />
               </label>
               <label className="field-block wide">
-                <span>Arguments JSON</span>
+                <FieldLabel help="JSON arguments sent to the tool call. These should match the generated MCP inputSchema.">Arguments JSON</FieldLabel>
                 <textarea className="text-area console-arguments" value={argumentsJson} onChange={(event) => setArgumentsJson(event.target.value)} />
                 {argumentsError ? <p className="field-error">{argumentsError}</p> : <p className="field-hint">Validated locally before REST execution.</p>}
               </label>

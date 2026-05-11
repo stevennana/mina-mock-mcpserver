@@ -10,6 +10,7 @@ Basic users list
 - Basic users list
 - Basic users catalog page is list/search/status focused only
 - Create/edit/disable/delete Basic users use focused create/detail pages
+- Basic user form inputs expose concise hover tooltips explaining usernames, hashed passwords, enabled state, and how strict Basic runtime validation uses them
 - Locked built-in user state
 - Basic credentials in test console
 - Strict `/mcp/basic` requires valid Basic credentials.

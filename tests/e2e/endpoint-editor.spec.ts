@@ -15,6 +15,7 @@ test("endpoint editor supports persisted create, edit, search, screenshots, and 
   await page.getByLabel("Search").fill("");
 
   await page.getByRole("link", { name: "New endpoint" }).click();
+  await expect(page.locator('.help-tooltip[data-tooltip*="MCP tools/call"]').first()).toBeVisible();
   await page.getByRole("textbox", { name: /^Name/ }).fill("bad name");
   await page.getByRole("button", { name: "Save" }).click();
   await expect(page.getByText("Fix the highlighted fields and save again.")).toBeVisible();
@@ -29,6 +30,7 @@ test("endpoint editor supports persisted create, edit, search, screenshots, and 
 
   await page.getByRole("link", { name: "Parameters", exact: true }).click();
   await page.getByRole("button", { name: "Add parameter" }).click();
+  await expect(page.getByText("Parameter rows define the MCP tool input schema.")).toBeVisible();
   await page.getByLabel("Parameter 1 name").fill("city");
   await page.getByLabel("Parameter 1 type").selectOption("string");
   await page.getByLabel("Parameter 1 label").fill("City");
@@ -53,6 +55,7 @@ test("endpoint editor supports persisted create, edit, search, screenshots, and 
   await page.getByRole("link", { name: endpointName }).click();
   await page.getByRole("link", { name: "Failure", exact: true }).click();
   await expect(page.getByRole("region", { name: "Failure simulation" }).getByLabel("Failure mode", { exact: true })).toBeVisible();
+  await expect(page.locator('.help-tooltip[data-tooltip*="Endpoint-wide failure behavior"]').first()).toBeVisible();
   await page.screenshot({ path: "test-results/ui-endpoint-editor-desktop.png", fullPage: true });
 
   await page.getByRole("link", { name: "Edit", exact: true }).click();

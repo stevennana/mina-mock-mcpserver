@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import { HelpTooltip } from "@/app/help-tooltip";
 import { formatDateTime } from "@/lib/date-format";
 import type { OAuthIssuedTokenDetail, OAuthIssuedTokenListResult, OAuthIssuedTokenSummary } from "@/lib/oauth/types";
 
@@ -27,6 +28,15 @@ function queryString(filters: { status: string; subject: string; client: string;
     if (value && value !== "all") params.set(key, value);
   }
   return params.toString();
+}
+
+function FieldLabel({ label, help }: { label: string; help: string }) {
+  return (
+    <span className="field-label-row">
+      {label}
+      <HelpTooltip text={help} />
+    </span>
+  );
 }
 
 export function TokensManager({
@@ -120,7 +130,7 @@ export function TokensManager({
 
         <div className="token-filter-grid">
           <label className="field-block">
-            <span>Status</span>
+            <FieldLabel label="Status" help="Filter tokens by whether they can still authenticate runtime calls." />
             <select
               className="text-input"
               value={filters.status}
@@ -133,7 +143,7 @@ export function TokensManager({
             </select>
           </label>
           <label className="field-block">
-            <span>Grant</span>
+            <FieldLabel label="Grant" help="OAuth flow that created the token: browser authorization_code or non-interactive client_credentials." />
             <select
               className="text-input"
               value={filters.grantType}
@@ -145,7 +155,7 @@ export function TokensManager({
             </select>
           </label>
           <label className="field-block">
-            <span>Subject</span>
+            <FieldLabel label="Subject" help="User or client subject encoded into the token claims." />
             <input
               className="text-input"
               value={filters.subject}
@@ -154,7 +164,7 @@ export function TokensManager({
             />
           </label>
           <label className="field-block">
-            <span>Client</span>
+            <FieldLabel label="Client" help="OAuth client ID associated with the token." />
             <input
               className="text-input"
               value={filters.client}

@@ -63,6 +63,7 @@ Describe the user-facing structure of MCP Mock Server so an agent can implement 
 - tables must support search/filter states without layout shift
 - endpoint editor forms must surface API/domain validation errors next to the affected fields
 - endpoint editor forms must show generated MCP `inputSchema` from the shared endpoint domain schema helper
+- Mock Server admin forms should use concise hover tooltips for beginner-facing concepts such as MCP tool names, inputSchema parameters, response case matching, failure simulation, auth modes, OAuth client permissions, token filters, base URL overrides, and destructive reset inputs
 - endpoint console REST execution is available for no-auth and Basic modes and shows raw request, raw response, principal, matched case, and elapsed time
 - endpoint failure simulation controls must make endpoint-level delay/error/malformed settings and case-level tool/protocol errors explicit
 - malformed-response modes must show inline warnings before save and console execution because they intentionally break normal client parsing expectations
@@ -83,6 +84,12 @@ Describe the user-facing structure of MCP Mock Server so an agent can implement 
 - `/inspector` should surface authorization-code verification from the currently effective base URL and configured OAuth client so users can copy the browser authorization URL, token exchange curl, and Bearer MCP call without reconstructing OAuth parameters by hand
 - Config should show local-test TLS commands and current app HTTPS env status while keeping Nginx TLS termination positioned as the public deployment recommendation
 - The standalone inspector UI should keep one primary action per mode: generic MCP inspection for arbitrary endpoints, and Mock Server scenario execution for local product E2E evidence
+- The standalone inspector UI should route users through focused pages: `/` as the workflow choice screen, `/mock` for Mock Server scenario execution, and `/generic` for one generic MCP target inspection
+- `/mock` and `/generic` should provide a direct workflow switch link so users do not have to return to `/` to move between the two focused modes
+- Mock Server scenario results should show in-flight step progress, keep the completed progress checklist visible after completion, then show summary counters, diagnostics, and sequential step cards instead of dumping every request/response body into one continuous page
+- Every scenario step card should expose a visible Send to Generic MCP target action in the card header; the action opens `/generic` and pre-fills a repeatable seeded target so users can manually rerun the protocol call
+- Scenario step cards and generic target inputs should include concise hover tooltips that explain the purpose of each MCP/OAuth/REST call or request option for users who are new to MCP
+- Generic target select controls should show the current preset/auth-mode meaning inline, not only in hidden hover text, so users can understand how the request will change before running it
 - The standalone inspector UI should provide a no-auth/Basic/Bearer authorization helper for generic MCP targets so users do not have to hand-build common Authorization headers
 - The standalone inspector UI should provide Mock route presets for `/mcp/none`, `/mcp/basic`, and `/mcp/oauth`, using the visible Mock Server base URL and filling common auth fields only when the user selects a preset
 - The standalone inspector UI should provide a Mock OAuth `client_credentials` token helper for the `/mcp/oauth` preset while still using the standard Mock Server `/oauth/token` endpoint
