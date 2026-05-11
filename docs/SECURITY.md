@@ -4,7 +4,7 @@
 Define the security posture for MCP Mock Server's current shipped slice.
 
 ## Core Security Rules
-- validate Origin for Streamable HTTP-style MCP routes where browser-origin risk applies
+- protocol-facing mock routes are intentionally CORS-open for local/browser Inspector compatibility; do not treat this mock server as an enterprise security boundary
 - unsupported Authorization schemes return 401
 - invalid Basic/Bearer credentials never downgrade to no-auth
 - OAuth tokens must verify signature, issuer, audience, expiry, jti revocation, and endpoint permissions
@@ -34,7 +34,7 @@ Define the security posture for MCP Mock Server's current shipped slice.
 - Issued token inspection APIs and UI expose stored claim metadata and endpoint permissions only; they must not return raw access token values after issuance
 - Token revocation preserves historical issued-token records, sets `revokedAt`, and makes subsequent Bearer validation fail as invalid token authentication with `401`
 - `/oauth/jwks` publishes only the public RS256 verification key with the active token `kid`; private key parameters must never be present in the JWKS response
-- OAuth discovery metadata must describe implemented mock capabilities only and must not advertise refresh tokens, PKCE, external providers, or unimplemented revocation behavior
+- OAuth discovery metadata must describe implemented mock capabilities only and must not advertise refresh tokens, external providers, or unimplemented behavior
 - raw JWT values are shown only at issuance unless a config explicitly permits storage
 - LOG_LEVEL controls verbosity but must not expose secrets even at trace/debug
 - Operator logger metadata redacts secret-looking keys before writing to stdout or `start:logged` log files
@@ -43,7 +43,7 @@ Define the security posture for MCP Mock Server's current shipped slice.
 
 ## Public Surfaces
 - public admin UI routes and /api/* mutation endpoints
-- MCP routes /mcp, /mcp/none, /mcp/basic, /mcp/oauth
+- MCP routes /mcp, /mcp/none, /mcp/basic, /mcp/oauth and legacy SSE aliases /sse, /sse/none, /sse/basic, /sse/oauth
 - REST mock routes /rest/tools and /rest/tools/:name/call
 - OAuth browser, token, revocation, discovery, and JWKS routes
 - health and public config endpoints

@@ -20,6 +20,7 @@ The hub also renders an authorization-code guide from the current base URL and c
 Use Inspector for:
 
 - MCP Streamable HTTP connections to `/mcp`, `/mcp/none`, `/mcp/basic`, and `/mcp/oauth`
+- legacy SSE connections to `/sse`, `/sse/none`, `/sse/basic`, and `/sse/oauth`
 - capability negotiation through `initialize`
 - enabled tool discovery through `tools/list`
 - generated tool schema inspection
@@ -146,16 +147,46 @@ ROOT_PASSWORD='change-this' npm run inspector:mock -- --include-reset
 
 The local inspector creates temporary endpoint, user, client, and token records, then removes the mutable records before exiting. Audit and token history may remain as non-secret evidence, matching the product's audit behavior.
 
+## Upstream Inspector Verification
+
+Start the upstream Inspector:
+
+```bash
+npx @modelcontextprotocol/inspector
+```
+
+Then open one of these browser URLs:
+
+```text
+http://localhost:6274/?transport=streamable-http&serverUrl=http%3A%2F%2F127.0.0.1%3A3100%2Fmcp%2Fnone
+http://localhost:6274/?transport=sse&serverUrl=http%3A%2F%2F127.0.0.1%3A3100%2Fsse%2Fnone
+```
+
+For Basic Auth, choose `/mcp/basic` or `/sse/basic` and add:
+
+```text
+Authorization: Basic ZGVmYXVsdDpkZWZhdWx0
+```
+
+For OAuth, issue a token from `/oauth/token`, choose `/mcp/oauth` or `/sse/oauth`, and add:
+
+```text
+Authorization: Bearer PASTE_ACCESS_TOKEN_HERE
+```
+
+The legacy SSE aliases keep a live event stream open, emit an `endpoint` event for the matching message POST URL, and return JSON-RPC responses through `message` events. This is enough for local Inspector SSE verification, but it is not durable session storage or resumable replay.
+
+The repository includes `config/mcp-inspector.local.json` for local targets and `config/mcp-inspector.remote.json` for deployed target checks.
+
 ## Interoperability Roadmap
 
-The current v1 mock server intentionally focuses on tools over Streamable HTTP `POST`, Basic Auth, and mock OAuth Bearer permissions. The next compatibility updates should land in this order:
+The current v1 mock server focuses on tools over Streamable HTTP `POST`, lightweight SSE compatibility, Basic Auth, and mock OAuth Bearer permissions. The next compatibility updates should land in this order:
 
 1. Keep the standalone UI scenario runner and CLI inspector aligned so users can choose either visible browser evidence or terminal evidence.
 2. Add scenario presets for external MCP targets where a server advertises tools but does not support Mock Server admin setup.
 3. Add an opt-in OAuth resource strict mode so clients can verify audience/resource mismatches before integrating with production services.
-4. Add OAuth PKCE `S256` support and advertise it only after authorization-code storage, token exchange, tests, and docs all support it.
-5. Add Docker/Nginx discovery smoke coverage for forwarded host/proto, `APP_BASE_URL`, OAuth metadata, and Bearer `resource_metadata` correctness behind a proxy.
-6. Treat MCP sessions, GET SSE streams, and DELETE session termination as a separate Phase 2 transport feature, not a small extension of the current stateless `POST` runtime.
+4. Add Docker/Nginx discovery smoke coverage for forwarded host/proto, `APP_BASE_URL`, OAuth metadata, and Bearer `resource_metadata` correctness behind a proxy.
+5. Treat durable MCP sessions, resumability, event replay, and Streamable HTTP DELETE session termination as a separate Phase 2 transport feature.
 
 ## Local Setup
 
@@ -183,6 +214,7 @@ This repository provides `config/mcp-inspector.local.json` with local Streamable
 - `mina-mock-unified` -> `http://127.0.0.1:3100/mcp`
 - `mina-mock-basic` -> `http://127.0.0.1:3100/mcp/basic`
 - `mina-mock-oauth` -> `http://127.0.0.1:3100/mcp/oauth`
+- `mina-mock-sse-none` -> `http://127.0.0.1:3100/sse/none`
 
 For Basic and OAuth targets, add the `Authorization` header in Inspector or use the CLI examples below.
 

@@ -155,6 +155,8 @@ model OAuthAuthorizationCode {
   redirectUri         String
   resource            String
   state               String?
+  codeChallenge       String?
+  codeChallengeMethod String?
   expiresAt           DateTime
   usedAt              DateTime?
   createdAt           DateTime                         @default(now())

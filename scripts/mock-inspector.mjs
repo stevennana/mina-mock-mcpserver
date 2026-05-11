@@ -2,6 +2,7 @@
 
 import { Buffer } from "node:buffer";
 import { URLSearchParams } from "node:url";
+import { TextDecoder } from "node:util";
 import { fetchWithTls } from "./lib/fetch-with-tls.mjs";
 
 const DEFAULT_BASE_URL = process.env.MCP_MOCK_BASE_URL ?? "http://127.0.0.1:3100";
@@ -153,6 +154,47 @@ async function mcp(client, path, message, headers = {}) {
   });
 }
 
+async function readSseUntil(reader, predicate, maxChunks = 8) {
+  const decoder = new TextDecoder();
+  let text = "";
+  for (let index = 0; index < maxChunks && !predicate(text); index += 1) {
+    const chunk = await reader.read();
+    text += decoder.decode(chunk.value ?? new Uint8Array(), { stream: !chunk.done });
+    if (chunk.done) break;
+  }
+  return text;
+}
+
+async function verifyLegacySseToolsList(client) {
+  const controller = new globalThis.AbortController();
+  try {
+    const response = await fetchWithTls(
+      client.url("/sse/none"),
+      {
+        headers: { Accept: "text/event-stream" },
+        signal: controller.signal,
+      },
+      { insecureTls: client.insecureTls },
+    );
+    assert(response.status === 200, `Legacy SSE expected HTTP 200, got ${response.status}.`);
+    assert(response.headers.get("content-type")?.includes("text/event-stream"), "Legacy SSE must return text/event-stream.");
+    assert(response.body, "Legacy SSE response must expose a readable body.");
+
+    const reader = response.body.getReader();
+    const opening = await readSseUntil(reader, (text) => text.includes("event: endpoint"));
+    const endpoint = opening.match(/data: (\/sse\/none\/message\?sessionId=[^\n]+)/)?.[1]?.trim();
+    assert(endpoint, "Legacy SSE must emit a message endpoint.");
+
+    const posted = await mcp(client, endpoint, { jsonrpc: "2.0", id: "inspector-sse-list", method: "tools/list" });
+    assertStatus(posted, 202, "Legacy SSE message POST");
+    const event = await readSseUntil(reader, (text) => text.includes('"id":"inspector-sse-list"'));
+    assert(event.includes("event: message"), "Legacy SSE must send JSON-RPC responses as message events.");
+    assert(event.includes('"id":"inspector-sse-list"'), "Legacy SSE response must include the original JSON-RPC id.");
+  } finally {
+    controller.abort();
+  }
+}
+
 async function createEndpoint(client, name) {
   const result = await client.json("POST", "/api/endpoints", {
     name,
@@ -264,9 +306,11 @@ async function run(options) {
     assert(discovery.body.issuer === options.baseUrl, "OAuth issuer must match inspector base URL.");
     assert(discovery.body.token_endpoint === `${options.baseUrl}/oauth/token`, "OAuth token endpoint must match base URL.");
     assert(Array.isArray(discovery.body.code_challenge_methods_supported), "OAuth discovery must report PKCE support state.");
-    assert(discovery.body.code_challenge_methods_supported.length === 0, "OAuth discovery must not advertise PKCE before it is implemented.");
+    assert(discovery.body.code_challenge_methods_supported.includes("S256"), "OAuth discovery must advertise implemented PKCE S256 support.");
+    assert(discovery.body.revocation_endpoint === `${options.baseUrl}/oauth/revoke`, "OAuth discovery must advertise standard revocation.");
     addDiagnostic(diagnostics, "oauth issuer", discovery.body.issuer);
-    addDiagnostic(diagnostics, "pkce advertised", discovery.body.code_challenge_methods_supported.length ? "yes" : "no");
+    addDiagnostic(diagnostics, "pkce advertised", discovery.body.code_challenge_methods_supported.join(","));
+    addDiagnostic(diagnostics, "oauth revocation", discovery.body.revocation_endpoint);
 
     const protectedResource = await client.request("/.well-known/oauth-protected-resource");
     assertStatus(protectedResource, 200, "OAuth protected-resource metadata");
@@ -350,16 +394,19 @@ async function run(options) {
     const foreignOrigin = await client.json(
       "POST",
       "/mcp/none",
-      { jsonrpc: "2.0", id: "bad-origin", method: "tools/list" },
+      { jsonrpc: "2.0", id: "inspector-origin", method: "tools/list" },
       {
         Accept: "application/json, text/event-stream",
         "MCP-Protocol-Version": "2025-06-18",
         Origin: "https://invalid.example",
       },
     );
-    assertStatus(foreignOrigin, 403, "Foreign Origin rejection");
-    assert(foreignOrigin.body.error === "forbidden_origin", "Foreign Origin must be rejected before MCP execution.");
-    addDiagnostic(diagnostics, "foreign origin", "403");
+    assertStatus(foreignOrigin, 200, "Browser Inspector CORS-open Origin");
+    assert(
+      foreignOrigin.response.headers.get("access-control-allow-origin") === "*",
+      "MCP responses must be CORS-open for browser Inspector compatibility.",
+    );
+    addDiagnostic(diagnostics, "origin cors", foreignOrigin.response.headers.get("access-control-allow-origin"));
 
     const mcpList = await mcp(client, "/mcp/none", { jsonrpc: "2.0", id: 1, method: "tools/list" });
     assertStatus(mcpList, 200, "MCP tools/list");
@@ -373,7 +420,9 @@ async function run(options) {
     });
     assertStatus(mcpCall, 200, "MCP tools/call");
     assert(mcpCall.body.result.structuredContent.city === "Seoul", "MCP tools/call structured content mismatch.");
-    pass("MCP tools/list and tools/call work");
+    await verifyLegacySseToolsList(client);
+    addDiagnostic(diagnostics, "legacy sse", "tools/list via /sse/none");
+    pass("MCP tools/list, tools/call, and legacy SSE work");
 
     logStep("Basic Auth management and runtime");
     const basicCreate = await client.json("POST", "/api/basic-users", {

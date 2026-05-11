@@ -42,7 +42,16 @@ type PublicOperatorConfig = {
     ui: string;
     health: string;
     publicConfig: string;
-    mcp: { unified: string; noAuth: string; basic: string; oauth: string };
+    mcp: {
+      unified: string;
+      noAuth: string;
+      basic: string;
+      oauth: string;
+      sseUnified: string;
+      sseNoAuth: string;
+      sseBasic: string;
+      sseOAuth: string;
+    };
     rest: { tools: string; callTemplate: string };
     oauth: {
       issuer: string;
@@ -85,6 +94,9 @@ export function ConfigManager({ initialConfig }: { initialConfig: PublicOperator
       ["MCP no auth", config.routes.mcp.noAuth],
       ["MCP Basic", config.routes.mcp.basic],
       ["MCP OAuth bearer", config.routes.mcp.oauth],
+      ["SSE no auth", config.routes.mcp.sseNoAuth],
+      ["SSE Basic", config.routes.mcp.sseBasic],
+      ["SSE OAuth bearer", config.routes.mcp.sseOAuth],
       ["REST tools", config.routes.rest.tools],
       ["REST call", config.routes.rest.callTemplate],
       ["OAuth protected resource", config.routes.oauth.protectedResourceMetadata],

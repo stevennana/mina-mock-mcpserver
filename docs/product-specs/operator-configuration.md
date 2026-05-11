@@ -21,10 +21,10 @@ Connection guide
 - `npm run start:tls:smoke` proves local certificate availability, app-level HTTPS startup, `/api/health`, and public config TLS reporting
 - Playwright E2E validation runs against an isolated SQLite database and a dedicated local port separate from the manual development server, so deterministic checks do not require users to stop `npm run dev`
 - Browser-facing dates in admin tables use explicit UTC string formatting instead of locale-dependent rendering, preventing server/client hydration mismatches across operator locales
-- Connection guide examples cover `/mcp`, `/mcp/none`, `/mcp/basic`, `/mcp/oauth`, `/rest/tools`, `/rest/tools/{tool_name}/call`, OAuth discovery metadata, `/oauth/token`, and `/oauth/jwks`
+- Connection guide examples cover `/mcp`, `/mcp/none`, `/mcp/basic`, `/mcp/oauth`, `/sse/none`, `/sse/basic`, `/sse/oauth`, `/rest/tools`, `/rest/tools/{tool_name}/call`, OAuth discovery metadata, `/oauth/token`, `/oauth/revoke`, and `/oauth/jwks`
 - Config and Inspector expose copy buttons for operational commands and connection URLs so users can move from UI guidance to terminal/client tests without manual selection errors
 - Mock Server admin forms expose concise hover tooltips on operator-facing inputs such as base URL override, root password, and reset confirmation so first-time users can understand why each value matters before saving
-- MCP Inspector integration is documented as an external `npx` tool with local Streamable HTTP targets for `/mcp`, `/mcp/none`, `/mcp/basic`, and `/mcp/oauth`
+- MCP Inspector integration is documented as an external `npx` tool with local Streamable HTTP targets for `/mcp`, `/mcp/none`, `/mcp/basic`, `/mcp/oauth`, and legacy SSE targets for `/sse`, `/sse/none`, `/sse/basic`, and `/sse/oauth`
 - The Mock UI exposes an `/inspector` verification hub for standalone inspector UI launch, Mock Server scenario execution, local inspector commands, upstream Inspector targets, Basic/OAuth preparation, and diagnostics interpretation
 - The Inspector hub exposes authorization-code verification aids generated from current config and OAuth client state: authorization URL, token-exchange curl, Bearer MCP curl, effective base URL source, issuer, token endpoint, selected client, redirect callback origin, and allowed endpoint count
 - The standalone inspector UI runs outside the Mock Server app and can inspect any MCP Streamable HTTP endpoint using URL, headers, and optional `tools/call` arguments
@@ -57,7 +57,7 @@ Connection guide
 - Docker/Nginx examples match the documented routes, port `3000`, and SQLite persistence expectations
 - TLS runtime config reports whether app-level HTTPS certificate and key inputs are configured without exposing certificate material or passphrases
 - TLS startup smoke checks must pass against a self-signed local HTTPS server with scoped insecure verification
-- Inspector helper scripts and config target the documented local MCP routes without vendoring upstream Inspector source
+- Inspector helper scripts and config target the documented local and remote MCP/SSE routes without vendoring upstream Inspector source
 - Inspector hub E2E checks cover authorization-code guidance and base URL diagnostics in addition to command/target rendering
 - The project-specific inspector can run without root credentials by default and only performs destructive root reset when explicitly requested
 - The local inspector diagnostics report must fail the command when protocol-facing invariants are missing, not merely print warnings

@@ -19,12 +19,14 @@ test("OAuth discovery metadata advertises only implemented grant and endpoint be
   assert.equal(authorizationServer.issuer, baseUrl);
   assert.equal(authorizationServer.authorization_endpoint, `${baseUrl}/oauth/authorize`);
   assert.equal(authorizationServer.token_endpoint, `${baseUrl}/oauth/token`);
+  assert.equal(authorizationServer.revocation_endpoint, `${baseUrl}/oauth/revoke`);
   assert.equal(authorizationServer.jwks_uri, `${baseUrl}/oauth/jwks`);
   assert.deepEqual(authorizationServer.grant_types_supported, ["authorization_code", "client_credentials"]);
   assert.deepEqual(authorizationServer.response_types_supported, ["code"]);
   assert.deepEqual(authorizationServer.token_endpoint_auth_methods_supported, ["client_secret_post"]);
+  assert.deepEqual(authorizationServer.revocation_endpoint_auth_methods_supported, ["client_secret_post"]);
   assert.deepEqual(authorizationServer.scopes_supported, ["endpoint:<endpoint_id>"]);
-  assert.equal("revocation_endpoint" in authorizationServer, false);
+  assert.deepEqual(authorizationServer.code_challenge_methods_supported, ["S256"]);
   assert.equal(authorizationServer.grant_types_supported.includes("refresh_token" as never), false);
 
   assert.deepEqual(protectedResource.authorization_servers, [`${baseUrl}/.well-known/oauth-authorization-server`]);

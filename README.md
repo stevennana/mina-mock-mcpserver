@@ -124,7 +124,63 @@ Use **Mock route preset** when you want the page to fill `/mcp/none`, `/mcp/basi
 
 If your target is a local HTTPS server with a self-signed certificate, enable **Allow self-signed HTTPS for this run**. Keep it off for public or production-like targets.
 
-The Mock Server MCP routes also allow browser-based Inspector origins directly. `/mcp`, `/mcp/none`, `/mcp/basic`, and `/mcp/oauth` answer `OPTIONS` preflight requests and return `Access-Control-Allow-Origin: *` on MCP responses so the upstream MCP Inspector UI can call them from `http://localhost:6274`.
+The Mock Server MCP routes also allow browser-based Inspector origins directly. `/mcp`, `/mcp/none`, `/mcp/basic`, `/mcp/oauth`, `/sse`, `/sse/none`, `/sse/basic`, and `/sse/oauth` answer `OPTIONS` preflight requests and return `Access-Control-Allow-Origin: *` on protocol responses so the upstream MCP Inspector UI can call them from `http://localhost:6274`.
+
+### Upstream MCP Inspector
+
+Use the upstream Inspector when you want to confirm compatibility with the standard MCP debugging tool:
+
+```bash
+npx @modelcontextprotocol/inspector
+```
+
+Open the no-auth Streamable HTTP target:
+
+```text
+http://localhost:6274/?transport=streamable-http&serverUrl=http%3A%2F%2F127.0.0.1%3A3100%2Fmcp%2Fnone
+```
+
+Open the no-auth legacy SSE target:
+
+```text
+http://localhost:6274/?transport=sse&serverUrl=http%3A%2F%2F127.0.0.1%3A3100%2Fsse%2Fnone
+```
+
+For Basic Auth, use `/mcp/basic` or `/sse/basic` and add this request header in Inspector:
+
+```text
+Authorization: Basic ZGVmYXVsdDpkZWZhdWx0
+```
+
+For OAuth, issue a test Bearer token:
+
+```bash
+TOKEN="$(
+  curl -sS -X POST http://127.0.0.1:3100/oauth/token \
+    -H 'content-type: application/x-www-form-urlencoded' \
+    -d 'grant_type=client_credentials' \
+    -d 'client_id=default' \
+    -d 'client_secret=default' \
+    -d 'resource=mcp-mock-server' \
+  | node -e "let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>console.log(JSON.parse(d).access_token))"
+)"
+```
+
+Then use `/mcp/oauth` or `/sse/oauth` and add:
+
+```text
+Authorization: Bearer PASTE_TOKEN_HERE
+```
+
+CLI checks are also available:
+
+```bash
+npm run inspector:cli:list
+npm run inspector:cli:basic:list
+npm run inspector:cli:sse:list
+```
+
+To verify a deployed container, replace the encoded `serverUrl` with your HTTPS host, for example `https%3A%2F%2Fmcp.minasoftai.com%2Fmcp%2Fnone`. The repository also includes `config/mcp-inspector.remote.json` with remote Streamable HTTP and SSE targets.
 
 Use a different port if `3200` is already taken:
 

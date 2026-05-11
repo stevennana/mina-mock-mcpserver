@@ -229,6 +229,8 @@ Stores short-lived, single-use authorization codes.
 | `redirectUri` | `String` | Exact redirect URI required at token exchange. |
 | `resource` | `String` | Audience/resource for issued token claims. |
 | `state` | `String?` | Optional OAuth state echoed by the browser flow. |
+| `codeChallenge` | `String?` | Optional PKCE S256 challenge captured at authorize time. |
+| `codeChallengeMethod` | `String?` | Optional PKCE challenge method. Currently only `S256` is accepted. |
 | `expiresAt` | `DateTime` | Expiry timestamp. |
 | `usedAt` | `DateTime?` | Set after successful exchange. |
 | `createdAt` | `DateTime` | Creation timestamp. |

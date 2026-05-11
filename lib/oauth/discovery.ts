@@ -38,6 +38,7 @@ export function oauthDiscoveryUrls(baseUrl: string) {
     issuer: normalizeBaseUrl(baseUrl),
     authorizationEndpoint: absoluteUrl(baseUrl, "/oauth/authorize"),
     tokenEndpoint: absoluteUrl(baseUrl, "/oauth/token"),
+    revocationEndpoint: absoluteUrl(baseUrl, "/oauth/revoke"),
     jwksUri: absoluteUrl(baseUrl, "/oauth/jwks"),
     protectedResourceMetadata: absoluteUrl(baseUrl, "/.well-known/oauth-protected-resource"),
     authorizationServerMetadata: absoluteUrl(baseUrl, "/.well-known/oauth-authorization-server"),
@@ -51,12 +52,14 @@ export function oauthAuthorizationServerMetadata(baseUrl: string) {
     issuer: urls.issuer,
     authorization_endpoint: urls.authorizationEndpoint,
     token_endpoint: urls.tokenEndpoint,
+    revocation_endpoint: urls.revocationEndpoint,
     jwks_uri: urls.jwksUri,
     response_types_supported: [...SUPPORTED_RESPONSE_TYPES],
     grant_types_supported: [...SUPPORTED_GRANT_TYPES],
     token_endpoint_auth_methods_supported: [...SUPPORTED_CLIENT_AUTH_METHODS],
     scopes_supported: [ENDPOINT_SCOPE_PATTERN],
-    code_challenge_methods_supported: [],
+    revocation_endpoint_auth_methods_supported: [...SUPPORTED_CLIENT_AUTH_METHODS],
+    code_challenge_methods_supported: ["S256"],
   };
 }
 

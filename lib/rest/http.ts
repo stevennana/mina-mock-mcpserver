@@ -7,6 +7,7 @@ import {
   listEnabledRestTools,
   resolvePermittedEndpointByName,
 } from "@/lib/endpoints/service";
+import { publicCorsHeaders, publicCorsOptionsResponse } from "@/lib/http/cors";
 import { oauthDiscoveryUrls } from "@/lib/oauth/discovery";
 import { resolveBaseUrl } from "@/lib/operator/config";
 import { restToolCallResponseFromEndpointCall } from "@/lib/rest/tools";
@@ -22,9 +23,9 @@ function unauthorizedRestResponse(message = "Authorization header was invalid.")
     },
     {
       status: 401,
-      headers: {
+      headers: publicCorsHeaders({
         "WWW-Authenticate": 'Basic realm="MCP Mock Server"',
-      },
+      }),
     },
   );
 }
@@ -49,9 +50,9 @@ async function unauthorizedBearerRestResponse(request: Request, message = "Autho
     },
     {
       status: 401,
-      headers: {
+      headers: publicCorsHeaders({
         "WWW-Authenticate": await bearerChallenge(request, error),
-      },
+      }),
     },
   );
 }
@@ -63,7 +64,9 @@ export async function handleRestToolsGet(request: Request) {
     if (resolution.kind !== "authenticated") {
       return unauthorizedBearerRestResponse(request, "Authorization header was invalid.", "invalid_token");
     }
-    return NextResponse.json(await listEnabledRestTools(undefined, { endpointIds: resolution.principal.endpointIds }));
+    return NextResponse.json(await listEnabledRestTools(undefined, { endpointIds: resolution.principal.endpointIds }), {
+      headers: publicCorsHeaders(),
+    });
   }
 
   const resolution = await resolveBasicAuthorizationHeader(request.headers.get("Authorization"));
@@ -71,7 +74,7 @@ export async function handleRestToolsGet(request: Request) {
     return unauthorizedRestResponse();
   }
 
-  return NextResponse.json(await listEnabledRestTools());
+  return NextResponse.json(await listEnabledRestTools(), { headers: publicCorsHeaders() });
 }
 
 function principalForResolution(resolution: Awaited<ReturnType<typeof resolveBasicAuthorizationHeader>>) {
@@ -98,7 +101,7 @@ function restToolCallHttpResponse(response: RestToolCallResponse, principal: str
     return new Response(typeof response.body === "string" ? response.body : JSON.stringify(response.body), {
       status: response.status,
       headers: {
-        ...headers,
+        ...publicCorsHeaders(headers),
         "X-MCP-Mock-Malformed-Mode": response.malformed.mode,
         ...(response.malformed.contentType ? { "content-type": response.malformed.contentType } : {}),
       },
@@ -107,7 +110,7 @@ function restToolCallHttpResponse(response: RestToolCallResponse, principal: str
 
   return NextResponse.json(response.body, {
     status: response.status,
-    headers,
+    headers: publicCorsHeaders(headers),
   });
 }
 
@@ -129,7 +132,7 @@ export async function handleRestToolCallPost(request: Request, name: string) {
         },
         {
           status: 403,
-          headers: { "X-MCP-Mock-Principal": bearerPrincipal(resolution.principal.clientId) },
+          headers: publicCorsHeaders({ "X-MCP-Mock-Principal": bearerPrincipal(resolution.principal.clientId) }),
         },
       );
     }
@@ -137,7 +140,7 @@ export async function handleRestToolCallPost(request: Request, name: string) {
       const response = restToolCallResponseFromEndpointCall(permission);
       return NextResponse.json(response.body, {
         status: response.status,
-        headers: { "X-MCP-Mock-Principal": bearerPrincipal(resolution.principal.clientId) },
+        headers: publicCorsHeaders({ "X-MCP-Mock-Principal": bearerPrincipal(resolution.principal.clientId) }),
       });
     }
 
@@ -150,7 +153,7 @@ export async function handleRestToolCallPost(request: Request, name: string) {
           error: "invalid_json",
           message: "Request body must be valid JSON.",
         },
-        { status: 400 },
+        { status: 400, headers: publicCorsHeaders() },
       );
     }
 
@@ -177,7 +180,7 @@ export async function handleRestToolCallPost(request: Request, name: string) {
         error: "invalid_json",
         message: "Request body must be valid JSON.",
       },
-      { status: 400 },
+      { status: 400, headers: publicCorsHeaders() },
     );
   }
 
@@ -194,7 +197,11 @@ export function unsupportedRestToolsMethod() {
     },
     {
       status: 405,
-      headers: { Allow: "GET, POST" },
+      headers: publicCorsHeaders({ Allow: "GET, POST, OPTIONS" }),
     },
   );
+}
+
+export function handleRestOptions() {
+  return publicCorsOptionsResponse();
 }

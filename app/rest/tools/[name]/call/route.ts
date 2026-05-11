@@ -1,4 +1,5 @@
 import {
+  handleRestOptions,
   handleRestToolCallPost,
   unsupportedRestToolsMethod,
 } from "@/lib/rest/http";
@@ -16,5 +17,6 @@ export async function POST(request: Request, context: RouteContext) {
 
 export const DELETE = unsupportedRestToolsMethod;
 export const GET = unsupportedRestToolsMethod;
+export const OPTIONS = handleRestOptions;
 export const PATCH = unsupportedRestToolsMethod;
 export const PUT = unsupportedRestToolsMethod;

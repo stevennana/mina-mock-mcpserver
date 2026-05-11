@@ -24,6 +24,14 @@ export default async function InspectorPage() {
     })}`
     : "";
   const clientSecretHint = oauthClient?.builtIn ? "default" : "PASTE_CLIENT_SECRET";
+  const basicAuthorizationHeader = `Authorization: Basic ${Buffer.from("default:default").toString("base64")}`;
+  const inspectorUiBase = "http://localhost:6274/";
+  const inspectorUrl = (transport: "streamable-http" | "sse", serverUrl: string) =>
+    `${inspectorUiBase}?transport=${transport}&serverUrl=${encodeURIComponent(serverUrl)}`;
+  const inspectorCliNone = `npx -y @modelcontextprotocol/inspector --cli ${config.routes.mcp.noAuth} --transport http --method tools/list`;
+  const inspectorCliBasic = `npx -y @modelcontextprotocol/inspector --cli ${config.routes.mcp.basic} --transport http --method tools/list --header "${basicAuthorizationHeader}"`;
+  const inspectorCliOauth = `npx -y @modelcontextprotocol/inspector --cli ${config.routes.mcp.oauth} --transport http --method tools/list --header "Authorization: Bearer PASTE_ACCESS_TOKEN"`;
+  const inspectorCliSse = `npx -y @modelcontextprotocol/inspector --cli ${config.routes.mcp.sseNoAuth} --transport sse --method tools/list`;
   const tokenExchangeCurl = oauthClient && redirectUri
     ? [
       `curl -X POST ${config.routes.oauth.tokenEndpoint}`,
@@ -109,26 +117,71 @@ export default async function InspectorPage() {
 
         <section className="panel guide-panel" aria-labelledby="upstream-title">
           <h2 id="upstream-title">Upstream MCP Inspector targets</h2>
+          <p className="section-note">
+            Start upstream Inspector with <code>npx @modelcontextprotocol/inspector</code>, then use these prefilled URLs or CLI commands. Basic and OAuth targets still need their Authorization header in Inspector.
+          </p>
           <div className="guide-list">
             <div>
-              <span>No-auth Streamable HTTP</span>
+              <span>No-auth Streamable HTTP UI</span>
               <div className="copy-row">
-                <code>npm run inspector:mcp:none</code>
-                <CopyButton value="npm run inspector:mcp:none" />
+                <code>{inspectorUrl("streamable-http", config.routes.mcp.noAuth)}</code>
+                <CopyButton value={inspectorUrl("streamable-http", config.routes.mcp.noAuth)} />
               </div>
             </div>
             <div>
-              <span>Basic Auth Streamable HTTP</span>
+              <span>Basic Auth Streamable HTTP UI</span>
               <div className="copy-row">
-                <code>npm run inspector:mcp:basic</code>
-                <CopyButton value="npm run inspector:mcp:basic" />
+                <code>{inspectorUrl("streamable-http", config.routes.mcp.basic)}</code>
+                <CopyButton value={inspectorUrl("streamable-http", config.routes.mcp.basic)} />
               </div>
             </div>
             <div>
-              <span>OAuth Bearer Streamable HTTP</span>
+              <span>OAuth Bearer Streamable HTTP UI</span>
               <div className="copy-row">
-                <code>npm run inspector:mcp:oauth</code>
-                <CopyButton value="npm run inspector:mcp:oauth" />
+                <code>{inspectorUrl("streamable-http", config.routes.mcp.oauth)}</code>
+                <CopyButton value={inspectorUrl("streamable-http", config.routes.mcp.oauth)} />
+              </div>
+            </div>
+            <div>
+              <span>No-auth SSE UI</span>
+              <div className="copy-row">
+                <code>{inspectorUrl("sse", config.routes.mcp.sseNoAuth)}</code>
+                <CopyButton value={inspectorUrl("sse", config.routes.mcp.sseNoAuth)} />
+              </div>
+            </div>
+            <div>
+              <span>Basic Authorization header</span>
+              <div className="copy-row">
+                <code>{basicAuthorizationHeader}</code>
+                <CopyButton value={basicAuthorizationHeader} />
+              </div>
+            </div>
+            <div>
+              <span>No-auth Inspector CLI</span>
+              <div className="copy-row">
+                <code>{inspectorCliNone}</code>
+                <CopyButton value={inspectorCliNone} />
+              </div>
+            </div>
+            <div>
+              <span>Basic Inspector CLI</span>
+              <div className="copy-row">
+                <code>{inspectorCliBasic}</code>
+                <CopyButton value={inspectorCliBasic} />
+              </div>
+            </div>
+            <div>
+              <span>OAuth Inspector CLI</span>
+              <div className="copy-row">
+                <code>{inspectorCliOauth}</code>
+                <CopyButton value={inspectorCliOauth} />
+              </div>
+            </div>
+            <div>
+              <span>SSE Inspector CLI</span>
+              <div className="copy-row">
+                <code>{inspectorCliSse}</code>
+                <CopyButton value={inspectorCliSse} />
               </div>
             </div>
           </div>
@@ -142,6 +195,9 @@ export default async function InspectorPage() {
               ["MCP no auth", config.routes.mcp.noAuth],
               ["MCP Basic", config.routes.mcp.basic],
               ["MCP OAuth bearer", config.routes.mcp.oauth],
+              ["SSE no auth", config.routes.mcp.sseNoAuth],
+              ["SSE Basic", config.routes.mcp.sseBasic],
+              ["SSE OAuth bearer", config.routes.mcp.sseOAuth],
               ["REST tools", config.routes.rest.tools],
               ["OAuth authorization metadata", config.routes.oauth.authorizationServerMetadata],
               ["OAuth protected resource metadata", config.routes.oauth.protectedResourceMetadata],

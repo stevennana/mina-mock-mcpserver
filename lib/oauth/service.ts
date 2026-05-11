@@ -1,4 +1,4 @@
-import { createHmac, createSign, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
+import { createHash, createHmac, createSign, randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
 import type { Prisma, PrismaClient } from "@prisma/client";
 import { recordAuditEvent } from "@/lib/audit/service";
 import { hashBasicPassword, verifyBasicPassword } from "@/lib/basic-auth/passwords";
@@ -179,6 +179,8 @@ function toAuthorizationCodeSummary(code: OAuthAuthorizationCodeRecord): OAuthAu
     redirectUri: code.redirectUri,
     resource: code.resource,
     state: code.state,
+    codeChallenge: code.codeChallenge,
+    codeChallengeMethod: code.codeChallengeMethod,
     selectedEndpointIds: code.selectedEndpoints.map((endpoint) => endpoint.endpointId),
     expiresAt: code.expiresAt.toISOString(),
     usedAt: code.usedAt?.toISOString() ?? null,
@@ -485,6 +487,23 @@ export async function revokeOAuthIssuedToken(
   return getOAuthIssuedTokenDetail(jti, client, now);
 }
 
+export async function revokeOAuthIssuedTokenForClient(
+  input: { jti: string; clientId: string },
+  client: PrismaClient = createPrismaClient(),
+  now: Date = new Date(),
+) {
+  const existing = await client.oAuthIssuedToken.findUnique({
+    where: { jti: input.jti },
+    include: { oauthClient: true },
+  });
+  if (!existing || existing.oauthClient.clientId !== input.clientId) {
+    return { revoked: false };
+  }
+
+  await revokeOAuthIssuedToken(input.jti, client, now);
+  return { revoked: true };
+}
+
 export async function createOAuthUser(input: OAuthUserCreateInput, client: PrismaClient = createPrismaClient()) {
   const validInput = validateOAuthUserCreateInput(input);
   const user = await client.oAuthUser.create({
@@ -783,6 +802,8 @@ function normalizeAuthorizeRequest(input: URLSearchParams | Record<string, strin
     redirectUri: read("redirect_uri").trim(),
     state: read("state") ? read("state") : null,
     resource: read("resource").trim() || "mcp-mock-server",
+    codeChallenge: read("code_challenge").trim() || null,
+    codeChallengeMethod: read("code_challenge_method").trim() || null,
   };
 }
 
@@ -794,6 +815,8 @@ export function authorizationRequestToSearchParams(request: OAuthAuthorizeReques
     resource: request.resource,
   });
   if (request.state) params.set("state", request.state);
+  if (request.codeChallenge) params.set("code_challenge", request.codeChallenge);
+  if (request.codeChallengeMethod) params.set("code_challenge_method", request.codeChallengeMethod);
   return params;
 }
 
@@ -810,6 +833,14 @@ export async function validateOAuthAuthorizeRequest(
   }
   if (!request.redirectUri) {
     throw new OAuthAuthorizeRequestError("invalid_request", "redirect_uri is required.", "redirect_uri");
+  }
+  if (request.codeChallenge || request.codeChallengeMethod) {
+    if (!request.codeChallenge) {
+      throw new OAuthAuthorizeRequestError("invalid_request", "code_challenge is required when using PKCE.", "code_challenge");
+    }
+    if (request.codeChallengeMethod !== "S256") {
+      throw new OAuthAuthorizeRequestError("invalid_request", "Only code_challenge_method=S256 is supported.", "code_challenge_method");
+    }
   }
 
   const oauthClient = await client.oAuthClient.findUnique({ where: { clientId: request.clientId }, include: oauthClientInclude });
@@ -872,6 +903,8 @@ function verifyOAuthLoginTicket(ticket: string, expectedRequest: OAuthAuthorizeR
     payload.clientId === expectedRequest.clientId &&
     payload.redirectUri === expectedRequest.redirectUri &&
     payload.resource === expectedRequest.resource &&
+    (payload.codeChallenge ?? null) === expectedRequest.codeChallenge &&
+    (payload.codeChallengeMethod ?? null) === expectedRequest.codeChallengeMethod &&
     (payload.state ?? null) === expectedRequest.state;
   if (!matchesRequest || !payload.oauthUserId || payload.exp < Math.floor(Date.now() / 1000)) {
     throw new OAuthLoginError("invalid_ticket", "Login ticket is invalid or expired.");
@@ -941,6 +974,8 @@ export async function createOAuthAuthorizationCode(input: {
         redirectUri: context.request.redirectUri,
         resource: context.request.resource,
         state: context.request.state,
+        codeChallenge: context.request.codeChallenge,
+        codeChallengeMethod: context.request.codeChallengeMethod,
         expiresAt: new Date(Date.now() + OAUTH_AUTHORIZATION_CODE_TTL_SECONDS * 1000),
       },
     });
@@ -959,6 +994,7 @@ export async function createOAuthAuthorizationCode(input: {
           oauthUserId: context.user.id,
           redirectUri: context.request.redirectUri,
           resource: context.request.resource,
+          pkce: Boolean(context.request.codeChallenge),
           selectedEndpointCount: selectedEndpointIds.length,
           expiresAt: created.expiresAt.toISOString(),
         },
@@ -972,6 +1008,25 @@ export async function createOAuthAuthorizationCode(input: {
   });
 
   return toAuthorizationCodeSummary(code);
+}
+
+function pkceS256Challenge(codeVerifier: string) {
+  return createHash("sha256").update(codeVerifier).digest("base64url");
+}
+
+function verifyPkceCodeVerifier(code: { codeChallenge: string | null; codeChallengeMethod: string | null }, codeVerifier?: string) {
+  if (!code.codeChallenge) {
+    return;
+  }
+  if (code.codeChallengeMethod !== "S256") {
+    throw new OAuthTokenError("invalid_grant", "Authorization code uses an unsupported PKCE method.");
+  }
+  if (!codeVerifier) {
+    throw new OAuthTokenError("invalid_request", "code_verifier is required for this authorization code.");
+  }
+  if (pkceS256Challenge(codeVerifier) !== code.codeChallenge) {
+    throw new OAuthTokenError("invalid_grant", "code_verifier does not match the authorization code challenge.");
+  }
 }
 
 export async function exchangeOAuthAuthorizationCode(
@@ -1013,6 +1068,7 @@ export async function exchangeOAuthAuthorizationCode(
     if (code.expiresAt.getTime() <= now.getTime()) {
       throw new OAuthTokenError("invalid_grant", "Authorization code is expired.");
     }
+    verifyPkceCodeVerifier(code, input.codeVerifier);
     if (!code.oauthUser.enabled) {
       throw new OAuthTokenError("invalid_grant", "OAuth user is disabled.");
     }

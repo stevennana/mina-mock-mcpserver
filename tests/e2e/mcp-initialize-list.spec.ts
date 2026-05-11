@@ -152,12 +152,13 @@ test("no-auth MCP initialize, initialized notification, and tools/list use enabl
   });
 
   const getResponse = await request.get("/mcp/none");
-  expect(getResponse.status()).toBe(405);
-  expect(getResponse.headers().allow).toBe("POST, OPTIONS");
+  expect(getResponse.status()).toBe(200);
+  expect(getResponse.headers()["content-type"]).toContain("text/event-stream");
+  expect(await getResponse.text()).toContain("no-auth MCP SSE stream is open");
 
   const deleteResponse = await request.delete("/mcp");
   expect(deleteResponse.status()).toBe(405);
-  expect(deleteResponse.headers().allow).toBe("POST, OPTIONS");
+  expect(deleteResponse.headers().allow).toBe("GET, POST, OPTIONS");
 });
 
 test("MCP HTTP transport rejects unsupported protocol versions and allows browser Inspector CORS @mcp-http-hardening", async ({
@@ -210,4 +211,73 @@ test("MCP HTTP transport rejects unsupported protocol versions and allows browse
   expect(inspectorOrigin.status()).toBe(200);
   expect(inspectorOrigin.headers()["access-control-allow-origin"]).toBe("*");
   expect(inspectorOrigin.headers()["access-control-expose-headers"]).toContain("MCP-Protocol-Version");
+});
+
+test("MCP SSE compatibility routes expose stream endpoints, message POSTs, and auth guards @mcp-sse", async ({
+  baseURL,
+  request,
+}) => {
+  expect(baseURL).toBeTruthy();
+  const controller = new AbortController();
+  const legacy = await fetch(new URL("/sse/none", baseURL).toString(), {
+    headers: { Accept: "text/event-stream" },
+    signal: controller.signal,
+  });
+  expect(legacy.status).toBe(200);
+  expect(legacy.headers.get("content-type")).toContain("text/event-stream");
+
+  const reader = legacy.body?.getReader();
+  expect(reader).toBeTruthy();
+  const decoder = new TextDecoder();
+  let opening = "";
+  for (let index = 0; index < 8 && !opening.includes("event: endpoint"); index += 1) {
+    const chunk = await reader!.read();
+    opening += decoder.decode(chunk.value ?? new Uint8Array(), { stream: !chunk.done });
+  }
+  const endpoint = opening.match(/data: (\/sse\/none\/message\?sessionId=[^\n]+)/)?.[1];
+  expect(endpoint).toBeTruthy();
+
+  const posted = await request.post(endpoint!, {
+    headers: {
+      Accept: "application/json, text/event-stream",
+      "MCP-Protocol-Version": "2025-06-18",
+    },
+    data: { jsonrpc: "2.0", id: "sse-list", method: "tools/list" },
+  });
+  expect(posted.status()).toBe(202);
+
+  let responseEvent = "";
+  for (let index = 0; index < 8 && !responseEvent.includes('"id":"sse-list"'); index += 1) {
+    const chunk = await reader!.read();
+    responseEvent += decoder.decode(chunk.value ?? new Uint8Array(), { stream: !chunk.done });
+  }
+  expect(responseEvent).toContain("event: message");
+  expect(responseEvent).toContain('"id":"sse-list"');
+  controller.abort();
+
+  const basicMissing = await request.get("/sse/basic", {
+    headers: { Accept: "text/event-stream" },
+  });
+  expect(basicMissing.status()).toBe(401);
+  expect(basicMissing.headers()["www-authenticate"]).toContain("Basic");
+
+  const basicController = new AbortController();
+  const basic = await fetch(new URL("/sse/basic", baseURL).toString(), {
+    headers: {
+      Accept: "text/event-stream",
+      Authorization: `Basic ${Buffer.from("default:default").toString("base64")}`,
+    },
+    signal: basicController.signal,
+  });
+  expect(basic.status).toBe(200);
+  const basicReader = basic.body?.getReader();
+  const basicChunk = await basicReader!.read();
+  expect(decoder.decode(basicChunk.value)).toContain("event: endpoint");
+  basicController.abort();
+
+  const oauthMissing = await request.get("/mcp/oauth", {
+    headers: { Accept: "text/event-stream" },
+  });
+  expect(oauthMissing.status()).toBe(401);
+  expect(oauthMissing.headers()["www-authenticate"]).toContain("Bearer");
 });

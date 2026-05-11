@@ -35,15 +35,16 @@ test("OAuth discovery metadata and JWKS are internally consistent @oauth-discove
     issuer: expectedBaseUrl,
     authorization_endpoint: `${expectedBaseUrl}/oauth/authorize`,
     token_endpoint: `${expectedBaseUrl}/oauth/token`,
+    revocation_endpoint: `${expectedBaseUrl}/oauth/revoke`,
     jwks_uri: `${expectedBaseUrl}/oauth/jwks`,
     response_types_supported: ["code"],
     grant_types_supported: ["authorization_code", "client_credentials"],
     token_endpoint_auth_methods_supported: ["client_secret_post"],
+    revocation_endpoint_auth_methods_supported: ["client_secret_post"],
     scopes_supported: ["endpoint:<endpoint_id>"],
   });
   expect(authorizationServer.grant_types_supported).not.toContain("refresh_token");
-  expect(authorizationServer).not.toHaveProperty("revocation_endpoint");
-  expect(authorizationServer.code_challenge_methods_supported).toEqual([]);
+  expect(authorizationServer.code_challenge_methods_supported).toEqual(["S256"]);
 
   const openidResponse = await request.get("/.well-known/openid-configuration");
   expect(openidResponse.status()).toBe(200);

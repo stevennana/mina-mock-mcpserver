@@ -19,13 +19,15 @@ MCP connection guide examples
 - `/mcp/basic` is a strict Basic route: missing, malformed, or invalid Basic credentials return HTTP `401` with `WWW-Authenticate`, while valid Basic credentials may list and call all enabled endpoint tools.
 - `/mcp/oauth` is a strict OAuth route: missing, malformed, invalid, expired, or revoked Bearer tokens return HTTP `401` with `WWW-Authenticate: Bearer`.
 - Bearer `401` challenges on MCP routes include `resource_metadata` pointing to `/.well-known/oauth-protected-resource` so standard clients can discover the mock authorization-server metadata before retrying with a token.
-- The MVP server supports JSON-RPC over Streamable HTTP `POST`; it does not assign MCP sessions or expose SSE streams.
+- The server supports JSON-RPC over Streamable HTTP `POST`, lightweight Streamable HTTP `GET` SSE open events, and legacy SSE compatibility aliases at `/sse`, `/sse/none`, `/sse/basic`, and `/sse/oauth`.
+- Legacy SSE aliases open a live `text/event-stream`, emit an `endpoint` event for the matching message POST URL, process JSON-RPC messages through the same MCP runtime as Streamable HTTP, and send JSON-RPC responses back over the stream as `message` events.
+- SSE compatibility is intentionally in-memory and local-test oriented. It does not provide durable sessions, cross-process resumability, or production-grade event replay.
 - MCP `POST` responses include the server protocol version header. Requests that provide an unsupported `MCP-Protocol-Version` header return HTTP `400` with a JSON-RPC invalid-request error; requests without that header remain accepted for compatibility with simple curl/Postman probes.
 - MCP routes are intentionally CORS-open for browser-based tools such as the upstream MCP Inspector UI on `http://localhost:6274`. `POST` responses include `Access-Control-Allow-Origin: *` and expose MCP/auth/debug headers that browser clients need to read.
-- MCP routes answer browser preflight `OPTIONS` requests with HTTP `204`, `Access-Control-Allow-Methods: POST, OPTIONS`, and allow the standard MCP test headers, including `Authorization`, `Content-Type`, and `MCP-Protocol-Version`.
+- MCP, SSE, REST, OAuth metadata, JWKS, token, and revocation routes answer browser preflight `OPTIONS` requests with HTTP `204`, `Access-Control-Allow-Methods: GET, POST, DELETE, OPTIONS`, and allow the standard MCP test headers, including `Authorization`, `Content-Type`, `Last-Event-ID`, `MCP-Session-Id`, and `MCP-Protocol-Version`.
 - MCP clients should send `Accept: application/json, text/event-stream`; the MVP server is lenient and does not reject missing `Accept` headers because many manual test clients omit them.
 - `initialize` returns protocol version `2025-06-18` when requested, otherwise the newest MVP-supported version from `2025-06-18` and `2025-03-26`.
-- `initialize` advertises only the `tools` capability with `listChanged: false`; resources, prompts, logging, sampling, and SSE/session capabilities are not claimed.
+- `initialize` advertises only the `tools` capability with `listChanged: false`; resources, prompts, logging, sampling, durable session, and resumability capabilities are not claimed.
 - `serverInfo` is `name: "mina-mock-mcpserver"` and `version: "1.0.0"`.
 - `notifications/initialized` is accepted as a JSON-RPC notification with HTTP `202` and no response body.
 - `tools/list` returns enabled endpoint tools only, with each tool's name, description, and generated endpoint-domain `inputSchema`.
@@ -36,8 +38,8 @@ MCP connection guide examples
 - Configured endpoint or response-case delays apply before MCP tool success, tool-error, or protocol-error responses and are bounded to 30000 ms.
 - Response-case tool errors return MCP `tools/call` results with `isError: true`; endpoint-level or response-case protocol errors return JSON-RPC `-32000` errors with `protocol_error` data.
 - Unsupported JSON-RPC methods return `-32601` with HTTP `200`.
-- `GET` and `DELETE` on the MVP MCP endpoints return deterministic `405 Method Not Allowed` responses with `Allow: POST, OPTIONS`.
-- Future MCP sessions, GET SSE streams, resumability, and DELETE session termination must be designed and tested as a separate transport feature. The server must not advertise session or SSE capabilities before those runtime paths exist.
+- `GET` on MCP endpoints opens a lightweight SSE compatibility response. `DELETE` on Streamable HTTP MCP endpoints returns deterministic `405 Method Not Allowed` with `Allow: GET, POST, OPTIONS` because durable Streamable HTTP session termination is not implemented.
+- Future MCP session persistence, resumability, and event replay must be designed and tested as a separate transport feature. The server must not advertise durable session capabilities before those runtime paths exist.
 
 ## Validation
 - JSON-RPC parsing/formatting

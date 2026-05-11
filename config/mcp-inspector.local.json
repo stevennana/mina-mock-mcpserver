@@ -19,6 +19,11 @@
       "type": "streamable-http",
       "url": "http://127.0.0.1:3100/mcp/oauth",
       "note": "Strict OAuth MCP route. Add Authorization: Bearer <access_token> after issuing a token."
+    },
+    "mina-mock-sse-none": {
+      "type": "sse",
+      "url": "http://127.0.0.1:3100/sse/none",
+      "note": "Legacy SSE compatibility route for no-auth local Inspector checks."
     }
   }
 }

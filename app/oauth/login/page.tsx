@@ -12,6 +12,8 @@ function hiddenAuthorizeInputs(context: Awaited<ReturnType<typeof validateOAuthA
       <input type="hidden" name="redirect_uri" value={context.request.redirectUri} />
       <input type="hidden" name="resource" value={context.request.resource} />
       {context.request.state ? <input type="hidden" name="state" value={context.request.state} /> : null}
+      {context.request.codeChallenge ? <input type="hidden" name="code_challenge" value={context.request.codeChallenge} /> : null}
+      {context.request.codeChallengeMethod ? <input type="hidden" name="code_challenge_method" value={context.request.codeChallengeMethod} /> : null}
     </>
   );
 }
@@ -24,6 +26,8 @@ async function submitOAuthLogin(formData: FormData) {
     redirect_uri: String(formData.get("redirect_uri") ?? ""),
     resource: String(formData.get("resource") ?? ""),
     state: String(formData.get("state") ?? ""),
+    code_challenge: String(formData.get("code_challenge") ?? ""),
+    code_challenge_method: String(formData.get("code_challenge_method") ?? ""),
   };
   let target: string;
   try {

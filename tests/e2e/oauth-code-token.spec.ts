@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { createHash } from "node:crypto";
 import { createPrismaClient } from "@/lib/db/client";
 
 test.setTimeout(60_000);
@@ -7,6 +8,10 @@ function decodeJwt(token: string) {
   const [, encodedPayload] = token.split(".");
   expect(encodedPayload).toBeTruthy();
   return JSON.parse(Buffer.from(encodedPayload ?? "", "base64url").toString("utf8"));
+}
+
+function pkceChallenge(verifier: string) {
+  return createHash("sha256").update(verifier).digest("base64url");
 }
 
 test("OAuth authorization code exchanges once for endpoint-permission JWT @oauth-code-token", async ({
@@ -153,4 +158,99 @@ test("OAuth token endpoint rejects invalid authorization_code exchanges @oauth-c
   });
   expect(invalidClient.status()).toBe(400);
   expect(await invalidClient.json()).toMatchObject({ error: "invalid_grant" });
+});
+
+test("OAuth authorization code supports PKCE S256 and standard revocation @oauth-code-token", async ({
+  page,
+  request,
+}, testInfo) => {
+  const baseURL = testInfo.project.use.baseURL as string;
+  const clientId = `pkce-client-${Date.now()}`;
+  const redirectUri = new URL("/oauth/callback", baseURL).toString();
+  const codeVerifier = "pkce-verifier-abcdefghijklmnopqrstuvwxyz-0123456789";
+  const createResponse = await request.post("/api/oauth-clients", {
+    data: {
+      clientId,
+      displayName: "PKCE Client",
+      enabled: true,
+      redirectUris: [redirectUri],
+      clientCredentialsTtlSeconds: 3600,
+      allowedEndpointIds: ["endpoint_default_echo"],
+    },
+  });
+  expect(createResponse.status()).toBe(201);
+  const created = await createResponse.json();
+  const oauthClientId = created.client.id as string;
+  const clientSecret = created.clientSecret as string;
+
+  const authorizeParams = new URLSearchParams({
+    response_type: "code",
+    client_id: clientId,
+    redirect_uri: redirectUri,
+    resource: baseURL,
+    state: "state-pkce",
+    code_challenge: pkceChallenge(codeVerifier),
+    code_challenge_method: "S256",
+  });
+
+  await page.goto(`/oauth/authorize?${authorizeParams.toString()}`);
+  await page.getByLabel("Username").fill("default");
+  await page.getByLabel("Password").fill("default");
+  await page.getByRole("button", { name: "Continue" }).click();
+  await page.getByRole("button", { name: "Approve selected endpoints" }).click();
+  await page.waitForURL(/\/oauth\/callback\?code=.*state=state-pkce/);
+
+  const code = new URL(page.url()).searchParams.get("code") ?? "";
+  expect(code).toBeTruthy();
+
+  const missingVerifier = await request.post("/oauth/token", {
+    form: {
+      grant_type: "authorization_code",
+      code,
+      redirect_uri: redirectUri,
+      client_id: clientId,
+      client_secret: clientSecret,
+    },
+  });
+  expect(missingVerifier.status()).toBe(400);
+  expect(await missingVerifier.json()).toMatchObject({ error: "invalid_request" });
+
+  const tokenResponse = await request.post("/oauth/token", {
+    form: {
+      grant_type: "authorization_code",
+      code,
+      redirect_uri: redirectUri,
+      client_id: clientId,
+      client_secret: clientSecret,
+      code_verifier: codeVerifier,
+    },
+  });
+  expect(tokenResponse.status()).toBe(200);
+  expect(tokenResponse.headers()["access-control-allow-origin"]).toBe("*");
+  const tokenPayload = await tokenResponse.json();
+  const claims = decodeJwt(tokenPayload.access_token);
+  expect(claims.grant_type).toBe("authorization_code");
+
+  const revokeResponse = await request.post("/oauth/revoke", {
+    form: {
+      token: tokenPayload.access_token,
+      client_id: clientId,
+      client_secret: clientSecret,
+    },
+  });
+  expect(revokeResponse.status()).toBe(200);
+  expect(revokeResponse.headers()["access-control-allow-origin"]).toBe("*");
+
+  const prisma = createPrismaClient();
+  try {
+    const storedCode = await prisma.oAuthAuthorizationCode.findUniqueOrThrow({ where: { code } });
+    const storedToken = await prisma.oAuthIssuedToken.findUniqueOrThrow({ where: { jti: claims.jti } });
+    expect(storedCode.codeChallengeMethod).toBe("S256");
+    expect(storedToken.revokedAt).not.toBeNull();
+  } finally {
+    await prisma.$disconnect();
+  }
+
+  const deleteResponse = await request.delete(`/api/oauth-clients/${oauthClientId}`);
+  expect(deleteResponse.status()).toBe(200);
 });

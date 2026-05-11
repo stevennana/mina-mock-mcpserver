@@ -1,5 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
+import { publicCorsHeaders } from "@/lib/http/cors";
 import {
   DEFAULT_OAUTH_ACCESS_TOKEN_TTL_SECONDS,
   DEFAULT_OAUTH_CLIENT_CREDENTIALS_TTL_SECONDS,
@@ -158,6 +159,7 @@ export function oauthTokenInputFromFormData(formData: FormData, issuer?: string)
     redirectUri: String(formData.get("redirect_uri") ?? "").trim(),
     clientId: String(formData.get("client_id") ?? "").trim(),
     clientSecret: String(formData.get("client_secret") ?? ""),
+    codeVerifier: String(formData.get("code_verifier") ?? "").trim(),
     scope: String(formData.get("scope") ?? "").trim(),
     resource: String(formData.get("resource") ?? "").trim(),
     issuer,
@@ -170,13 +172,13 @@ export function oauthTokenErrorResponse(error: unknown) {
       { error: error.code, error_description: error.message },
       {
         status: error.status,
-        headers: error.code === "invalid_client" ? { "WWW-Authenticate": 'Basic realm="oauth-token"' } : undefined,
+        headers: publicCorsHeaders(error.code === "invalid_client" ? { "WWW-Authenticate": 'Basic realm="oauth-token"' } : {}),
       },
     );
   }
 
   console.error(error);
-  return NextResponse.json({ error: "server_error" }, { status: 500 });
+  return NextResponse.json({ error: "server_error" }, { status: 500, headers: publicCorsHeaders() });
 }
 
 export function oauthIssuedTokenFiltersFromUrl(url: string): OAuthIssuedTokenListFilters {
@@ -194,9 +196,9 @@ export function oauthIssuedTokenFiltersFromUrl(url: string): OAuthIssuedTokenLis
 
 export function oauthIssuedTokenErrorResponse(error: unknown) {
   if (error instanceof OAuthIssuedTokenNotFoundError) {
-    return NextResponse.json({ error: "not_found" }, { status: 404 });
+    return NextResponse.json({ error: "not_found" }, { status: 404, headers: publicCorsHeaders() });
   }
 
   console.error(error);
-  return NextResponse.json({ error: "internal_error" }, { status: 500 });
+  return NextResponse.json({ error: "internal_error" }, { status: 500, headers: publicCorsHeaders() });
 }

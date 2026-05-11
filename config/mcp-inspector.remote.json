@@ -1,0 +1,27 @@
+{
+  "mcpServers": {
+    "mina-remote-none": {
+      "type": "streamable-http",
+      "url": "https://mcp.minasoftai.com/mcp/none",
+      "note": "No-auth remote MCP route for upstream Inspector checks."
+    },
+    "mina-remote-basic": {
+      "type": "streamable-http",
+      "url": "https://mcp.minasoftai.com/mcp/basic",
+      "headers": {
+        "Authorization": "Basic ZGVmYXVsdDpkZWZhdWx0"
+      },
+      "note": "Strict Basic remote MCP route using the seeded default/default credential."
+    },
+    "mina-remote-oauth": {
+      "type": "streamable-http",
+      "url": "https://mcp.minasoftai.com/mcp/oauth",
+      "note": "Strict OAuth remote MCP route. Add Authorization: Bearer <access_token> after issuing a token."
+    },
+    "mina-remote-sse-none": {
+      "type": "sse",
+      "url": "https://mcp.minasoftai.com/sse/none",
+      "note": "Legacy SSE compatibility route for no-auth remote Inspector checks."
+    }
+  }
+}

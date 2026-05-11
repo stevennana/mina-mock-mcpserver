@@ -204,6 +204,10 @@ export async function getPublicOperatorConfig(request?: Request, client: ConfigC
         noAuth: `${baseUrl.baseUrl}/mcp/none`,
         basic: `${baseUrl.baseUrl}/mcp/basic`,
         oauth: `${baseUrl.baseUrl}/mcp/oauth`,
+        sseUnified: `${baseUrl.baseUrl}/sse`,
+        sseNoAuth: `${baseUrl.baseUrl}/sse/none`,
+        sseBasic: `${baseUrl.baseUrl}/sse/basic`,
+        sseOAuth: `${baseUrl.baseUrl}/sse/oauth`,
       },
       rest: {
         tools: `${baseUrl.baseUrl}/rest/tools`,
@@ -224,9 +228,14 @@ export async function getPublicOperatorConfig(request?: Request, client: ConfigC
             },
           },
           "mcp-mock-oauth": {
+            type: "streamable-http",
             url: `${baseUrl.baseUrl}/mcp/oauth`,
             authorization_server: urls.authorizationServerMetadata,
             protected_resource: urls.protectedResourceMetadata,
+          },
+          "mcp-mock-sse-no-auth": {
+            type: "sse",
+            url: `${baseUrl.baseUrl}/sse/none`,
           },
         },
       },

@@ -31,9 +31,10 @@ Describe the user-facing structure of MCP Mock Server so an agent can implement 
 | /oauth/login | OAuth login | Separate from admin UI |
 | /oauth/consent | OAuth consent | Endpoint permission checklist |
 | /api/* | Admin/API | Health, CRUD, config, reset, audit |
-| /mcp, /mcp/none, /mcp/basic, /mcp/oauth | MCP JSON-RPC | Unified plus currently implemented strict auth routes |
+| /mcp, /mcp/none, /mcp/basic, /mcp/oauth | MCP JSON-RPC | Unified plus strict auth routes with Streamable HTTP POST and lightweight GET SSE |
+| /sse, /sse/none, /sse/basic, /sse/oauth | Legacy MCP SSE | Inspector-compatible SSE stream and message POST aliases |
 | /rest/tools, /rest/tools/:name/call | REST mock API | Same tool catalog through REST |
-| /.well-known/*, /oauth/jwks, /oauth/token, /api/oauth/tokens/[jti]/revoke | OAuth metadata/runtime | Discovery, token, issued-token revocation |
+| /.well-known/*, /oauth/jwks, /oauth/token, /oauth/revoke, /api/oauth/tokens/[jti]/revoke | OAuth metadata/runtime | Discovery, token, standard revocation, issued-token revocation |
 
 ## Primary Screens
 | Screen | Primary jobs |

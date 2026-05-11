@@ -180,6 +180,8 @@ export type OAuthAuthorizeRequest = {
   redirectUri: string;
   state: string | null;
   resource: string;
+  codeChallenge: string | null;
+  codeChallengeMethod: string | null;
 };
 
 export type OAuthAuthorizeContext = {
@@ -201,6 +203,8 @@ export type OAuthAuthorizationCodeSummary = {
   redirectUri: string;
   resource: string;
   state: string | null;
+  codeChallenge: string | null;
+  codeChallengeMethod: string | null;
   selectedEndpointIds: string[];
   expiresAt: string;
   usedAt: string | null;
@@ -225,6 +229,7 @@ export type OAuthTokenExchangeInput = {
   redirectUri: string;
   clientId: string;
   clientSecret: string;
+  codeVerifier?: string;
   scope?: string;
   resource?: string;
   issuer?: string;

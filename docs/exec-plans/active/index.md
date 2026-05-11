@@ -29,6 +29,7 @@ Task filenames are ordered for human scanning, while Ralph state and promotion u
 22. `022-malformed-response-console-audit.md` -> `malformed-response-console-audit` -> Implement intentionally malformed response modes with visible warnings, console evidence, and audit logging for failure-simulation changes.
 23. `023-operator-config-health-logs.md` -> `operator-config-health-logs` -> Complete operator-facing health, public config, base URL behavior, connection guide, root-protected config changes, and server logging.
 24. `024-docker-nginx-final-hardening.md` -> `docker-nginx-final-hardening` -> Package and reconcile the MVP for operator handoff with Docker/Nginx examples, final docs, debt tracking, and full deterministic proof.
+25. `025-inspector-compatibility-pack.md` -> `inspector-compatibility-pack` -> Improve upstream Inspector compatibility with broader runtime CORS, Streamable HTTP GET SSE, legacy SSE aliases, PKCE, standard revoke, Inspector launch/config docs, and verification coverage.
 
 ## Split Rationale
 
@@ -63,4 +64,3 @@ Every active task page should include these decision-complete sections before im
 
 When the active sequence is exhausted, do not continue with ad hoc prompts alone.
 Update the relevant product specs and design docs first, then seed the next active queue for the next feature wave.
-
