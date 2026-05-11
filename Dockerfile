@@ -13,6 +13,7 @@ COPY package.json package-lock.json ./
 RUN npm ci
 
 COPY . .
+RUN npm run db:prepare
 RUN npm run build
 
 ENV NODE_ENV=production
