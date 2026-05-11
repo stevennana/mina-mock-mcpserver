@@ -2,6 +2,8 @@
 
 MCP Mock Server is a public remote MCP mock server and web UI for testing no-auth, Basic Auth, and mock OAuth bearer tool calls.
 
+You can try the hosted mock server at **https://mcp.minasoftai.com/** before running it locally.
+
 Use it when you need a repeatable test target for MCP clients, agent integrations, curl/Postman checks, OAuth permission handling, failure simulation, and audit evidence.
 
 ## What You Get
