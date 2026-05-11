@@ -4,7 +4,9 @@ import { listOAuthIssuedTokens } from "@/lib/oauth/service";
 
 export async function GET(request: Request) {
   try {
-    return NextResponse.json(await listOAuthIssuedTokens(oauthIssuedTokenFiltersFromUrl(request.url)));
+    return NextResponse.json(await listOAuthIssuedTokens(oauthIssuedTokenFiltersFromUrl(request.url)), {
+      headers: { "cache-control": "no-store" },
+    });
   } catch (error) {
     return oauthIssuedTokenErrorResponse(error);
   }

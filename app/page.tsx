@@ -3,6 +3,8 @@ import { listEndpoints } from "@/lib/endpoints/service";
 import Link from "next/link";
 import { AppNav } from "@/app/app-nav";
 
+export const dynamic = "force-dynamic";
+
 const workflows = [
   { href: "/endpoints", title: "Build tools", description: "Create endpoints, configure schema, responses, failure modes, and console calls." },
   { href: "/inspector", title: "Verify protocol", description: "Run MCP Inspector and local smoke checks against no-auth, Basic, and OAuth routes." },

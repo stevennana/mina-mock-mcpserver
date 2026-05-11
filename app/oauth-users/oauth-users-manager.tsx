@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { HelpTooltip } from "@/app/help-tooltip";
 import { formatShortDate } from "@/lib/date-format";
 import type { OAuthUserListResult, OAuthUserSummary } from "@/lib/oauth/types";
@@ -36,6 +36,8 @@ const blankUser: FormState = {
   builtIn: false,
   accessTokenTtlSeconds: DEFAULT_TTL_SECONDS,
 };
+
+const OAUTH_USER_FLASH_KEY = "mcp-mock-oauth-user-flash";
 
 function userToForm(user: OAuthUserSummary): FormState {
   return {
@@ -87,6 +89,21 @@ export function OAuthUsersManager({
   const [saveState, setSaveState] = useState<SaveState>({ status: "idle", message: "", fieldErrors: {} });
   const [deleteState, setDeleteState] = useState<DeleteState>({ status: "idle", message: "" });
 
+  useEffect(() => {
+    if (!selectedId) return;
+    const rawFlash = window.sessionStorage.getItem(OAUTH_USER_FLASH_KEY);
+    if (!rawFlash) return;
+    try {
+      const flash = JSON.parse(rawFlash) as { id?: string; message?: string };
+      if (flash.id === selectedId && typeof flash.message === "string") {
+        setSaveState({ status: "success", message: flash.message, fieldErrors: {} });
+        window.sessionStorage.removeItem(OAUTH_USER_FLASH_KEY);
+      }
+    } catch {
+      window.sessionStorage.removeItem(OAUTH_USER_FLASH_KEY);
+    }
+  }, [selectedId]);
+
   const selectedUser = useMemo(
     () => listData.users.find((user) => user.id === selectedId) ?? null,
     [listData.users, selectedId],
@@ -114,6 +131,7 @@ export function OAuthUsersManager({
 
   async function saveUser() {
     setSaveState({ status: "saving", message: "Saving OAuth user.", fieldErrors: {} });
+    const isCreate = !selectedId;
     const target = selectedId ? `/api/oauth-users/${selectedId}` : "/api/oauth-users";
     const method = selectedId ? "PATCH" : "POST";
     const body = selectedId
@@ -150,10 +168,12 @@ export function OAuthUsersManager({
       setSelectedId(user.id);
       await refreshList();
       router.refresh();
-      if (!selectedId) {
+      const successState: SaveState = { status: "success", message: "OAuth user saved.", fieldErrors: {} };
+      if (isCreate) {
+        window.sessionStorage.setItem(OAUTH_USER_FLASH_KEY, JSON.stringify({ id: user.id, message: successState.message }));
         router.push(`/oauth-users/${user.id}`);
       }
-      setSaveState({ status: "success", message: "OAuth user saved.", fieldErrors: {} });
+      setSaveState(successState);
     } catch (error) {
       setSaveState({ status: "error", message: error instanceof Error ? error.message : "Save failed.", fieldErrors: {} });
     }

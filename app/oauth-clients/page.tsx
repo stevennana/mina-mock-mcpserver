@@ -2,6 +2,8 @@ import { AppNav } from "@/app/app-nav";
 import { OAuthClientsManager } from "@/app/oauth-clients/oauth-clients-manager";
 import { listOAuthClients } from "@/lib/oauth/service";
 
+export const dynamic = "force-dynamic";
+
 export default async function OAuthClientsPage() {
   const clientData = await listOAuthClients();
 

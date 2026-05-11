@@ -4,6 +4,8 @@ import { TokensManager } from "@/app/tokens/tokens-manager";
 import { getOAuthIssuedTokenDetail, listOAuthIssuedTokens } from "@/lib/oauth/service";
 import { OAuthIssuedTokenNotFoundError } from "@/lib/oauth/types";
 
+export const dynamic = "force-dynamic";
+
 export default async function TokenDetailPage({ params }: { params: Promise<{ jti: string }> }) {
   const { jti } = await params;
   const tokenData = await listOAuthIssuedTokens();

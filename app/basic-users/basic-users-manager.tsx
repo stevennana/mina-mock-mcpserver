@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { HelpTooltip } from "@/app/help-tooltip";
 import { formatShortDate } from "@/lib/date-format";
 import type { BasicUserListResult, BasicUserSummary } from "@/lib/basic-auth/types";
@@ -32,6 +32,8 @@ const blankUser: FormState = {
   enabled: true,
   builtIn: false,
 };
+
+const BASIC_USER_FLASH_KEY = "mcp-mock-basic-user-flash";
 
 function userToForm(user: BasicUserSummary): FormState {
   return {
@@ -76,6 +78,21 @@ export function BasicUsersManager({
   const [saveState, setSaveState] = useState<SaveState>({ status: "idle", message: "", fieldErrors: {} });
   const [deleteState, setDeleteState] = useState<DeleteState>({ status: "idle", message: "" });
 
+  useEffect(() => {
+    if (!selectedId) return;
+    const rawFlash = window.sessionStorage.getItem(BASIC_USER_FLASH_KEY);
+    if (!rawFlash) return;
+    try {
+      const flash = JSON.parse(rawFlash) as { id?: string; message?: string };
+      if (flash.id === selectedId && typeof flash.message === "string") {
+        setSaveState({ status: "success", message: flash.message, fieldErrors: {} });
+        window.sessionStorage.removeItem(BASIC_USER_FLASH_KEY);
+      }
+    } catch {
+      window.sessionStorage.removeItem(BASIC_USER_FLASH_KEY);
+    }
+  }, [selectedId]);
+
   const selectedUser = useMemo(
     () => listData.users.find((user) => user.id === selectedId) ?? null,
     [listData.users, selectedId],
@@ -103,6 +120,7 @@ export function BasicUsersManager({
 
   async function saveUser() {
     setSaveState({ status: "saving", message: "Saving Basic user.", fieldErrors: {} });
+    const isCreate = !selectedId;
     const target = selectedId ? `/api/basic-users/${selectedId}` : "/api/basic-users";
     const method = selectedId ? "PATCH" : "POST";
     const body = selectedId
@@ -130,10 +148,12 @@ export function BasicUsersManager({
       setSelectedId(user.id);
       await refreshList();
       router.refresh();
-      if (!selectedId) {
+      const successState: SaveState = { status: "success", message: "Basic user saved.", fieldErrors: {} };
+      if (isCreate) {
+        window.sessionStorage.setItem(BASIC_USER_FLASH_KEY, JSON.stringify({ id: user.id, message: successState.message }));
         router.push(`/basic-users/${user.id}`);
       }
-      setSaveState({ status: "success", message: "Basic user saved.", fieldErrors: {} });
+      setSaveState(successState);
     } catch (error) {
       setSaveState({ status: "error", message: error instanceof Error ? error.message : "Save failed.", fieldErrors: {} });
     }

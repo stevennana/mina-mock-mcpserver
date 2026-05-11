@@ -2,6 +2,8 @@ import { AppNav } from "@/app/app-nav";
 import { EndpointManager } from "@/app/endpoints/endpoint-manager";
 import { listEndpoints } from "@/lib/endpoints/service";
 
+export const dynamic = "force-dynamic";
+
 export default async function EndpointsPage() {
   const endpointData = await listEndpoints();
 

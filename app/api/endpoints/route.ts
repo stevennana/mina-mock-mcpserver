@@ -4,7 +4,7 @@ import { createEndpoint, listEndpoints } from "@/lib/endpoints/service";
 
 export async function GET() {
   try {
-    return NextResponse.json(await listEndpoints());
+    return NextResponse.json(await listEndpoints(), { headers: { "cache-control": "no-store" } });
   } catch (error) {
     return endpointErrorResponse(error);
   }

@@ -13,7 +13,7 @@ export async function GET(_request: Request, context: RouteContext) {
     if (!endpoint) {
       return NextResponse.json({ error: "not_found" }, { status: 404 });
     }
-    return NextResponse.json({ endpoint });
+    return NextResponse.json({ endpoint }, { headers: { "cache-control": "no-store" } });
   } catch (error) {
     return endpointErrorResponse(error);
   }

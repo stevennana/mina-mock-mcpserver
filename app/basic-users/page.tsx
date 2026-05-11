@@ -2,6 +2,8 @@ import { AppNav } from "@/app/app-nav";
 import { BasicUsersManager } from "@/app/basic-users/basic-users-manager";
 import { listBasicUsers } from "@/lib/basic-auth/service";
 
+export const dynamic = "force-dynamic";
+
 export default async function BasicUsersPage() {
   const userData = await listBasicUsers();
 

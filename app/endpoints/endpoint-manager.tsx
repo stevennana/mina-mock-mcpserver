@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { HelpTooltip } from "@/app/help-tooltip";
 import { formatShortDate } from "@/lib/date-format";
 import { generateMcpInputSchema } from "@/lib/endpoints/schema";
@@ -74,6 +74,8 @@ const blankEndpoint: EndpointFormState = {
     },
   ],
 };
+
+const ENDPOINT_FLASH_KEY = "mcp-mock-endpoint-flash";
 
 function detailToForm(endpoint: EndpointDetail): EndpointFormState {
   return {
@@ -159,6 +161,21 @@ export function EndpointManager({
     elapsedMs: "-- ms",
   });
 
+  useEffect(() => {
+    if (!selectedId) return;
+    const rawFlash = window.sessionStorage.getItem(ENDPOINT_FLASH_KEY);
+    if (!rawFlash) return;
+    try {
+      const flash = JSON.parse(rawFlash) as { id?: string; message?: string };
+      if (flash.id === selectedId && typeof flash.message === "string") {
+        setSaveState({ status: "success", message: flash.message, fieldErrors: {} });
+        window.sessionStorage.removeItem(ENDPOINT_FLASH_KEY);
+      }
+    } catch {
+      window.sessionStorage.removeItem(ENDPOINT_FLASH_KEY);
+    }
+  }, [selectedId]);
+
   const filteredEndpoints = useMemo(() => {
     const normalized = query.trim().toLowerCase();
     if (!normalized) return listData.endpoints;
@@ -179,6 +196,7 @@ export function EndpointManager({
 
   async function saveEndpoint() {
     setSaveState({ status: "saving", message: "Saving endpoint.", fieldErrors: {} });
+    const isCreate = !selectedId;
     const target = selectedId ? `/api/endpoints/${selectedId}` : "/api/endpoints";
     const method = selectedId ? "PATCH" : "POST";
 
@@ -203,10 +221,12 @@ export function EndpointManager({
       setSelectedId(endpoint.id);
       await refreshList();
       router.refresh();
-      if (!selectedId) {
+      const successState: SaveState = { status: "success", message: "Endpoint saved.", fieldErrors: {} };
+      if (isCreate) {
+        window.sessionStorage.setItem(ENDPOINT_FLASH_KEY, JSON.stringify({ id: endpoint.id, message: successState.message }));
         router.push(`/endpoints/${endpoint.id}`);
       }
-      setSaveState({ status: "success", message: "Endpoint saved.", fieldErrors: {} });
+      setSaveState(successState);
     } catch (error) {
       setSaveState({ status: "error", message: error instanceof Error ? error.message : "Save failed.", fieldErrors: {} });
     }

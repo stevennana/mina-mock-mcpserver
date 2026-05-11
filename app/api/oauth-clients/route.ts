@@ -4,7 +4,7 @@ import { createOAuthClient, listOAuthClients } from "@/lib/oauth/service";
 
 export async function GET() {
   try {
-    return NextResponse.json(await listOAuthClients());
+    return NextResponse.json(await listOAuthClients(), { headers: { "cache-control": "no-store" } });
   } catch (error) {
     return oauthClientErrorResponse(error);
   }

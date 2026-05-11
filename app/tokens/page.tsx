@@ -2,6 +2,8 @@ import { AppNav } from "@/app/app-nav";
 import { TokensManager } from "@/app/tokens/tokens-manager";
 import { listOAuthIssuedTokens } from "@/lib/oauth/service";
 
+export const dynamic = "force-dynamic";
+
 export default async function TokensPage() {
   const tokenData = await listOAuthIssuedTokens();
 

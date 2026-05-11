@@ -4,7 +4,7 @@ import { createBasicUser, listBasicUsers } from "@/lib/basic-auth/service";
 
 export async function GET() {
   try {
-    return NextResponse.json(await listBasicUsers());
+    return NextResponse.json(await listBasicUsers(), { headers: { "cache-control": "no-store" } });
   } catch (error) {
     return basicUserErrorResponse(error);
   }

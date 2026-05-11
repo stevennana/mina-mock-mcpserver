@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { HelpTooltip } from "@/app/help-tooltip";
 import type { OAuthClientListResult, OAuthClientSummary } from "@/lib/oauth/types";
 
@@ -39,6 +39,8 @@ const blankClient: FormState = {
   clientCredentialsTtlSeconds: DEFAULT_TTL_SECONDS,
   allowedEndpointIds: [],
 };
+
+const OAUTH_CLIENT_FLASH_KEY = "mcp-mock-oauth-client-flash";
 
 function clientToForm(client: OAuthClientSummary): FormState {
   return {
@@ -97,6 +99,22 @@ export function OAuthClientsManager({
   const [saveState, setSaveState] = useState<SaveState>({ status: "idle", message: "", fieldErrors: {} });
   const [deleteState, setDeleteState] = useState<DeleteState>({ status: "idle", message: "" });
 
+  useEffect(() => {
+    if (!selectedId) return;
+    const rawFlash = window.sessionStorage.getItem(OAUTH_CLIENT_FLASH_KEY);
+    if (!rawFlash) return;
+    try {
+      const flash = JSON.parse(rawFlash) as { id?: string; message?: string; clientSecret?: string };
+      if (flash.id === selectedId && typeof flash.message === "string") {
+        setSaveState({ status: "success", message: flash.message, fieldErrors: {} });
+        setIssuedSecret(typeof flash.clientSecret === "string" ? flash.clientSecret : "");
+        window.sessionStorage.removeItem(OAUTH_CLIENT_FLASH_KEY);
+      }
+    } catch {
+      window.sessionStorage.removeItem(OAUTH_CLIENT_FLASH_KEY);
+    }
+  }, [selectedId]);
+
   const selectedClient = useMemo(
     () => listData.clients.find((client) => client.id === selectedId) ?? null,
     [listData.clients, selectedId],
@@ -139,6 +157,7 @@ export function OAuthClientsManager({
   async function saveClient() {
     setSaveState({ status: "saving", message: "Saving OAuth client.", fieldErrors: {} });
     setIssuedSecret("");
+    const isCreate = !selectedId;
     const target = selectedId ? `/api/oauth-clients/${selectedId}` : "/api/oauth-clients";
     const method = selectedId ? "PATCH" : "POST";
     const body = selectedId
@@ -180,14 +199,23 @@ export function OAuthClientsManager({
       setIssuedSecret(typeof payload.clientSecret === "string" ? payload.clientSecret : "");
       await refreshList();
       router.refresh();
-      if (!selectedId) {
-        router.push(`/oauth-clients/${client.id}`);
-      }
-      setSaveState({
+      const successState: SaveState = {
         status: "success",
         message: payload.clientSecret ? "OAuth client saved. Copy the generated secret now." : "OAuth client saved.",
         fieldErrors: {},
-      });
+      };
+      if (isCreate) {
+        window.sessionStorage.setItem(
+          OAUTH_CLIENT_FLASH_KEY,
+          JSON.stringify({
+            id: client.id,
+            message: successState.message,
+            clientSecret: typeof payload.clientSecret === "string" ? payload.clientSecret : "",
+          }),
+        );
+        router.push(`/oauth-clients/${client.id}`);
+      }
+      setSaveState(successState);
     } catch (error) {
       setSaveState({ status: "error", message: error instanceof Error ? error.message : "Save failed.", fieldErrors: {} });
     }

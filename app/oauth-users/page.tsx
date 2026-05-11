@@ -2,6 +2,8 @@ import { AppNav } from "@/app/app-nav";
 import { OAuthUsersManager } from "@/app/oauth-users/oauth-users-manager";
 import { listOAuthUsers } from "@/lib/oauth/service";
 
+export const dynamic = "force-dynamic";
+
 export default async function OAuthUsersPage() {
   const userData = await listOAuthUsers();
 
