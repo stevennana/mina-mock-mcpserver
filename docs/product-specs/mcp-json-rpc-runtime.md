@@ -21,7 +21,8 @@ MCP connection guide examples
 - Bearer `401` challenges on MCP routes include `resource_metadata` pointing to `/.well-known/oauth-protected-resource` so standard clients can discover the mock authorization-server metadata before retrying with a token.
 - The MVP server supports JSON-RPC over Streamable HTTP `POST`; it does not assign MCP sessions or expose SSE streams.
 - MCP `POST` responses include the server protocol version header. Requests that provide an unsupported `MCP-Protocol-Version` header return HTTP `400` with a JSON-RPC invalid-request error; requests without that header remain accepted for compatibility with simple curl/Postman probes.
-- MCP `POST` requests with an `Origin` header must match the request origin or configured base URL origin. Foreign or malformed origins return HTTP `403` before JSON-RPC execution.
+- MCP routes are intentionally CORS-open for browser-based tools such as the upstream MCP Inspector UI on `http://localhost:6274`. `POST` responses include `Access-Control-Allow-Origin: *` and expose MCP/auth/debug headers that browser clients need to read.
+- MCP routes answer browser preflight `OPTIONS` requests with HTTP `204`, `Access-Control-Allow-Methods: POST, OPTIONS`, and allow the standard MCP test headers, including `Authorization`, `Content-Type`, and `MCP-Protocol-Version`.
 - MCP clients should send `Accept: application/json, text/event-stream`; the MVP server is lenient and does not reject missing `Accept` headers because many manual test clients omit them.
 - `initialize` returns protocol version `2025-06-18` when requested, otherwise the newest MVP-supported version from `2025-06-18` and `2025-03-26`.
 - `initialize` advertises only the `tools` capability with `listChanged: false`; resources, prompts, logging, sampling, and SSE/session capabilities are not claimed.
@@ -35,7 +36,7 @@ MCP connection guide examples
 - Configured endpoint or response-case delays apply before MCP tool success, tool-error, or protocol-error responses and are bounded to 30000 ms.
 - Response-case tool errors return MCP `tools/call` results with `isError: true`; endpoint-level or response-case protocol errors return JSON-RPC `-32000` errors with `protocol_error` data.
 - Unsupported JSON-RPC methods return `-32601` with HTTP `200`.
-- `GET` and `DELETE` on the MVP MCP endpoints return deterministic `405 Method Not Allowed` responses with `Allow: POST`.
+- `GET` and `DELETE` on the MVP MCP endpoints return deterministic `405 Method Not Allowed` responses with `Allow: POST, OPTIONS`.
 - Future MCP sessions, GET SSE streams, resumability, and DELETE session termination must be designed and tested as a separate transport feature. The server must not advertise session or SSE capabilities before those runtime paths exist.
 
 ## Validation

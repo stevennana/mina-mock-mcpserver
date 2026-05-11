@@ -9,8 +9,30 @@ import { resolveBaseUrl } from "@/lib/operator/config";
 
 export const dynamic = "force-dynamic";
 
+const MCP_CORS_HEADERS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": [
+    "Accept",
+    "Authorization",
+    "Content-Type",
+    "Last-Event-ID",
+    "MCP-Protocol-Version",
+    "MCP-Session-Id",
+  ].join(", "),
+  "Access-Control-Expose-Headers": [
+    "MCP-Protocol-Version",
+    "MCP-Session-Id",
+    "WWW-Authenticate",
+    "X-MCP-Mock-Matched-Case",
+    "X-MCP-Mock-Malformed-Mode",
+  ].join(", "),
+  "Access-Control-Max-Age": "86400",
+};
+
 function mcpResponseHeaders(headers: Record<string, string> = {}) {
   return {
+    ...MCP_CORS_HEADERS,
     "MCP-Protocol-Version": DEFAULT_MCP_PROTOCOL_VERSION,
     ...headers,
   };
@@ -18,21 +40,6 @@ function mcpResponseHeaders(headers: Record<string, string> = {}) {
 
 function isSupportedMcpProtocolVersion(value: string) {
   return SUPPORTED_MCP_PROTOCOL_VERSIONS.includes(value as (typeof SUPPORTED_MCP_PROTOCOL_VERSIONS)[number]);
-}
-
-function originIsAllowed(origin: string | null, request: Request, baseUrl: string) {
-  if (!origin) {
-    return true;
-  }
-
-  try {
-    const originUrl = new URL(origin).origin;
-    const requestOrigin = new URL(request.url).origin;
-    const configuredOrigin = new URL(baseUrl).origin;
-    return originUrl === requestOrigin || originUrl === configuredOrigin;
-  } catch {
-    return false;
-  }
 }
 
 async function validateMcpHttpRequest(request: Request) {
@@ -45,17 +52,6 @@ async function validateMcpHttpRequest(request: Request) {
         error: { code: -32600, message: "Unsupported MCP protocol version." },
       },
       { status: 400, headers: mcpResponseHeaders() },
-    );
-  }
-
-  const { baseUrl } = await resolveBaseUrl(request);
-  if (!originIsAllowed(request.headers.get("Origin"), request, baseUrl)) {
-    return NextResponse.json(
-      {
-        error: "forbidden_origin",
-        message: "Origin is not allowed for this MCP endpoint.",
-      },
-      { status: 403, headers: mcpResponseHeaders() },
     );
   }
 
@@ -205,7 +201,14 @@ export function unsupportedStreamableHttpMethod() {
     },
     {
       status: 405,
-      headers: mcpResponseHeaders({ Allow: "POST" }),
+      headers: mcpResponseHeaders({ Allow: "POST, OPTIONS" }),
     },
   );
+}
+
+export function handleMcpOptions() {
+  return new Response(null, {
+    status: 204,
+    headers: mcpResponseHeaders(),
+  });
 }

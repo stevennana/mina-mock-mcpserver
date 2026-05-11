@@ -153,15 +153,14 @@ test("no-auth MCP initialize, initialized notification, and tools/list use enabl
 
   const getResponse = await request.get("/mcp/none");
   expect(getResponse.status()).toBe(405);
-  expect(getResponse.headers().allow).toBe("POST");
+  expect(getResponse.headers().allow).toBe("POST, OPTIONS");
 
   const deleteResponse = await request.delete("/mcp");
   expect(deleteResponse.status()).toBe(405);
-  expect(deleteResponse.headers().allow).toBe("POST");
+  expect(deleteResponse.headers().allow).toBe("POST, OPTIONS");
 });
 
-test("MCP HTTP transport rejects unsupported protocol versions and foreign origins @mcp-http-hardening", async ({
-  baseURL,
+test("MCP HTTP transport rejects unsupported protocol versions and allows browser Inspector CORS @mcp-http-hardening", async ({
   request,
 }) => {
   const unsupportedProtocol = await request.post("/mcp/none", {
@@ -183,29 +182,24 @@ test("MCP HTTP transport rejects unsupported protocol versions and foreign origi
     error: { code: -32600, message: "Unsupported MCP protocol version." },
   });
 
-  const foreignOrigin = await request.post("/mcp/none", {
+  const inspectorPreflight = await request.fetch("/mcp/none", {
+    method: "OPTIONS",
     headers: {
-      Accept: "application/json, text/event-stream",
-      "MCP-Protocol-Version": "2025-06-18",
-      Origin: "https://evil.example",
-    },
-    data: {
-      jsonrpc: "2.0",
-      id: 2,
-      method: "tools/list",
+      Origin: "http://localhost:6274",
+      "Access-Control-Request-Method": "POST",
+      "Access-Control-Request-Headers": "content-type,mcp-protocol-version,authorization",
     },
   });
-  expect(foreignOrigin.status()).toBe(403);
-  expect(await foreignOrigin.json()).toEqual({
-    error: "forbidden_origin",
-    message: "Origin is not allowed for this MCP endpoint.",
-  });
+  expect(inspectorPreflight.status()).toBe(204);
+  expect(inspectorPreflight.headers()["access-control-allow-origin"]).toBe("*");
+  expect(inspectorPreflight.headers()["access-control-allow-methods"]).toContain("POST");
+  expect(inspectorPreflight.headers()["access-control-allow-headers"]).toContain("MCP-Protocol-Version");
 
-  const allowedOrigin = await request.post("/mcp/none", {
+  const inspectorOrigin = await request.post("/mcp/none", {
     headers: {
       Accept: "application/json, text/event-stream",
       "MCP-Protocol-Version": "2025-06-18",
-      Origin: new URL(baseURL ?? "http://127.0.0.1:3100").origin,
+      Origin: "http://localhost:6274",
     },
     data: {
       jsonrpc: "2.0",
@@ -213,5 +207,7 @@ test("MCP HTTP transport rejects unsupported protocol versions and foreign origi
       method: "tools/list",
     },
   });
-  expect(allowedOrigin.status()).toBe(200);
+  expect(inspectorOrigin.status()).toBe(200);
+  expect(inspectorOrigin.headers()["access-control-allow-origin"]).toBe("*");
+  expect(inspectorOrigin.headers()["access-control-expose-headers"]).toContain("MCP-Protocol-Version");
 });

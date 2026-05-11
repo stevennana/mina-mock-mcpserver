@@ -124,6 +124,8 @@ Use **Mock route preset** when you want the page to fill `/mcp/none`, `/mcp/basi
 
 If your target is a local HTTPS server with a self-signed certificate, enable **Allow self-signed HTTPS for this run**. Keep it off for public or production-like targets.
 
+The Mock Server MCP routes also allow browser-based Inspector origins directly. `/mcp`, `/mcp/none`, `/mcp/basic`, and `/mcp/oauth` answer `OPTIONS` preflight requests and return `Access-Control-Allow-Origin: *` on MCP responses so the upstream MCP Inspector UI can call them from `http://localhost:6274`.
+
 Use a different port if `3200` is already taken:
 
 ```bash
