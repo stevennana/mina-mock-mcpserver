@@ -10,7 +10,8 @@ Failure simulation controls
 - Failure simulation controls
 - Timeout shortcut
 - Malformed response warning
-- Audit log filters
+- Audit log filters for outcome, event type, subject, and non-secret evidence text
+- Audit log records load in small pages and append dynamically as the user scrolls or presses Load more.
 - Endpoint-level delay applies to matched success or forced endpoint errors unless a response case has its own delay.
 - Response-case forced errors can return normal tool-error payloads or protocol errors; REST maps both to configured HTTP status/body shapes while MCP maps tool errors to `isError` tool results and protocol errors to JSON-RPC errors.
 - Endpoint-level malformed modes are explicit: `invalid_json` returns an invalid JSON body with JSON content type, `wrong_content_type` returns the configured/success body with text/plain content type, and `empty_body` returns an empty body. They apply only after the target endpoint and response case match.

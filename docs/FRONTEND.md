@@ -21,12 +21,12 @@ Describe the user-facing structure of MCP Mock Server so an agent can implement 
 | /oauth-users/new, /oauth-users/[id] | OAuth login-user workflows | Create, detail, TTL, edit/delete actions |
 | /oauth-clients | OAuth client catalog | List/search/status only |
 | /oauth-clients/new, /oauth-clients/[id] | OAuth client workflows | Create, detail, redirects, allowed endpoints, secret actions |
-| /tokens | Issued token catalog | List/filter/status only |
+| /tokens | Issued token catalog | List/filter/status with initial refresh and manual refresh |
 | /tokens/[jti] | Issued token detail | Claims, permissions, revoke |
 | /config | Server config | Base URL, health, core connection URLs |
 | /inspector | Inspector/verification hub | Standalone inspector UI command, Mock Server scenario runner, local inspector command, MCP Inspector targets, OAuth authorization-code/Bearer setup guide, base URL diagnostics |
 | /reset | Reset | Root-password protected reset |
-| /audit | Audit log | List/filter mutation evidence |
+| /audit | Audit log | Filtered, incrementally loaded mutation evidence |
 | /audit/[id] | Audit event detail | Full evidence payload |
 | /oauth/login | OAuth login | Separate from admin UI |
 | /oauth/consent | OAuth consent | Endpoint permission checklist |
@@ -50,7 +50,7 @@ Describe the user-facing structure of MCP Mock Server so an agent can implement 
 | Config/guide | Show base URL, health summary, MCP/REST/OAuth URLs, OAuth discovery metadata, JWKS, sample client config, curl, public UI warning, and log command |
 | Inspector guide | Explain how to launch upstream MCP Inspector against local MCP routes and when to use project UI/curl instead |
 | Reset | Root-protected reset to current seed defaults with exact confirmation text |
-| Audit | Review mutation and security-relevant event history without exposing submitted secrets |
+| Audit | Filter and incrementally review mutation and security-relevant event history without exposing submitted secrets |
 
 ## UI Rules
 - favor quiet, dense, operational layouts over marketing composition
@@ -62,6 +62,8 @@ Describe the user-facing structure of MCP Mock Server so an agent can implement 
 - endpoint deletion keeps confirmation inputs separate from the endpoint editor values and clears submitted secrets after attempts
 - show protocol/auth warnings inline on malformed-response and public-admin controls
 - tables must support search/filter states without layout shift
+- token catalogs refresh once when the page opens and keep a manual Refresh control with visible loading feedback; do not poll continuously
+- audit tables must not force-load the full event history; use filters plus cursor/incremental loading for large records
 - endpoint editor forms must surface API/domain validation errors next to the affected fields
 - endpoint editor forms must show generated MCP `inputSchema` from the shared endpoint domain schema helper
 - Mock Server admin forms should use concise hover tooltips for beginner-facing concepts such as MCP tool names, inputSchema parameters, response case matching, failure simulation, auth modes, OAuth client permissions, token filters, base URL overrides, and destructive reset inputs

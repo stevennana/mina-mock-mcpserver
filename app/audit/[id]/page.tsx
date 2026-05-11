@@ -1,14 +1,13 @@
 import { notFound } from "next/navigation";
 import { AppNav } from "@/app/app-nav";
-import { listAuditEvents } from "@/lib/audit/service";
+import { getAuditEvent } from "@/lib/audit/service";
 import { formatDateTime } from "@/lib/date-format";
 
 export const dynamic = "force-dynamic";
 
 export default async function AuditDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const events = await listAuditEvents();
-  const event = events.find((candidate) => candidate.id === id);
+  const event = await getAuditEvent(id);
   if (!event) {
     notFound();
   }

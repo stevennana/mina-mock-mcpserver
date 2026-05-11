@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { HelpTooltip } from "@/app/help-tooltip";
 import { formatDateTime } from "@/lib/date-format";
 import type { OAuthIssuedTokenDetail, OAuthIssuedTokenListResult, OAuthIssuedTokenSummary } from "@/lib/oauth/types";
@@ -10,6 +10,13 @@ import type { OAuthIssuedTokenDetail, OAuthIssuedTokenListResult, OAuthIssuedTok
 type LoadState = {
   status: "idle" | "loading" | "error" | "success";
   message: string;
+};
+
+type TokenFilters = {
+  status: string;
+  subject: string;
+  client: string;
+  grantType: string;
 };
 
 function formatDate(value: string | null) {
@@ -22,7 +29,7 @@ function statusClass(status: OAuthIssuedTokenSummary["status"]) {
   return "status-pill";
 }
 
-function queryString(filters: { status: string; subject: string; client: string; grantType: string }) {
+function queryString(filters: TokenFilters) {
   const params = new URLSearchParams();
   for (const [key, value] of Object.entries(filters)) {
     if (value && value !== "all") params.set(key, value);
@@ -42,19 +49,25 @@ function FieldLabel({ label, help }: { label: string; help: string }) {
 export function TokensManager({
   initialData,
   initialDetail = null,
+  initialUpdatedAt,
   view = "catalog",
 }: {
   initialData: OAuthIssuedTokenListResult;
   initialDetail?: OAuthIssuedTokenDetail | null;
+  initialUpdatedAt: string;
   view?: "catalog" | "detail";
 }) {
   const router = useRouter();
   const [listData, setListData] = useState(initialData);
   const [filters, setFilters] = useState({ status: "all", subject: "", client: "", grantType: "all" });
+  const filtersRef = useRef<TokenFilters>(filters);
   const [selectedJti, setSelectedJti] = useState<string | null>(initialDetail?.jti ?? null);
   const [detail, setDetail] = useState<OAuthIssuedTokenDetail | null>(initialDetail);
   const [loadState, setLoadState] = useState<LoadState>({ status: "idle", message: "" });
   const [revokeState, setRevokeState] = useState<LoadState>({ status: "idle", message: "" });
+  const [lastUpdatedAt, setLastUpdatedAt] = useState(initialUpdatedAt);
+  const refreshSequenceRef = useRef(0);
+  const initialRefreshDoneRef = useRef(false);
 
   const selectedSummary = useMemo(
     () => listData.tokens.find((token) => token.jti === selectedJti) ?? null,
@@ -62,19 +75,46 @@ export function TokensManager({
   );
   const activeDetail = detail?.jti === selectedJti ? detail : null;
 
-  async function refreshList(nextFilters = filters) {
-    const search = queryString(nextFilters);
-    const response = await fetch(`/api/oauth/tokens${search ? `?${search}` : ""}`);
-    if (!response.ok) throw new Error("Unable to load issued tokens.");
-    const payload = (await response.json()) as OAuthIssuedTokenListResult;
-    setListData(payload);
-    return payload;
+  const refreshList = useCallback(
+    async (nextFilters: TokenFilters = filtersRef.current, options: { silent?: boolean } = {}) => {
+      const requestId = refreshSequenceRef.current + 1;
+      refreshSequenceRef.current = requestId;
+      if (!options.silent) {
+        setLoadState({ status: "loading", message: "Loading issued tokens." });
+      }
+      const search = queryString(nextFilters);
+      const response = await fetch(`/api/oauth/tokens${search ? `?${search}` : ""}`);
+      if (!response.ok) throw new Error("Unable to load issued tokens.");
+      const payload = (await response.json()) as OAuthIssuedTokenListResult;
+      if (refreshSequenceRef.current === requestId) {
+        setListData(payload);
+        setLastUpdatedAt(new Date().toISOString());
+        if (!options.silent) {
+          setLoadState({ status: "success", message: "Token list refreshed." });
+        }
+      }
+      return payload;
+    },
+    [],
+  );
+
+  useEffect(() => {
+    if (view !== "catalog" || initialRefreshDoneRef.current) return;
+    initialRefreshDoneRef.current = true;
+    void refreshList(filtersRef.current, { silent: true }).catch(() => {
+      setLoadState({ status: "error", message: "Initial token refresh failed." });
+    });
+  }, [refreshList, view]);
+
+  function updateFilters(nextFilters: TokenFilters) {
+    filtersRef.current = nextFilters;
+    setFilters(nextFilters);
   }
 
   async function applyFilters() {
     setLoadState({ status: "loading", message: "Loading issued tokens." });
     try {
-      await refreshList();
+      await refreshList(filtersRef.current);
       router.refresh();
       setLoadState({ status: "success", message: "Filters applied." });
     } catch (error) {
@@ -104,7 +144,7 @@ export function TokensManager({
       const response = await fetch(`/api/oauth/tokens/${encodeURIComponent(selectedJti)}/revoke`, { method: "POST" });
       if (!response.ok) throw new Error("Token revoke failed.");
       setDetail(await response.json());
-      await refreshList();
+      await refreshList(filtersRef.current, { silent: true });
       router.refresh();
       setRevokeState({ status: "success", message: "Token revoked. Subsequent bearer calls now fail with 401." });
     } catch (error) {
@@ -122,9 +162,17 @@ export function TokensManager({
           <div>
             <h2 id="token-list-title">Tokens</h2>
             <p>{listData.tokens.length} shown, {listData.total} total issued</p>
+            <p className="auto-refresh-note">Refreshes once when this page opens. Last updated {formatDateTime(lastUpdatedAt)}.</p>
           </div>
-          <button className="secondary-button" type="button" onClick={() => void refreshList()}>
-            Refresh
+          <button
+            className="secondary-button"
+            type="button"
+            onClick={() => void refreshList().catch((error) => {
+              setLoadState({ status: "error", message: error instanceof Error ? error.message : "Token refresh failed." });
+            })}
+            disabled={loadState.status === "loading"}
+          >
+            {loadState.status === "loading" ? "Refreshing..." : "Refresh"}
           </button>
         </div>
 
@@ -134,7 +182,7 @@ export function TokensManager({
             <select
               className="text-input"
               value={filters.status}
-              onChange={(event) => setFilters((current) => ({ ...current, status: event.target.value }))}
+              onChange={(event) => updateFilters({ ...filtersRef.current, status: event.target.value })}
             >
               <option value="all">All statuses</option>
               <option value="active">Active</option>
@@ -147,7 +195,7 @@ export function TokensManager({
             <select
               className="text-input"
               value={filters.grantType}
-              onChange={(event) => setFilters((current) => ({ ...current, grantType: event.target.value }))}
+              onChange={(event) => updateFilters({ ...filtersRef.current, grantType: event.target.value })}
             >
               <option value="all">All grants</option>
               <option value="authorization_code">authorization_code</option>
@@ -159,7 +207,7 @@ export function TokensManager({
             <input
               className="text-input"
               value={filters.subject}
-              onChange={(event) => setFilters((current) => ({ ...current, subject: event.target.value }))}
+              onChange={(event) => updateFilters({ ...filtersRef.current, subject: event.target.value })}
               placeholder="User ID, username, or client subject"
             />
           </label>
@@ -168,7 +216,7 @@ export function TokensManager({
             <input
               className="text-input"
               value={filters.client}
-              onChange={(event) => setFilters((current) => ({ ...current, client: event.target.value }))}
+              onChange={(event) => updateFilters({ ...filtersRef.current, client: event.target.value })}
               placeholder="Client ID"
             />
           </label>
@@ -182,8 +230,10 @@ export function TokensManager({
             type="button"
             onClick={() => {
               const next = { status: "all", subject: "", client: "", grantType: "all" };
-              setFilters(next);
-              void refreshList(next);
+              updateFilters(next);
+              void refreshList(next).catch((error) => {
+                setLoadState({ status: "error", message: error instanceof Error ? error.message : "Token refresh failed." });
+              });
             }}
           >
             Clear

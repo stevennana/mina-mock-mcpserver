@@ -36,7 +36,7 @@ export default async function TokenDetailPage({ params }: { params: Promise<{ jt
           <span><strong>{tokenData.revoked}</strong>Revoked</span>
         </div>
       </header>
-      <TokensManager initialData={tokenData} initialDetail={detail} view="detail" />
+      <TokensManager initialData={tokenData} initialDetail={detail} initialUpdatedAt={new Date().toISOString()} view="detail" />
     </main>
   );
 }

@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import type { PrismaClient } from "@prisma/client";
+import type { Prisma, PrismaClient } from "@prisma/client";
 import { createPrismaClient } from "@/lib/db/client";
 
 type AuditClient = Pick<PrismaClient, "auditEvent">;
@@ -28,6 +28,26 @@ export type AuditEventSummary = {
   createdAt: string;
 };
 
+export type AuditEventFilters = {
+  eventType?: string;
+  outcome?: AuditOutcome | "all";
+  subject?: string;
+  query?: string;
+  cursor?: string;
+  limit?: number;
+};
+
+export type AuditEventListResult = {
+  events: AuditEventSummary[];
+  total: number;
+  pageSize: number;
+  nextCursor: string | null;
+  hasMore: boolean;
+};
+
+const DEFAULT_AUDIT_PAGE_SIZE = 25;
+const MAX_AUDIT_PAGE_SIZE = 100;
+
 function parseMetadata(value: string): Record<string, unknown> {
   try {
     const parsed = JSON.parse(value);
@@ -52,13 +72,59 @@ export async function recordAuditEvent(input: AuditEventInput, client: AuditClie
   });
 }
 
-export async function listAuditEvents(client: PrismaClient = createPrismaClient()): Promise<AuditEventSummary[]> {
-  const events = await client.auditEvent.findMany({
-    orderBy: { createdAt: "desc" },
-    take: 100,
-  });
+function auditEventWhere(filters: AuditEventFilters): Prisma.AuditEventWhereInput {
+  const where: Prisma.AuditEventWhereInput = {};
+  const and: Prisma.AuditEventWhereInput[] = [];
+  if (filters.outcome && filters.outcome !== "all") {
+    where.outcome = filters.outcome;
+  }
+  if (filters.eventType?.trim()) {
+    where.eventType = { contains: filters.eventType.trim() };
+  }
+  if (filters.subject?.trim()) {
+    const subject = filters.subject.trim();
+    and.push({
+      OR: [
+        { subjectName: { contains: subject } },
+        { subjectId: { contains: subject } },
+        { subjectType: { contains: subject } },
+      ],
+    });
+  }
+  if (filters.query?.trim()) {
+    const query = filters.query.trim();
+    and.push({
+      OR: [
+        { eventType: { contains: query } },
+        { subjectName: { contains: query } },
+        { subjectId: { contains: query } },
+        { subjectType: { contains: query } },
+        { actorType: { contains: query } },
+        { metadataJson: { contains: query } },
+      ],
+    });
+  }
+  if (and.length > 0) where.AND = and;
+  return where;
+}
 
-  return events.map((event) => ({
+function normalizedAuditLimit(limit: number | undefined) {
+  if (!Number.isFinite(limit)) return DEFAULT_AUDIT_PAGE_SIZE;
+  return Math.min(Math.max(Math.trunc(limit ?? DEFAULT_AUDIT_PAGE_SIZE), 1), MAX_AUDIT_PAGE_SIZE);
+}
+
+function summarizeAuditEvent(event: {
+  id: string;
+  eventType: string;
+  subjectType: string;
+  subjectId: string | null;
+  subjectName: string | null;
+  outcome: string;
+  actorType: string;
+  metadataJson: string;
+  createdAt: Date;
+}): AuditEventSummary {
+  return {
     id: event.id,
     eventType: event.eventType,
     subjectType: event.subjectType,
@@ -68,5 +134,35 @@ export async function listAuditEvents(client: PrismaClient = createPrismaClient(
     actorType: event.actorType,
     metadata: parseMetadata(event.metadataJson),
     createdAt: event.createdAt.toISOString(),
-  }));
+  };
+}
+
+export async function listAuditEvents(
+  filters: AuditEventFilters = {},
+  client: PrismaClient = createPrismaClient(),
+): Promise<AuditEventListResult> {
+  const pageSize = normalizedAuditLimit(filters.limit);
+  const where = auditEventWhere(filters);
+  const events = await client.auditEvent.findMany({
+    where,
+    orderBy: { createdAt: "desc" },
+    take: pageSize + 1,
+    ...(filters.cursor ? { cursor: { id: filters.cursor }, skip: 1 } : {}),
+  });
+  const hasMore = events.length > pageSize;
+  const page = hasMore ? events.slice(0, pageSize) : events;
+  const total = await client.auditEvent.count({ where });
+
+  return {
+    events: page.map(summarizeAuditEvent),
+    total,
+    pageSize,
+    nextCursor: hasMore ? page[page.length - 1]?.id ?? null : null,
+    hasMore,
+  };
+}
+
+export async function getAuditEvent(id: string, client: PrismaClient = createPrismaClient()): Promise<AuditEventSummary | null> {
+  const event = await client.auditEvent.findUnique({ where: { id } });
+  return event ? summarizeAuditEvent(event) : null;
 }

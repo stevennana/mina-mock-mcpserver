@@ -24,7 +24,7 @@ export default async function TokensPage() {
           <span><strong>{tokenData.revoked}</strong>Revoked</span>
         </div>
       </header>
-      <TokensManager initialData={tokenData} />
+      <TokensManager initialData={tokenData} initialUpdatedAt={new Date().toISOString()} />
     </main>
   );
 }

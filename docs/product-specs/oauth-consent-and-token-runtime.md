@@ -32,6 +32,7 @@ OAuth users and clients management
 - expired, reused, unknown, redirect-mismatched, client-mismatched, or client-secret-invalid authorization-code exchanges fail with deterministic OAuth-style errors
 - Token list/detail/revoke
 - `/tokens` and `/api/oauth/tokens` list issued token metadata by stored `jti`, with filters for active, expired, revoked, subject, client, and grant type
+- `/tokens` refreshes the visible catalog once when the page opens and keeps a manual Refresh control with visible loading feedback. It does not continuously poll.
 - token detail shows reconstructed JWT claims and `endpoint_permissions` endpoint metadata from stored records, but does not redisplay raw access token values after issuance
 - revoking an issued token sets `revokedAt` on the historical token record and subsequent Bearer runtime validation treats the token as invalid, returning `401`
 - `/oauth/revoke` implements standard token revocation for clients that authenticate with `client_secret_post` or HTTP Basic client credentials. The mock server accepts an access token or stored `jti` as the `token` form value and returns `200` for valid client-owned revocation attempts.
