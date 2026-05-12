@@ -1054,8 +1054,8 @@ function renderOAuthCallbackHtml(query) {
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>OAuth callback</title>
   <style>
-    body { margin: 0; padding: 28px; font-family: Aptos, "Segoe UI", Helvetica, Arial, sans-serif; background: #f6f7f9; color: #171a1f; }
-    main { max-width: 560px; margin: 0 auto; border: 1px solid #d9dee7; border-radius: 8px; background: #fff; padding: 18px; }
+    body { margin: 0; padding: 28px; font-family: "Aptos", "Segoe UI", Helvetica, Arial, sans-serif; background: #f4f6f3; color: #1d2724; }
+    main { max-width: 560px; margin: 0 auto; border: 1px solid #d8e0dc; border-radius: 8px; background: #fff; padding: 18px; }
     h1 { margin: 0 0 10px; font-size: 1.35rem; }
     p { color: #5c6675; line-height: 1.5; }
     code { overflow-wrap: anywhere; }
@@ -1096,8 +1096,44 @@ function renderOAuthCallbackHtml(query) {
 </html>`;
 }
 
+function iconSvg(name, className = "ui-icon") {
+  const icons = {
+    activity: '<polyline points="3 12 7 12 10 4 14 20 17 12 21 12" />',
+    overview: '<path d="M4 19V5" /><path d="M4 19h16" /><path d="M8 16v-5" /><path d="M12 16V8" /><path d="M16 16v-3" />',
+    mock: '<path d="m4 7 2 2 4-4" /><path d="M12 7h8" /><path d="m4 17 2 2 4-4" /><path d="M12 17h8" />',
+    generic: '<circle cx="12" cy="12" r="7" /><circle cx="12" cy="12" r="2" /><path d="M12 3v3" /><path d="M12 18v3" /><path d="M3 12h3" /><path d="M18 12h3" />',
+    oauth: '<circle cx="7.5" cy="12.5" r="3.5" /><path d="M11 12.5h9" /><path d="M17 12.5v3" /><path d="M14 12.5v2" />',
+    terminal: '<path d="m4 7 5 5-5 5" /><path d="M12 19h8" />',
+    server: '<rect x="4" y="5" width="16" height="6" rx="2" /><rect x="4" y="13" width="16" height="6" rx="2" /><path d="M8 8h.01" /><path d="M8 16h.01" /><path d="M12 8h4" /><path d="M12 16h4" />',
+  };
+
+  return `<svg class="${className}" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.15" stroke-linecap="round" stroke-linejoin="round">${icons[name] ?? icons.generic}</svg>`;
+}
+
 function renderHtml(page = "home") {
   const safePage = ["home", "mock", "generic", "oauth"].includes(page) ? page : "home";
+  const headerCopy = {
+    home: {
+      eyebrow: "Standalone inspector",
+      title: "MCP Inspector",
+      lede: "Choose one focused workflow: run the Mock Server scenario, inspect a generic MCP target, or verify the browser OAuth authorization-code flow.",
+    },
+    mock: {
+      eyebrow: "Mock Server scenario",
+      title: "Mock Server scenario",
+      lede: "Run the full Mock Server verification path and review health, REST, MCP, Basic, OAuth, audit, reset, and cleanup evidence step by step.",
+    },
+    generic: {
+      eyebrow: "Generic target",
+      title: "Generic MCP target",
+      lede: "Inspect any Streamable HTTP MCP endpoint with presets, Authorization helpers, optional tool calls, and raw protocol evidence.",
+    },
+    oauth: {
+      eyebrow: "OAuth popup",
+      title: "OAuth popup flow",
+      lede: "Open the browser login and consent redirect, exchange the authorization code with PKCE, then reuse the Bearer token in Generic MCP target.",
+    },
+  }[safePage];
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -1107,28 +1143,202 @@ function renderHtml(page = "home") {
   <style>
     :root {
       color-scheme: light;
-      --bg: #f6f7f9;
-      --fg: #171a1f;
-      --muted: #5c6675;
-      --line: #d9dee7;
-      --panel: #fff;
-      --accent: #0d766e;
+      --bg: #f4f6f3;
+      --fg: #1d2724;
+      --muted: #5d6a66;
+      --line: #d8e0dc;
+      --panel: #ffffff;
+      --panel-low: #eef2ef;
+      --panel-raised: #f9faf7;
+      --accent: #2f6f64;
+      --accent-dark: #214f49;
+      --accent-soft: #dceee9;
       --danger: #b42318;
       --warn: #946200;
+      --shadow-subtle: 0 1px 2px rgba(27, 39, 35, .05), 0 20px 60px rgba(27, 39, 35, .07);
     }
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      background: var(--bg);
+      background:
+        linear-gradient(180deg, rgba(238, 242, 239, .78), rgba(244, 246, 243, 0) 360px),
+        var(--bg);
       color: var(--fg);
-      font-family: Aptos, "Segoe UI", Helvetica, Arial, sans-serif;
+      font-family: "Aptos", "Segoe UI", Helvetica, Arial, sans-serif;
     }
-    main {
-      width: min(1120px, calc(100% - 32px));
+    main.inspector-shell {
+      width: min(1240px, calc(100% - 32px));
       margin: 0 auto;
-      padding: 34px 0 48px;
+      padding: 0 0 56px;
     }
-    header { display: grid; gap: 14px; margin-bottom: 22px; }
+    .product-topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 28px;
+      background: rgba(244, 246, 243, .92);
+      backdrop-filter: blur(14px);
+    }
+    .product-topbar-inner {
+      min-height: 72px;
+      display: flex;
+      gap: 18px;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .product-wordmark {
+      color: var(--accent-dark);
+      font-size: 1.18rem;
+      font-weight: 900;
+      text-decoration: none;
+    }
+    .product-top-tabs {
+      display: inline-flex;
+      gap: 18px;
+      align-items: center;
+      color: var(--muted);
+      font-size: .9rem;
+      font-weight: 850;
+    }
+    .product-top-tabs a {
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      color: inherit;
+      text-decoration: none;
+    }
+    .product-top-tabs a:hover {
+      color: var(--accent-dark);
+    }
+    .product-top-tabs a[data-active="true"] {
+      color: var(--accent-dark);
+      box-shadow: inset 0 -2px 0 var(--accent);
+    }
+    .product-top-actions {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      color: var(--muted);
+      font-size: .72rem;
+      font-weight: 900;
+      letter-spacing: .04em;
+    }
+    .status-chip {
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .status-icon,
+    .side-nav-icon {
+      width: 17px;
+      height: 17px;
+      flex: 0 0 auto;
+    }
+    .product-status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: #2e7354;
+      box-shadow: 0 0 0 4px rgba(46, 115, 84, .12);
+    }
+    .inspector-body {
+      display: grid;
+      grid-template-columns: 256px minmax(0, 1fr);
+      gap: 28px;
+      align-items: start;
+    }
+    .product-side-rail {
+      position: sticky;
+      top: 92px;
+      min-height: calc(100vh - 100px);
+      border-right: 1px solid var(--line);
+      padding: 20px 16px 20px 0;
+      background: var(--panel-low);
+    }
+    .product-nav-brand {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      padding: 8px 8px 18px;
+    }
+    .product-brand-icon {
+      width: 40px;
+      height: 40px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #fff;
+      font-size: .72rem;
+      font-weight: 900;
+      letter-spacing: .04em;
+    }
+    .product-brand-icon .brand-icon {
+      width: 22px;
+      height: 22px;
+      stroke-width: 2.25;
+    }
+    .product-nav-mark {
+      display: block;
+      color: var(--fg);
+      font-weight: 900;
+      text-decoration: none;
+    }
+    .product-nav-brand span:last-child {
+      display: block;
+      color: var(--muted);
+      font-size: .82rem;
+      font-weight: 750;
+    }
+    .side-nav {
+      display: grid;
+      gap: 10px;
+      margin-top: 16px;
+    }
+    .side-nav-group {
+      display: grid;
+      gap: 4px;
+      padding: 10px 6px;
+    }
+    .side-nav-label {
+      margin: 0 8px 7px;
+      color: var(--muted);
+      font-size: .72rem;
+      font-weight: 900;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    .side-nav a {
+      min-height: 40px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      border-radius: 8px;
+      padding: 0 10px;
+      color: var(--muted);
+      font-size: .92rem;
+      font-weight: 850;
+      text-decoration: none;
+    }
+    .side-nav a:hover {
+      background: var(--panel-raised);
+      color: var(--accent-dark);
+    }
+    .side-nav a[aria-current="page"] {
+      background: var(--accent-soft);
+      color: var(--accent-dark);
+    }
+    .inspector-content {
+      min-width: 0;
+    }
+    .page-header {
+      display: grid;
+      gap: 16px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 22px;
+      padding-bottom: 22px;
+    }
     .header-row {
       display: flex;
       gap: 14px;
@@ -1147,14 +1357,16 @@ function renderHtml(page = "home") {
       display: inline-flex;
       min-height: 44px;
       align-items: center;
-      border: 1px solid #bfd0df;
+      border: 1px solid var(--line);
       border-radius: 8px;
       padding: 0 12px;
       background: var(--panel);
-      color: #0b5f58;
+      color: var(--accent-dark);
       font-weight: 850;
       text-decoration: none;
+      box-shadow: 0 1px 1px rgba(27, 39, 35, .04);
     }
+    .workflow-link:hover { background: var(--accent-soft); border-color: rgba(47, 111, 100, .26); }
     .mode-card {
       min-height: 44px;
       border: 1px solid var(--line);
@@ -1165,13 +1377,25 @@ function renderHtml(page = "home") {
     }
     .eyebrow {
       margin: 0 0 10px;
-      color: var(--accent);
+      color: var(--accent-dark);
       font-size: .78rem;
       font-weight: 800;
       text-transform: uppercase;
     }
-    h1 { margin: 0; font-size: 2.5rem; line-height: 1; }
+    h1 { margin: 0; font-size: clamp(2.2rem, 4vw, 3.2rem); line-height: 1.02; letter-spacing: -0.02em; }
     .lede { max-width: 760px; margin: 14px 0 0; color: var(--muted); line-height: 1.55; }
+    .handoff-highlight {
+      display: inline-flex;
+      align-items: center;
+      margin-top: 14px;
+      border: 1px solid rgba(47, 111, 100, .28);
+      border-radius: 8px;
+      padding: 8px 10px;
+      background: var(--accent-soft);
+      color: var(--accent-dark);
+      font-size: .88rem;
+      font-weight: 900;
+    }
     .home-only,
     .mock-page,
     .generic-page,
@@ -1180,24 +1404,32 @@ function renderHtml(page = "home") {
     body.page-mock .mock-page { display: grid; }
     body.page-generic .generic-page { display: grid; }
     body.page-oauth .oauth-page { display: grid; }
-    .home-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    .home-grid { grid-template-columns: 1.18fr .92fr .92fr; gap: 16px; }
     .mode-card { display: grid; gap: 8px; padding: 18px; }
-    .mode-card strong { font-size: 1.05rem; color: #202b38; }
+    .mode-card strong { font-size: 1.08rem; color: var(--fg); }
     .mode-card span { color: var(--muted); line-height: 1.45; }
     .mode-grid { display: grid; gap: 18px; }
-    .layout { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 16px; align-items: start; }
+    .layout { display: grid; grid-template-columns: minmax(320px, .72fr) minmax(0, 1.28fr); gap: 16px; align-items: start; }
     section, form {
       min-width: 0;
       border: 1px solid var(--line);
       border-radius: 8px;
       background: var(--panel);
-      padding: 16px;
+      padding: 18px;
+      box-shadow: var(--shadow-subtle);
+    }
+    section > h2:first-child,
+    form > h2:first-child {
+      border-bottom: 1px solid var(--line);
+      margin: -18px -18px 16px;
+      padding: 14px 18px;
+      background: var(--panel-raised);
     }
     .mode-head { display: flex; gap: 12px; align-items: start; justify-content: space-between; margin-bottom: 12px; }
     .mode-head h2 { margin-bottom: 4px; }
     .mode-head p { margin: 0; color: var(--muted); line-height: 1.45; font-size: .88rem; }
     h2 { margin: 0 0 12px; font-size: 1.08rem; }
-    label { display: grid; gap: 6px; margin-bottom: 12px; color: #26313f; font-weight: 800; font-size: .9rem; }
+    label { display: grid; gap: 6px; margin-bottom: 12px; color: var(--fg); font-weight: 800; font-size: .9rem; }
     .label-text,
     .step-name-row {
       display: inline-flex;
@@ -1216,8 +1448,8 @@ function renderHtml(page = "home") {
       justify-content: center;
       border: 1px solid #b7c7d8;
       border-radius: 999px;
-      background: #f8fbfd;
-      color: #365064;
+      background: var(--panel-raised);
+      color: var(--accent-dark);
       font-size: .76rem;
       font-weight: 900;
       line-height: 1;
@@ -1233,11 +1465,11 @@ function renderHtml(page = "home") {
       bottom: calc(100% + 8px);
       width: min(300px, 78vw);
       transform: translateX(-50%);
-      border: 1px solid #cbd6e2;
+      border: 1px solid rgba(29, 39, 36, .16);
       border-radius: 8px;
       padding: 9px 10px;
-      background: #17202b;
-      color: #f7fafc;
+      background: #1d2724;
+      color: #f9faf7;
       box-shadow: 0 10px 28px rgba(15, 23, 32, .18);
       content: attr(data-tooltip);
       font-size: .78rem;
@@ -1252,11 +1484,11 @@ function renderHtml(page = "home") {
       opacity: 1;
     }
     .select-note {
-      border: 1px solid #dbe4ee;
+      border: 1px solid var(--line);
       border-radius: 8px;
       margin: -4px 0 12px;
       padding: 9px 10px;
-      background: #fbfcfe;
+      background: var(--panel-raised);
       color: var(--muted);
       font-size: .82rem;
       line-height: 1.45;
@@ -1264,11 +1496,15 @@ function renderHtml(page = "home") {
     input, select, textarea {
       width: 100%;
       min-height: 44px;
-      border: 1px solid #cbd3df;
+      border: 1px solid #c9d4cf;
       border-radius: 8px;
       padding: 10px 11px;
       font: inherit;
       background: #fff;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: 3px solid rgba(47, 111, 100, .16);
+      border-color: rgba(47, 111, 100, .62);
     }
     input[type="checkbox"] {
       width: 18px;
@@ -1300,11 +1536,14 @@ function renderHtml(page = "home") {
       font-weight: 850;
       cursor: pointer;
     }
+    button:hover { background: var(--accent-dark); }
+    button:active, .workflow-link:active, .mode-card:active { transform: translateY(1px); }
     .secondary-button {
-      border: 1px solid #bfd0df;
-      background: #eef6f5;
-      color: #0b5f58;
+      border: 1px solid #c9d4cf;
+      background: var(--panel-raised);
+      color: var(--accent-dark);
     }
+    .secondary-button:hover { background: var(--accent-soft); color: var(--accent-dark); }
     .send-generic-button { white-space: nowrap; }
     .progress-wrap { display: grid; gap: 10px; }
     .progress-meter {
@@ -1312,7 +1551,7 @@ function renderHtml(page = "home") {
       height: 10px;
       overflow: hidden;
       border-radius: 999px;
-      background: #e5ebf3;
+      background: var(--panel-low);
     }
     .progress-bar {
       width: 0%;
@@ -1332,18 +1571,18 @@ function renderHtml(page = "home") {
       display: flex;
       justify-content: space-between;
       gap: 10px;
-      border: 1px solid #e4e9f0;
+      border: 1px solid var(--line);
       border-radius: 8px;
       padding: 8px 10px;
-      background: #fbfcfe;
+      background: var(--panel-raised);
       color: var(--muted);
       font-size: .84rem;
       font-weight: 750;
     }
     .progress-list li.active {
-      border-color: #8bcac2;
-      background: #eefaf8;
-      color: #075d55;
+      border-color: rgba(47, 111, 100, .34);
+      background: var(--accent-soft);
+      color: var(--accent-dark);
     }
     .progress-list li.done {
       color: #136337;
@@ -1353,7 +1592,7 @@ function renderHtml(page = "home") {
     .auth-fields { display: none; gap: 10px; }
     .auth-fields.active { display: grid; }
     .summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-bottom: 12px; }
-    .summary div { border: 1px solid var(--line); border-radius: 8px; padding: 10px; background: #fbfcfe; }
+    .summary div { border: 1px solid var(--line); border-radius: 8px; padding: 10px; background: var(--panel-raised); }
     .summary span { display: block; color: var(--muted); font-size: .74rem; font-weight: 800; text-transform: uppercase; }
     .summary strong { display: block; margin-top: 4px; font-size: 1.25rem; }
     .step-card {
@@ -1363,7 +1602,7 @@ function renderHtml(page = "home") {
       border-radius: 8px;
       margin-top: 10px;
       padding: 12px;
-      background: #fbfcfe;
+      background: var(--panel-raised);
     }
     .step-card-head {
       display: flex;
@@ -1386,7 +1625,7 @@ function renderHtml(page = "home") {
       justify-content: flex-end;
     }
     details.step {
-      border: 1px solid #e4e9f0;
+      border: 1px solid var(--line);
       border-radius: 8px;
       background: #fff;
       overflow: hidden;
@@ -1409,24 +1648,24 @@ function renderHtml(page = "home") {
     .pass { background: #eefaf3; color: #136337; border: 1px solid #93d5ba; }
     .fail { background: #fff4f2; color: var(--danger); border: 1px solid #f3b6af; }
     .warn { background: #fff8e7; color: var(--warn); border: 1px solid #f0c36d; }
-    .skip { background: #f5f7fa; color: #495466; border: 1px solid #d1d9e4; }
+    .skip { background: var(--panel-low); color: var(--muted); border: 1px solid var(--line); }
     pre {
       max-width: 100%;
       overflow: auto;
       white-space: pre-wrap;
       overflow-wrap: anywhere;
-      border: 1px solid #d8e0ea;
+      border: 1px solid rgba(29, 39, 36, .14);
       border-radius: 8px;
       margin: 10px 0 0;
       padding: 10px;
-      background: #0f1720;
-      color: #e8eef7;
+      background: #1d2724;
+      color: #eef2ef;
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
       font-size: .8rem;
       line-height: 1.5;
     }
     .diag { display: grid; gap: 8px; }
-    .diag div { display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 10px; border: 1px solid #e4e9f0; border-radius: 8px; padding: 10px; background: #fbfcfe; }
+    .diag div { display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 10px; border: 1px solid var(--line); border-radius: 8px; padding: 10px; background: var(--panel-raised); }
     .diag span { color: var(--muted); font-weight: 800; font-size: .82rem; }
     .empty { color: var(--muted); line-height: 1.5; }
     .stack { display: grid; gap: 12px; }
@@ -1447,16 +1686,22 @@ function renderHtml(page = "home") {
     .history-list li {
       display: grid;
       gap: 4px;
-      border: 1px solid #e4e9f0;
+      border: 1px solid var(--line);
       border-radius: 8px;
       padding: 10px;
-      background: #fbfcfe;
+      background: var(--panel-raised);
       color: var(--muted);
       font-size: .84rem;
     }
-    .history-list strong { color: #202b38; }
+    .history-list strong { color: var(--fg); }
     @media (max-width: 840px) {
-      main { width: min(100% - 24px, 620px); padding-top: 24px; }
+      main.inspector-shell { width: min(100% - 24px, 620px); padding-top: 0; }
+      .product-topbar-inner { display: grid; min-height: auto; gap: 10px; padding: 16px 0; }
+      .product-top-tabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+      .product-top-tabs span { min-height: 36px; display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 8px; padding: 0 10px; background: var(--panel); }
+      .inspector-body { grid-template-columns: 1fr; }
+      .product-side-rail { position: static; min-height: 0; border-right: 0; padding: 0; background: transparent; }
+      .side-nav { grid-template-columns: 1fr; }
       .layout, .home-grid, .summary, .diag div { grid-template-columns: 1fr; }
       h1 { font-size: 2rem; }
       .mode-head, .header-row, .step-card-head { display: grid; align-items: start; }
@@ -1475,32 +1720,51 @@ function renderHtml(page = "home") {
   </style>
 </head>
 <body class="page-${safePage}">
-  <main>
-    <header>
+  <main class="inspector-shell">
+    <div class="product-topbar">
+      <div class="product-topbar-inner">
+        <a class="product-wordmark" href="/">MCP Inspector</a>
+        <nav class="product-top-tabs" aria-label="Inspector workflow groups">
+          <a href="/" data-active="${safePage === "home" ? "true" : ""}">Overview</a>
+          <a href="/mock" data-active="${safePage === "mock" ? "true" : ""}">Mock Scenario</a>
+          <a href="/generic" data-active="${safePage === "generic" ? "true" : ""}">Generic Target</a>
+          <a href="/oauth" data-active="${safePage === "oauth" ? "true" : ""}">OAuth Popup</a>
+        </nav>
+        <div class="product-top-actions" aria-label="Inspector status">
+          <span class="status-chip">${iconSvg("terminal", "status-icon")}LOCAL</span>
+          <span class="status-chip">${iconSvg("server", "status-icon")}UI</span>
+          <span class="product-status-dot" aria-label="Ready"></span>
+        </div>
+      </div>
+    </div>
+    <div class="inspector-body">
+      <aside class="product-side-rail" aria-label="Inspector navigation">
+        <div class="product-nav-brand">
+          <div class="product-brand-icon" aria-hidden="true">${iconSvg("activity", "brand-icon")}</div>
+          <div>
+            <a href="/" class="product-nav-mark">Protocol Lab</a>
+            <span>standalone inspector</span>
+          </div>
+        </div>
+        <nav class="side-nav">
+          <div class="side-nav-group">
+            <span class="side-nav-label">Workflows</span>
+            <a href="/" aria-label="Side workflow overview" aria-current="${safePage === "home" ? "page" : ""}">${iconSvg("overview", "side-nav-icon")}<span>Overview</span></a>
+            <a href="/mock" aria-label="Side workflow mock" aria-current="${safePage === "mock" ? "page" : ""}">${iconSvg("mock", "side-nav-icon")}<span>Mock Server scenario</span></a>
+            <a href="/generic" aria-label="Side workflow generic" aria-current="${safePage === "generic" ? "page" : ""}">${iconSvg("generic", "side-nav-icon")}<span>Generic MCP target</span></a>
+            <a href="/oauth" aria-label="Side workflow oauth" aria-current="${safePage === "oauth" ? "page" : ""}">${iconSvg("oauth", "side-nav-icon")}<span>OAuth popup flow</span></a>
+          </div>
+        </nav>
+      </aside>
+      <div class="inspector-content">
+    <header class="page-header">
       <div class="header-row">
         <div class="header-copy">
-          <p class="eyebrow">Standalone local tool</p>
-          <h1>MCP Inspector</h1>
-          <p class="lede">${safePage === "home"
-            ? "Choose a focused workflow: run the full Mock Server scenario, inspect a single generic MCP target, or exercise the browser OAuth authorization-code flow."
-            : safePage === "generic"
-            ? "Inspect one MCP Streamable HTTP endpoint with route presets, Authorization helpers, optional tool call, and raw protocol evidence."
-            : safePage === "oauth"
-            ? "Run a popup-based OAuth authorization-code flow against the Mock Server, exchange the code with PKCE, then send the Bearer token to Generic MCP target."
-            : "Run the full Mock Server scenario and review each protocol/auth check as sequential step evidence."}</p>
+          <p class="eyebrow">${headerCopy.eyebrow}</p>
+          <h1>${headerCopy.title}</h1>
+          <p class="lede">${headerCopy.lede}</p>
+          ${safePage === "oauth" ? `<p class="handoff-highlight">Final handoff: token is sent to Generic MCP Target for the actual Bearer MCP call.</p>` : ""}
         </div>
-        ${safePage === "mock" ? `<nav class="workflow-switch" aria-label="Inspector workflow switch">
-          <a class="workflow-link" href="/oauth">Open OAuth popup flow</a>
-          <a class="workflow-link" href="/generic">Open Generic MCP target</a>
-        </nav>` : ""}
-        ${safePage === "generic" ? `<nav class="workflow-switch" aria-label="Inspector workflow switch">
-          <a class="workflow-link" href="/mock">Open Mock Server scenario</a>
-          <a class="workflow-link" href="/oauth">Open OAuth popup flow</a>
-        </nav>` : ""}
-        ${safePage === "oauth" ? `<nav class="workflow-switch" aria-label="Inspector workflow switch">
-          <a class="workflow-link" href="/mock">Open Mock Server scenario</a>
-          <a class="workflow-link" href="/generic">Open Generic MCP target</a>
-        </nav>` : ""}
       </div>
     </header>
     ${safePage === "home" ? `<section class="home-only home-grid" aria-label="Inspector workflow choices">
@@ -1697,6 +1961,8 @@ function renderHtml(page = "home") {
           <div id="oauth-popup-results" class="empty">No popup OAuth flow has run yet.</div>
         </section>
       </div>` : ""}
+    </div>
+      </div>
     </div>
   </main>
   <script>

@@ -1,5 +1,6 @@
 import { AppNav } from "@/app/app-nav";
 import { headers } from "next/headers";
+import { BadgeCheck, MonitorCog } from "lucide-react";
 import { getPublicOperatorConfig } from "@/lib/operator/config";
 import { CopyButton } from "@/app/copy-button";
 import { listOAuthClients } from "@/lib/oauth/service";
@@ -63,10 +64,16 @@ export default async function InspectorPage() {
             Run MCP Inspector and the project local smoke client against this mock server without mixing setup tasks into Config.
           </p>
         </div>
+        <div className="page-header-actions inspector-quick-stats" aria-label="Inspector workflow summary">
+          <span><strong>3</strong> verification modes</span>
+          <span><strong>7</strong> MCP targets</span>
+          <span><strong>OAuth</strong> ready</span>
+        </div>
       </header>
 
-      <div className="focused-layout">
-        <section className="panel guide-panel" aria-labelledby="local-inspector-title">
+      <div className="inspector-workbench">
+        <section className="panel guide-panel inspector-command-card" aria-labelledby="local-inspector-title">
+          <MonitorCog className="inspector-card-icon" aria-hidden="true" />
           <h2 id="local-inspector-title">Standalone Inspector UI</h2>
           <p className="section-note">
             Launch a separate local browser page. Use its Mock Server scenario to verify REST, MCP, Basic, OAuth bearer, token revocation, audit evidence, and reset guards through UI, or use generic mode for any MCP endpoint.
@@ -77,7 +84,8 @@ export default async function InspectorPage() {
           </div>
         </section>
 
-        <section className="panel guide-panel" aria-labelledby="mock-inspector-title">
+        <section className="panel guide-panel inspector-command-card" aria-labelledby="mock-inspector-title">
+          <BadgeCheck className="inspector-card-icon" aria-hidden="true" />
           <h2 id="mock-inspector-title">Mock Server full smoke inspector</h2>
           <p className="section-note">
             This project-specific command verifies admin APIs, REST, MCP no-auth, Basic, OAuth bearer, token revocation, audit evidence, and reset guards.
@@ -88,7 +96,7 @@ export default async function InspectorPage() {
           </div>
         </section>
 
-        <section className="panel guide-panel" aria-labelledby="tls-inspector-title">
+        <section className="panel guide-panel inspector-span" aria-labelledby="tls-inspector-title">
           <h2 id="tls-inspector-title">HTTPS self-signed local flow</h2>
           <p className="section-note">
             Use app-level TLS only for local protocol/client tests. The Inspector allows self-signed certificates per run, without changing global TLS verification.
@@ -115,7 +123,7 @@ export default async function InspectorPage() {
           </div>
         </section>
 
-        <section className="panel guide-panel" aria-labelledby="upstream-title">
+        <section className="panel guide-panel inspector-span" aria-labelledby="upstream-title">
           <h2 id="upstream-title">Upstream MCP Inspector targets</h2>
           <p className="section-note">
             Start upstream Inspector with <code>npx @modelcontextprotocol/inspector</code>, then use these prefilled URLs or CLI commands. Basic and OAuth targets still need their Authorization header in Inspector.
@@ -187,7 +195,7 @@ export default async function InspectorPage() {
           </div>
         </section>
 
-        <section className="panel guide-panel" aria-labelledby="targets-title">
+        <section className="panel guide-panel inspector-span" aria-labelledby="targets-title">
           <h2 id="targets-title">Current connection targets</h2>
           <div className="guide-list">
             {[
@@ -224,7 +232,7 @@ export default async function InspectorPage() {
           </ol>
         </section>
 
-        <section className="panel guide-panel" aria-labelledby="oauth-code-title">
+        <section className="panel guide-panel inspector-span" aria-labelledby="oauth-code-title">
           <h2 id="oauth-code-title">OAuth authorization-code guide</h2>
           <p className="section-note">
             Use this when you want to verify the browser login and consent flow before pasting the Bearer token into Inspector or another MCP client.
@@ -288,7 +296,7 @@ export default async function InspectorPage() {
           </dl>
         </section>
 
-        <section className="panel guide-panel" aria-labelledby="examples-title">
+        <section className="panel guide-panel inspector-span" aria-labelledby="examples-title">
           <h2 id="examples-title">Client and curl examples</h2>
           <pre className="json-panel" aria-label="MCP client config example">{JSON.stringify(config.examples.mcpClient, null, 2)}</pre>
           <pre className="json-panel" aria-label="REST and OAuth curl examples">{Object.values(config.examples.curl).join("\n\n")}</pre>
