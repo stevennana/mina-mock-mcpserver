@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useRef, useState, type UIEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { HelpTooltip } from "@/app/help-tooltip";
 import { formatDateTime } from "@/lib/date-format";
 import type { AuditEventListResult, AuditEventSummary } from "@/lib/audit/service";
@@ -65,6 +65,7 @@ export function AuditManager({ initialData }: { initialData: AuditEventListResul
     const total = auditData.total;
     return `${shown} shown, ${total} matching`;
   }, [auditData.events.length, auditData.total]);
+  const progress = auditData.total > 0 ? Math.min(100, Math.round((auditData.events.length / auditData.total) * 100)) : 0;
 
   const loadPage = useCallback(
     async ({ cursor = null, append = false, nextFilters = filters }: { cursor?: string | null; append?: boolean; nextFilters?: AuditFilters } = {}) => {
@@ -126,12 +127,6 @@ export function AuditManager({ initialData }: { initialData: AuditEventListResul
     void loadPage({ nextFilters: filters });
   }
 
-  function handleListScroll(event: UIEvent<HTMLDivElement>) {
-    const target = event.currentTarget;
-    const remaining = target.scrollHeight - (target.scrollTop + target.clientHeight);
-    if (remaining < 160) loadNextPage();
-  }
-
   function clearFilters() {
     const next = { outcome: "all" as const, eventType: "", subject: "", query: "" };
     setFilters(next);
@@ -148,6 +143,10 @@ export function AuditManager({ initialData }: { initialData: AuditEventListResul
         <button className="secondary-button" type="button" onClick={() => void loadPage()}>
           Refresh
         </button>
+      </div>
+
+      <div className="audit-progress" aria-label={`Loaded ${auditData.events.length} of ${auditData.total} matching audit records`}>
+        <span style={{ width: `${progress}%` }} />
       </div>
 
       <div className="audit-filter-grid">
@@ -202,14 +201,7 @@ export function AuditManager({ initialData }: { initialData: AuditEventListResul
       </div>
       {loadState.message ? <p className={`form-message ${loadState.status}`}>{loadState.message}</p> : null}
 
-      <div
-        className="audit-table-shell"
-        aria-live="polite"
-        onScroll={handleListScroll}
-        onWheel={(event) => {
-          if (event.deltaY > 0) loadNextPage();
-        }}
-      >
+      <div className="audit-table-shell" aria-live="polite">
         <table className="audit-table">
           <thead>
             <tr>
@@ -259,7 +251,7 @@ export function AuditManager({ initialData }: { initialData: AuditEventListResul
             onClick={() => void loadPage({ cursor: auditData.nextCursor, append: true })}
             disabled={loadState.status === "loading"}
           >
-            Load more records
+            {loadState.status === "loading" ? "Loading records" : `Load more records (${auditData.events.length}/${auditData.total})`}
           </button>
         ) : (
           <span>End of matching records.</span>
