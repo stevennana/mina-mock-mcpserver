@@ -1,68 +1,67 @@
 # MCP Mock Server
 
-MCP Mock Server is a public remote MCP mock server and web UI for testing no-auth, Basic Auth, and mock OAuth bearer tool calls.
+MCP Mock Server is a public remote MCP mock server and web UI for testing MCP clients before they touch a real production service.
 
-You can try the hosted mock server at **https://mcp.minasoftai.com/** before running it locally.
+Try the hosted server first:
 
-Use it when you need a repeatable test target for MCP clients, agent integrations, curl/Postman checks, OAuth permission handling, failure simulation, and audit evidence.
+```text
+https://mcp.minasoftai.com/
+```
 
-## What You Get
+Use this project when you need to prove that an MCP client, agent integration, QA script, or demo can handle tool discovery, tool calls, Basic Auth, OAuth Bearer permissions, legacy SSE compatibility, failures, token revocation, and audit evidence in a repeatable mock environment.
 
-- Public admin UI for mock endpoint, Basic user, OAuth user/client, token, config, reset, and audit management
-- MCP JSON-RPC routes at `/mcp`, `/mcp/none`, `/mcp/basic`, and `/mcp/oauth`
-- REST tool routes for curl and Postman style testing
-- Mock OAuth authorization server with browser consent, authorization-code exchange, client-credentials exchange, discovery metadata, and JWKS
-- MCP Inspector helper config and scripts for interactive MCP protocol debugging
-- SQLite persistence with deterministic seed defaults
-- Operator health, reset, logs, Docker Compose, and Nginx examples
+## Is This The Project You Need?
 
-## Requirements
+This is a good fit if you want:
 
-- Node.js 22 LTS
-- npm
-- Chromium dependencies for Playwright if you plan to run E2E tests
-- Docker, optional, for containerized operation
+- a configurable mock MCP tool server with a browser admin UI
+- Streamable HTTP MCP routes and legacy SSE-compatible MCP routes
+- no-auth, strict Basic Auth, and strict OAuth Bearer test paths
+- a mock OAuth authorization server with login, consent, PKCE, client credentials, JWKS, discovery metadata, and revocation
+- REST tool list/call routes for curl, Postman, and non-MCP client checks
+- endpoint response cases, generated MCP `inputSchema`, and failure simulation
+- token inspection, audit logs, reset, health, Docker, Nginx, and local TLS guidance
+- a standalone project Inspector UI plus upstream `npx @modelcontextprotocol/inspector` examples
+
+This is not a good fit if you need production identity management, multi-tenant isolation, enterprise RBAC, external OAuth provider integration, or a complete MCP resources/prompts/sampling server.
+
+## Current Version
+
+Latest documented release: `v1.0.9`
+
+Highlights:
+
+- product-grade Mock Server admin navigation with bundled SVG icons
+- standalone Inspector UI with focused Mock scenario, Generic target, and OAuth popup pages
+- Streamable HTTP and legacy SSE-compatible MCP routes
+- upstream MCP Inspector browser and CLI verification paths
+- OAuth authorization-code with PKCE, client credentials, Bearer permission filtering, and token revocation
 
 ## Quick Start
 
-1. Install dependencies.
+```bash
+npm install
+npm run db:prepare
+npm run dev
+```
 
-   ```bash
-   npm install
-   ```
+Open:
 
-2. Prepare the SQLite database and seed defaults.
+```text
+http://127.0.0.1:3100
+```
 
-   ```bash
-   npm run db:prepare
-   ```
+Health check:
 
-3. Start the local development server.
+```bash
+curl http://127.0.0.1:3100/api/health
+```
 
-   ```bash
-   npm run dev
-   ```
+The development server uses port `3100`. Docker Compose exposes port `3000`.
 
-4. Open the admin UI.
+## Fastest End-To-End Verification
 
-   ```text
-   http://127.0.0.1:3100
-   ```
-
-5. Check health.
-
-   ```bash
-   curl http://127.0.0.1:3100/api/health
-   ```
-
-The local development server uses port `3100`. Docker Compose exposes port `3000`.
-`npm run db:prepare` is idempotent: it creates missing seed defaults but does not delete existing local endpoints, clients, tokens, or audit events. Use reset when you want a clean seeded runtime.
-
-## Verify Everything Locally
-
-### Standalone Inspector UI
-
-Use the standalone Inspector UI when you want a local browser page for a broad Mock Server scenario, a portable MCP endpoint check, or the Mock OAuth browser authorization flow:
+Run the project-owned standalone Inspector:
 
 ```bash
 npm run inspector:ui
@@ -74,668 +73,69 @@ Open:
 http://127.0.0.1:3200
 ```
 
-The standalone Inspector opens to a choice screen with **Mock scenario**, **Generic MCP target**, and **OAuth popup flow**. Direct URLs are also available:
+Use:
 
-```text
-http://127.0.0.1:3200/mock
-http://127.0.0.1:3200/generic
-http://127.0.0.1:3200/oauth
-```
+- **Mock Server scenario** for broad E2E coverage across admin APIs, REST, MCP, Basic Auth, OAuth, tokens, audit, reset guard, and cleanup.
+- **Generic MCP target** for one MCP endpoint, including no-auth, Basic, Bearer, optional `tools/call`, and raw evidence.
+- **OAuth popup flow** for browser login, consent, PKCE code exchange, and final Bearer MCP verification in Generic MCP Target.
 
-For the broad Mock Server scenario, keep the default base URL:
+## Main Routes
 
-```text
-http://127.0.0.1:3100
-```
+| Area | Routes |
+|---|---|
+| Admin UI | `/`, `/endpoints`, `/basic-users`, `/oauth-users`, `/oauth-clients`, `/tokens`, `/config`, `/inspector`, `/audit`, `/reset` |
+| Streamable HTTP MCP | `/mcp`, `/mcp/none`, `/mcp/basic`, `/mcp/oauth` |
+| Legacy SSE MCP | `/sse`, `/sse/none`, `/sse/basic`, `/sse/oauth` plus matching `/message` POST routes |
+| REST tools | `/rest/tools`, `/rest/tools/{tool_name}/call` |
+| OAuth | `/oauth/authorize`, `/oauth/login`, `/oauth/consent`, `/oauth/token`, `/oauth/revoke`, `/oauth/jwks` |
+| Discovery | `/.well-known/oauth-authorization-server`, `/.well-known/oauth-protected-resource`, `/.well-known/openid-configuration` |
+| Operations API | `/api/health`, `/api/config`, `/api/reset`, `/api/audit` |
 
-Then click **Run Mock Server scenario**. The UI creates temporary endpoint, Basic user, OAuth user, OAuth client, and token records; verifies the main REST/MCP/Auth flows; and cleans up mutable temporary records when it finishes. Scenario results show progress while the run is active and keep the completed progress checklist visible afterward. After completion, results are shown as counters, diagnostics, and sequential step cards so you can inspect each test one at a time. Each scenario step shows **Send to Generic MCP target** directly on the step card; it opens the generic page and fills a repeatable seeded `echo` test so you can rerun the protocol call yourself. Hover or focus the `?` markers beside scenario steps and input labels to see what each MCP/OAuth/REST check or option is for.
-The page remembers recent target URLs, protocol version, self-signed TLS preference, and optional tool name in your browser only. It does not store extra headers, Basic passwords, Bearer tokens, client secrets, root passwords, reset choices, or tool argument payloads.
+## Documentation Map
 
-The scenario covers:
+Start here:
 
-- health, public config, OAuth discovery metadata, protected-resource metadata, and JWKS
-- endpoint create/detail/update, REST list/call, MCP list/call, forced-error response case, and cleanup
-- Basic Auth creation, strict Basic MCP success, disabled-user rejection, and cleanup
-- OAuth `client_credentials`, Bearer permission filtering, allowed call, denied call, token listing, revocation, and revoked-token rejection
-- audit evidence and invalid reset-credential rejection
+- [Feature overview](docs/FEATURES.md)
+- [Getting started guide](docs/GETTING_STARTED.md)
+- [MCP transports, SSE, REST, and OAuth calls](docs/TRANSPORTS.md)
+- [Inspector integration](docs/INSPECTOR.md)
 
-Root reset is skipped unless you explicitly enable the destructive reset checkbox and provide the root password.
+Inspector-specific guides:
 
-This broad scenario is the fastest user-facing proof that the standalone Inspector can reach the Mock Server and exercise the server's protocol/runtime surfaces. It intentionally uses the non-interactive OAuth `client_credentials` grant so the whole scenario can run from one button. To verify the browser authorization-code and consent flow, use the standalone **OAuth popup flow** at `/oauth`.
+- [Upstream MCP Browser Inspector guide](MCPBrowserInspector.md)
+- [Mina hosted Inspector E2E guide](MinaInspector.md)
 
-The Mock Server admin UI also has an `/inspector` page. Open **Operations > Inspector** when you want copy-ready commands plus an OAuth authorization-code guide generated from the current base URL and OAuth client state. That page shows the authorization URL, token exchange curl, Bearer MCP curl, issuer, token endpoint, selected client, redirect callback origin, and allowed endpoint count.
+Operator and architecture docs:
 
-For a portable generic MCP check, enter an MCP endpoint URL such as:
+- [Operator handoff](docs/OPERATOR_HANDOFF.md)
+- [Frontend route and UX map](docs/FRONTEND.md)
+- [Architecture](ARCHITECTURE.md)
+- [Product sense](docs/PRODUCT_SENSE.md)
 
-```text
-http://127.0.0.1:3100/mcp/none
-```
-
-Then click **Run generic inspection**. The page runs from its own lightweight local server, so browser CORS does not block calls to local MCP targets. It checks:
-
-- `initialize`
-- `tools/list`
-- optional `tools/call`
-- protocol-version response evidence
-- an unsupported protocol-version probe
-
-Use **Mock route preset** when you want the page to fill `/mcp/none`, `/mcp/basic`, or `/mcp/oauth` from the Mock Server base URL. The Basic preset fills the seeded `default/default` test credentials. For the OAuth preset, click **Issue Mock OAuth token** to request a standard `client_credentials` token from the Mock Server and fill the Bearer field. Use **Authorization helper** directly for other Basic username/password or Bearer token calls. Use **Extra headers JSON** for API keys or custom headers:
-
-```json
-{"Authorization":"Bearer ey..."}
-```
-
-If your target is a local HTTPS server with a self-signed certificate, enable **Allow self-signed HTTPS for this run**. Keep it off for public or production-like targets.
-
-The Generic MCP target page also includes **Copy target config JSON**, **Import target config JSON**, and a compact request history for the current browser tab. The copied config intentionally excludes passwords and Bearer tokens.
-
-Use **OAuth popup flow** at `/oauth` when you want to verify the full Mock OAuth browser path. The page prepares a temporary local callback client, opens the Mock Server login/consent pages in a popup, captures the returned authorization code, exchanges it with PKCE S256, and sends the Bearer token into the Generic MCP target page for `/mcp/oauth` verification. The seeded OAuth login user is `default` / `default`.
-
-The Mock Server MCP routes also allow browser-based Inspector origins directly. `/mcp`, `/mcp/none`, `/mcp/basic`, `/mcp/oauth`, `/sse`, `/sse/none`, `/sse/basic`, and `/sse/oauth` answer `OPTIONS` preflight requests and return `Access-Control-Allow-Origin: *` on protocol responses so the upstream MCP Inspector UI can call them from `http://localhost:6274`.
-
-### Upstream MCP Inspector
-
-Use the upstream Inspector when you want to confirm compatibility with the standard MCP debugging tool:
-
-```bash
-npx @modelcontextprotocol/inspector
-```
-
-Open the no-auth Streamable HTTP target:
-
-```text
-http://localhost:6274/?transport=streamable-http&serverUrl=http%3A%2F%2F127.0.0.1%3A3100%2Fmcp%2Fnone
-```
-
-Open the no-auth legacy SSE target:
-
-```text
-http://localhost:6274/?transport=sse&serverUrl=http%3A%2F%2F127.0.0.1%3A3100%2Fsse%2Fnone
-```
-
-For Basic Auth, use `/mcp/basic` or `/sse/basic` and add this request header in Inspector:
-
-```text
-Authorization: Basic ZGVmYXVsdDpkZWZhdWx0
-```
-
-For OAuth, issue a test Bearer token:
-
-```bash
-TOKEN="$(
-  curl -sS -X POST http://127.0.0.1:3100/oauth/token \
-    -H 'content-type: application/x-www-form-urlencoded' \
-    -d 'grant_type=client_credentials' \
-    -d 'client_id=default' \
-    -d 'client_secret=default' \
-    -d 'resource=mcp-mock-server' \
-  | node -e "let d='';process.stdin.on('data',c=>d+=c);process.stdin.on('end',()=>console.log(JSON.parse(d).access_token))"
-)"
-```
-
-Then use `/mcp/oauth` or `/sse/oauth` and add:
-
-```text
-Authorization: Bearer PASTE_TOKEN_HERE
-```
-
-CLI checks are also available:
-
-```bash
-npm run inspector:cli:list
-npm run inspector:cli:basic:list
-npm run inspector:cli:sse:list
-```
-
-To verify a deployed container, replace the encoded `serverUrl` with your HTTPS host, for example `https%3A%2F%2Fmcp.minasoftai.com%2Fmcp%2Fnone`. The repository also includes `config/mcp-inspector.remote.json` with remote Streamable HTTP and SSE targets.
-
-Use a different port if `3200` is already taken:
-
-```bash
-npm run inspector:ui -- --port 3201
-```
-
-### Mock Server Full Smoke Inspector
-
-After the server is running, use the project-specific local inspector to confirm that the Mock Server works from a user's machine:
-
-```bash
-npm run inspector:mock
-```
-
-The inspector connects to `http://127.0.0.1:3100`, creates temporary test data, exercises the public runtime paths, and removes mutable test records before it exits.
-It also prints a final protocol diagnostics report so users can confirm the target URL, OAuth discovery linkage, MCP protocol negotiation, Bearer challenge metadata, JWT audience, permission filtering, denial, revocation, and cleanup mode in one place.
-
-It verifies:
-
-- health and public operator config
-- OAuth discovery metadata and JWKS
-- endpoint create, detail, update, REST call, MCP call, forced error, and cleanup
-- Basic Auth user creation, strict Basic MCP access, disable behavior, and cleanup
-- OAuth user/client creation, `client_credentials` token issuance, Bearer permission filtering, denied calls, token listing, revocation, and revoked-token rejection
-- audit evidence and reset denial for invalid root credentials
-
-Expected ending:
-
-```text
-== Protocol diagnostics
-...
-Inspector completed successfully.
-```
-
-Use a different target when testing a production-style local server or container:
-
-```bash
-npm run inspector:mock -- --base-url http://127.0.0.1:3000
-```
-
-Use `--insecure-tls` only for local HTTPS targets that use a self-signed or untrusted certificate:
-
-```bash
-npm run inspector:mock -- --base-url https://127.0.0.1:3443 --insecure-tls
-```
-
-Root reset is destructive, so the inspector skips it by default. Only include it when you intentionally want to verify reset behavior:
-
-```bash
-ROOT_PASSWORD='change-this' npm run inspector:mock -- --include-reset
-```
-
-Audit entries and issued-token history may remain as non-secret evidence. Temporary endpoint, Basic user, OAuth user, and OAuth client records are cleaned up.
-
-## Seed Defaults
-
-After `npm run db:prepare`, the app creates:
-
-- Endpoint: `echo`
-- Endpoint parameter: `message`
-- Exact-match response case: `{"message":"hello"}` returns `{"ok":true,"message":"world"}`
-- Default Basic user: `default` / `default`
-- Default OAuth login user: `default` / `default`
-- Default OAuth client: `default` / `default`
-- Default OAuth redirect URI: `http://localhost:3000/oauth/callback`
-
-The built-in Basic user, OAuth user, OAuth client, and default endpoint are protected from normal destructive changes.
-If your local database already contains previous test records, they will remain after `db:prepare`. For a clean manual demo, use the reset flow below with `ROOT_PASSWORD` set, or remove the local SQLite file before preparing state.
-
-## Authentication And MCP Flow Maps
-
-Use these flow maps before the step-by-step guide if you want to understand which route, credential, and token is involved in each test.
-
-### No-Auth MCP Tool Call
-
-Use this path when you only need to verify that an MCP client can connect, negotiate the protocol, list tools, and call a mock tool.
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Client as MCP client or Inspector
-    participant MCP as Mock Server /mcp/none
-    participant Runtime as Endpoint runtime
-    participant DB as SQLite state
-
-    Client->>MCP: initialize<br/>MCP-Protocol-Version: 2025-06-18
-    MCP-->>Client: negotiated protocol version
-    Client->>MCP: tools/list
-    MCP->>DB: load enabled endpoints
-    DB-->>MCP: endpoint definitions
-    MCP-->>Client: tools with generated inputSchema
-    Client->>MCP: tools/call<br/>name: echo<br/>arguments: {"message":"hello"}
-    MCP->>Runtime: match endpoint response case
-    Runtime->>DB: read parameters, cases, failure settings
-    DB-->>Runtime: endpoint runtime config
-    Runtime-->>MCP: structuredContent and text content
-    MCP-->>Client: JSON-RPC result
-```
-
-### Basic Auth MCP Tool Call
-
-Use this path when a client must prove it can send an HTTP Basic credential and handle strict `401` failures.
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Client as MCP client or curl
-    participant MCP as Mock Server /mcp/basic
-    participant Auth as Basic Auth service
-    participant Runtime as Endpoint runtime
-    participant DB as SQLite state
-
-    Client->>MCP: tools/list or tools/call<br/>Authorization: Basic base64(username:password)
-    MCP->>Auth: validate Basic header
-    Auth->>DB: find enabled Basic user
-    DB-->>Auth: password hash and enabled state
-    alt credential is valid
-        Auth-->>MCP: authenticated principal
-        MCP->>Runtime: list or call enabled tools
-        Runtime->>DB: read endpoint definitions
-        DB-->>Runtime: endpoint runtime config
-        Runtime-->>MCP: tool list or call result
-        MCP-->>Client: 200 JSON-RPC response
-    else credential is missing, invalid, or disabled
-        Auth-->>MCP: authentication failure
-        MCP-->>Client: 401 WWW-Authenticate: Basic
-    end
-```
-
-### OAuth Authorization-Code MCP Tool Call
-
-Use this path when you want to test the browser consent flow that many real remote MCP integrations use.
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Browser as User browser
-    participant OAuth as Mock OAuth server
-    participant Client as OAuth client app
-    participant MCP as Mock Server /mcp/oauth
-    participant Runtime as Endpoint runtime
-    participant DB as SQLite state
-
-    Browser->>OAuth: GET /oauth/authorize<br/>client_id, redirect_uri, resource, state
-    OAuth->>DB: validate OAuth client and redirect URI
-    DB-->>OAuth: client and allowed endpoint set
-    OAuth-->>Browser: login page
-    Browser->>OAuth: submit OAuth username/password
-    OAuth->>DB: validate enabled OAuth user
-    DB-->>OAuth: OAuth user
-    OAuth-->>Browser: consent page with endpoint checklist
-    Browser->>OAuth: approve selected endpoints
-    OAuth->>DB: store single-use authorization code and selected endpoint permissions
-    OAuth-->>Browser: redirect to redirect_uri?code=...&state=...
-    Browser-->>Client: callback URL with code
-    Client->>OAuth: POST /oauth/token<br/>grant_type=authorization_code<br/>code, client_id, client_secret
-    OAuth->>DB: validate code, client secret, redirect URI
-    DB-->>OAuth: selected endpoint permissions
-    OAuth-->>Client: Bearer JWT access token
-    Client->>MCP: tools/list or tools/call<br/>Authorization: Bearer token
-    MCP->>OAuth: validate JWT, audience, expiration, revocation, permissions
-    OAuth->>DB: check issued-token status
-    DB-->>OAuth: active token record
-    alt token permits the endpoint
-        MCP->>Runtime: run permitted tool
-        Runtime->>DB: read endpoint runtime config
-        DB-->>Runtime: response case and failure settings
-        Runtime-->>MCP: tool result
-        MCP-->>Client: 200 JSON-RPC response
-    else token is valid but endpoint is not permitted
-        MCP-->>Client: 403 forbidden
-    else token is missing, invalid, expired, revoked, or wrong audience
-        MCP-->>Client: 401 Bearer challenge
-    end
-```
-
-### OAuth Client-Credentials MCP Tool Call
-
-Use this path when you want non-interactive service-to-service token issuance. The standalone Mock Server scenario uses this grant so the full verification can run from one button.
-
-```mermaid
-sequenceDiagram
-    autonumber
-    participant Client as MCP client or Inspector
-    participant OAuth as Mock OAuth server
-    participant MCP as Mock Server /mcp/oauth
-    participant Runtime as Endpoint runtime
-    participant DB as SQLite state
-
-    Client->>OAuth: POST /oauth/token<br/>grant_type=client_credentials<br/>client_id, client_secret, resource
-    OAuth->>DB: validate enabled OAuth client
-    DB-->>OAuth: client TTL and allowed endpoint set
-    OAuth-->>Client: Bearer JWT with endpoint permissions
-    Client->>MCP: tools/list<br/>Authorization: Bearer token
-    MCP->>OAuth: validate token and permissions
-    OAuth->>DB: check token status
-    DB-->>OAuth: active token record
-    MCP-->>Client: only permitted tools
-    Client->>MCP: tools/call for permitted tool
-    MCP->>Runtime: match response case
-    Runtime->>DB: read endpoint runtime config
-    DB-->>Runtime: response case and failure settings
-    Runtime-->>MCP: tool result
-    MCP-->>Client: 200 JSON-RPC response
-    Client->>OAuth: POST /api/oauth/tokens/{jti}/revoke
-    OAuth->>DB: mark token revoked
-    DB-->>OAuth: revoked token record
-    Client->>MCP: retry with revoked token
-    MCP-->>Client: 401 invalid_token
-```
-
-## Step 1: Create Or Edit A Mock Tool
-
-1. Open `http://127.0.0.1:3100/endpoints`.
-2. Select the seeded `echo` endpoint to open its overview, or click **Create** to add a new endpoint.
-3. Use the endpoint sub-navigation for the task you need:
-   - **Edit** for name, description, enabled state, and delete code.
-   - **Parameters** for up to three parameters and the generated MCP `inputSchema`.
-   - **Responses** for the default response and exact `matchArgsJson` response cases.
-   - **Failure** for delay, forced error, malformed JSON, wrong content type, or empty body behavior.
-   - **Console** for REST/MCP test evidence.
-4. Save each focused page before moving to the next one.
-
-The tool name is the endpoint `name`. For example, the seeded endpoint is called as `echo`.
-
-## Step 2: Call A Tool Through REST
-
-List enabled tools:
-
-```bash
-curl http://127.0.0.1:3100/rest/tools
-```
-
-Call the seeded `echo` tool:
-
-```bash
-curl -X POST http://127.0.0.1:3100/rest/tools/echo/call \
-  -H 'content-type: application/json' \
-  -d '{"arguments":{"message":"hello"}}'
-```
-
-Expected response:
-
-```json
-{"ok":true,"message":"world"}
-```
-
-Call with Basic Auth:
-
-```bash
-curl -u default:default http://127.0.0.1:3100/rest/tools
-```
-
-## Step 3: Call A Tool Through MCP
-
-### With MCP Inspector
-
-Start the local server, then launch the upstream MCP Inspector against the no-auth MCP route:
-
-```bash
-npm run inspector:mcp:none
-```
-
-Use Inspector to run `initialize`, inspect `tools/list`, review generated schemas, and call tools through `tools/call`.
-This project keeps Inspector as an external `npx` tool instead of vendoring its source.
-
-Quick CLI checks:
-
-```bash
-npm run inspector:cli:list
-npm run inspector:cli:call:echo
-npm run inspector:cli:basic:list
-```
-
-See `docs/INSPECTOR.md` for the full local inspector, OAuth Bearer examples, configured targets, security notes, and licensing notes.
-
-### With curl
-
-Initialize the no-auth MCP route:
-
-```bash
-curl -X POST http://127.0.0.1:3100/mcp/none \
-  -H 'content-type: application/json' \
-  -H 'accept: application/json, text/event-stream' \
-  -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"curl","version":"1.0.0"}}}'
-```
-
-List MCP tools:
-
-```bash
-curl -X POST http://127.0.0.1:3100/mcp/none \
-  -H 'content-type: application/json' \
-  -H 'accept: application/json, text/event-stream' \
-  -H 'MCP-Protocol-Version: 2025-06-18' \
-  -d '{"jsonrpc":"2.0","id":2,"method":"tools/list"}'
-```
-
-Call the seeded `echo` tool:
-
-```bash
-curl -X POST http://127.0.0.1:3100/mcp/none \
-  -H 'content-type: application/json' \
-  -H 'accept: application/json, text/event-stream' \
-  -H 'MCP-Protocol-Version: 2025-06-18' \
-  -d '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"echo","arguments":{"message":"hello"}}}'
-```
-
-Use the strict Basic route:
-
-```bash
-curl -X POST http://127.0.0.1:3100/mcp/basic \
-  -u default:default \
-  -H 'content-type: application/json' \
-  -H 'accept: application/json, text/event-stream' \
-  -H 'MCP-Protocol-Version: 2025-06-18' \
-  -d '{"jsonrpc":"2.0","id":4,"method":"tools/list"}'
-```
-
-## Step 4: Test OAuth Bearer Permissions
-
-For browser authorization-code flow:
-
-1. Open `http://127.0.0.1:3100/oauth-clients`.
-2. Create or inspect a client and make sure it allows the endpoint you want to test.
-3. Start an authorization request in the browser:
-
-   ```text
-   http://127.0.0.1:3100/oauth/authorize?response_type=code&client_id=default&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Foauth%2Fcallback&resource=http%3A%2F%2F127.0.0.1%3A3100&state=demo
-   ```
-
-4. Log in with `default` / `default`.
-5. Select endpoint permissions on the consent page.
-6. Copy the `code` from the redirect URL. The default redirect URI points to `http://localhost:3000/oauth/callback`; if nothing is listening there, your browser may show a "site can't be reached" page. That is expected for this mock flow. Copy the `code` query parameter from that failed callback URL.
-7. Exchange the code for a token:
-
-   ```bash
-   curl -X POST http://127.0.0.1:3100/oauth/token \
-     -H 'content-type: application/x-www-form-urlencoded' \
-     -d 'grant_type=authorization_code' \
-     -d 'code=PASTE_CODE_HERE' \
-     -d 'redirect_uri=http://localhost:3000/oauth/callback' \
-     -d 'client_id=default' \
-     -d 'client_secret=default'
-   ```
-
-8. Call the OAuth MCP route:
-
-   ```bash
-   curl -X POST http://127.0.0.1:3100/mcp/oauth \
-     -H 'content-type: application/json' \
-     -H 'accept: application/json, text/event-stream' \
-     -H 'MCP-Protocol-Version: 2025-06-18' \
-     -H 'authorization: Bearer PASTE_ACCESS_TOKEN_HERE' \
-     -d '{"jsonrpc":"2.0","id":5,"method":"tools/list"}'
-   ```
-
-For non-interactive client credentials:
-
-```bash
-curl -X POST http://127.0.0.1:3100/oauth/token \
-  -H 'content-type: application/x-www-form-urlencoded' \
-  -d 'grant_type=client_credentials' \
-  -d 'client_id=default' \
-  -d 'client_secret=default' \
-  -d 'resource=http://127.0.0.1:3100'
-```
-
-OAuth tokens are permission-bound. Valid tokens without a selected endpoint return `403` for that endpoint. Invalid, expired, revoked, or mismatched tokens return `401`.
-
-## Step 5: Inspect Tokens And Audit Events
-
-1. Open `http://127.0.0.1:3100/tokens`.
-2. Filter by status, grant type, subject, or client.
-3. Open a token to inspect claims and endpoint permissions.
-4. Revoke a token to make future Bearer calls fail.
-5. Open `http://127.0.0.1:3100/audit` to inspect mutation and security-relevant evidence.
-
-Raw access tokens are shown only at issuance. Stored token records keep metadata and `jti`, not the raw token value.
-
-## Step 6: Simulate Failures
-
-1. Open `http://127.0.0.1:3100/endpoints`.
-2. Select an endpoint.
-3. Open the endpoint's **Failure** page.
-4. Configure delay, forced error, malformed JSON, wrong content type, or empty body behavior.
-5. Save the endpoint.
-6. Open the endpoint's **Console** page, or call it through REST or MCP.
-7. Check `http://127.0.0.1:3100/audit` for failure-simulation evidence.
-
-Delays are bounded to protect the test server from unbounded waits.
-
-## Operator Configuration
-
-Set a root password before using reset or protected delete override flows:
-
-```bash
-ROOT_PASSWORD='change-this' npm run dev
-```
-
-Useful environment variables:
-
-| Variable | Default | Purpose |
-|---|---|---|
-| `DATABASE_URL` | `file:./data/runtime.sqlite` | SQLite database path |
-| `PORT` | `3100` for helper scripts, `3000` in Docker | Server port |
-| `HOST` | `127.0.0.1` for logged start, `0.0.0.0` in Docker | Bind host |
-| `APP_BASE_URL` | inferred from request, then `http://localhost:3000` fallback | Public issuer and URL generation |
-| `ROOT_PASSWORD` | unset | Reset and protected delete override password |
-| `LOG_LEVEL` | `info` | `trace`, `debug`, `info`, `warn`, or `error` |
-| `TLS_CERT_FILE` | unset | PEM certificate path for app-level HTTPS test starts |
-| `TLS_KEY_FILE` | unset | PEM private key path for app-level HTTPS test starts |
-| `TLS_CA_FILE` | unset | Optional CA bundle path for app-level HTTPS test starts |
-| `TLS_KEY_PASSPHRASE` | unset | Optional private-key passphrase for app-level HTTPS test starts |
-| `OAUTH_JWT_PRIVATE_KEY_PEM` | development key | RS256 signing key for mock OAuth tokens |
-
-If `APP_BASE_URL` is set, it takes precedence over request headers for generated MCP, REST, OAuth discovery, and curl URLs.
-The `/config` page is read-only at runtime; change public URL behavior by restarting with the desired environment variables or trusted proxy headers.
-
-## Production-Style Local Start
-
-Build, prepare state, start a logged server, and write logs under `logs/`:
-
-```bash
-npm run build
-npm run db:prepare
-PORT=3000 HOST=0.0.0.0 ROOT_PASSWORD='change-this' LOG_LEVEL=info npm run start:logged
-```
-
-Then open:
-
-```text
-http://127.0.0.1:3000
-```
-
-Run a startup smoke check:
-
-```bash
-npm run start:smoke
-```
-
-## Local App-Level TLS
-
-Nginx or another reverse proxy is still the preferred TLS termination layer for public deployments. For local protocol/client tests, you can run MCP Mock Server directly over HTTPS.
-
-Create a short-lived self-signed localhost certificate:
-
-```bash
-npm run cert:dev
-```
-
-Build, prepare state, and start the HTTPS server:
-
-```bash
-npm run build
-npm run db:prepare
-TLS_CERT_FILE=certs/localhost-cert.pem \
-TLS_KEY_FILE=certs/localhost-key.pem \
-PORT=3443 \
-APP_BASE_URL=https://127.0.0.1:3443 \
-npm run start:tls
-```
-
-Then open:
-
-```text
-https://127.0.0.1:3443
-```
-
-Self-signed certificates are not trusted by default. Browser and curl clients may require a local trust exception or `curl -k`:
-
-```bash
-curl -k https://127.0.0.1:3443/api/health
-```
-
-Use the same TLS variables with logged operation when you want HTTPS plus `logs/` output:
-
-```bash
-TLS_CERT_FILE=certs/localhost-cert.pem TLS_KEY_FILE=certs/localhost-key.pem PORT=3443 npm run start:logged
-```
-
-Run the automated TLS startup smoke check when you want to prove certificate generation, HTTPS startup, health, and public config TLS reporting in one command:
-
-```bash
-npm run start:tls:smoke
-```
-
-## Docker Compose
-
-1. Edit `docker-compose.yml`.
-2. Change `ROOT_PASSWORD`.
-3. Set `APP_BASE_URL` to the public origin if exposing the server.
-4. Start the server.
-
-```bash
-docker compose up --build
-```
-
-The compose setup persists SQLite data in the `mcp-mock-data` volume and logs in the `mcp-mock-logs` volume.
-
-## Nginx
-
-Use `deploy/nginx.conf` as a starting point when proxying to a server on `127.0.0.1:3000`.
-
-For public deployments:
-
-- Terminate TLS with your certificate tooling.
-- Forward `Host`, `X-Forwarded-Host`, and `X-Forwarded-Proto`.
-- Set `APP_BASE_URL` to the final public `https://` origin when possible.
-- Use app-level TLS only for local tests or controlled integration labs; prefer the reverse proxy for public TLS.
-- Do not store sensitive customer data in this mock server.
-
-## Reset To Defaults
-
-1. Set `ROOT_PASSWORD`.
-2. Open `http://127.0.0.1:3100/reset`.
-3. Enter the exact confirmation text shown by the UI.
-4. Enter the root password.
-5. Submit reset.
-
-Reset deletes mutable runtime state and recreates the seed endpoint, Basic user, OAuth user, and OAuth client.
-
-## Validation
-
-Run the full deterministic gate:
-
-```bash
-npm run verify
-```
-
-Run smaller checks while iterating:
+## Common Commands
 
 ```bash
 npm run lint
 npm run typecheck
-npm run build
 npm run test:unit
 npm run test:e2e
-npm run start:smoke
+npm run verify
 ```
 
-`npm run test:e2e` starts its own isolated Playwright server on `http://127.0.0.1:3101` with `data/e2e-runtime.sqlite`, so it can run while your manual `npm run dev` server remains on `http://127.0.0.1:3100`.
-Set a different E2E port only if `3101` is already in use:
+Inspector helpers:
 
 ```bash
-E2E_PORT=3111 npm run test:e2e
+npm run inspector:ui
+npm run inspector:mock
+npm run inspector:mcp:none
+npm run inspector:cli:list
+npm run inspector:cli:call:echo
+npm run inspector:cli:basic:list
+npm run inspector:cli:sse:list
 ```
 
 ## Public Admin Warning
 
-The admin UI and mutation APIs are intentionally public for the MVP. Use this server for mock data, demos, QA, and integration testing. Do not store sensitive customer data, production secrets, or real identity data.
+The admin UI and mutation APIs are intentionally public for mock-server use. Use mock data only. Do not store sensitive customer data, production secrets, or real identity data.
+
+Destructive reset and protected delete flows use root-password or delete-code checks, but this is not an enterprise authorization system.

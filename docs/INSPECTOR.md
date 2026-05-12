@@ -1,5 +1,14 @@
 # MCP Inspector Integration
 
+Related entry points:
+
+- [README](../README.md) for the short project overview
+- [Feature overview](FEATURES.md) for the full surface map
+- [Getting started](GETTING_STARTED.md) for step-by-step local verification
+- [Transports](TRANSPORTS.md) for copy-ready MCP, SSE, REST, and OAuth calls
+- [Upstream browser Inspector guide](../MCPBrowserInspector.md) for screenshots
+- [Mina hosted Inspector E2E guide](../MinaInspector.md) for hosted-server verification
+
 ## Purpose
 
 MCP Mock Server integrates with the upstream MCP Inspector as the recommended interactive MCP protocol debugger.

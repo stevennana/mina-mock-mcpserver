@@ -1,21 +1,31 @@
 # Mina Inspector E2E Guide
 
-This guide documents an end-to-end verification run against the deployed MCP Mock Server at:
+This guide documents an end-to-end verification run using the project-owned standalone Inspector UI.
+
+For the project overview and complete feature map, start with:
+
+- [README](README.md)
+- [Feature overview](docs/FEATURES.md)
+- [Getting started](docs/GETTING_STARTED.md)
+- [MCP transports, SSE, REST, and OAuth calls](docs/TRANSPORTS.md)
+- [Inspector integration](docs/INSPECTOR.md)
+
+This guide focuses on the hosted MCP Mock Server at:
 
 ```text
 https://mcp.minasoftai.com
 ```
 
-Test date: 2026-05-11  
 Inspector used: local standalone project inspector at `http://127.0.0.1:3200`
 
-> Note: the deployment was identified by the operator as `v1.0.2`, but `/api/health` currently reports `"version":"1.0.0"`. The protocol and UI flows below passed against the deployed server.
+The guide applies to the current documented release line, including `v1.0.9`. Screenshots may show earlier local data, but the flow names and expected outcomes remain the same.
 
 ## Result Summary
 
 | Flow | Target | Result |
 | --- | --- | --- |
 | Generic MCP no-auth inspection | `https://mcp.minasoftai.com/mcp/none` | Pass 4, Fail 0 |
+| Generic legacy SSE inspection | `https://mcp.minasoftai.com/sse/none` | Pass when upstream Inspector uses `transport=sse` |
 | Full Mock Server scenario | `https://mcp.minasoftai.com` | Pass 10, Skip 1, Fail 0 |
 | OAuth authorization-code + PKCE + Bearer MCP | `https://mcp.minasoftai.com/mcp/oauth` | Pass 4, Fail 0 |
 
@@ -96,6 +106,29 @@ Expected result:
 
 ![Mock scenario pass](docs/screenshots/mina-inspector/05-mock-scenario-remote-pass.png)
 
+## 3.5. Verify Legacy SSE With Upstream Inspector
+
+The project-owned Inspector focuses on Streamable HTTP MCP calls. To verify legacy SSE compatibility for the hosted server, use upstream Inspector:
+
+```bash
+npx @modelcontextprotocol/inspector
+```
+
+Open:
+
+```text
+http://localhost:6274/?transport=sse&serverUrl=https%3A%2F%2Fmcp.minasoftai.com%2Fsse%2Fnone
+```
+
+Expected result:
+
+- Inspector connects with `transport=sse`
+- the SSE stream emits an endpoint message route
+- `initialize` and `tools/list` succeed
+- the seeded `echo` tool appears
+
+For Basic or OAuth SSE, use `/sse/basic` or `/sse/oauth` and add the same `Authorization` header used for Streamable HTTP checks.
+
 ## 4. Verify OAuth Authorization-Code Flow
 
 Open **OAuth popup flow**.
@@ -151,3 +184,4 @@ Expected result:
 - The inspector intentionally does not store OAuth client secrets, authorization codes, code verifiers, or Bearer tokens in persistent browser storage.
 - The broad Mock Server scenario creates temporary endpoint, Basic user, OAuth user, OAuth client, and token records, then cleans up mutable temporary records at the end.
 - The Codex in-app browser blocks popup windows, so the same-tab fallback is required there. This fallback still validates the same authorization-code, consent, PKCE exchange, and Bearer MCP flow.
+- Use [MCP Browser Inspector Guide](MCPBrowserInspector.md) for upstream Inspector screenshots and [docs/TRANSPORTS.md](docs/TRANSPORTS.md) for copy-ready Streamable HTTP, SSE, REST, and OAuth commands.

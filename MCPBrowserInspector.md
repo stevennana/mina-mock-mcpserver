@@ -3,6 +3,15 @@
 This guide shows how to verify MCP Mock Server from the upstream MCP Inspector browser UI.
 It uses the Inspector page at `http://localhost:6274` and the Mock Server at `http://127.0.0.1:3100`.
 
+For the project overview and complete feature map, start with:
+
+- [README](README.md)
+- [Feature overview](docs/FEATURES.md)
+- [MCP transports, SSE, REST, and OAuth calls](docs/TRANSPORTS.md)
+- [Inspector integration](docs/INSPECTOR.md)
+
+This guide is focused only on the upstream Inspector browser UI. For the project-owned standalone Inspector UI, use [Mina Inspector E2E Guide](MinaInspector.md) or run `npm run inspector:ui`.
+
 ## Prerequisites
 
 Start MCP Mock Server:
@@ -79,6 +88,13 @@ Expected result:
 
 ## 4. Verify Legacy SSE Transport
 
+MCP Mock Server supports legacy-style SSE compatibility routes in addition to Streamable HTTP:
+
+- `/sse`
+- `/sse/none`
+- `/sse/basic`
+- `/sse/oauth`
+
 Open this URL:
 
 ```text
@@ -127,6 +143,12 @@ Expected result:
 
 ![Basic Auth tools list](docs/assets/mcp-browser-inspector/07-basic-tools-list.png)
 
+For Basic SSE, use the same header with:
+
+```text
+http://localhost:6274/?MCP_PROXY_AUTH_TOKEN=PASTE_PROXY_TOKEN&transport=sse&serverUrl=http%3A%2F%2F127.0.0.1%3A3100%2Fsse%2Fbasic
+```
+
 ## 6. Verify OAuth Bearer
 
 Issue a local OAuth token with the seeded `default/default` client:
@@ -169,6 +191,32 @@ Expected result:
 The screenshot below intentionally keeps the Authentication panel closed so the Bearer token is not visible.
 
 ![OAuth tools list](docs/assets/mcp-browser-inspector/08-oauth-tools-list.png)
+
+For OAuth SSE, use the same Bearer header with:
+
+```text
+http://localhost:6274/?MCP_PROXY_AUTH_TOKEN=PASTE_PROXY_TOKEN&transport=sse&serverUrl=http%3A%2F%2F127.0.0.1%3A3100%2Fsse%2Foauth
+```
+
+## 7. Related Project Inspector Paths
+
+If you want to test flows that upstream Inspector does not make easy, use the project-owned standalone Inspector:
+
+```bash
+npm run inspector:ui
+```
+
+Open:
+
+```text
+http://127.0.0.1:3200
+```
+
+Use:
+
+- `/mock` for broad Mock Server E2E coverage
+- `/generic` for one MCP endpoint with no-auth/Basic/Bearer helpers
+- `/oauth` for browser login, consent, PKCE code exchange, and final Bearer MCP verification
 
 ## Troubleshooting
 
