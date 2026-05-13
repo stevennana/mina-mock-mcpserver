@@ -1,8 +1,8 @@
 {
-  "task_id": "docker-nginx-final-hardening",
-  "started_at": "2026-05-05T23:25:06+09:00",
-  "artifact_dir": "state/artifacts/20260505T232506-docker-nginx-final-hardening",
-  "phase": "finished",
-  "status": "finished",
-  "updated_at": "2026-05-05T14:34:27.961Z"
+  "task_id": "mcp-resource-prompt-domain-schema",
+  "started_at": "2026-05-13T14:54:01+09:00",
+  "artifact_dir": "state/artifacts/20260513T145401-mcp-resource-prompt-domain-schema",
+  "phase": "commit",
+  "status": "running",
+  "updated_at": "2026-05-13T06:06:31.643Z"
 }

@@ -2,71 +2,60 @@ Read the following repository documents before making changes:
 - AGENTS.md
 - ARCHITECTURE.md
 - docs/PRODUCT_SENSE.md
-- docs/QUALITY_SCORE.md
 - docs/RELIABILITY.md
 - docs/SECURITY.md
-- docs/references/prd-analysis.md
-- docs/product-specs/operator-configuration.md
-- docs/exec-plans/active/024-docker-nginx-final-hardening.md
+- docs/product-specs/mcp-resources-prompts.md
+- docs/product-specs/mcp-json-rpc-runtime.md
+- docs/exec-plans/active/027-mcp-resource-prompt-domain-schema.md
 
-Current task id: docker-nginx-final-hardening
-Current task title: Docker, Nginx, Final Docs, and Queue Completion Hardening
+Current task id: mcp-resource-prompt-domain-schema
+Current task title: MCP Resource/Prompt Domain And Schema
 
 Objective:
-Package and reconcile the MVP for operator handoff with Docker/Nginx examples, final docs, debt tracking, and full deterministic proof.
+Add durable SQLite/Prisma persistence, seed defaults, validators, and domain services for MCP Resources, Resource Templates, Prompts, and Completion candidates.
 
 Clarity notes:
-- This is final hardening and packaging for the current queue, not a feature-expansion task.
-- Docs, scripts, Docker/Nginx files, and package commands must describe the same system.
-- Remaining gaps should be recorded explicitly rather than hidden in prose.
-- The next feature wave must be planned through docs after this queue completes.
+- This is the enabling slice for `docs/product-specs/mcp-resources-prompts.md`.
+- Resources and prompts are mock fixtures, not filesystem or external API readers.
+- The domain must follow the existing `Types -> Config -> Repo -> Service -> Runtime -> UI` shape.
+- Seed defaults should make protocol smoke tests possible without admin setup.
 
 Expected result:
-- Dockerfile, docker-compose, and Nginx example config exist and match the deployment target.
-- Quality, reliability, security, generated schema, and tech-debt docs reflect the implemented MVP.
-- Full deterministic verification passes, including production-style startup smoke.
-- Operator guidance explains one Ralph cycle, unattended loop, status inspection, logs, artifacts, and next-queue creation.
+- `db:prepare` creates and seeds resource/prompt data idempotently.
+- Unit tests prove validation, seed defaults, and service mapping.
+- Existing endpoint/tool behavior remains unchanged.
 
 Objections / risks to avoid:
-- Do not add post-MVP features such as SSE, resources/prompts, external providers, or RBAC.
-- Do not claim deployment readiness if verify/startup smoke fails.
-- Do not leave docs with stale ports, commands, or log paths.
-- Do not silently drop known debt; record it.
+- Do not store arbitrary local file paths or read host files.
+- Do not combine this with UI work.
+- Do not advertise new MCP capabilities until runtime handlers exist.
 
 Scope:
-- Add Dockerfile, docker-compose, and Nginx example config.
-- Reconcile docs with implemented behavior.
-- Update `docs/exec-plans/tech-debt-tracker.md` with remaining debt.
-- Run and fix the full deterministic command set.
-- Confirm Ralph state and queue exhaustion behavior are documented.
+- Add Prisma models/migration for direct resources, resource templates, prompt definitions, prompt arguments/messages, completion candidates, and permission-ready IDs.
+- Add service APIs for list/get/create/update/delete and enabled runtime reads.
+- Add validators for URI format, URI template argument names, MIME type, text/blob exclusivity, prompt required arguments, and completion candidate limits.
+- Add seed defaults for one direct resource, one template, and two prompts.
 
 Out of scope:
-- New user-visible product features.
-- Production SSO/RBAC.
-- External OAuth providers.
-- SSE/session support unless already implemented earlier.
+- Admin UI routes.
+- MCP JSON-RPC runtime methods.
+- OAuth permission enforcement.
+- SSE subscription notifications.
 
 Exit criteria:
-1. Docker/Nginx artifacts align with port 3000 exposure and SQLite volume expectations.
-2. Docs match actual commands, routes, auth modes, and logging behavior.
-3. Debt tracker is explicit and current.
-4. Full verify and startup smoke pass.
-5. All required checks pass.
+- `db:prepare` creates and seeds resource/prompt data idempotently.
+- Unit tests prove validation, seed defaults, and service mapping.
+- Existing endpoint/tool behavior remains unchanged.
 
 Required checks:
-- npm run lint
-- npm run typecheck
-- npm run build
-- npm run test:unit
-- npm run test:e2e
-- npm run start:smoke
-- npm run verify
+- `npm run lint`
+- `npm run typecheck`
+- `npm run test:unit -- tests/unit/mcp-resources-prompts.test.ts`
+- `npm run db:prepare`
 
 Evaluator notes:
-Required commands are mandatory promotion gates, not suggestions.
-Do not promote if any required check fails.
-Do not accept broad feature work outside this task.
-Confirm that this task maps to the primary product spec `operator-configuration.md` or is explicitly final hardening.
+- Confirm the task stays inside its declared slice.
+- Confirm required commands are treated as promotion-blocking gates.
 
 Required repository artifacts for this task:
 - none
@@ -74,15 +63,11 @@ Required repository artifacts for this task:
 Required commands for this task:
 - npm run lint
 - npm run typecheck
-- npm run build
-- npm run test:unit
-- npm run test:e2e
-- npm run start:smoke
-- npm run verify
+- npm run test:unit -- tests/unit/mcp-resources-prompts.test.ts
+- npm run db:prepare
 
 Previous known gaps from the last evaluation:
-- Docs do not fully match actual routes/auth modes: docs/SECURITY.md public surfaces omit /mcp/oauth.
-- Docs do not fully match actual routes: docs/FRONTEND.md route map omits /mcp/oauth and references /oauth/revoke despite the implemented revocation route being /api/oauth/tokens/[jti]/revoke.
+- none
 
 
 

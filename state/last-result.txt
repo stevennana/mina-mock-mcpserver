@@ -1,12 +1,17 @@
-Completed `docker-nginx-final-hardening`.
+Completed `mcp-resource-prompt-domain-schema`.
 
-I fixed the evaluator-reported doc drift:
-- [docs/SECURITY.md](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/docs/SECURITY.md) now lists `/mcp/oauth`.
-- [docs/FRONTEND.md](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/docs/FRONTEND.md) now lists `/mcp/oauth` and the implemented revocation route `/api/oauth/tokens/[jti]/revoke`.
-- [docs/exec-plans/active/024-docker-nginx-final-hardening.md](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/docs/exec-plans/active/024-docker-nginx-final-hardening.md) has a concrete progress note.
-- [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt) contains the requested operator handoff summary.
+Changed:
+- Added Prisma schema/migration for MCP resources, resource templates, prompts, prompt messages/arguments, and completion candidates.
+- Added `lib/mcp-fixtures` domain types, validators, and services.
+- Added idempotent seed defaults for one resource, one template, and two prompts.
+- Added reset cleanup for the new fixture tables.
+- Added unit coverage in `tests/unit/mcp-resources-prompts.test.ts`.
+- Updated task progress, generated DB schema docs, and `state/last-result.txt`.
 
-All required gates passed:
-`npm run lint`, `npm run typecheck`, `npm run build`, `npm run test:unit`, `npm run test:e2e`, `npm run start:smoke`, and `npm run verify`.
+Required gates passed:
+- `npm run lint`
+- `npm run typecheck`
+- `npm run test:unit -- tests/unit/mcp-resources-prompts.test.ts`
+- `npm run db:prepare`
 
-Exit criteria appear satisfied. No blocking work remains; remaining non-blocking debt is tracked in the debt docs.
+Exit criteria appear satisfied. Runtime handlers, UI, OAuth resource/prompt permissions, and subscriptions remain untouched for later tasks. Note: the repo already had unrelated dirty/untracked planning/doc state when I started; I left that intact.

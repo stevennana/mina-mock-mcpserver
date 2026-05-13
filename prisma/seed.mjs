@@ -4,6 +4,10 @@ import { randomBytes, scrypt as scryptCallback } from "node:crypto";
 import { promisify } from "node:util";
 
 export const DEFAULT_ENDPOINT_ID = "endpoint_default_echo";
+export const DEFAULT_MCP_RESOURCE_ID = "mcp_resource_default_status";
+export const DEFAULT_MCP_RESOURCE_TEMPLATE_ID = "mcp_resource_template_default_customer";
+export const DEFAULT_MCP_PROMPT_SUPPORT_ID = "mcp_prompt_default_support_reply";
+export const DEFAULT_MCP_PROMPT_RELEASE_ID = "mcp_prompt_default_release_notes";
 export const DEFAULT_BASIC_USER_ID = "basic_user_default";
 export const DEFAULT_BASIC_USERNAME = "default";
 export const DEFAULT_BASIC_PASSWORD = "default";
@@ -277,8 +281,201 @@ export async function seedOAuthClientDefaults(client = prisma) {
   }
 }
 
+export async function seedMcpFixtureDefaults(client = prisma) {
+  await client.mcpResource.upsert({
+    where: { id: DEFAULT_MCP_RESOURCE_ID },
+    update: {
+      uri: "mock://resources/server-status",
+      name: "server_status",
+      title: "Server status",
+      description: "Default text resource for MCP resource smoke tests.",
+      mimeType: "application/json",
+      enabled: true,
+      protectedDefault: true,
+      textContent: JSON.stringify({ status: "ok", source: "seed" }, null, 2),
+      blobContentBase64: null,
+      annotationsJson: JSON.stringify({ audience: ["assistant"], priority: 0.5 }),
+    },
+    create: {
+      id: DEFAULT_MCP_RESOURCE_ID,
+      uri: "mock://resources/server-status",
+      name: "server_status",
+      title: "Server status",
+      description: "Default text resource for MCP resource smoke tests.",
+      mimeType: "application/json",
+      enabled: true,
+      protectedDefault: true,
+      textContent: JSON.stringify({ status: "ok", source: "seed" }, null, 2),
+      annotationsJson: JSON.stringify({ audience: ["assistant"], priority: 0.5 }),
+    },
+  });
+
+  await client.mcpResourceTemplate.upsert({
+    where: { id: DEFAULT_MCP_RESOURCE_TEMPLATE_ID },
+    update: {
+      uriTemplate: "mock://resources/customers/{customerId}",
+      name: "customer_profile",
+      title: "Customer profile",
+      description: "Default rendered text resource template for MCP smoke tests.",
+      mimeType: "application/json",
+      enabled: true,
+      protectedDefault: true,
+      textTemplate: "{\"customerId\":\"{customerId}\",\"tier\":\"demo\"}",
+      blobTemplateBase64: null,
+      annotationsJson: JSON.stringify({ audience: ["assistant"] }),
+    },
+    create: {
+      id: DEFAULT_MCP_RESOURCE_TEMPLATE_ID,
+      uriTemplate: "mock://resources/customers/{customerId}",
+      name: "customer_profile",
+      title: "Customer profile",
+      description: "Default rendered text resource template for MCP smoke tests.",
+      mimeType: "application/json",
+      enabled: true,
+      protectedDefault: true,
+      textTemplate: "{\"customerId\":\"{customerId}\",\"tier\":\"demo\"}",
+      annotationsJson: JSON.stringify({ audience: ["assistant"] }),
+    },
+  });
+  await client.mcpResourceTemplateArgument.upsert({
+    where: { resourceTemplateId_name: { resourceTemplateId: DEFAULT_MCP_RESOURCE_TEMPLATE_ID, name: "customerId" } },
+    update: { position: 0, description: "Mock customer identifier.", required: true, sampleValueJson: "\"cust_123\"" },
+    create: {
+      id: `${DEFAULT_MCP_RESOURCE_TEMPLATE_ID}_argument_customerId`,
+      resourceTemplateId: DEFAULT_MCP_RESOURCE_TEMPLATE_ID,
+      position: 0,
+      name: "customerId",
+      description: "Mock customer identifier.",
+      required: true,
+      sampleValueJson: "\"cust_123\"",
+    },
+  });
+  await client.mcpCompletionCandidate.upsert({
+    where: {
+      resourceTemplateId_argumentName_value: {
+        resourceTemplateId: DEFAULT_MCP_RESOURCE_TEMPLATE_ID,
+        argumentName: "customerId",
+        value: "cust_123",
+      },
+    },
+    update: { ownerType: "resource_template", promptId: null, label: "Default customer", position: 0 },
+    create: {
+      id: `${DEFAULT_MCP_RESOURCE_TEMPLATE_ID}_candidate_customerId_cust_123`,
+      ownerType: "resource_template",
+      resourceTemplateId: DEFAULT_MCP_RESOURCE_TEMPLATE_ID,
+      argumentName: "customerId",
+      value: "cust_123",
+      label: "Default customer",
+      position: 0,
+    },
+  });
+
+  const promptDefaults = [
+    {
+      id: DEFAULT_MCP_PROMPT_SUPPORT_ID,
+      name: "support_reply",
+      title: "Support reply",
+      description: "Draft a concise support response for a mock ticket.",
+      argumentName: "tone",
+      argumentTitle: "Tone",
+      argumentDescription: "Response tone.",
+      message: "Write a {tone} support reply for the provided mock ticket.",
+      resourceUri: "mock://resources/server-status",
+      resourceMimeType: "application/json",
+      candidateValue: "friendly",
+      candidateLabel: "Friendly",
+    },
+    {
+      id: DEFAULT_MCP_PROMPT_RELEASE_ID,
+      name: "release_notes",
+      title: "Release notes",
+      description: "Summarize mock release notes for a client integration update.",
+      argumentName: "version",
+      argumentTitle: "Version",
+      argumentDescription: "Release version.",
+      message: "Summarize the mock MCP server changes for version {version}.",
+      resourceUri: null,
+      resourceMimeType: null,
+      candidateValue: "v1",
+      candidateLabel: "Version 1",
+    },
+  ];
+
+  for (const prompt of promptDefaults) {
+    await client.mcpPrompt.upsert({
+      where: { id: prompt.id },
+      update: {
+        name: prompt.name,
+        title: prompt.title,
+        description: prompt.description,
+        enabled: true,
+        protectedDefault: true,
+      },
+      create: {
+        id: prompt.id,
+        name: prompt.name,
+        title: prompt.title,
+        description: prompt.description,
+        enabled: true,
+        protectedDefault: true,
+      },
+    });
+    await client.mcpPromptArgument.upsert({
+      where: { promptId_name: { promptId: prompt.id, name: prompt.argumentName } },
+      update: { position: 0, title: prompt.argumentTitle, description: prompt.argumentDescription, required: true },
+      create: {
+        id: `${prompt.id}_argument_${prompt.argumentName}`,
+        promptId: prompt.id,
+        position: 0,
+        name: prompt.argumentName,
+        title: prompt.argumentTitle,
+        description: prompt.argumentDescription,
+        required: true,
+      },
+    });
+    await client.mcpPromptMessage.upsert({
+      where: { promptId_position: { promptId: prompt.id, position: 0 } },
+      update: {
+        role: "user",
+        textTemplate: prompt.message,
+        resourceUri: prompt.resourceUri,
+        resourceMimeType: prompt.resourceMimeType,
+      },
+      create: {
+        id: `${prompt.id}_message_0`,
+        promptId: prompt.id,
+        position: 0,
+        role: "user",
+        textTemplate: prompt.message,
+        resourceUri: prompt.resourceUri,
+        resourceMimeType: prompt.resourceMimeType,
+      },
+    });
+    await client.mcpCompletionCandidate.upsert({
+      where: {
+        promptId_argumentName_value: {
+          promptId: prompt.id,
+          argumentName: prompt.argumentName,
+          value: prompt.candidateValue,
+        },
+      },
+      update: { ownerType: "prompt", resourceTemplateId: null, label: prompt.candidateLabel, position: 0 },
+      create: {
+        id: `${prompt.id}_candidate_${prompt.argumentName}_${prompt.candidateValue}`,
+        ownerType: "prompt",
+        promptId: prompt.id,
+        argumentName: prompt.argumentName,
+        value: prompt.candidateValue,
+        label: prompt.candidateLabel,
+        position: 0,
+      },
+    });
+  }
+}
+
 if (import.meta.url === `file://${process.argv[1]}`) {
   await seedEndpointDefaults();
+  await seedMcpFixtureDefaults();
   await seedBasicUserDefaults();
   await seedOAuthUserDefaults();
   await seedOAuthClientDefaults();

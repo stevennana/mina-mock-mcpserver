@@ -8,7 +8,8 @@ Define the security posture for MCP Mock Server's current shipped slice.
 - unsupported Authorization schemes return 401
 - invalid Basic/Bearer credentials never downgrade to no-auth
 - OAuth tokens must verify signature, issuer, audience, expiry, jti revocation, and endpoint permissions
-- Valid OAuth Bearer tokens with insufficient endpoint permissions return 403; failed Bearer authentication returns 401 and must not fall back to another auth mode
+- OAuth tokens must verify signature, issuer, audience, expiry, jti revocation, and tool/resource/prompt permissions
+- Valid OAuth Bearer tokens with insufficient tool/resource/prompt permissions return 403; failed Bearer authentication returns 401 and must not fall back to another auth mode
 - built-in identities and clients cannot be disabled or deleted through normal UI/API flows
 - built-in Basic Auth identities also cannot have passwords changed through normal UI/API flows
 - built-in OAuth login identities also cannot have passwords or token TTLs changed through normal UI/API flows
@@ -28,6 +29,7 @@ Define the security posture for MCP Mock Server's current shipped slice.
 - OAuth client secrets are generated server-side, stored only as hashes, and returned only at creation or regeneration
 - OAuth browser consent uses exact registered redirect URI matching and a short-lived signed login ticket before authorization code creation
 - OAuth authorization codes are stored as single-use-ready records with expiry, client, redirect URI, user, audience/resource, and selected endpoint bindings
+- OAuth authorization codes for the expanded MCP surface store selected tool, resource, and prompt bindings
 - `/oauth/token` authorization-code exchange requires the same client, client secret, and redirect URI; consumed, expired, mismatched, or unknown codes fail with OAuth-style errors
 - `/oauth/token` client-credentials exchange requires a valid enabled client and secret, does not require user login, and intersects requested endpoint scopes with the client's allowed endpoint set
 - Access tokens are RS256 JWTs signed with `OAUTH_JWT_PRIVATE_KEY_PEM` when configured, otherwise a documented development key; issued token metadata is stored by `jti`, and raw token values are not persisted
@@ -55,7 +57,7 @@ Define the security posture for MCP Mock Server's current shipped slice.
 - Do not store sensitive customer data in SQLite; the admin UI is intentionally public for the MVP.
 
 ## Verification
-- unit tests for password hashing, auth precedence, root checks, built-in immutability, JWT signing/claims, code exchange failure cases, and permission denial
+- unit tests for password hashing, auth precedence, root checks, built-in immutability, JWT signing/claims, code exchange failure cases, tool/resource/prompt permission denial, and resource/prompt input validation
 - E2E tests for Basic 401/success and OAuth 401/403/revocation
 - reset tests prove endpoint defaults are recreated after root-password and confirmation checks
 - audit tests prove failed delete attempts and reset events are recorded

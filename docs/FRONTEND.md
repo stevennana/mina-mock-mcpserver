@@ -15,6 +15,12 @@ Describe the user-facing structure of MCP Mock Server so an agent can implement 
 | / | Dashboard | Counts, URL examples, public UI warning |
 | /endpoints | Endpoint catalog | List/search/status only |
 | /endpoints/new, /endpoints/[id]/* | Endpoint workflows | Create, overview, edit, parameters/schema, responses, failure, console, delete |
+| /resources | Resource catalog | List/search/status only |
+| /resources/new, /resources/[id]/* | Resource workflows | Create, overview, edit metadata, content, completion/test console, delete |
+| /resource-templates | Resource template catalog | List/search/status only |
+| /resource-templates/new, /resource-templates/[id]/* | Resource template workflows | Create, overview, edit URI template, arguments, completion candidates, rendered content, console, delete |
+| /prompts | Prompt catalog | List/search/status only |
+| /prompts/new, /prompts/[id]/* | Prompt workflows | Create, overview, edit metadata, arguments, messages, completion candidates, console, delete |
 | /basic-users | Basic Auth user catalog | List/search/status only |
 | /basic-users/new, /basic-users/[id] | Basic Auth user workflows | Create, detail, edit/delete actions |
 | /oauth-users | OAuth user catalog | List/search/status only |
@@ -41,6 +47,9 @@ Describe the user-facing structure of MCP Mock Server so an agent can implement 
 |---|---|
 | Dashboard | Summarize service state and show connection examples |
 | Endpoints | List, search, create, and edit mock tools, response cases, failure simulation, timeout shortcut, and delete protection |
+| Resources | List, search, create, edit, preview, read, and delete direct MCP context resources |
+| Resource Templates | Configure parameterized MCP resource URI templates, rendered mock content, and completion candidates |
+| Prompts | Configure reusable MCP prompt templates, arguments, ordered messages, embedded resources, and completion candidates |
 | Endpoint console | Preview MCP/REST call shape with selected auth mode, run REST no-auth and Basic calls, and show raw execution evidence |
 | Basic Auth users | List/search/create/password-edit/disable/delete Basic test identities and show the built-in default/default lock state |
 | OAuth users | List/search/create/password-edit/disable/delete OAuth login identities and token TTL presets with built-in default locked |
@@ -57,6 +66,7 @@ Describe the user-facing structure of MCP Mock Server so an agent can implement 
 - follow the product primitive system in `docs/design-docs/product-ui-primitives.md` before creating page-specific UI; start with shared shell, header, panel, metric, action, form, table, status, code, empty, loading, and error primitives
 - admin pages must follow a single-purpose rule: catalog pages list and search only; create, edit, test, delete, inspect, and diagnostic work moves to focused pages or focused sub-nav destinations
 - list rows should navigate to detail pages with links instead of opening dense inline editors in the catalog
+- resource, resource-template, and prompt pages should mirror the endpoint single-purpose page pattern rather than adding inline editors to catalogs
 - detail pages should expose local sub-nav for closely related workflows and should keep destructive actions behind a dedicated delete/revoke/reset destination or confirmation panel
 - use icons for copy, edit, delete, revoke, reset, refresh, and external-link actions where available
 - every destructive action has a confirmation path and explains whether delete code or root password is accepted

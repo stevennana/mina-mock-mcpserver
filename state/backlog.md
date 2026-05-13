@@ -25,4 +25,15 @@
 - [x] malformed-response-console-audit — Malformed Response Modes, Console Evidence, and Audit
 - [x] operator-config-health-logs — Operator Config, Health, Connection Guide, and Logs
 - [x] docker-nginx-final-hardening — Docker, Nginx, Final Docs, and Queue Completion Hardening
+- [x] inspector-compatibility-pack — Inspector Compatibility Pack
+- [x] inspector-popup-oauth-flow — Inspector Popup OAuth Flow
+- [ ] mcp-resource-prompt-domain-schema — MCP Resource/Prompt Domain And Schema ← current
+- [ ] mcp-resource-management-ui — MCP Resource Management UI
+- [ ] mcp-resource-template-management-ui — MCP Resource Template Management UI
+- [ ] mcp-prompt-management-ui — MCP Prompt Management UI
+- [ ] mcp-resources-runtime — MCP Resources Runtime
+- [ ] mcp-prompts-completion-runtime — MCP Prompts And Completion Runtime
+- [ ] oauth-resource-prompt-permissions — OAuth Resource And Prompt Permissions
+- [ ] mcp-resource-subscription-notifications — MCP Resource Subscription Notifications
+- [ ] inspector-full-server-features — Inspector Full Server Features
 

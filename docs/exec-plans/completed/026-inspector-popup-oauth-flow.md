@@ -1,13 +1,39 @@
-# 026 Inspector Popup OAuth Flow
+# Inspector Popup OAuth Flow
 
-## taskmeta
-- id: inspector-popup-oauth-flow
-- order: 26
-- status: completed
-- promotion_mode: deterministic_only
-- next_task_on_success: null
+```json taskmeta
+{
+  "id": "inspector-popup-oauth-flow",
+  "title": "Inspector Popup OAuth Flow",
+  "order": 26,
+  "status": "completed",
+  "next_task_on_success": null,
+  "prompt_docs": [
+    "AGENTS.md",
+    "ARCHITECTURE.md",
+    "docs/FRONTEND.md",
+    "docs/INSPECTOR.md",
+    "docs/product-specs/oauth-consent-and-token-runtime.md",
+    "docs/product-specs/operator-configuration.md"
+  ],
+  "required_commands": [
+    "npm run lint",
+    "npm run typecheck",
+    "npm run test:unit",
+    "npm run test:e2e -- tests/e2e/standalone-inspector.spec.ts tests/e2e/oauth-code-token.spec.ts tests/e2e/oauth-consent.spec.ts"
+  ],
+  "required_files": [],
+  "human_review_triggers": [
+    "The task persists OAuth secrets in browser storage.",
+    "The task replaces Mock Server OAuth pages instead of testing them.",
+    "Required E2E does not prove popup login/consent/token exchange."
+  ],
+  "promotion_mode": "deterministic_only",
+  "completed_at": "2026-05-13T00:00:00.000Z",
+  "completion_note": "Reconciled during MCP Resources/Prompts queue refresh; implementation was already completed before this wave."
+}
+```
 
-## Goal
+## Objective
 Add a project-owned browser OAuth authorization-code flow to the standalone Inspector UI so users can test the full Mock OAuth user login, consent permission selection, redirect callback, token exchange, and Bearer MCP verification path without relying on upstream Inspector's OAuth UI.
 
 ## Clarity notes
@@ -25,12 +51,18 @@ Add a project-owned browser OAuth authorization-code flow to the standalone Insp
 - Use PKCE authorization-code flow for browser OAuth verification.
 - Do not require Dynamic Client Registration in this project-owned Mock Server flow; the helper creates or uses a pre-registered Mock OAuth client through the Mock Server admin API instead.
 
-## Non-goals
+## Out of scope
 - Do not vendor or fork upstream MCP Inspector.
 - Do not implement Dynamic Client Registration in this slice.
 - Do not persist Bearer tokens, Basic passwords, OAuth client secrets, authorization codes, code verifiers, or popup state in browser storage.
 - Do not replace Mock Server's own OAuth login/consent pages.
 - Do not make the standalone Inspector a production OAuth client.
+
+## Scope
+- Standalone Inspector OAuth popup page and callback.
+- PKCE prepare/exchange helpers.
+- Generic MCP target handoff and Bearer verification.
+- Docs and E2E coverage for the popup OAuth flow.
 
 ## Implementation steps
 1. [x] Update docs and specs to define the new `/oauth` standalone Inspector workflow before code changes.
@@ -60,6 +92,12 @@ Add a project-owned browser OAuth authorization-code flow to the standalone Insp
 - The exchanged Bearer token can be sent into Generic MCP target and used against `/mcp/oauth`.
 - Docs show when to use upstream Inspector versus the project-owned OAuth popup helper.
 
+## Exit criteria
+- A user can open `npm run inspector:ui`, choose OAuth authorization-code flow, and run the user/password/permission consent path in a popup.
+- The callback code is captured by the standalone Inspector page without requiring a real external callback server.
+- The exchanged Bearer token can be sent into Generic MCP target and used against `/mcp/oauth`.
+- Docs show when to use upstream Inspector versus the project-owned OAuth popup helper.
+
 ## Objections / risks to avoid
 - Avoid storing secrets in localStorage.
 - Avoid screenshots or docs with raw Bearer tokens.
@@ -67,9 +105,17 @@ Add a project-owned browser OAuth authorization-code flow to the standalone Insp
 - Avoid hiding redirect/callback details; users need to understand which callback URL is registered.
 - Avoid claiming the helper is a generic OAuth client for arbitrary authorization servers.
 
-## Validation
+## Required checks
 - `npm run lint`
 - `npm run typecheck`
 - `npm run test:unit`
 - `npm run test:e2e -- tests/e2e/standalone-inspector.spec.ts tests/e2e/oauth-code-token.spec.ts tests/e2e/oauth-consent.spec.ts`
 - Manual browser check: `npm run inspector:ui`, open `/oauth`, complete popup login/consent with `default/default`, exchange token, send to `/generic`, run `/mcp/oauth` tools/list.
+
+## Evaluator notes
+
+- Confirm completed history remains consistent with implemented standalone Inspector popup OAuth behavior.
+
+## Progress log
+
+- 2026-05-13T00:00:00Z: converted completed task to Ralph-readable taskmeta during next-wave state repair.

@@ -4,14 +4,15 @@ Generated for task `endpoint-domain-and-schema`.
 
 Updated by task `endpoint-protected-delete-audit` for endpoint delete audit evidence.
 Updated by task `docker-nginx-final-hardening` to reflect the completed MVP schema surface.
+Updated by task `mcp-resource-prompt-domain-schema` to include MCP resource, prompt, and completion fixture persistence.
 
 ## Runtime Database
 
 - Provider: SQLite through Prisma.
 - Default URL: `file:./data/runtime.sqlite`.
 - Preparation command: `npm run db:prepare`.
-- Preparation behavior: creates `data/`, applies Prisma migrations, generates Prisma Client, and runs idempotent endpoint seed defaults.
-- Seed defaults include protected endpoint, Basic user, OAuth user, and OAuth client fixtures.
+- Preparation behavior: creates `data/`, applies Prisma migrations, generates Prisma Client, and runs idempotent seed defaults.
+- Seed defaults include protected endpoint, MCP resource/template/prompt, Basic user, OAuth user, and OAuth client fixtures.
 - Persistence source of truth: SQLite. `data/bootstrap-state.json` is no longer used by `db:prepare`.
 
 ## Endpoint
@@ -88,6 +89,167 @@ Indexes and constraints:
 - `@@index([endpointId, priority])`
 - `@@index([endpointId])`
 
+## McpResource
+
+Stores direct MCP resource fixtures. Content is stored directly as text or base64 blob data; the schema intentionally has no host filesystem path field.
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | `String` | Primary key and future permission binding identifier. |
+| `uri` | `String` | Unique MCP resource URI. Local `file:` URIs are rejected by domain validation. |
+| `name` | `String` | Operator-facing fixture name. |
+| `title` | `String` | Optional display title. |
+| `description` | `String` | Optional description. |
+| `mimeType` | `String` | Content MIME type. |
+| `enabled` | `Boolean` | Runtime visibility toggle for later resource handlers. |
+| `protectedDefault` | `Boolean` | Marks seeded smoke-test fixtures. |
+| `textContent` | `String?` | Text content when the resource is text-backed. |
+| `blobContentBase64` | `String?` | Base64 content when the resource is blob-backed. |
+| `annotationsJson` | `String?` | Optional JSON-encoded MCP annotations. |
+| `createdAt` | `DateTime` | Creation timestamp. |
+| `updatedAt` | `DateTime` | Maintained by Prisma. |
+
+Indexes and constraints:
+
+- `uri` is unique
+- `@@index([enabled, uri])`
+
+## McpResourceTemplate
+
+Stores resource template descriptors and mock rendered content templates.
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | `String` | Primary key and future permission binding identifier. |
+| `uriTemplate` | `String` | Unique URI template with named `{arguments}`. |
+| `name` | `String` | Unique template name. |
+| `title` | `String` | Optional display title. |
+| `description` | `String` | Optional description. |
+| `mimeType` | `String` | Rendered content MIME type. |
+| `enabled` | `Boolean` | Runtime visibility toggle for later template handlers. |
+| `protectedDefault` | `Boolean` | Marks seeded smoke-test fixtures. |
+| `textTemplate` | `String?` | Text template content. |
+| `blobTemplateBase64` | `String?` | Base64 blob template content. |
+| `annotationsJson` | `String?` | Optional JSON-encoded MCP annotations. |
+| `createdAt` | `DateTime` | Creation timestamp. |
+| `updatedAt` | `DateTime` | Maintained by Prisma. |
+
+Indexes and constraints:
+
+- `uriTemplate` is unique
+- `name` is unique
+- `@@index([enabled, name])`
+
+## McpResourceTemplateArgument
+
+Stores ordered arguments for resource templates.
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | `String` | Primary key. |
+| `resourceTemplateId` | `String` | Resource template relation, cascades on template delete. |
+| `position` | `Int` | Argument order. |
+| `name` | `String` | Argument name; domain validation requires it to appear in the URI template. |
+| `description` | `String` | Optional description. |
+| `required` | `Boolean` | Required flag, defaulting to true. |
+| `sampleValueJson` | `String?` | Optional JSON-encoded sample value. |
+| `createdAt` | `DateTime` | Creation timestamp. |
+| `updatedAt` | `DateTime` | Maintained by Prisma. |
+
+Indexes and constraints:
+
+- `@@unique([resourceTemplateId, position])`
+- `@@unique([resourceTemplateId, name])`
+- `@@index([resourceTemplateId])`
+
+## McpPrompt
+
+Stores prompt fixture definitions.
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | `String` | Primary key and future permission binding identifier. |
+| `name` | `String` | Unique prompt name. |
+| `title` | `String` | Optional display title. |
+| `description` | `String` | Optional description. |
+| `enabled` | `Boolean` | Runtime visibility toggle for later prompt handlers. |
+| `protectedDefault` | `Boolean` | Marks seeded smoke-test fixtures. |
+| `createdAt` | `DateTime` | Creation timestamp. |
+| `updatedAt` | `DateTime` | Maintained by Prisma. |
+
+Indexes and constraints:
+
+- `name` is unique
+- `@@index([enabled, name])`
+
+## McpPromptArgument
+
+Stores ordered prompt argument definitions.
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | `String` | Primary key. |
+| `promptId` | `String` | Prompt relation, cascades on prompt delete. |
+| `position` | `Int` | Argument order. |
+| `name` | `String` | Argument name. |
+| `title` | `String` | Optional display title. |
+| `description` | `String` | Optional description. |
+| `required` | `Boolean` | Required flag. |
+| `createdAt` | `DateTime` | Creation timestamp. |
+| `updatedAt` | `DateTime` | Maintained by Prisma. |
+
+Indexes and constraints:
+
+- `@@unique([promptId, position])`
+- `@@unique([promptId, name])`
+- `@@index([promptId])`
+
+## McpPromptMessage
+
+Stores ordered prompt messages. Messages may carry text template content and/or an embedded resource URI reference for later runtime rendering.
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | `String` | Primary key. |
+| `promptId` | `String` | Prompt relation, cascades on prompt delete. |
+| `position` | `Int` | Message order. |
+| `role` | `String` | Prompt message role, currently validated as `user` or `assistant`. |
+| `textTemplate` | `String?` | Optional message text template. |
+| `resourceUri` | `String?` | Optional embedded MCP resource URI reference. |
+| `resourceMimeType` | `String?` | Optional embedded resource MIME type. |
+| `createdAt` | `DateTime` | Creation timestamp. |
+| `updatedAt` | `DateTime` | Maintained by Prisma. |
+
+Indexes and constraints:
+
+- `@@unique([promptId, position])`
+- `@@index([promptId])`
+
+## McpCompletionCandidate
+
+Stores completion candidates for resource-template arguments and prompt arguments.
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | `String` | Primary key. |
+| `ownerType` | `String` | Owner discriminator: `resource_template` or `prompt`. |
+| `resourceTemplateId` | `String?` | Resource template relation, cascades on delete. |
+| `promptId` | `String?` | Prompt relation, cascades on delete. |
+| `argumentName` | `String` | Argument this candidate belongs to. |
+| `value` | `String` | Candidate value returned by later completion runtime. |
+| `label` | `String` | Optional display label. |
+| `position` | `Int` | Candidate order within its owner. |
+| `createdAt` | `DateTime` | Creation timestamp. |
+| `updatedAt` | `DateTime` | Maintained by Prisma. |
+
+Indexes and constraints:
+
+- `@@unique([resourceTemplateId, argumentName, value])`
+- `@@unique([promptId, argumentName, value])`
+- `@@index([ownerType, argumentName])`
+- `@@index([resourceTemplateId])`
+- `@@index([promptId])`
+
 ## AuditEvent
 
 Stores non-secret mutation evidence for protected operations such as endpoint deletion.
@@ -121,6 +283,15 @@ Indexes and constraints:
 - Response cases: `default` at priority `0` and `hello-world` at priority `10`, both with no case-level delay/error configured
 
 The seed uses immutable IDs and unique endpoint-scoped keys, so repeated preparation updates the built-in records without duplicating rows.
+
+`npm run db:prepare` also upserts protected MCP fixture defaults:
+
+| Model | ID | Name/URI | Notes |
+|---|---|---|---|
+| `McpResource` | `mcp_resource_default_status` | `mock://resources/server-status` | Enabled JSON text resource for smoke tests. |
+| `McpResourceTemplate` | `mcp_resource_template_default_customer` | `mock://resources/customers/{customerId}` | Enabled JSON text template with `customerId` argument and `cust_123` completion candidate. |
+| `McpPrompt` | `mcp_prompt_default_support_reply` | `support_reply` | Enabled prompt with required `tone` argument, embedded status resource reference, and `friendly` completion candidate. |
+| `McpPrompt` | `mcp_prompt_default_release_notes` | `release_notes` | Enabled prompt with required `version` argument and `v1` completion candidate. |
 
 `npm run db:prepare` also upserts protected test identities:
 

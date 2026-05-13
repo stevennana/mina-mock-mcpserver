@@ -25,6 +25,7 @@ Remote MCP adoption is moving auth, transport, and permission bugs into client i
 - create a mock endpoint once and exercise it through MCP and REST
 - inspect the generated MCP input schema and execute REST no-auth or Basic calls from the endpoint console with raw evidence
 - initialize no-auth MCP clients, list enabled tools, and execute exact-match tool calls
+- expose mock MCP resources, resource templates, prompt templates, and completion candidates so clients can test the full server-side MCP capability set
 - manage Basic Auth test users while keeping the built-in default/default fixture locked
 - list enabled tools and call configured mock tools through simple REST routes for curl and Postman style testing
 - prove no-auth, Basic, and OAuth bearer client behavior against strict routes
@@ -41,7 +42,7 @@ Remote MCP adoption is moving auth, transport, and permission bugs into client i
 - true multi-tenant isolation
 - enterprise RBAC for the public admin UI
 - handling sensitive customer data
-- full MCP resources, prompts, sampling, elicitation, or task-augmented execution in MVP
+- MCP client-side sampling, roots, elicitation, or task-augmented execution in MVP
 - replacing a real authorization server
 
 ## v1 Success Signals

@@ -47,6 +47,13 @@ export async function resetToDefaults(input: ResetInput, client: PrismaClient = 
     const deletedOAuthClients = await tx.oAuthClient.deleteMany({});
     const deletedOAuthUsers = await tx.oAuthUser.deleteMany({});
     const deletedBasicUsers = await tx.basicUser.deleteMany({});
+    await tx.mcpCompletionCandidate.deleteMany({});
+    await tx.mcpPromptMessage.deleteMany({});
+    await tx.mcpPromptArgument.deleteMany({});
+    await tx.mcpPrompt.deleteMany({});
+    await tx.mcpResourceTemplateArgument.deleteMany({});
+    await tx.mcpResourceTemplate.deleteMany({});
+    await tx.mcpResource.deleteMany({});
     await tx.responseCase.deleteMany({});
     await tx.endpointParam.deleteMany({});
     const deletedEndpoints = await tx.endpoint.deleteMany({});

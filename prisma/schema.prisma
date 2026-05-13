@@ -7,21 +7,21 @@ datasource db {
 }
 
 model Endpoint {
-  id                    String          @id
-  name                  String          @unique
-  title                 String          @default("")
-  description           String          @default("")
-  enabled               Boolean         @default(true)
-  protectedDefault      Boolean         @default(false)
+  id                    String                           @id
+  name                  String                           @unique
+  title                 String                           @default("")
+  description           String                           @default("")
+  enabled               Boolean                          @default(true)
+  protectedDefault      Boolean                          @default(false)
   deleteCode            String?
-  defaultResponseJson   String          @default("{}")
-  failureMode           String          @default("none")
+  defaultResponseJson   String                           @default("{}")
+  failureMode           String                           @default("none")
   failureStatusCode     Int?
-  failureDelayMs        Int             @default(0)
+  failureDelayMs        Int                              @default(0)
   failureMessage        String?
   malformedResponseJson String?
-  createdAt             DateTime        @default(now())
-  updatedAt             DateTime        @updatedAt
+  createdAt             DateTime                         @default(now())
+  updatedAt             DateTime                         @updatedAt
   parameters            EndpointParam[]
   responseCases         ResponseCase[]
   oauthClientAllowances OAuthClientAllowedEndpoint[]
@@ -71,15 +71,15 @@ model ResponseCase {
 }
 
 model AuditEvent {
-  id             String   @id
-  eventType      String
-  subjectType    String
-  subjectId      String?
-  subjectName    String?
-  outcome        String
-  actorType      String   @default("public")
-  metadataJson   String   @default("{}")
-  createdAt      DateTime @default(now())
+  id           String   @id
+  eventType    String
+  subjectType  String
+  subjectId    String?
+  subjectName  String?
+  outcome      String
+  actorType    String   @default("public")
+  metadataJson String   @default("{}")
+  createdAt    DateTime @default(now())
 
   @@index([eventType, createdAt])
   @@index([subjectType, subjectId])
@@ -104,14 +104,14 @@ model BasicUser {
 }
 
 model OAuthUser {
-  id                    String   @id
-  username              String   @unique
+  id                    String                   @id
+  username              String                   @unique
   passwordHash          String
-  enabled               Boolean  @default(true)
-  builtIn               Boolean  @default(false)
-  accessTokenTtlSeconds Int      @default(3600)
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  enabled               Boolean                  @default(true)
+  builtIn               Boolean                  @default(false)
+  accessTokenTtlSeconds Int                      @default(3600)
+  createdAt             DateTime                 @default(now())
+  updatedAt             DateTime                 @updatedAt
   authorizationCodes    OAuthAuthorizationCode[]
   issuedTokens          OAuthIssuedToken[]
 
@@ -201,4 +201,129 @@ model OAuthIssuedToken {
   @@index([oauthClientId, oauthUserId])
   @@index([expiresAt])
   @@index([revokedAt])
+}
+
+model McpResource {
+  id                String   @id
+  uri               String   @unique
+  name              String
+  title             String   @default("")
+  description       String   @default("")
+  mimeType          String
+  enabled           Boolean  @default(true)
+  protectedDefault  Boolean  @default(false)
+  textContent       String?
+  blobContentBase64 String?
+  annotationsJson   String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([enabled, uri])
+}
+
+model McpResourceTemplate {
+  id                   String                        @id
+  uriTemplate          String                        @unique
+  name                 String                        @unique
+  title                String                        @default("")
+  description          String                        @default("")
+  mimeType             String
+  enabled              Boolean                       @default(true)
+  protectedDefault     Boolean                       @default(false)
+  textTemplate         String?
+  blobTemplateBase64   String?
+  annotationsJson      String?
+  createdAt            DateTime                      @default(now())
+  updatedAt            DateTime                      @updatedAt
+  arguments            McpResourceTemplateArgument[]
+  completionCandidates McpCompletionCandidate[]
+
+  @@index([enabled, name])
+}
+
+model McpResourceTemplateArgument {
+  id                 String              @id
+  resourceTemplateId String
+  position           Int
+  name               String
+  description        String              @default("")
+  required           Boolean             @default(true)
+  sampleValueJson    String?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  resourceTemplate   McpResourceTemplate @relation(fields: [resourceTemplateId], references: [id], onDelete: Cascade)
+
+  @@unique([resourceTemplateId, position])
+  @@unique([resourceTemplateId, name])
+  @@index([resourceTemplateId])
+}
+
+model McpPrompt {
+  id                   String                   @id
+  name                 String                   @unique
+  title                String                   @default("")
+  description          String                   @default("")
+  enabled              Boolean                  @default(true)
+  protectedDefault     Boolean                  @default(false)
+  createdAt            DateTime                 @default(now())
+  updatedAt            DateTime                 @updatedAt
+  arguments            McpPromptArgument[]
+  messages             McpPromptMessage[]
+  completionCandidates McpCompletionCandidate[]
+
+  @@index([enabled, name])
+}
+
+model McpPromptArgument {
+  id          String    @id
+  promptId    String
+  position    Int
+  name        String
+  title       String    @default("")
+  description String    @default("")
+  required    Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  prompt      McpPrompt @relation(fields: [promptId], references: [id], onDelete: Cascade)
+
+  @@unique([promptId, position])
+  @@unique([promptId, name])
+  @@index([promptId])
+}
+
+model McpPromptMessage {
+  id               String    @id
+  promptId         String
+  position         Int
+  role             String
+  textTemplate     String?
+  resourceUri      String?
+  resourceMimeType String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  prompt           McpPrompt @relation(fields: [promptId], references: [id], onDelete: Cascade)
+
+  @@unique([promptId, position])
+  @@index([promptId])
+}
+
+model McpCompletionCandidate {
+  id                 String               @id
+  ownerType          String
+  resourceTemplateId String?
+  promptId           String?
+  argumentName       String
+  value              String
+  label              String               @default("")
+  position           Int                  @default(0)
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  resourceTemplate   McpResourceTemplate? @relation(fields: [resourceTemplateId], references: [id], onDelete: Cascade)
+  prompt             McpPrompt?           @relation(fields: [promptId], references: [id], onDelete: Cascade)
+
+  @@unique([resourceTemplateId, argumentName, value])
+  @@unique([promptId, argumentName, value])
+  @@index([ownerType, argumentName])
+  @@index([resourceTemplateId])
+  @@index([promptId])
 }

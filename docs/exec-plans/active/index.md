@@ -1,67 +1,40 @@
-# Ralph Loop Task Queue
+# Ralph Loop Active Task Queue
 
-This directory contains only runnable feature and hardening tasks. The completed bootstrap/foundation task is preserved under `docs/exec-plans/completed/` and must not be re-added here.
-
-Task filenames are ordered for human scanning, while Ralph state and promotion use the stable `taskmeta.id` values. Keep both the filename sequence and `taskmeta.order` aligned whenever this queue changes.
+This directory contains only runnable feature and hardening tasks. Completed task history lives under `docs/exec-plans/completed/`.
 
 ## Current recommended sequence
-1. `001-endpoint-domain-and-schema.md` -> `endpoint-domain-and-schema` -> Replace the bootstrap runtime placeholder with durable SQLite/Prisma persistence for endpoint/tool data and deterministic seed defaults.
-2. `002-endpoint-validation-and-matching.md` -> `endpoint-validation-and-matching` -> Create reusable endpoint domain services for validation, MCP inputSchema generation, and exact-match response-case selection.
-3. `003-endpoint-management-list-editor-ui.md` -> `endpoint-management-list-editor-ui` -> Build the first public endpoint-management UI for listing, searching, creating, and editing endpoint definitions.
-4. `004-endpoint-console-schema-preview-ui.md` -> `endpoint-console-schema-preview-ui` -> Add generated MCP schema preview and a stable endpoint test-console shell without implementing external MCP or REST calls yet.
-5. `005-endpoint-protected-delete-audit.md` -> `endpoint-protected-delete-audit` -> Implement endpoint deletion guarded by delete code or root password, with audit evidence for successful and failed delete attempts.
-6. `006-root-reset-defaults.md` -> `root-reset-defaults` -> Implement root-password-protected reset behavior that restores deterministic default state without harming runtime readiness.
-7. `007-mcp-initialize-and-tools-list.md` -> `mcp-initialize-and-tools-list` -> Implement no-auth MCP JSON-RPC initialization and tool discovery before adding tool execution.
-8. `008-mcp-tools-call-and-errors.md` -> `mcp-tools-call-and-errors` -> Implement no-auth MCP `tools/call` execution and JSON-RPC error semantics using the endpoint matcher.
-9. `009-basic-auth-users-domain-ui.md` -> `basic-auth-users-domain-ui` -> Implement Basic Auth user persistence, hashing, built-in protection, and public management UI before strict route enforcement.
-10. `010-basic-auth-mcp-runtime.md` -> `basic-auth-mcp-runtime` -> Enforce Basic Auth on `/mcp/basic` and Basic header precedence on `/mcp` using the existing Basic user service.
-11. `011-rest-tools-list-runtime.md` -> `rest-tools-list-runtime` -> Expose configured enabled endpoints through `GET /rest/tools` with no-auth and Basic behavior.
-12. `012-rest-tools-call-runtime.md` -> `rest-tools-call-runtime` -> Implement `POST /rest/tools/:name/call` and wire endpoint console REST execution for no-auth and Basic modes.
-13. `013-oauth-users-management-ui.md` -> `oauth-users-management-ui` -> Implement OAuth login-user persistence, built-in protection, TTL settings, and public management UI.
-14. `014-oauth-clients-management-ui.md` -> `oauth-clients-management-ui` -> Implement OAuth client persistence, secret generation, redirect URI management, allowed endpoint selection, and client UI.
-15. `015-oauth-authorize-login-consent.md` -> `oauth-authorize-login-consent` -> Implement the browser authorization entry, mock login, consent screen, endpoint selection, and authorization code creation.
-16. `016-oauth-code-token-jwt.md` -> `oauth-code-token-jwt` -> Implement `/oauth/token` authorization_code exchange and signed JWT access tokens with endpoint permission claims.
-17. `017-oauth-client-credentials-grant.md` -> `oauth-client-credentials-grant` -> Implement non-interactive client_credentials token issuance with endpoint scope intersection.
-18. `018-oauth-discovery-metadata.md` -> `oauth-discovery-metadata` -> Expose OAuth protected-resource, authorization-server, OIDC configuration, and JWKS metadata aligned with the mock server runtime.
-19. `019-oauth-mcp-rest-permission-enforcement.md` -> `oauth-mcp-rest-permission-enforcement` -> Validate Bearer tokens and enforce endpoint permissions on MCP and REST routes, with correct 401 versus 403 behavior.
-20. `020-issued-token-ui-revocation.md` -> `issued-token-ui-revocation` -> Build issued-token inspection/filtering UI and token revocation behavior that affects subsequent OAuth runtime calls.
-21. `021-failure-delay-forced-error-runtime.md` -> `failure-delay-forced-error-runtime` -> Implement artificial delay, timeout shortcut, and forced error behavior for MCP and REST calls.
-22. `022-malformed-response-console-audit.md` -> `malformed-response-console-audit` -> Implement intentionally malformed response modes with visible warnings, console evidence, and audit logging for failure-simulation changes.
-23. `023-operator-config-health-logs.md` -> `operator-config-health-logs` -> Complete operator-facing health, public config, base URL behavior, connection guide, root-protected config changes, and server logging.
-24. `024-docker-nginx-final-hardening.md` -> `docker-nginx-final-hardening` -> Package and reconcile the MVP for operator handoff with Docker/Nginx examples, final docs, debt tracking, and full deterministic proof.
-25. `025-inspector-compatibility-pack.md` -> `inspector-compatibility-pack` -> Improve upstream Inspector compatibility with broader runtime CORS, Streamable HTTP GET SSE, legacy SSE aliases, PKCE, standard revoke, Inspector launch/config docs, and verification coverage.
-26. `026-inspector-popup-oauth-flow.md` -> `inspector-popup-oauth-flow` -> Add project-owned standalone Inspector popup OAuth authorization-code verification and upstream Inspector-inspired target workflow helpers.
 
-## Split Rationale
+1. `027-mcp-resource-prompt-domain-schema.md` -> `mcp-resource-prompt-domain-schema` -> Add persistence, seed defaults, validators, and services for Resources, Resource Templates, Prompts, and Completion candidates.
+2. `028-mcp-resource-management-ui.md` -> `mcp-resource-management-ui` -> Add direct Resource admin UI/API workflows with focused catalog/detail pages.
+3. `029-mcp-resource-template-management-ui.md` -> `mcp-resource-template-management-ui` -> Add Resource Template admin UI/API workflows with arguments, rendered content, and completion candidates.
+4. `030-mcp-prompt-management-ui.md` -> `mcp-prompt-management-ui` -> Add Prompt admin UI/API workflows with arguments, messages, embedded resources, and completion candidates.
+5. `031-mcp-resources-runtime.md` -> `mcp-resources-runtime` -> Implement `resources/list`, `resources/templates/list`, and `resources/read` over existing MCP transports.
+6. `032-mcp-prompts-completion-runtime.md` -> `mcp-prompts-completion-runtime` -> Implement `prompts/list`, `prompts/get`, and `completion/complete`.
+7. `033-oauth-resource-prompt-permissions.md` -> `oauth-resource-prompt-permissions` -> Extend OAuth consent, tokens, and Bearer runtime filtering to resources and prompts.
+8. `034-mcp-resource-subscription-notifications.md` -> `mcp-resource-subscription-notifications` -> Add best-effort legacy SSE resource subscriptions and list/update notifications.
+9. `035-inspector-full-server-features.md` -> `inspector-full-server-features` -> Update Inspector/docs and prove full server-side MCP feature coverage end to end.
 
-The queue is intentionally finer-grained than one task per product spec. Larger PRD areas were split where a single task would otherwise mix persistence, UI, protocol runtime, auth enforcement, token operations, failure modes, or deployment hardening.
+## Queue rationale
 
-## Operating rule
+The Resources/Prompts wave is intentionally split by risk boundary:
 
-A task may be promoted only when all of the following are true:
+- schema/domain first, before UI or runtime capability advertisement
+- each admin surface has a focused UI task with screenshot/responsive/accessibility gates
+- runtime handlers are separated from OAuth filtering so no-auth/Basic protocol behavior can stabilize first
+- SSE notification support is isolated because it is session-stateful and intentionally in-memory
+- Inspector/docs are final hardening, not the place to introduce new protocol behavior
 
-- deterministic checks pass
-- the evaluator marks the task as `done`, unless the task uses `promotion_mode = deterministic_only`
-- the evaluator recommends promotion when evaluator review is required
-- the task metadata declares a valid `next_task_on_success`, or explicitly declares that the queue ends here
+## Promotion rules
 
-## Required Detail Sections
+- Required commands in each task are hard gates.
+- Failing deterministic checks block promotion even when the implementation looks complete.
+- UI-heavy tasks use deterministic screenshot, responsive, and accessibility proof.
+- External-client behavior such as MCP, OAuth, SSE, and upstream Inspector compatibility requires E2E proof before promotion.
+- Completed task files must be moved to `docs/exec-plans/completed/` and removed from this active directory.
+- `025-inspector-compatibility-pack` and `026-inspector-popup-oauth-flow` are completed history and are intentionally not part of this active wave.
 
-Every active task page should include these decision-complete sections before implementation starts:
+## Maintenance notes
 
-- `Clarity notes`: what the task means, what assumptions are already decided, and how it relates to surrounding slices
-- `Expected result`: the concrete repo/user/operator state that should exist after the task lands
-- `Objections / risks to avoid`: common wrong turns, scope creep, or implementation shortcuts that should block promotion
-
-## Queue Maintenance Rules
-
-- keep every non-hardening task focused on one primary product spec
-- do not leave completed task contracts in this directory
-- review supporting product, frontend, architecture, and design docs before adding or revising task pages
-- add UI screenshot, responsive, and accessibility checks to UI-heavy tasks before promotion work starts
-- external-client behavior such as MCP, REST, Basic Auth, or OAuth must have E2E proof before promotion
-
-## When this queue ends
-
-When the active sequence is exhausted, do not continue with ad hoc prompts alone.
-Update the relevant product specs and design docs first, then seed the next active queue for the next feature wave.
+- Keep `taskmeta.order` aligned with this sequence.
+- Do not collapse multiple MCP feature fronts into one broad task.
+- If a task needs behavior not described by `docs/product-specs/mcp-resources-prompts.md`, update the product spec before implementation.
