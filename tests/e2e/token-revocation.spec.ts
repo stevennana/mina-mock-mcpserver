@@ -99,11 +99,11 @@ test("issued token UI inspects metadata and revocation changes OAuth runtime 401
     expect(revokedCall.status()).toBe(401);
 
     await page.goto("/tokens");
-    await page.getByLabel("Status").selectOption("revoked");
+    await page.getByRole("combobox", { name: "Status", exact: true }).selectOption("revoked");
     await page.getByRole("button", { name: "Apply filters" }).click();
     await expect(page.getByRole("link", { name: claims.jti })).toBeVisible();
 
-    await page.getByLabel("Status").selectOption("active");
+    await page.getByRole("combobox", { name: "Status", exact: true }).selectOption("active");
     await page.getByRole("button", { name: "Apply filters" }).click();
     await expect(page.getByRole("link", { name: claims.jti })).toHaveCount(0);
   } finally {

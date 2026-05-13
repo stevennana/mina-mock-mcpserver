@@ -425,7 +425,7 @@ export function ResourceTemplateManager({
               </label>
               <label className="toggle-row">
                 <input type="checkbox" checked={form.enabled} onChange={(event) => updateForm("enabled", event.target.checked)} />
-                <span className="field-label-row">Enabled in template catalogs <HelpTooltip text="Enabled templates appear in future MCP resources/templates/list runtime handlers. Disabled templates remain editable." /></span>
+                <span className="field-label-row">Enabled in template catalogs <HelpTooltip text="Enabled templates appear in MCP resources/templates/list and can render matching resource URIs. Disabled templates remain editable." /></span>
               </label>
               <label className="field-block wide">
                 <FieldLabel help="Optional MCP annotations JSON object. This is metadata only and never fetches external content.">Annotations JSON</FieldLabel>
@@ -529,7 +529,7 @@ export function ResourceTemplateManager({
           {view === "console" ? (
             <EditorSection title="Template console preview">
               <div className="console-shell">
-                <p className="section-note">Preview only. Runtime MCP handlers for resources/templates/list, resources/read, and completion/complete are wired in later tasks.</p>
+                <p className="section-note">Preview the MCP shapes served by resources/templates/list, resources/read, and completion/complete.</p>
                 <div className="console-actions">
                   <CopyButton value={listPreview} label="Copy templates/list" />
                   <CopyButton value={readRequestPreview} label="Copy read request" />

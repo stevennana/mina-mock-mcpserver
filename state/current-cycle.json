@@ -1,8 +1,8 @@
 {
-  "task_id": "mcp-resource-subscription-notifications",
-  "started_at": "2026-05-13T17:52:35+09:00",
-  "artifact_dir": "state/artifacts/20260513T175235-mcp-resource-subscription-notifications",
+  "task_id": "inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b",
+  "started_at": "2026-05-13T19:21:30+09:00",
+  "artifact_dir": "state/artifacts/20260513T192130-inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b",
   "phase": "commit",
   "status": "running",
-  "updated_at": "2026-05-13T09:09:12.551Z"
+  "updated_at": "2026-05-13T10:26:02.287Z"
 }

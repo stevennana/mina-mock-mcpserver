@@ -5,6 +5,7 @@ import { Buffer } from "node:buffer";
 import { createHash, randomBytes, randomUUID } from "node:crypto";
 import { performance } from "node:perf_hooks";
 import { URL, URLSearchParams } from "node:url";
+import { TextDecoder } from "node:util";
 import { fetchWithTls } from "./lib/fetch-with-tls.mjs";
 
 const DEFAULT_HOST = process.env.INSPECTOR_UI_HOST ?? "127.0.0.1";
@@ -19,6 +20,7 @@ const MOCK_SCENARIO_STEP_NAMES = [
   "Endpoint detail and update",
   "REST list, call, and forced error",
   "MCP initialize, list, call, and guards",
+  "Resources, prompts, completion, and SSE",
   "Basic Auth runtime",
   "OAuth Bearer runtime",
   "Audit evidence and reset guard",
@@ -32,8 +34,9 @@ const MOCK_SCENARIO_STEP_HELP = {
   "Endpoint detail and update": "Verifies the admin API can read and update the tool definition before clients use it.",
   "REST list, call, and forced error": "Exercises the REST tool API and a configured failure case so non-MCP clients see predictable behavior.",
   "MCP initialize, list, call, and guards": "Runs the core MCP handshake, tool listing, tool call, protocol-version guard, and permissive browser Origin compatibility check.",
+  "Resources, prompts, completion, and SSE": "Checks server-side Resources, Resource Templates, Prompts, Completion, and live legacy SSE resource update notifications.",
   "Basic Auth runtime": "Checks that the strict Basic MCP route accepts valid credentials and rejects disabled credentials.",
-  "OAuth Bearer runtime": "Issues a token, proves endpoint permission filtering, allowed and denied calls, revocation, and revoked-token rejection.",
+  "OAuth Bearer runtime": "Issues a token, proves tool/resource/prompt permission filtering, allowed and denied calls, revocation, and revoked-token rejection.",
   "Audit evidence and reset guard": "Confirms security-relevant activity is visible and reset rejects invalid root credentials.",
   "Optional root reset": "Runs only when enabled; otherwise records that destructive reset was intentionally skipped.",
   "Cleanup temporary records": "Removes scenario-created records so repeated local runs stay predictable.",
@@ -48,6 +51,16 @@ const GENERIC_AUTH_HELP = {
   none: "Sends no Authorization header. Use this for public/no-auth MCP routes.",
   basic: "Builds an Authorization: Basic header from the username and password fields.",
   bearer: "Builds an Authorization: Bearer header from the token field, usually issued by OAuth.",
+};
+const GENERIC_METHOD_PRESET_HELP = {
+  tools: "Runs initialize, tools/list, and optional tools/call using the tool fields below.",
+  resourcesList: "Runs initialize and resources/list to verify direct MCP resource discovery.",
+  resourcesRead: "Runs initialize and resources/read with a seeded or custom resource URI.",
+  resourceTemplatesList: "Runs initialize and resources/templates/list to verify parameterized resource descriptors.",
+  promptsList: "Runs initialize and prompts/list to verify prompt template discovery.",
+  promptsGet: "Runs initialize and prompts/get with seeded or custom prompt arguments.",
+  completionPrompt: "Runs initialize and completion/complete for a prompt argument candidate.",
+  completionResource: "Runs initialize and completion/complete for a resource-template argument candidate.",
 };
 const GENERIC_DRAFT_STORAGE_KEY = "mcp-mock-standalone-inspector:generic-draft:v1";
 const oauthPopupSessions = new Map();
@@ -151,6 +164,15 @@ function parseToolArgs(value) {
   const parsed = JSON.parse(value);
   if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
     throw new Error("Tool arguments must be a JSON object.");
+  }
+  return parsed;
+}
+
+function parseJsonObject(value, label) {
+  if (!value || !String(value).trim()) return {};
+  const parsed = JSON.parse(value);
+  if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+    throw new Error(`${label} must be a JSON object.`);
   }
   return parsed;
 }
@@ -370,6 +392,52 @@ async function createScenarioEndpoint(client, name) {
   return { result, endpoint: result.body.endpoint };
 }
 
+async function createScenarioResource(client, stamp) {
+  const result = await client.json("POST", "/api/resources", {
+    uri: `mock://resources/ui-inspector-${stamp}`,
+    name: `ui_inspector_resource_${stamp}`,
+    title: "Standalone inspector resource",
+    description: "Created by the standalone inspector scenario runner.",
+    mimeType: "text/plain",
+    enabled: true,
+    textContent: `standalone inspector resource body ${stamp}`,
+    annotationsJson: JSON.stringify({ audience: ["assistant"] }),
+  });
+  assertStatus(result, 201, "Create MCP resource");
+  return { result, resource: result.body.resource };
+}
+
+async function createScenarioPrompt(client, stamp) {
+  const result = await client.json("POST", "/api/prompts", {
+    name: `ui_inspector_prompt_${stamp}`,
+    title: "Standalone inspector prompt",
+    description: "Created by the standalone inspector scenario runner.",
+    enabled: true,
+    arguments: [{ name: "tone", title: "Tone", description: "Reply tone.", required: true }],
+    messages: [{ role: "user", textTemplate: "Write a {tone} standalone inspector summary." }],
+    completionCandidates: [{ argumentName: "tone", value: "friendly", label: "Friendly" }],
+  });
+  assertStatus(result, 201, "Create MCP prompt");
+  return { result, prompt: result.body.prompt };
+}
+
+async function readSseUntil(reader, needle, timeoutMs = 5000) {
+  const decoder = new TextDecoder();
+  const deadline = Date.now() + timeoutMs;
+  let output = "";
+  while (!output.includes(needle)) {
+    const remaining = deadline - Date.now();
+    if (remaining <= 0) break;
+    const read = await Promise.race([
+      reader.read(),
+      new Promise((resolve) => setTimeout(() => resolve({ done: true, value: undefined }), remaining)),
+    ]);
+    if (read.done) break;
+    output += decoder.decode(read.value ?? new Uint8Array(), { stream: true });
+  }
+  return output;
+}
+
 async function runScenarioStep(steps, name, action, options = {}) {
   try {
     const data = await action();
@@ -439,8 +507,12 @@ async function inspectMockServerScenario(input) {
     basicUserId: "",
     oauthUserId: "",
     oauthClientId: "",
+    resourceId: "",
+    promptId: "",
   };
   let endpoint = null;
+  let resource = null;
+  let prompt = null;
   let bearerHeader = null;
   let claims = null;
   let clientSecret = "";
@@ -584,6 +656,106 @@ async function inspectMockServerScenario(input) {
         };
       });
 
+      await runScenarioStep(steps, "Resources, prompts, completion, and SSE", async () => {
+        const createdResource = await createScenarioResource(client, stamp);
+        resource = createdResource.resource;
+        cleanup.resourceId = resource.id;
+        const createdPrompt = await createScenarioPrompt(client, stamp);
+        prompt = createdPrompt.prompt;
+        cleanup.promptId = prompt.id;
+
+        const resourcesList = await mockMcp(client, "/mcp/none", { jsonrpc: "2.0", id: "resources-list", method: "resources/list" });
+        assertStatus(resourcesList, 200, "MCP resources/list");
+        assert(resourcesList.body.result.resources.some((item) => item.uri === resource.uri), "MCP resources/list must include temporary resource.");
+        const resourceRead = await mockMcp(client, "/mcp/none", {
+          jsonrpc: "2.0",
+          id: "resources-read",
+          method: "resources/read",
+          params: { uri: resource.uri },
+        });
+        assertStatus(resourceRead, 200, "MCP resources/read");
+        assert(resourceRead.body.result.contents[0].text === resource.textContent, "MCP resources/read text mismatch.");
+        const templatesList = await mockMcp(client, "/mcp/none", {
+          jsonrpc: "2.0",
+          id: "resource-templates",
+          method: "resources/templates/list",
+        });
+        assertStatus(templatesList, 200, "MCP resources/templates/list");
+        assert(
+          templatesList.body.result.resourceTemplates.some((item) => item.uriTemplate === "mock://resources/customers/{customerId}"),
+          "MCP resources/templates/list must include seeded customer template.",
+        );
+        const promptsList = await mockMcp(client, "/mcp/none", { jsonrpc: "2.0", id: "prompts-list", method: "prompts/list" });
+        assertStatus(promptsList, 200, "MCP prompts/list");
+        assert(promptsList.body.result.prompts.some((item) => item.name === prompt.name), "MCP prompts/list must include temporary prompt.");
+        const promptGet = await mockMcp(client, "/mcp/none", {
+          jsonrpc: "2.0",
+          id: "prompts-get",
+          method: "prompts/get",
+          params: { name: prompt.name, arguments: { tone: "friendly" } },
+        });
+        assertStatus(promptGet, 200, "MCP prompts/get");
+        const completion = await mockMcp(client, "/mcp/none", {
+          jsonrpc: "2.0",
+          id: "completion",
+          method: "completion/complete",
+          params: { ref: { type: "ref/prompt", name: prompt.name }, argument: { name: "tone", value: "fri" } },
+        });
+        assertStatus(completion, 200, "MCP completion/complete");
+        assert(completion.body.result.completion.values.includes("friendly"), "MCP completion/complete must return prompt candidate.");
+
+        const controller = new globalThis.AbortController();
+        let subscribe = null;
+        let updateEvent = "";
+        try {
+          const response = await fetchWithTls(
+            client.url("/sse/none"),
+            { headers: { Accept: "text/event-stream" }, signal: controller.signal },
+            { insecureTls: client.insecureTls },
+          );
+          assert(response.status === 200, `Legacy SSE expected HTTP 200, got ${response.status}.`);
+          assert(response.body, "Legacy SSE response must expose a readable body.");
+          const reader = response.body.getReader();
+          const opening = await readSseUntil(reader, "event: endpoint");
+          const endpointPath = opening.match(/data: (\/sse\/none\/message\?sessionId=[^\n]+)/)?.[1]?.trim();
+          assert(endpointPath, "Legacy SSE must emit a message endpoint.");
+          subscribe = await mockMcp(client, endpointPath, {
+            jsonrpc: "2.0",
+            id: "ui-inspector-subscribe",
+            method: "resources/subscribe",
+            params: { uri: resource.uri },
+          });
+          assertStatus(subscribe, 202, "Legacy SSE resources/subscribe POST");
+          const subscribeEvent = await readSseUntil(reader, '"id":"ui-inspector-subscribe"');
+          assert(subscribeEvent.includes('"result":{}'), "Legacy SSE subscribe must return empty success result.");
+          const updatedResource = await client.json("PATCH", `/api/resources/${resource.id}`, {
+            ...resource,
+            textContent: `updated standalone inspector resource body ${stamp}`,
+          });
+          assertStatus(updatedResource, 200, "Update subscribed resource");
+          updateEvent = await readSseUntil(reader, "notifications/resources/updated", 6000);
+          assert(updateEvent.includes(resource.uri), "Legacy SSE subscription must emit resource update notification.");
+        } finally {
+          controller.abort();
+        }
+
+        addDiagnostic(diagnostics, "resources", "list/read/templates");
+        addDiagnostic(diagnostics, "prompts", "list/get");
+        addDiagnostic(diagnostics, "completion", "prompt candidate");
+        addDiagnostic(diagnostics, "sse notifications", "resources/updated");
+        return {
+          evidence: "MCP Resources, Resource Templates, Prompts, Completion, and legacy SSE resource update notifications work.",
+          genericTarget: {
+            ...genericMcpTarget(baseUrl, "none", insecureTls),
+            methodPreset: "resourcesRead",
+            methodParamsJson: JSON.stringify({ uri: resource.uri }),
+            toolName: "",
+            toolArgsJson: "{}",
+          },
+          response: { createdResource, createdPrompt, resourcesList, resourceRead, templatesList, promptsList, promptGet, completion, subscribe, updateEvent },
+        };
+      });
+
       await runScenarioStep(steps, "Basic Auth runtime", async () => {
         const create = await client.json("POST", "/api/basic-users", {
           username: basicUsername,
@@ -607,6 +779,7 @@ async function inspectMockServerScenario(input) {
       });
 
       await runScenarioStep(steps, "OAuth Bearer runtime", async () => {
+        assert(resource && prompt, "Resources/prompts step must complete before OAuth permission checks.");
         const missingBearer = await mockMcp(client, "/mcp/oauth", { jsonrpc: "2.0", id: "missing-bearer", method: "tools/list" });
         assertStatus(missingBearer, 401, "Strict OAuth missing Bearer challenge");
         const challenge = missingBearer.headers["www-authenticate"] ?? "";
@@ -627,6 +800,8 @@ async function inspectMockServerScenario(input) {
           redirectUris: ["http://localhost:3000/oauth/callback"],
           clientCredentialsTtlSeconds: 900,
           allowedEndpointIds: [endpoint.id],
+          allowedResourceIds: [resource.id],
+          allowedPromptIds: [prompt.id],
         });
         assertStatus(clientCreate, 201, "Create OAuth client");
         cleanup.oauthClientId = clientCreate.body.client.id;
@@ -642,6 +817,8 @@ async function inspectMockServerScenario(input) {
         bearerHeader = { Authorization: `Bearer ${token.body.access_token}` };
         claims = decodeJwt(token.body.access_token);
         assert(claims.endpoint_permissions.includes(endpoint.id), "OAuth token must include endpoint permission.");
+        assert(claims.resource_permissions.includes(resource.id), "OAuth token must include resource permission.");
+        assert(claims.prompt_permissions.includes(prompt.id), "OAuth token must include prompt permission.");
         assert(claims.aud === baseUrl, "OAuth token audience must match requested resource.");
         const tokenList = await client.request("/api/oauth/tokens");
         assertStatus(tokenList, 200, "Issued token list");
@@ -651,6 +828,18 @@ async function inspectMockServerScenario(input) {
         const toolNames = oauthList.body.result.tools.map((tool) => tool.name);
         assert(toolNames.includes(endpointName), "OAuth tools/list must include permitted endpoint.");
         assert(!toolNames.includes("echo"), "OAuth tools/list must filter non-permitted echo endpoint.");
+        const oauthResources = await mockMcp(client, "/mcp/oauth", { jsonrpc: "2.0", id: "oauth-resources", method: "resources/list" }, bearerHeader);
+        assertStatus(oauthResources, 200, "OAuth MCP resources/list");
+        const resourceUris = oauthResources.body.result.resources.map((item) => item.uri);
+        assert(resourceUris.includes(resource.uri), "OAuth resources/list must include permitted resource.");
+        assert(!resourceUris.includes("mock://resources/server-status"), "OAuth resources/list must filter non-permitted resources.");
+        const oauthPrompt = await mockMcp(
+          client,
+          "/mcp/oauth",
+          { jsonrpc: "2.0", id: "oauth-prompt", method: "prompts/get", params: { name: prompt.name, arguments: { tone: "friendly" } } },
+          bearerHeader,
+        );
+        assertStatus(oauthPrompt, 200, "OAuth MCP prompts/get");
         const allowed = await client.json("POST", `/rest/tools/${endpointName}/call`, { arguments: { city: "Seoul" } }, bearerHeader);
         assertStatus(allowed, 201, "OAuth REST allowed call");
         const denied = await client.json("POST", "/rest/tools/echo/call", { arguments: { message: "hello" } }, bearerHeader);
@@ -661,13 +850,17 @@ async function inspectMockServerScenario(input) {
         assertStatus(revoked, 401, "Revoked token rejection");
         addDiagnostic(diagnostics, "bearer challenge", "resource_metadata");
         addDiagnostic(diagnostics, "jwt audience", claims.aud);
-        addDiagnostic(diagnostics, "jwt permissions", claims.endpoint_permissions.length);
+        addDiagnostic(
+          diagnostics,
+          "jwt permissions",
+          `${claims.endpoint_permissions.length} tools, ${claims.resource_permissions.length} resources, ${claims.prompt_permissions.length} prompts`,
+        );
         addDiagnostic(diagnostics, "oauth denied call", "403");
         addDiagnostic(diagnostics, "revoked token", "401 invalid_token");
         return {
-          evidence: "OAuth client credentials, permission filtering, allowed/denied calls, token list, revocation, and revoked-token rejection work.",
+          evidence: "OAuth client credentials, tool/resource/prompt permission filtering, allowed/denied calls, token list, revocation, and revoked-token rejection work.",
           genericTarget: genericMcpTarget(baseUrl, "oauth", insecureTls),
-          response: { missingBearer, userCreate, clientCreate: { ...clientCreate, body: { ...clientCreate.body, clientSecret: "<redacted>" } }, token: { ...token, body: { ...token.body, access_token: "<redacted>" } }, tokenList, oauthList, allowed, denied, revoke, revoked },
+          response: { missingBearer, userCreate, clientCreate: { ...clientCreate, body: { ...clientCreate.body, clientSecret: "<redacted>" } }, token: { ...token, body: { ...token.body, access_token: "<redacted>" } }, tokenList, oauthList, oauthResources, oauthPrompt, allowed, denied, revoke, revoked },
         };
       });
 
@@ -718,6 +911,8 @@ async function inspectMockServerScenario(input) {
       if (cleanup.oauthClientId) await safeDelete(client, `/api/oauth-clients/${cleanup.oauthClientId}`);
       if (cleanup.oauthUserId) await safeDelete(client, `/api/oauth-users/${cleanup.oauthUserId}`);
       if (cleanup.basicUserId) await safeDelete(client, `/api/basic-users/${cleanup.basicUserId}`);
+      if (cleanup.promptId) await safeDelete(client, `/api/prompts/${cleanup.promptId}`);
+      if (cleanup.resourceId) await safeDelete(client, `/api/resources/${cleanup.resourceId}`);
       if (cleanup.endpointId) await safeDelete(client, `/api/endpoints/${cleanup.endpointId}`, { deleteCode: DEFAULT_DELETE_CODE });
       addDiagnostic(diagnostics, "cleanup mode", "delete temporary records");
       steps.push(makeStep("Cleanup temporary records", "pass", {
@@ -792,37 +987,67 @@ async function inspectMcpTarget(input) {
   const negotiated = initialize.body?.result?.protocolVersion ?? initialize.headers["mcp-protocol-version"] ?? "not reported";
   diagnostics.push(["negotiated protocol", negotiated]);
 
-  const listPayload = { jsonrpc: "2.0", id: "inspector-tools-list", method: "tools/list" };
-  const list = await fetchJson(targetUrl, listPayload, protocolHeaders, { insecureTls });
-  const tools = Array.isArray(list.body?.result?.tools) ? list.body.result.tools : [];
-  steps.push(makeStep("MCP tools/list", list.ok && Array.isArray(tools) ? "pass" : "fail", {
-    request: { url: targetUrl, headers: redactHeaders(protocolHeaders), body: listPayload },
-    response: list,
-    evidence: `${tools.length} tools returned`,
-  }));
-  diagnostics.push(["tools returned", tools.length]);
-  diagnostics.push(["response protocol header", list.headers["mcp-protocol-version"] ?? "not reported"]);
+  const methodPreset = String(input.methodPreset || "tools");
+  if (methodPreset === "tools") {
+    const listPayload = { jsonrpc: "2.0", id: "inspector-tools-list", method: "tools/list" };
+    const list = await fetchJson(targetUrl, listPayload, protocolHeaders, { insecureTls });
+    const tools = Array.isArray(list.body?.result?.tools) ? list.body.result.tools : [];
+    steps.push(makeStep("MCP tools/list", list.ok && Array.isArray(tools) ? "pass" : "fail", {
+      request: { url: targetUrl, headers: redactHeaders(protocolHeaders), body: listPayload },
+      response: list,
+      evidence: `${tools.length} tools returned`,
+    }));
+    diagnostics.push(["tools returned", tools.length]);
+    diagnostics.push(["response protocol header", list.headers["mcp-protocol-version"] ?? "not reported"]);
 
-  const toolName = String(input.toolName ?? "").trim();
-  if (toolName) {
-    const args = parseToolArgs(input.toolArgsJson);
-    const callPayload = {
-      jsonrpc: "2.0",
-      id: "inspector-tools-call",
-      method: "tools/call",
-      params: { name: toolName, arguments: args },
-    };
-    const call = await fetchJson(targetUrl, callPayload, protocolHeaders, { insecureTls });
-    const hasResultOrJsonRpcError = Boolean(call.body?.result || call.body?.error);
-    steps.push(makeStep("MCP tools/call", call.ok && hasResultOrJsonRpcError ? "pass" : "fail", {
-      request: { url: targetUrl, headers: redactHeaders(protocolHeaders), body: callPayload },
-      response: call,
-    }));
-    diagnostics.push(["called tool", toolName]);
+    const toolName = String(input.toolName ?? "").trim();
+    if (toolName) {
+      const args = parseToolArgs(input.toolArgsJson);
+      const callPayload = {
+        jsonrpc: "2.0",
+        id: "inspector-tools-call",
+        method: "tools/call",
+        params: { name: toolName, arguments: args },
+      };
+      const call = await fetchJson(targetUrl, callPayload, protocolHeaders, { insecureTls });
+      const hasResultOrJsonRpcError = Boolean(call.body?.result || call.body?.error);
+      steps.push(makeStep("MCP tools/call", call.ok && hasResultOrJsonRpcError ? "pass" : "fail", {
+        request: { url: targetUrl, headers: redactHeaders(protocolHeaders), body: callPayload },
+        response: call,
+      }));
+      diagnostics.push(["called tool", toolName]);
+    } else {
+      steps.push(makeStep("MCP tools/call", "skip", {
+        evidence: "No tool name was provided.",
+      }));
+    }
   } else {
-    steps.push(makeStep("MCP tools/call", "skip", {
-      evidence: "No tool name was provided.",
+    const params = parseJsonObject(input.methodParamsJson, "Method params JSON");
+    const methodByPreset = {
+      resourcesList: "resources/list",
+      resourcesRead: "resources/read",
+      resourceTemplatesList: "resources/templates/list",
+      promptsList: "prompts/list",
+      promptsGet: "prompts/get",
+      completionPrompt: "completion/complete",
+      completionResource: "completion/complete",
+    };
+    const method = methodByPreset[methodPreset];
+    if (!method) throw new Error(`Unknown MCP method preset: ${methodPreset}`);
+    const payload = {
+      jsonrpc: "2.0",
+      id: `inspector-${method.replaceAll("/", "-")}`,
+      method,
+      ...(Object.keys(params).length ? { params } : {}),
+    };
+    const result = await fetchJson(targetUrl, payload, protocolHeaders, { insecureTls });
+    const hasResultOrJsonRpcError = Boolean(result.body?.result || result.body?.error);
+    steps.push(makeStep(`MCP ${method}`, result.ok && hasResultOrJsonRpcError ? "pass" : "fail", {
+      request: { url: targetUrl, headers: redactHeaders(protocolHeaders), body: payload },
+      response: result,
     }));
+    diagnostics.push(["method preset", method]);
+    diagnostics.push(["response protocol header", result.headers["mcp-protocol-version"] ?? "not reported"]);
   }
 
   const badVersionPayload = { jsonrpc: "2.0", id: "inspector-bad-version", method: "tools/list" };
@@ -919,9 +1144,19 @@ async function prepareOAuthPopupFlow(input, origin) {
   const client = new MockClient(baseUrl, { insecureTls });
   const endpoints = await client.request("/api/endpoints");
   assertStatus(endpoints, 200, "Endpoint catalog");
+  const resources = await client.request("/api/resources");
+  assertStatus(resources, 200, "Resource catalog");
+  const prompts = await client.request("/api/prompts");
+  assertStatus(prompts, 200, "Prompt catalog");
   const enabledEndpointIds = (endpoints.body.endpoints ?? [])
     .filter((endpoint) => endpoint.enabled)
     .map((endpoint) => endpoint.id);
+  const enabledResourceIds = (resources.body.items ?? [])
+    .filter((resource) => resource.enabled)
+    .map((resource) => resource.id);
+  const enabledPromptIds = (prompts.body.items ?? [])
+    .filter((prompt) => prompt.enabled)
+    .map((prompt) => prompt.id);
   if (enabledEndpointIds.length === 0) {
     throw new Error("At least one enabled endpoint is required before running popup OAuth.");
   }
@@ -936,6 +1171,8 @@ async function prepareOAuthPopupFlow(input, origin) {
     redirectUris: [redirectUri],
     clientCredentialsTtlSeconds: 900,
     allowedEndpointIds: enabledEndpointIds,
+    allowedResourceIds: enabledResourceIds,
+    allowedPromptIds: enabledPromptIds,
   });
   assertStatus(createClient, 201, "Create popup OAuth client");
   const clientSecret = createClient.body.clientSecret;
@@ -976,6 +1213,8 @@ async function prepareOAuthPopupFlow(input, origin) {
       { check: "grant", value: "authorization_code + PKCE S256" },
       { check: "redirect_uri", value: redirectUri },
       { check: "allowed endpoints", value: String(enabledEndpointIds.length) },
+      { check: "allowed resources", value: String(enabledResourceIds.length) },
+      { check: "allowed prompts", value: String(enabledPromptIds.length) },
       { check: "temporary client", value: clientId },
     ],
   };
@@ -1770,11 +2009,11 @@ function renderHtml(page = "home") {
     ${safePage === "home" ? `<section class="home-only home-grid" aria-label="Inspector workflow choices">
       <a class="mode-card" href="/mock">
         <strong>Mock Server scenario</strong>
-        <span>Run the broad local scenario for health, config, REST, MCP, Basic, OAuth, token revocation, audit evidence, reset guards, and cleanup.</span>
+        <span>Run the broad local scenario for health, config, REST, MCP tools/resources/prompts/completion, SSE notifications, Basic, OAuth permissions, audit, reset guards, and cleanup.</span>
       </a>
       <a class="mode-card" href="/generic">
         <strong>Generic MCP target</strong>
-        <span>Inspect one MCP Streamable HTTP endpoint with route presets, Authorization helpers, optional tool call, and raw protocol evidence.</span>
+        <span>Inspect one MCP Streamable HTTP endpoint with route presets, Authorization helpers, method presets, and raw protocol evidence.</span>
       </a>
       <a class="mode-card" href="/oauth">
         <strong>OAuth popup flow</strong>
@@ -1807,7 +2046,7 @@ function renderHtml(page = "home") {
             <span class="label-text">Root password for optional reset ${helpTooltip("Only used when destructive reset is enabled. The value is sent to the Mock Server reset API and is not stored by this page.")}</span>
             <input name="rootPassword" type="password" placeholder="Only needed when reset is enabled" />
           </label>
-          <p class="hint">Default run covers health, config, discovery, endpoint admin, REST, MCP, Basic, OAuth Bearer, token revocation, audit, reset denial, and cleanup. Root reset stays off unless you opt in. Use self-signed HTTPS only for local certificates you control.</p>
+          <p class="hint">Default run covers health, config, discovery, endpoint admin, REST, MCP tools/resources/prompts/completion, SSE notifications, Basic, OAuth Bearer permissions, token revocation, audit, reset denial, and cleanup. Root reset stays off unless you opt in. Use self-signed HTTPS only for local certificates you control.</p>
           <p class="hint">This page remembers recent target URLs and protocol/tool names in this browser only. Headers, tool arguments, root passwords, and other secret-like fields are not stored.</p>
           <div class="actions">
             <button id="run-mock-button" type="submit">Run Mock Server scenario</button>
@@ -1922,6 +2161,24 @@ function renderHtml(page = "home") {
             <span class="label-text">Optional tool arguments JSON ${helpTooltip("JSON object used as params.arguments for tools/call. It must match the selected tool's input schema.")}</span>
             <textarea name="toolArgsJson" placeholder='{"message":"hello"}'>{}</textarea>
           </label>
+          <label>
+            <span class="label-text">MCP method preset ${helpTooltip("Choose the server-side MCP method to verify after initialize. Tools mode keeps the optional tools/call fields above.")}</span>
+            <select name="methodPreset">
+              <option value="tools">Tools list/call</option>
+              <option value="resourcesList">resources/list</option>
+              <option value="resourcesRead">resources/read</option>
+              <option value="resourceTemplatesList">resources/templates/list</option>
+              <option value="promptsList">prompts/list</option>
+              <option value="promptsGet">prompts/get</option>
+              <option value="completionPrompt">completion/complete prompt</option>
+              <option value="completionResource">completion/complete resource template</option>
+            </select>
+          </label>
+          <div id="method-preset-note" class="select-note" aria-live="polite"></div>
+          <label>
+            <span class="label-text">Method params JSON ${helpTooltip("JSON object used as params for the selected resources/read, prompts/get, or completion/complete preset. List methods usually use {}.")}</span>
+            <textarea name="methodParamsJson" placeholder='{"uri":"mock://resources/server-status"}'>{}</textarea>
+          </label>
           <button id="run-button" type="submit">Run generic inspection</button>
         </form>
         <section>
@@ -1976,6 +2233,7 @@ function renderHtml(page = "home") {
     const bearerAuthFields = document.querySelector("#bearer-auth-fields");
     const routePresetNote = document.querySelector("#route-preset-note");
     const authModeNote = document.querySelector("#auth-mode-note");
+    const methodPresetNote = document.querySelector("#method-preset-note");
     const issueTokenButton = document.querySelector("#issue-token-button");
     const tokenHelperStatus = document.querySelector("#token-helper-status");
     const copyConfigButton = document.querySelector("#copy-config-button");
@@ -1992,6 +2250,7 @@ function renderHtml(page = "home") {
     const oauthGenericDraftKey = "mcp-mock-standalone-inspector:oauth-generic-draft:v1";
     const routePresetHelp = ${JSON.stringify(GENERIC_ROUTE_PRESET_HELP)};
     const authModeHelp = ${JSON.stringify(GENERIC_AUTH_HELP)};
+    const methodPresetHelp = ${JSON.stringify(GENERIC_METHOD_PRESET_HELP)};
     const scenarioStepHelp = ${JSON.stringify(MOCK_SCENARIO_STEP_HELP)};
 
     function readRecentSettings() {
@@ -2015,6 +2274,10 @@ function renderHtml(page = "home") {
       if (form && settings.mcpUrl) form.elements.mcpUrl.value = settings.mcpUrl;
       if (form && settings.protocolVersion) form.elements.protocolVersion.value = settings.protocolVersion;
       if (form && settings.genericInsecureTls === true) form.elements.insecureTls.checked = true;
+      if (form && settings.methodPreset) {
+        form.elements.methodPreset.value = settings.methodPreset;
+        form.elements.methodParamsJson.value = methodParamsForPreset(settings.methodPreset);
+      }
       if (form && settings.toolName) form.elements.toolName.value = settings.toolName;
       hydrateGenericDraft();
     }
@@ -2039,11 +2302,14 @@ function renderHtml(page = "home") {
       if (draft.oauthClientId) form.elements.oauthClientId.value = draft.oauthClientId;
       if (draft.oauthClientSecret) form.elements.oauthClientSecret.value = draft.oauthClientSecret;
       if (draft.oauthScope) form.elements.oauthScope.value = draft.oauthScope;
+      if (draft.methodPreset) form.elements.methodPreset.value = draft.methodPreset;
+      if (draft.methodParamsJson) form.elements.methodParamsJson.value = draft.methodParamsJson;
       if (draft.toolName) form.elements.toolName.value = draft.toolName;
       if (draft.toolArgsJson) form.elements.toolArgsJson.value = draft.toolArgsJson;
       if (draft.headersJson) form.elements.headersJson.value = draft.headersJson;
       form.elements.insecureTls.checked = draft.insecureTls === true;
       updateAuthFields();
+      updateMethodPresetNote();
       window.localStorage.removeItem(genericDraftKey);
     }
 
@@ -2058,6 +2324,32 @@ function renderHtml(page = "home") {
     function updateRoutePresetNote() {
       if (!form || !routePresetNote) return;
       routePresetNote.textContent = routePresetHelp[form.elements.mockRoutePreset.value] || "";
+    }
+
+    function methodParamsForPreset(preset) {
+      const params = {
+        tools: "{}",
+        resourcesList: "{}",
+        resourcesRead: JSON.stringify({ uri: "mock://resources/server-status" }),
+        resourceTemplatesList: "{}",
+        promptsList: "{}",
+        promptsGet: JSON.stringify({ name: "support_reply", arguments: { tone: "friendly" } }),
+        completionPrompt: JSON.stringify({ ref: { type: "ref/prompt", name: "support_reply" }, argument: { name: "tone", value: "fri" } }),
+        completionResource: JSON.stringify({ ref: { type: "ref/resource", uri: "mock://resources/customers/{customerId}" }, argument: { name: "customerId", value: "cust" } }),
+      };
+      return params[preset] || "{}";
+    }
+
+    function updateMethodPresetNote() {
+      if (!form || !methodPresetNote) return;
+      methodPresetNote.textContent = methodPresetHelp[form.elements.methodPreset.value] || "";
+    }
+
+    function applyMethodPreset() {
+      if (!form) return;
+      const preset = form.elements.methodPreset.value;
+      form.elements.methodParamsJson.value = methodParamsForPreset(preset);
+      updateMethodPresetNote();
     }
 
     function currentMockBaseUrl() {
@@ -2140,6 +2432,8 @@ function renderHtml(page = "home") {
         oauthScope: String(form.elements.oauthScope.value || ""),
         headersJson: String(form.elements.headersJson.value || ""),
         insecureTls: form.elements.insecureTls.checked,
+        methodPreset: String(form.elements.methodPreset.value || "tools"),
+        methodParamsJson: String(form.elements.methodParamsJson.value || "{}"),
         toolName: String(form.elements.toolName.value || ""),
         toolArgsJson: String(form.elements.toolArgsJson.value || "{}"),
       };
@@ -2159,11 +2453,14 @@ function renderHtml(page = "home") {
       if (config.oauthClientSecret) form.elements.oauthClientSecret.value = config.oauthClientSecret;
       if (config.oauthScope) form.elements.oauthScope.value = config.oauthScope;
       if (config.headersJson) form.elements.headersJson.value = config.headersJson;
+      if (config.methodPreset) form.elements.methodPreset.value = config.methodPreset;
+      if (config.methodParamsJson) form.elements.methodParamsJson.value = config.methodParamsJson;
       if (config.toolName) form.elements.toolName.value = config.toolName;
       if (config.toolArgsJson) form.elements.toolArgsJson.value = config.toolArgsJson;
       form.elements.insecureTls.checked = config.insecureTls === true;
       updateAuthFields();
       updateRoutePresetNote();
+      updateMethodPresetNote();
     }
 
     function readHistory() {
@@ -2271,6 +2568,7 @@ function renderHtml(page = "home") {
           mcpUrl: String(payload.mcpUrl || ""),
           protocolVersion: String(payload.protocolVersion || ""),
           genericInsecureTls: payload.insecureTls,
+          methodPreset: String(payload.methodPreset || "tools"),
           toolName: String(payload.toolName || ""),
         });
         const response = await fetch("/api/inspect", {
@@ -2285,7 +2583,7 @@ function renderHtml(page = "home") {
           ok: data.ok !== false,
           mcpUrl: targetConfig.mcpUrl,
           authMode: targetConfig.authMode,
-          toolName: targetConfig.toolName,
+          toolName: targetConfig.methodPreset === "tools" ? targetConfig.toolName : targetConfig.methodPreset,
         });
       } catch (error) {
         results.className = "empty";
@@ -2294,7 +2592,7 @@ function renderHtml(page = "home") {
           ok: false,
           mcpUrl: form.elements.mcpUrl.value,
           authMode: form.elements.authMode.value,
-          toolName: form.elements.toolName.value,
+          toolName: form.elements.methodPreset.value === "tools" ? form.elements.toolName.value : form.elements.methodPreset.value,
         });
       } finally {
         button.disabled = false;
@@ -2518,11 +2816,14 @@ function renderHtml(page = "home") {
       applyMockRoutePreset();
       updateRoutePresetNote();
     });
+    if (form) form.elements.methodPreset.addEventListener("change", applyMethodPreset);
     updateAuthFields();
     updateRoutePresetNote();
+    updateMethodPresetNote();
     hydrateRecentSettings();
     updateAuthFields();
     updateRoutePresetNote();
+    updateMethodPresetNote();
     renderHistory();
   </script>
 </body>

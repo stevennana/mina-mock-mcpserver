@@ -1099,3 +1099,65 @@ No remaining task. Stopping loop.
 - evaluator: started
 - evaluator: status=done promotion=true Deterministic checks passed; task is eligible for automatic promotion. -> state/artifacts/20260513T175235-mcp-resource-subscription-notifications/evaluator.log
 - next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260513T175235-mcp-resource-subscription-notifications/npm-run-test-e2e-tests-e2e-mcp-resource-subscrip-next-server.log
+- commit: commit: created
+- promote: Promoted mcp-resource-subscription-notifications -> inspector-full-server-features
+- backlog: rendered current=inspector-full-server-features
+- health: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxooooooooooooooooxooxoxooxoxoooooxxxxxooooo
+- cycle: finished
+
+### cycle 2026-05-13T18:09:42+09:00 task=inspector-full-server-features
+- artifacts: state/artifacts/20260513T180942-inspector-full-server-features
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260513T180942-inspector-full-server-features/worker.jsonl
+- worker-summary: Implemented the Inspector full-server-features slice and wrote the handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+- evaluator: started
+- evaluator: status=not_done promotion=false Deterministic checks failed; task is not ready for promotion. -> state/artifacts/20260513T180942-inspector-full-server-features/evaluator.log
+- next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260513T180942-inspector-full-server-features/npm-run-test-e2e-next-server.log
+- commit: commit: skipped (deterministic checks not passing)
+- blocker: signature=deterministic_failure|npm-run-inspector-mock|no-path-details repeat=1 kind=evaluation Repeated required-command failure: npm run inspector:mock
+- promote: Task inspector-full-server-features not eligible for promotion.
+- backlog: rendered current=inspector-full-server-features
+- health: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxooooooooooooooooxooxoxooxoxoooooxxxxxooooox
+- cycle: finished
+
+### cycle 2026-05-13T19:00:10+09:00 task=inspector-full-server-features
+- artifacts: state/artifacts/20260513T190010-inspector-full-server-features
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260513T190010-inspector-full-server-features/worker.jsonl
+- worker-summary: Implemented and verified the final Inspector full-server-features slice.
+- evaluator: started
+- evaluator: status=not_done promotion=false Deterministic checks failed; task is not ready for promotion. -> state/artifacts/20260513T190010-inspector-full-server-features/evaluator.log
+- next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260513T190010-inspector-full-server-features/npm-run-test-e2e-next-server.log
+- commit: commit: skipped (deterministic checks not passing)
+- blocker: signature=deterministic_failure|npm-run-inspector-mock|no-path-details repeat=2 kind=evaluation Repeated required-command failure: npm run inspector:mock
+- promote: Task inspector-full-server-features not eligible for promotion.
+- backlog: rendered current=inspector-full-server-features
+- health: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxooooooooooooooooxooxoxooxoxoooooxxxxxoooooxx
+- cycle: finished
+
+### cycle 2026-05-13T19:13:02+09:00 task=inspector-full-server-features
+- artifacts: state/artifacts/20260513T191302-inspector-full-server-features
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260513T191302-inspector-full-server-features/worker.jsonl
+- worker-summary: Implemented and verified the `inspector-full-server-features` slice. I also updated [README.md](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/README.md) so the top-level Inspector helper list includes resource-template and SSE resource-read checks, updated the active task progress log, and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+- evaluator: started
+- evaluator: status=not_done promotion=false Deterministic checks failed; task is not ready for promotion. -> state/artifacts/20260513T191302-inspector-full-server-features/evaluator.log
+- next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260513T191302-inspector-full-server-features/npm-run-test-e2e-next-server.log
+- commit: commit: skipped (deterministic checks not passing)
+- blocker: signature=deterministic_failure|npm-run-inspector-mock|no-path-details repeat=3 kind=evaluation Repeated required-command failure: npm run inspector:mock
+- blocker: auto-branched signature=deterministic_failure|npm-run-inspector-mock|no-path-details -> inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b
+- backlog: rendered current=inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b
+- health: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxooooooooooooooooxooxoxooxoxoooooxxxxxoooooxxx
+- cycle: finished
+
+### cycle 2026-05-13T19:21:30+09:00 task=inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b
+- artifacts: state/artifacts/20260513T192130-inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260513T192130-inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b/worker.jsonl
+- worker-summary: Resolved the RCA blocker and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt:1).
+- evaluator: started
+- evaluator: status=done promotion=true The RCA task is complete in substance. The repeated failure is isolated to loopback unavailability before the inspector health check, the fallback now covers local ECONNREFUSED for 127.0.0.1 HTTP targets, the required npm run inspector:mock check is recorded passing, and the RCA plan/parent log document the resolution and normal return path. -> state/artifacts/20260513T192130-inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b/evaluator.log

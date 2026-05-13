@@ -1,0 +1,13 @@
+[codex/mcp-resources-prompts-plans ee1f429] ralph: mcp-resource-subscription-notifications 2026-05-13T18:09:12+09:00
+ 34 files changed, 745 insertions(+), 115 deletions(-)
+ rename docs/exec-plans/{active => completed}/033-oauth-resource-prompt-permissions.md (94%)
+ create mode 100644 lib/mcp/sse-notifications.ts
+ create mode 100644 state/artifacts/20260513T170551-oauth-resource-prompt-permissions/backlog.log
+ create mode 100644 state/artifacts/20260513T170551-oauth-resource-prompt-permissions/promote.log
+ create mode 100644 state/artifacts/20260513T175235-mcp-resource-subscription-notifications/commit.log
+ create mode 100644 state/artifacts/20260513T175235-mcp-resource-subscription-notifications/evaluator.log
+ create mode 100644 state/artifacts/20260513T175235-mcp-resource-subscription-notifications/task-prompt.log
+ create mode 100644 state/artifacts/20260513T175235-mcp-resource-subscription-notifications/worker.jsonl
+ create mode 100644 tests/e2e/mcp-resource-subscriptions.spec.ts
+ create mode 100644 tests/unit/mcp-sse-notifications.test.ts
+commit: created

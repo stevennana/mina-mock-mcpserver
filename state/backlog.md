@@ -35,6 +35,7 @@
 - [x] mcp-resources-runtime-rca-npx-y-modelcontextprotocol-inspector-0-21-2-cli- — RCA: MCP Resources Runtime blocker
 - [x] mcp-prompts-completion-runtime — MCP Prompts And Completion Runtime
 - [x] oauth-resource-prompt-permissions — OAuth Resource And Prompt Permissions
-- [ ] mcp-resource-subscription-notifications — MCP Resource Subscription Notifications ← current
-- [ ] inspector-full-server-features — Inspector Full Server Features
+- [x] mcp-resource-subscription-notifications — MCP Resource Subscription Notifications
+- [!] inspector-full-server-features — Inspector Full Server Features (blocked)
+- [ ] inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b — RCA: Inspector Full Server Features blocker ← current
 

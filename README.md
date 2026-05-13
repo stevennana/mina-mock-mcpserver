@@ -8,7 +8,7 @@ Try the hosted server first:
 https://mcp.minasoftai.com/
 ```
 
-Use this project when you need to prove that an MCP client, agent integration, QA script, or demo can handle tool discovery, tool calls, Basic Auth, OAuth Bearer permissions, legacy SSE compatibility, failures, token revocation, and audit evidence in a repeatable mock environment.
+Use this project when you need to prove that an MCP client, agent integration, QA script, or demo can handle tool discovery, tool calls, resources, resource templates, prompts, completion, Basic Auth, OAuth Bearer permissions, legacy SSE compatibility, failures, token revocation, and audit evidence in a repeatable mock environment.
 
 ## Is This The Project You Need?
 
@@ -18,12 +18,13 @@ This is a good fit if you want:
 - Streamable HTTP MCP routes and legacy SSE-compatible MCP routes
 - no-auth, strict Basic Auth, and strict OAuth Bearer test paths
 - a mock OAuth authorization server with login, consent, PKCE, client credentials, JWKS, discovery metadata, and revocation
+- server-side MCP Resources, Resource Templates, Prompts, Completion, and legacy SSE resource-update notifications
 - REST tool list/call routes for curl, Postman, and non-MCP client checks
 - endpoint response cases, generated MCP `inputSchema`, and failure simulation
 - token inspection, audit logs, reset, health, Docker, Nginx, and local TLS guidance
 - a standalone project Inspector UI plus upstream `npx @modelcontextprotocol/inspector` examples
 
-This is not a good fit if you need production identity management, multi-tenant isolation, enterprise RBAC, external OAuth provider integration, or a complete MCP resources/prompts/sampling server.
+This is not a good fit if you need production identity management, multi-tenant isolation, enterprise RBAC, external OAuth provider integration, or MCP client-side Sampling, Roots, Elicitation, or task-augmented execution.
 
 ## Current Version
 
@@ -34,6 +35,7 @@ Highlights:
 - product-grade Mock Server admin navigation with bundled SVG icons
 - standalone Inspector UI with focused Mock scenario, Generic target, and OAuth popup pages
 - Streamable HTTP and legacy SSE-compatible MCP routes
+- MCP Resources, Resource Templates, Prompts, Completion, OAuth resource/prompt permissions, and SSE resource notifications
 - upstream MCP Inspector browser and CLI verification paths
 - OAuth authorization-code with PKCE, client credentials, Bearer permission filtering, and token revocation
 
@@ -75,15 +77,15 @@ http://127.0.0.1:3200
 
 Use:
 
-- **Mock Server scenario** for broad E2E coverage across admin APIs, REST, MCP, Basic Auth, OAuth, tokens, audit, reset guard, and cleanup.
-- **Generic MCP target** for one MCP endpoint, including no-auth, Basic, Bearer, optional `tools/call`, and raw evidence.
+- **Mock Server scenario** for broad E2E coverage across admin APIs, REST, MCP tools/resources/prompts/completion, SSE notifications, Basic Auth, OAuth permissions, tokens, audit, reset guard, and cleanup.
+- **Generic MCP target** for one MCP endpoint, including no-auth, Basic, Bearer, method presets for tools/resources/prompts/completion, and raw evidence.
 - **OAuth popup flow** for browser login, consent, PKCE code exchange, and final Bearer MCP verification in Generic MCP Target.
 
 ## Main Routes
 
 | Area | Routes |
 |---|---|
-| Admin UI | `/`, `/endpoints`, `/basic-users`, `/oauth-users`, `/oauth-clients`, `/tokens`, `/config`, `/inspector`, `/audit`, `/reset` |
+| Admin UI | `/`, `/endpoints`, `/resources`, `/resource-templates`, `/prompts`, `/basic-users`, `/oauth-users`, `/oauth-clients`, `/tokens`, `/config`, `/inspector`, `/audit`, `/reset` |
 | Streamable HTTP MCP | `/mcp`, `/mcp/none`, `/mcp/basic`, `/mcp/oauth` |
 | Legacy SSE MCP | `/sse`, `/sse/none`, `/sse/basic`, `/sse/oauth` plus matching `/message` POST routes |
 | REST tools | `/rest/tools`, `/rest/tools/{tool_name}/call` |
@@ -130,8 +132,15 @@ npm run inspector:mock
 npm run inspector:mcp:none
 npm run inspector:cli:list
 npm run inspector:cli:call:echo
+npm run inspector:cli:resources:list
+npm run inspector:cli:resources:read
+npm run inspector:cli:resources:templates
+npm run inspector:cli:prompts:list
+npm run inspector:cli:prompts:get
 npm run inspector:cli:basic:list
 npm run inspector:cli:sse:list
+npm run inspector:cli:sse:resources
+npm run inspector:cli:sse:resources:read
 ```
 
 ## Public Admin Warning

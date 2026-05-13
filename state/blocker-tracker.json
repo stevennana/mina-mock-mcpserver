@@ -1,5 +1,29 @@
 {
   "version": 1,
-  "updated_at": "2026-05-13T08:52:05.663Z",
-  "tasks": {}
+  "updated_at": "2026-05-13T10:21:00.429Z",
+  "tasks": {
+    "inspector-full-server-features": {
+      "last_signature": "deterministic_failure|npm-run-inspector-mock|no-path-details",
+      "last_seen_at": "2026-05-13T10:21:00.282Z",
+      "signatures": {
+        "deterministic_failure|npm-run-inspector-mock|no-path-details": {
+          "signature": "deterministic_failure|npm-run-inspector-mock|no-path-details",
+          "kind": "deterministic_failure",
+          "summary": "Repeated required-command failure: npm run inspector:mock",
+          "branch_slug": "npm-run-inspector-mock-9d318f2b",
+          "failed_commands": [
+            "npm run inspector:mock"
+          ],
+          "failing_spec_paths": [],
+          "missing_files": [],
+          "evidence_artifact_paths": [],
+          "repeat_count": 3,
+          "first_seen_at": "2026-05-13T09:59:40.095Z",
+          "last_seen_at": "2026-05-13T10:21:00.282Z",
+          "branched_to_task_id": "inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b",
+          "branched_at": "2026-05-13T10:21:00.429Z"
+        }
+      }
+    }
+  }
 }

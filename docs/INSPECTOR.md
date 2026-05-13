@@ -14,7 +14,7 @@ Related entry points:
 MCP Mock Server integrates with the upstream MCP Inspector as the recommended interactive MCP protocol debugger.
 The Inspector is used as an external tool through `npx`; this repository does not vendor or fork Inspector source code.
 
-This keeps the mock server focused on its own runtime, REST, OAuth, admin UI, audit, and persistence behavior while still giving users a familiar MCP-native debugger for `initialize`, `tools/list`, and `tools/call`.
+This keeps the mock server focused on its own runtime, REST, OAuth, admin UI, audit, and persistence behavior while still giving users a familiar MCP-native debugger for `initialize`, tools, resources, prompts, and completion checks.
 
 This repository provides two local inspector paths:
 
@@ -34,6 +34,11 @@ Use Inspector for:
 - enabled tool discovery through `tools/list`
 - generated tool schema inspection
 - tool calls through `tools/call`
+- direct resource discovery and reads through `resources/list` and `resources/read`
+- resource template discovery through `resources/templates/list`
+- prompt discovery and rendering through `prompts/list` and `prompts/get`
+- argument candidates through `completion/complete` where the Inspector surface supports it
+- best-effort legacy SSE resource subscriptions and list/update notifications where the client supports live SSE sessions
 - MCP error inspection for invalid params, unknown tools, forbidden OAuth permissions, and configured failure behavior
 
 Use the admin UI, curl, Playwright, or future project-specific smoke clients for:
@@ -74,6 +79,7 @@ The generic page accepts:
 - extra headers as JSON for API keys or custom local server requirements
 - an opt-in self-signed HTTPS mode for local certificates created with `npm run cert:dev` or similar tooling
 - optional tool name and JSON arguments for `tools/call`
+- method presets for `resources/list`, `resources/read`, `resources/templates/list`, `prompts/list`, `prompts/get`, prompt completion, and resource-template completion
 - copy/import target config JSON for redacted, portable connection presets
 - compact per-tab request history for recent generic inspections
 
@@ -84,8 +90,7 @@ The standalone UI has three focused modes.
 Generic MCP mode performs standard-facing checks against any compatible MCP HTTP target:
 
 - `initialize`
-- `tools/list`
-- optional `tools/call`
+- the selected MCP method preset, defaulting to `tools/list` plus optional `tools/call`
 - response protocol header evidence
 - intentionally unsupported protocol-version probe
 
@@ -95,8 +100,10 @@ Mock Server scenario mode expects a running MCP Mock Server base URL and drives 
 
 - health, operator config, OAuth discovery metadata, protected-resource metadata, and JWKS
 - temporary endpoint creation, detail read, update, REST list/call, MCP list/call, forced-error case, and cleanup
+- temporary resource and prompt creation, `resources/list`, `resources/read`, `resources/templates/list`, `prompts/list`, `prompts/get`, and `completion/complete`
+- legacy SSE `resources/subscribe` with `notifications/resources/updated`
 - temporary Basic user creation, strict Basic MCP success, disable behavior, and rejection
-- temporary OAuth user/client creation, `client_credentials` token issuance, Bearer permission filtering, allowed call, denied call, token listing, revocation, and revoked-token rejection
+- temporary OAuth user/client creation, `client_credentials` token issuance, Bearer tool/resource/prompt permission filtering, allowed call, denied call, token listing, revocation, and revoked-token rejection
 - audit evidence and invalid reset-credential rejection
 
 Scenario results show step progress while the run is in flight and keep the completed progress checklist visible after the run completes. The final view renders summary counters, diagnostics, and sequential step cards so users can inspect each test's request and response evidence without reading one long page of raw output.
@@ -140,11 +147,12 @@ It connects to `http://127.0.0.1:3100` by default and verifies:
 - protocol diagnostics for target URL, OAuth discovery linkage, MCP version negotiation, MCP protocol-version rejection, Origin rejection, Bearer challenge metadata, JWT audience, permission filtering, denial, revocation, and cleanup mode
 - endpoint create/detail/update/delete
 - REST tool list, exact-match call, and forced-error call
-- no-auth MCP `tools/list` and `tools/call`
+- no-auth MCP `tools/list`, `tools/call`, `resources/list`, `resources/read`, `resources/templates/list`, `prompts/list`, `prompts/get`, and `completion/complete`
+- legacy SSE `tools/list`, `resources/subscribe`, and resource update notification evidence
 - Basic user create/disable/delete plus REST and strict MCP Basic calls
 - OAuth user/client create/update/delete
 - OAuth `client_credentials` token issuance
-- Bearer permission filtering, allowed call, denied call, issued-token listing, revocation, and revoked-token rejection
+- Bearer tool/resource/prompt permission filtering, allowed call, denied call, issued-token listing, revocation, and revoked-token rejection
 - audit evidence for inspector-created activity
 - root reset denial for invalid credentials
 
@@ -199,11 +207,13 @@ Authorization: Bearer PASTE_ACCESS_TOKEN_HERE
 
 The legacy SSE aliases keep a live event stream open, emit an `endpoint` event for the matching message POST URL, and return JSON-RPC responses through `message` events. This is enough for local Inspector SSE verification, but it is not durable session storage or resumable replay.
 
+Upstream Inspector CLI `0.21.2` supports `tools/list`, `tools/call`, `resources/list`, `resources/read`, `resources/templates/list`, `prompts/list`, and `prompts/get`. It does not expose a `completion/complete` CLI command in that version; verify completion with the project Generic target presets or with an upstream browser Inspector version that shows Completion controls.
+
 The repository includes `config/mcp-inspector.local.json` for local targets and `config/mcp-inspector.remote.json` for deployed target checks.
 
 ## Interoperability Roadmap
 
-The current v1 mock server focuses on tools over Streamable HTTP `POST`, lightweight SSE compatibility, Basic Auth, and mock OAuth Bearer permissions. The next compatibility updates should land in this order:
+The current v1 mock server focuses on server-side MCP tools, resources, resource templates, prompts, completion, lightweight SSE compatibility, Basic Auth, and mock OAuth Bearer permissions. The next compatibility updates should land in this order:
 
 1. Keep the standalone UI scenario runner and CLI inspector aligned so users can choose either visible browser evidence or terminal evidence.
 2. Add scenario presets for external MCP targets where a server advertises tools but does not support Mock Server admin setup.
@@ -253,6 +263,29 @@ Call the seeded `echo` tool:
 
 ```bash
 npm run inspector:cli:call:echo
+```
+
+List and read seeded resources:
+
+```bash
+npm run inspector:cli:resources:list
+npm run inspector:cli:resources:read
+npm run inspector:cli:resources:templates
+```
+
+List and get seeded prompts:
+
+```bash
+npm run inspector:cli:prompts:list
+npm run inspector:cli:prompts:get
+```
+
+Verify legacy SSE list/read flows:
+
+```bash
+npm run inspector:cli:sse:list
+npm run inspector:cli:sse:resources
+npm run inspector:cli:sse:resources:read
 ```
 
 List tools through strict Basic Auth with the seeded `default` / `default` user:

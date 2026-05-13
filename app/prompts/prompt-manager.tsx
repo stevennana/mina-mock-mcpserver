@@ -449,7 +449,7 @@ export function PromptManager({
               </label>
               <label className="toggle-row">
                 <input type="checkbox" checked={form.enabled} onChange={(event) => updateForm("enabled", event.target.checked)} />
-                <span className="field-label-row">Enabled in prompt catalogs <HelpTooltip text="Enabled prompts appear in future MCP prompts/list runtime handlers. Disabled prompts remain editable." /></span>
+                <span className="field-label-row">Enabled in prompt catalogs <HelpTooltip text="Enabled prompts appear in MCP prompts/list and can be rendered by clients with access. Disabled prompts remain editable." /></span>
               </label>
             </div>
           ) : null}

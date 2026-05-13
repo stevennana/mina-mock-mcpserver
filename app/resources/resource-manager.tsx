@@ -352,7 +352,7 @@ export function ResourceManager({
               </label>
               <label className="toggle-row">
                 <input type="checkbox" checked={form.enabled} onChange={(event) => updateForm("enabled", event.target.checked)} />
-                <span className="field-label-row">Enabled in resource catalogs <HelpTooltip text="Enabled resources appear in future MCP resources/list runtime handlers. Disabled resources stay editable but should not be readable by clients." /></span>
+                <span className="field-label-row">Enabled in resource catalogs <HelpTooltip text="Enabled resources appear in MCP resources/list and can be read by clients with access. Disabled resources stay editable but are not readable by clients." /></span>
               </label>
               <label className="field-block wide">
                 <FieldLabel help="Optional MCP annotations JSON object, such as audience or priority. Content stays app-controlled and read-only to clients.">Annotations JSON</FieldLabel>
@@ -385,7 +385,7 @@ export function ResourceManager({
             <EditorSection title="Resource read preview">
               <div className="console-shell">
                 <p className="section-note">
-                  This previews the exact JSON-RPC shape for `resources/read`; runtime MCP handlers are delivered in a later task.
+                  This previews the exact JSON-RPC shape served by the `resources/read` runtime.
                 </p>
                 <div className="console-actions">
                   <CopyButton value={requestPreview} label="Copy request" />
@@ -394,7 +394,7 @@ export function ResourceManager({
                 <div className="console-evidence-grid" aria-label="Resource read evidence">
                   <EvidencePanel title="resources/read request" value={requestPreview} />
                   <EvidencePanel title="resources/read response" value={responsePreview} />
-                  <EvidencePanel title="Runtime availability" value={form.enabled ? "Enabled resource. Runtime handler pending task 031." : "Disabled resource. Preview only."} compact />
+                  <EvidencePanel title="Runtime availability" value={form.enabled ? "Enabled resource. Readable through MCP resources/read." : "Disabled resource. Hidden from MCP clients."} compact />
                 </div>
               </div>
             </EditorSection>

@@ -31,7 +31,7 @@ Before changing code or plans, read these files in order:
 - true multi-tenant isolation
 - enterprise RBAC for the public admin UI
 - handling sensitive customer data
-- full MCP resources, prompts, sampling, elicitation, or task-augmented execution in MVP
+- MCP client-side sampling, roots, elicitation, or task-augmented execution in MVP
 - replacing a real authorization server
 
 ## Product Shape

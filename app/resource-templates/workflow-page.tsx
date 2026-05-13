@@ -37,12 +37,12 @@ const resourceTemplateCopy: Record<ResourceTemplateView, { eyebrow: string; titl
   completion: {
     eyebrow: "Template detail",
     title: "Completion candidates",
-    description: "Configure sample values later served through completion/complete prefix matching.",
+    description: "Configure sample values served through completion/complete prefix matching.",
   },
   console: {
     eyebrow: "Template detail",
     title: "Template console preview",
-    description: "Preview resources/templates/list, resources/read, and completion/complete shapes before runtime wiring.",
+    description: "Preview resources/templates/list, resources/read, and completion/complete shapes.",
   },
   delete: {
     eyebrow: "Protected operation",

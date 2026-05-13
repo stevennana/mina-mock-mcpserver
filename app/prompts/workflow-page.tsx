@@ -37,7 +37,7 @@ const promptCopy: Record<PromptView, { eyebrow: string; title: string; descripti
   completion: {
     eyebrow: "Prompt detail",
     title: "Completion candidates",
-    description: "Configure sample values later served through completion/complete prefix matching.",
+    description: "Configure sample values served through completion/complete prefix matching.",
   },
   console: {
     eyebrow: "Prompt detail",

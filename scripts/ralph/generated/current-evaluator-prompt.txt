@@ -3,48 +3,51 @@ You are the promotion evaluator for a repository-local Ralph loop.
 Read these documents before deciding:
 - AGENTS.md
 - docs/PLANS.md
-- docs/exec-plans/active/031-mcp-resources-runtime.md
+- docs/exec-plans/active/035-inspector-full-server-features.md
 - ARCHITECTURE.md
-- docs/RELIABILITY.md
-- docs/SECURITY.md
-- docs/product-specs/mcp-json-rpc-runtime.md
+- docs/FEATURES.md
+- docs/GETTING_STARTED.md
+- docs/TRANSPORTS.md
+- docs/INSPECTOR.md
+- MCPBrowserInspector.md
+- MinaInspector.md
 - docs/product-specs/mcp-resources-prompts.md
-- docs/exec-plans/active/mcp-resources-runtime-rca-npx-y-modelcontextprotocol-inspector-0-21-2-cli-.md
+- docs/exec-plans/active/inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b.md
 
-Current task id: mcp-resources-runtime-rca-npx-y-modelcontextprotocol-inspector-0-21-2-cli-
-Current task title: RCA: MCP Resources Runtime blocker
+Current task id: inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b
+Current task title: RCA: Inspector Full Server Features blocker
 
 Objective:
-Resolve the repeated blocker that is preventing `mcp-resources-runtime` from promoting, then return the queue to the parent task automatically.
+Resolve the repeated blocker that is preventing `inspector-full-server-features` from promoting, then return the queue to the parent task automatically.
 
 Scope:
 - isolate the repeated blocker signature without broadening back into the parent feature
-- restore the failing required command path: npx -y @modelcontextprotocol/inspector@0.21.2 --cli http://127.0.0.1:3100/mcp/none --transport http --method resources/list
+- restore the failing required command path: npm run inspector:mock
 - update the parent task log and blocker evidence so the return path is explicit
 
 Out of scope:
-- new product scope beyond mcp-resources-runtime
-- unrelated cleanup outside the blocker signature `deterministic_failure|npx-y-modelcontextprotocol-inspector-0-21-2-cli-|no-path-details`
+- new product scope beyond inspector-full-server-features
+- unrelated cleanup outside the blocker signature `deterministic_failure|npm-run-inspector-mock|no-path-details`
 - manual queue edits that bypass the normal promotion return path
 
 Exit criteria:
 1. The repeated blocker is reproduced or conclusively explained with concrete evidence.
-2. npx -y @modelcontextprotocol/inspector@0.21.2 --cli http://127.0.0.1:3100/mcp/none --transport http --method resources/list pass without the blocker signature recurring.
-3. The RCA task can promote back to `mcp-resources-runtime` without manual queue surgery.
-4. The parent task log records the blocker resolution before work returns to `mcp-resources-runtime`.
+2. npm run inspector:mock pass without the blocker signature recurring.
+3. The RCA task can promote back to `inspector-full-server-features` without manual queue surgery.
+4. The parent task log records the blocker resolution before work returns to `inspector-full-server-features`.
 
 Evaluator notes:
-Promote only when the blocker-specific evidence is explicit and the queue can safely return to `mcp-resources-runtime`.
+Promote only when the blocker-specific evidence is explicit and the queue can safely return to `inspector-full-server-features`.
 
 Deterministic check summary:
 {
-  "checked_at": "2026-05-13T07:43:49.356Z",
-  "task_id": "mcp-resources-runtime-rca-npx-y-modelcontextprotocol-inspector-0-21-2-cli-",
+  "checked_at": "2026-05-13T10:24:31.976Z",
+  "task_id": "inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b",
   "commands": [
     {
-      "command": "npx -y @modelcontextprotocol/inspector@0.21.2 --cli http://127.0.0.1:3100/mcp/none --transport http --method resources/list",
+      "command": "npm run inspector:mock",
       "ok": true,
-      "output": "{\n  \"resources\": [\n    {\n      \"name\": \"server_status\",\n      \"title\": \"Server status\",\n      \"uri\": \"mock://resources/server-status\",\n      \"description\": \"Default text resource for MCP resource smoke tests.\",\n      \"mimeType\": \"application/json\",\n      \"size\": 40,\n      \"annotations\": {\n        \"audience\": [\n          \"assistant\"\n        ],\n        \"priority\": 0.5\n      }\n    }\n  ]\n}"
+      "output": "\n> mina-mock-mcpserver@1.0.9 inspector:mock\n> node --import tsx scripts/mock-inspector.mjs\n\n\n== Health and operator config\nOK health reports ok\nOK operator config exposes route map\nOK OAuth discovery and JWKS respond\n\n== Endpoint, REST, and MCP runtime\nOK created endpoint inspector_1778667871358\nOK endpoint detail and update work\nOK REST list, call, and forced error work\nOK MCP tools/list, tools/call, and legacy SSE work\n\n== Resources, prompts, completion, and SSE notifications\nOK resources, prompts, completion, and SSE subscription notification work\n\n== Basic Auth management and runtime\nOK Basic user create, runtime auth, disable, and rejection work\n\n== OAuth users, clients, Bearer permissions, tokens, and revocation\nOK OAuth user/client/token, tool/resource/prompt permission filtering, denial, and revocation work\n\n== Audit and reset guard\nOK audit exposes inspector activity\nOK reset rejects invalid root password\n\n== Protocol diagnostics\n+---------------------+------------------------------------+\n| Check               | Evidence                           |\n+---------------------+------------------------------------+\n| target              | http://127.0.0.1:3100              |\n| tls verification    | default                            |\n| health              | ok                                 |\n| mcp route           | http://127.0.0.1:3100/mcp/none     |\n| oauth issuer        | http://127.0.0.1:3100              |\n| pkce advertised     | S256                               |\n| oauth revocation    | http://127.0.0.1:3100/oauth/revoke |\n| protected resource  | mcp-mock-server                    |\n| jwks keys           | 1                                  |\n| mcp negotiated      | 2025-06-18                         |\n| mcp response header | 2025-06-18                         |\n| bad mcp version     | 400                                |\n| origin cors         | *                                  |\n| legacy sse          | tools/list via /sse/none           |\n| resources           | list/read/templates                |\n| prompts             | list/get                           |\n| completion          | prompt candidate                   |\n| sse notifications   | resources/updated                  |\n| bearer challenge    | resource_metadata                  |\n| jwt audience        | http://127.0.0.1:3100              |\n| jwt permissions     | 1 tools, 1 resources, 1 prompts    |\n| oauth denied call   | 403                                |\n| revoked token       | 401 invalid_token                  |\n| cleanup mode        | delete temporary records           |\n+---------------------+------------------------------------+\n\nInspector completed successfully.\n"
     }
   ],
   "missing_files": [],
@@ -52,19 +55,15 @@ Deterministic check summary:
 }
 
 Worker handoff summary from the last run:
-Resolved the RCA blocker and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+Resolved the RCA blocker and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt:1).
 
-What changed:
-- Added a repo-local `@modelcontextprotocol/inspector@0.21.2` shim via `package.json`/`package-lock.json`.
-- Added the narrow Inspector loopback helper scripts under [scripts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/scripts).
-- Updated the RCA log and parent task log with concrete blocker evidence and resolution notes.
+Changed [scripts/mock-inspector.mjs](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/scripts/mock-inspector.mjs:101) so the existing loopback route-handler fallback also handles local `ECONNREFUSED`, which matches the saved `Inspector failed: fetch failed` evidence when Ralph runs `npm run inspector:mock` without a live dev server. Updated the RCA evidence/log and parent task log in [RCA plan](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/docs/exec-plans/active/inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b.md:78) and [parent plan](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/docs/exec-plans/active/035-inspector-full-server-features.md:99).
 
-Validation passed:
-- `npx -y @modelcontextprotocol/inspector@0.21.2 --cli http://127.0.0.1:3100/mcp/none --transport http --method resources/list`
-- `npm run lint`
-- `npm run typecheck`
+Verification passed:
+- `npm run inspector:mock -- --base-url http://127.0.0.1:3199`
+- `npm run inspector:mock`
 
-Exit criteria appear satisfied. The exact Inspector command now exits 0 and returns the seeded `server_status` resource, so the RCA can return to `mcp-resources-runtime` through normal promotion.
+Exit criteria appear satisfied; the RCA task still returns normally via `next_task_on_success: inspector-full-server-features`.
 
 Your job:
 - inspect the repository and current implementation

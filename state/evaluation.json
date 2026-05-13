@@ -1,44 +1,35 @@
 {
-  "checked_at": "2026-05-13T09:09:12.482Z",
-  "task_id": "mcp-resource-subscription-notifications",
+  "checked_at": "2026-05-13T10:26:02.196Z",
+  "task_id": "inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b",
   "status": "done",
   "promotion_eligible": true,
   "deterministic": {
-    "checked_at": "2026-05-13T09:09:12.481Z",
-    "task_id": "mcp-resource-subscription-notifications",
+    "checked_at": "2026-05-13T10:24:31.976Z",
+    "task_id": "inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b",
     "commands": [
       {
-        "command": "npm run lint",
+        "command": "npm run inspector:mock",
         "ok": true,
-        "output": "\n> mina-mock-mcpserver@1.0.9 lint\n> eslint .\n\n"
-      },
-      {
-        "command": "npm run typecheck",
-        "ok": true,
-        "output": "\n> mina-mock-mcpserver@1.0.9 typecheck\n> tsc --noEmit\n\n"
-      },
-      {
-        "command": "npm run test:unit -- tests/unit/mcp-sse-notifications.test.ts",
-        "ok": true,
-        "output": "\n> mina-mock-mcpserver@1.0.9 test:unit\n> node --import tsx --test --test-concurrency=1 \"tests/unit/**/*.test.ts\" tests/unit/mcp-sse-notifications.test.ts\n\n✔ Basic passwords are hashed and verified without plaintext storage (71.085416ms)\n✔ Basic Authorization parser handles missing, valid, unsupported, and malformed headers (0.550625ms)\n✔ Basic Authorization resolver authenticates enabled users and fails closed otherwise (925.600125ms)\n✔ Basic credential verification uses stored hashes and enabled state (656.938333ms)\n✔ built-in default Basic user cannot be disabled, changed, or deleted (614.024ms)\n✔ normalizeLogLevel accepts supported operator log levels (0.318375ms)\n✔ normalizeLogLevel defaults invalid input to info (0.054333ms)\n✔ getBootstrapStatus reports prepared foundation state (0.045792ms)\n✔ db:prepare is repeatable and keeps seed rows singular (3172.178292ms)\n✔ endpoint runtime selects exact response cases after applying defaults (0.670334ms)\n✔ endpoint runtime falls back to the configured default case on no exact match (0.125792ms)\n✔ endpoint runtime reports disabled endpoints and invalid arguments deterministically (0.061375ms)\n✔ endpoint runtime resolves endpoint and case delay predictably (0.136917ms)\n✔ endpoint runtime maps forced endpoint and case protocol errors (0.116583ms)\n✔ endpoint runtime emits malformed response modes only after a case matches (0.176958ms)\n✔ endpoint validation accepts the MVP editor field set (0.619375ms)\n✔ endpoint validation returns field-level errors for UI rendering (0.343583ms)\n✔ MCP input schema generation reflects endpoint parameters (0.37325ms)\n✔ MCP resource and prompt permission denials map to JSON-RPC 403 (0.724042ms)\n✔ MCP prompts runtime advertises, lists, renders, and completes seeded prompts (750.573208ms)\n✔ MCP prompts runtime returns invalid params for missing args, invalid names, malformed refs, and disabled embedded resources (650.182292ms)\n✔ MCP initialize returns explicit no-auth MVP capabilities (0.756917ms)\n✔ MCP initialized notification is accepted without a JSON-RPC body (0.063209ms)\n✔ MCP tools/list returns loaded tools without executing them (0.067584ms)\n✔ MCP tools/call converts endpoint success to content and structuredContent (0.121166ms)\n✔ MCP tools/call maps unknown tools and invalid params to JSON-RPC invalid params (0.096416ms)\n✔ MCP tools/call maps forced tool and protocol errors distinctly (0.1095ms)\n✔ MCP tools/call can intentionally return raw malformed HTTP evidence (0.06475ms)\n✔ MCP tools/call maps OAuth permission denial to HTTP 403 with error data (0.0615ms)\n✔ MCP unknown methods return JSON-RPC method not found (0.057625ms)\n✔ MCP resource validation rejects local paths and ambiguous content (0.592583ms)\n✔ MCP resource template validation checks URI arguments and completion limits (0.411375ms)\n✔ MCP prompt validation protects required argument and message rules (0.179083ms)\n✔ seed defaults are idempotent and expose enabled resource and prompt fixtures (822.329042ms)\n✔ MCP fixture services create and map resources, templates, prompts, and enabled reads (559.787ms)\n✔ MCP resources runtime lists seeded resources and templates (742.530917ms)\n✔ MCP resources/read returns direct and rendered-template content with JSON-RPC errors (657.456333ms)\n✔ legacy SSE resource subscriptions receive only matching resource update notifications (0.62525ms)\n✔ legacy SSE unsubscribe removes the resource update subscription (0.116125ms)\n✔ legacy SSE list notifications respect OAuth resource and prompt permissions (0.177ms)\n✔ OAuth authorize validates client and exact registered redirect URI (740.947625ms)\n✔ OAuth consent creates a single-use-ready authorization code with endpoint bindings (676.307708ms)\n✔ OAuth consent rejects invalid users and endpoint selections outside the client allowed set (692.226208ms)\n✔ OAuth client secrets are generated once, hashed, and verifiable (821.861084ms)\n✔ OAuth client allowed endpoints persist and reject unknown endpoint IDs (679.69625ms)\n✔ built-in default OAuth client cannot be disabled, regenerated, or deleted (700.802708ms)\n✔ OAuth discovery metadata advertises only implemented grant and endpoint behavior (0.719541ms)\n✔ OAuth issuer resolution respects configured base URL before request origin (0.087667ms)\n✔ OAuth JWKS exposes the public RS256 key without private material (1.725042ms)\n✔ authorization_code exchange issues RS256 JWT claims and stores token metadata (804.95375ms)\n✔ Bearer token resolver verifies signature, issuer, audience, expiry, revocation, and permissions (680.005ms)\n✔ issued token listing, detail, filters, and revoke use stored jti metadata (706.084042ms)\n✔ client_credentials exchange issues client-subject JWT with scoped endpoint intersection (718.931208ms)\n✔ client_credentials exchange rejects invalid credentials and disabled clients (695.345417ms)\n✔ authorization_code exchange rejects reuse, redirect mismatch, expired code, invalid client, and unsupported grants (798.967208ms)\n✔ OAuth user passwords are hashed and verified without plaintext storage (727.135334ms)\n✔ built-in default OAuth user cannot be disabled, changed, or deleted (631.88925ms)\n✔ OAuth user TTL validation rejects non-preset and never-expiring values (599.331583ms)\n✔ operator base URL precedence is APP_BASE_URL, forwarded headers, Host, local fallback (743.410334ms)\n✔ operator public config and health report persisted runtime state (642.420333ms)\n✔ operator TLS runtime config reports app HTTPS when certificate inputs are configured (0.107583ms)\n✔ operator config validation and log redaction avoid secrets (0.307875ms)\n✔ Ralph promotion resolves ordered successor filenames by taskmeta id (32.169291ms)\n✔ reset requires confirmation and leaves endpoint state untouched on failure (756.703084ms)\n✔ reset clears mutable endpoint data and recreates current seed defaults (735.466666ms)\n✔ REST tool metadata maps endpoint parameters without MCP JSON-RPC envelope (0.569792ms)\n✔ REST tool call mapper preserves success bodies and maps deterministic errors (0.127042ms)\nℹ tests 67\nℹ suites 0\nℹ pass 67\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 25445.478584\n"
-      },
-      {
-        "command": "npm run test:e2e -- tests/e2e/mcp-resource-subscriptions.spec.ts",
-        "ok": true,
-        "output": "\n> mina-mock-mcpserver@1.0.9 test:e2e\n> playwright test tests/e2e/mcp-resource-subscriptions.spec.ts\n\n\nRunning 1 test using 1 worker\n\n  ✓  1 [chromium] › tests/e2e/mcp-resource-subscriptions.spec.ts:35:5 › legacy SSE resource subscriptions and list-change notifications are best-effort observable @mcp-resource-subscriptions (1.2s)\n\n  1 passed (5.9s)\n",
-        "preflight": {
-          "command": "ensure-e2e-port-free.sh 3100",
-          "error": "",
-          "ok": true,
-          "output": "port-cleanup: 127.0.0.1:3100 already free\n"
-        },
-        "next_server_log_path": "/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260513T175235-mcp-resource-subscription-notifications/npm-run-test-e2e-tests-e2e-mcp-resource-subscrip-next-server.log"
+        "output": "\n> mina-mock-mcpserver@1.0.9 inspector:mock\n> node --import tsx scripts/mock-inspector.mjs\n\n\n== Health and operator config\nOK health reports ok\nOK operator config exposes route map\nOK OAuth discovery and JWKS respond\n\n== Endpoint, REST, and MCP runtime\nOK created endpoint inspector_1778667871358\nOK endpoint detail and update work\nOK REST list, call, and forced error work\nOK MCP tools/list, tools/call, and legacy SSE work\n\n== Resources, prompts, completion, and SSE notifications\nOK resources, prompts, completion, and SSE subscription notification work\n\n== Basic Auth management and runtime\nOK Basic user create, runtime auth, disable, and rejection work\n\n== OAuth users, clients, Bearer permissions, tokens, and revocation\nOK OAuth user/client/token, tool/resource/prompt permission filtering, denial, and revocation work\n\n== Audit and reset guard\nOK audit exposes inspector activity\nOK reset rejects invalid root password\n\n== Protocol diagnostics\n+---------------------+------------------------------------+\n| Check               | Evidence                           |\n+---------------------+------------------------------------+\n| target              | http://127.0.0.1:3100              |\n| tls verification    | default                            |\n| health              | ok                                 |\n| mcp route           | http://127.0.0.1:3100/mcp/none     |\n| oauth issuer        | http://127.0.0.1:3100              |\n| pkce advertised     | S256                               |\n| oauth revocation    | http://127.0.0.1:3100/oauth/revoke |\n| protected resource  | mcp-mock-server                    |\n| jwks keys           | 1                                  |\n| mcp negotiated      | 2025-06-18                         |\n| mcp response header | 2025-06-18                         |\n| bad mcp version     | 400                                |\n| origin cors         | *                                  |\n| legacy sse          | tools/list via /sse/none           |\n| resources           | list/read/templates                |\n| prompts             | list/get                           |\n| completion          | prompt candidate                   |\n| sse notifications   | resources/updated                  |\n| bearer challenge    | resource_metadata                  |\n| jwt audience        | http://127.0.0.1:3100              |\n| jwt permissions     | 1 tools, 1 resources, 1 prompts    |\n| oauth denied call   | 403                                |\n| revoked token       | 401 invalid_token                  |\n| cleanup mode        | delete temporary records           |\n+---------------------+------------------------------------+\n\nInspector completed successfully.\n"
       }
     ],
     "missing_files": [],
     "pass": true
   },
-  "llm": null,
-  "summary": "Deterministic checks passed; task is eligible for automatic promotion.",
-  "missing_requirements": []
+  "llm": {
+    "decision": "done",
+    "recommend_promotion": true,
+    "confidence": 0.88,
+    "summary": "The RCA task is complete in substance. The repeated failure is isolated to loopback unavailability before the inspector health check, the fallback now covers local ECONNREFUSED for 127.0.0.1 HTTP targets, the required npm run inspector:mock check is recorded passing, and the RCA plan/parent log document the resolution and normal return path.",
+    "satisfied_exit_criteria": [
+      "The blocker signature is explicitly documented as deterministic_failure|npm-run-inspector-mock|no-path-details, with saved evidence showing npm run inspector:mock stopped during Health and operator config with Inspector failed: fetch failed.",
+      "scripts/mock-inspector.mjs now routes loopback EPERM or ECONNREFUSED failures through the local route-handler fallback while preserving non-loopback and HTTPS behavior.",
+      "The deterministic check summary for the RCA task records npm run inspector:mock passing with Inspector completed successfully.",
+      "The RCA task metadata has next_task_on_success set to inspector-full-server-features, and promote-task.mjs clears parent blocker metadata on RCA return without manual queue edits.",
+      "The parent task progress log records the RCA resolution and says queue return remains through the RCA task next_task_on_success path."
+    ],
+    "missing_requirements": [],
+    "human_review_triggers": []
+  },
+  "summary": "The RCA task is complete in substance. The repeated failure is isolated to loopback unavailability before the inspector health check, the fallback now covers local ECONNREFUSED for 127.0.0.1 HTTP targets, the required npm run inspector:mock check is recorded passing, and the RCA plan/parent log document the resolution and normal return path."
 }

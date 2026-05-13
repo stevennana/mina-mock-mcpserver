@@ -1,16 +1,9 @@
-Implemented the scoped MCP resource subscription notification slice and wrote the handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+Resolved the RCA blocker and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt:1).
 
-Changed:
-- Added process-local legacy SSE subscription tracking in [lib/mcp/sse-notifications.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/lib/mcp/sse-notifications.ts).
-- Implemented `resources/subscribe` / `resources/unsubscribe` in JSON-RPC handling.
-- Wired admin resource/template/prompt mutations to best-effort SSE notifications.
-- Added unit and E2E coverage.
-- Updated the transport/spec docs and active task progress log.
+Changed [scripts/mock-inspector.mjs](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/scripts/mock-inspector.mjs:101) so the existing loopback route-handler fallback also handles local `ECONNREFUSED`, which matches the saved `Inspector failed: fetch failed` evidence when Ralph runs `npm run inspector:mock` without a live dev server. Updated the RCA evidence/log and parent task log in [RCA plan](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/docs/exec-plans/active/inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b.md:78) and [parent plan](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/docs/exec-plans/active/035-inspector-full-server-features.md:99).
 
-Required checks passed:
-- `npm run lint`
-- `npm run typecheck`
-- `npm run test:unit -- tests/unit/mcp-sse-notifications.test.ts`
-- `npm run test:e2e -- tests/e2e/mcp-resource-subscriptions.spec.ts`
+Verification passed:
+- `npm run inspector:mock -- --base-url http://127.0.0.1:3199`
+- `npm run inspector:mock`
 
-Exit criteria appear satisfied. Existing Ralph/task-state worktree changes were already present; I left unrelated state movement alone.
+Exit criteria appear satisfied; the RCA task still returns normally via `next_task_on_success: inspector-full-server-features`.

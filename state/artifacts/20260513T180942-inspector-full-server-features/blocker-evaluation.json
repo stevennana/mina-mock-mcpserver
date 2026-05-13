@@ -1,0 +1,1 @@
+{"recorded":true,"task_id":"inspector-full-server-features","kind":"deterministic_failure","signature":"deterministic_failure|npm-run-inspector-mock|no-path-details","summary":"Repeated required-command failure: npm run inspector:mock","repeat_count":1,"threshold_reached":false}

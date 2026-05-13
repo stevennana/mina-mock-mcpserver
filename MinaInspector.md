@@ -24,9 +24,9 @@ The guide applies to the current documented release line, including `v1.0.9`. Sc
 
 | Flow | Target | Result |
 | --- | --- | --- |
-| Generic MCP no-auth inspection | `https://mcp.minasoftai.com/mcp/none` | Pass 4, Fail 0 |
+| Generic MCP no-auth inspection | `https://mcp.minasoftai.com/mcp/none` | Pass 4, Fail 0 for tools; resources/prompts/completion presets pass individually |
 | Generic legacy SSE inspection | `https://mcp.minasoftai.com/sse/none` | Pass when upstream Inspector uses `transport=sse` |
-| Full Mock Server scenario | `https://mcp.minasoftai.com` | Pass 10, Skip 1, Fail 0 |
+| Full Mock Server scenario | `https://mcp.minasoftai.com` | Pass 11, Skip 1, Fail 0 |
 | OAuth authorization-code + PKCE + Bearer MCP | `https://mcp.minasoftai.com/mcp/oauth` | Pass 4, Fail 0 |
 
 ## 1. Open The Local Inspector
@@ -74,6 +74,16 @@ Expected result:
 
 ![Generic target pass](docs/screenshots/mina-inspector/03-generic-remote-pass.png)
 
+Run additional **MCP method preset** checks from the same Generic page:
+
+- `resources/list`
+- `resources/read` with `{"uri":"mock://resources/server-status"}`
+- `resources/templates/list`
+- `prompts/list`
+- `prompts/get` with `{"name":"support_reply","arguments":{"tone":"friendly"}}`
+- `completion/complete prompt`
+- `completion/complete resource template`
+
 ## 3. Run Full Mock Server Scenario
 
 Open **Mock Server scenario**.
@@ -97,12 +107,13 @@ Expected result:
 - Temporary endpoint creation/update: pass
 - REST list/call/forced error: pass
 - MCP initialize/list/call/protocol guard/browser Origin compatibility: pass
+- Resources, Resource Templates, Prompts, Completion, and SSE notifications: pass
 - Basic Auth runtime: pass
-- OAuth Bearer runtime: pass
+- OAuth Bearer tool/resource/prompt permission runtime: pass
 - Audit evidence and reset guard: pass
 - Optional root reset: skip
 - Cleanup temporary records: pass
-- Summary: `Pass 10`, `Skip 1`, `Fail 0`
+- Summary: `Pass 11`, `Skip 1`, `Fail 0`
 
 ![Mock scenario pass](docs/screenshots/mina-inspector/05-mock-scenario-remote-pass.png)
 
@@ -125,6 +136,7 @@ Expected result:
 - Inspector connects with `transport=sse`
 - the SSE stream emits an endpoint message route
 - `initialize` and `tools/list` succeed
+- `resources/list` and `resources/read` can also be checked from the CLI with the same SSE target
 - the seeded `echo` tool appears
 
 For Basic or OAuth SSE, use `/sse/basic` or `/sse/oauth` and add the same `Authorization` header used for Streamable HTTP checks.
