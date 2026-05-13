@@ -10,6 +10,9 @@ import type {
   McpJsonRpcRequest,
   McpJsonRpcResponse,
   McpInitializeResult,
+  McpCompletionResult,
+  McpPrompt,
+  McpPromptGetResult,
   McpResource,
   McpResourceContent,
   McpResourceTemplate,
@@ -84,6 +87,33 @@ function isResourceReadParams(params: unknown): params is { uri: string } {
   return isRecord(params) && typeof params.uri === "string" && params.uri.trim().length > 0;
 }
 
+function isPromptGetParams(params: unknown): params is { name: string; arguments?: Record<string, unknown> } {
+  return isRecord(params) && typeof params.name === "string" && (params.arguments === undefined || isRecord(params.arguments));
+}
+
+type McpCompletionRef = { type: "ref/prompt"; name: string } | { type: "ref/resource"; uri: string };
+
+function isCompletionRef(ref: unknown): ref is McpCompletionRef {
+  if (!isRecord(ref) || typeof ref.type !== "string") return false;
+  if (ref.type === "ref/prompt") return typeof ref.name === "string" && ref.name.trim().length > 0;
+  if (ref.type === "ref/resource") return typeof ref.uri === "string" && ref.uri.trim().length > 0;
+  return false;
+}
+
+function isCompletionParams(params: unknown): params is {
+  ref: McpCompletionRef;
+  argument: { name: string; value?: string };
+} {
+  return (
+    isRecord(params) &&
+    isCompletionRef(params.ref) &&
+    isRecord(params.argument) &&
+    typeof params.argument.name === "string" &&
+    params.argument.name.trim().length > 0 &&
+    (params.argument.value === undefined || typeof params.argument.value === "string")
+  );
+}
+
 function textForJson(value: JsonValue) {
   return typeof value === "string" ? value : JSON.stringify(value);
 }
@@ -130,6 +160,11 @@ export async function handleMcpJsonRpcMessage(
     loadResourceTemplates?: () => Promise<McpResourceTemplate[]>;
     readResource?: (uri: string) => Promise<McpResourceContent | null>;
   } = {},
+  promptsRuntime: {
+    loadPrompts?: () => Promise<McpPrompt[]>;
+    getPrompt?: (name: string, args: Record<string, unknown>) => Promise<McpPromptGetResult | null>;
+    complete?: (ref: McpCompletionRef, argumentName: string, value: string) => Promise<McpCompletionResult | null>;
+  } = {},
 ): Promise<McpProtocolResult> {
   if (!isJsonRpcRequest(message)) {
     return errorResponse(idFromMessage(message), -32600, "Invalid Request", 400);
@@ -149,6 +184,9 @@ export async function handleMcpJsonRpcMessage(
       },
       ...(resourcesRuntime.loadResources && resourcesRuntime.loadResourceTemplates && resourcesRuntime.readResource
         ? { resources: { subscribe: true, listChanged: true } }
+        : {}),
+      ...(promptsRuntime.loadPrompts && promptsRuntime.getPrompt && promptsRuntime.complete
+        ? { prompts: { listChanged: true }, completions: {} }
         : {}),
     };
     return {
@@ -278,6 +316,66 @@ export async function handleMcpJsonRpcMessage(
         result: {
           contents: [resource],
         },
+      },
+    };
+  }
+
+  if (message.method === "prompts/list") {
+    return {
+      kind: "json",
+      status: 200,
+      body: {
+        jsonrpc: "2.0",
+        id: message.id,
+        result: {
+          prompts: promptsRuntime.loadPrompts ? await promptsRuntime.loadPrompts() : [],
+        },
+      },
+    };
+  }
+
+  if (message.method === "prompts/get") {
+    if (!promptsRuntime.getPrompt || !isPromptGetParams(message.params)) {
+      return errorResponse(message.id, -32602, "Invalid params");
+    }
+
+    const prompt = await promptsRuntime.getPrompt(message.params.name, message.params.arguments ?? {});
+    if (!prompt) {
+      return errorResponse(message.id, -32602, "Invalid prompt");
+    }
+
+    return {
+      kind: "json",
+      status: 200,
+      body: {
+        jsonrpc: "2.0",
+        id: message.id,
+        result: prompt,
+      },
+    };
+  }
+
+  if (message.method === "completion/complete") {
+    if (!promptsRuntime.complete || !isCompletionParams(message.params)) {
+      return errorResponse(message.id, -32602, "Invalid params");
+    }
+
+    const completion = await promptsRuntime.complete(
+      message.params.ref,
+      message.params.argument.name,
+      message.params.argument.value ?? "",
+    );
+    if (!completion) {
+      return errorResponse(message.id, -32602, "Invalid completion ref");
+    }
+
+    return {
+      kind: "json",
+      status: 200,
+      body: {
+        jsonrpc: "2.0",
+        id: message.id,
+        result: completion,
       },
     };
   }

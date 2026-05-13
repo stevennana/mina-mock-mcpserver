@@ -5,50 +5,49 @@ Read the following repository documents before making changes:
 - docs/SECURITY.md
 - docs/product-specs/mcp-json-rpc-runtime.md
 - docs/product-specs/mcp-resources-prompts.md
-- docs/exec-plans/active/031-mcp-resources-runtime.md
+- docs/exec-plans/active/032-mcp-prompts-completion-runtime.md
 
-Current task id: mcp-resources-runtime
-Current task title: MCP Resources Runtime
+Current task id: mcp-prompts-completion-runtime
+Current task title: MCP Prompts And Completion Runtime
 
 Objective:
-Implement MCP Resources runtime methods over existing Streamable HTTP and legacy SSE transports.
+Implement MCP Prompts and Completion runtime methods over existing Streamable HTTP and legacy SSE transports.
 
 Clarity notes:
-- This is the first slice that may advertise the `resources` capability.
-- Runtime must reuse the current auth resolution and MCP response helpers.
-- No OAuth filtering is added here; OAuth-specific filtering lands in task 033.
+- This slice may advertise `prompts` and `completions` after handlers are in place.
+- Completion supports prompt arguments and resource-template arguments only.
 
 Expected result:
-- A standard MCP client can initialize, list resources/templates, and read seeded or configured resources.
-- Existing tools/list and tools/call tests still pass.
+- A standard MCP client can discover prompts, render a prompt with arguments, and request completions for prompt/resource-template arguments.
+- Completion responses are bounded to 100 values and expose `total`/`hasMore`.
 
 Objections / risks to avoid:
-- Do not duplicate MCP adapters per transport.
-- Do not claim resources before handlers and tests exist.
-- Do not return HTTP 404 for JSON-RPC resource misses; use MCP error envelopes.
+- Do not make prompt execution model-controlled.
+- Do not persist completion request values.
+- Do not leak disabled embedded resource content.
 
 Scope:
-- Extend `initialize` capabilities with `resources: { subscribe: true, listChanged: true }`.
-- Implement `resources/list`, `resources/templates/list`, and `resources/read` for no-auth and Basic routes.
-- Implement direct-resource and rendered-template reads through the domain service.
-- Return JSON-RPC `-32002` for inaccessible/not-found resource URIs and `-32602` for malformed params.
-- Ensure `/mcp`, `/mcp/none`, `/mcp/basic`, `/sse`, `/sse/none`, and `/sse/basic` share behavior.
+- Extend `initialize` capabilities with `prompts: { listChanged: true }` and `completions: {}`.
+- Implement `prompts/list`, `prompts/get`, and `completion/complete`.
+- Validate required prompt arguments and substitute arguments into text messages.
+- Resolve embedded server resources only when the referenced resource is enabled and readable.
+- Return JSON-RPC `-32602` for invalid prompt names, missing required args, and malformed completion refs.
 
 Out of scope:
-- Prompts and completion runtime.
 - OAuth permission filtering.
-- Durable subscription notification delivery.
+- LLM execution, sampling, elicitation, or roots.
+- Image/audio prompt content.
 
 Exit criteria:
-- A standard MCP client can initialize, list resources/templates, and read seeded or configured resources.
-- Existing tools/list and tools/call tests still pass.
+- A standard MCP client can discover prompts, render a prompt with arguments, and request completions for prompt/resource-template arguments.
+- Completion responses are bounded to 100 values and expose `total`/`hasMore`.
 
 Required checks:
 - `npm run lint`
 - `npm run typecheck`
-- `npm run test:unit -- tests/unit/mcp-protocol.test.ts tests/unit/mcp-resources-runtime.test.ts`
-- `npm run test:e2e -- tests/e2e/mcp-resources.spec.ts`
-- `npx -y @modelcontextprotocol/inspector@0.21.2 --cli http://127.0.0.1:3100/mcp/none --transport http --method resources/list`
+- `npm run test:unit -- tests/unit/mcp-prompts-runtime.test.ts`
+- `npm run test:e2e -- tests/e2e/mcp-prompts-completion.spec.ts`
+- Upstream Inspector CLI checks for `prompts/list`, `prompts/get`, and `completion/complete`.
 
 Evaluator notes:
 - Confirm the task stays inside its declared slice.
@@ -60,9 +59,8 @@ Required repository artifacts for this task:
 Required commands for this task:
 - npm run lint
 - npm run typecheck
-- npm run test:unit -- tests/unit/mcp-protocol.test.ts tests/unit/mcp-resources-runtime.test.ts
-- npm run test:e2e -- tests/e2e/mcp-resources.spec.ts
-- npx -y @modelcontextprotocol/inspector@0.21.2 --cli http://127.0.0.1:3100/mcp/none --transport http --method resources/list
+- npm run test:unit -- tests/unit/mcp-prompts-runtime.test.ts
+- npm run test:e2e -- tests/e2e/mcp-prompts-completion.spec.ts
 
 Previous known gaps from the last evaluation:
 - none

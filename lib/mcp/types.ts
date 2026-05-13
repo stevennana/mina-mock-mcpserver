@@ -29,6 +29,10 @@ export type McpInitializeResult = {
       subscribe: true;
       listChanged: true;
     };
+    prompts?: {
+      listChanged: true;
+    };
+    completions?: Record<string, never>;
   };
   serverInfo: typeof MCP_SERVER_INFO;
 };
@@ -66,6 +70,44 @@ export type McpResourceContent = {
   mimeType?: string;
 } & ({ text: string } | { blob: string });
 
+export type McpPrompt = {
+  name: string;
+  title?: string;
+  description?: string;
+  arguments?: Array<{
+    name: string;
+    title?: string;
+    description?: string;
+    required?: boolean;
+  }>;
+};
+
+export type McpPromptMessage = {
+  role: "user" | "assistant";
+  content:
+    | {
+        type: "text";
+        text: string;
+      }
+    | {
+        type: "resource";
+        resource: McpResourceContent;
+      };
+};
+
+export type McpPromptGetResult = {
+  description?: string;
+  messages: McpPromptMessage[];
+};
+
+export type McpCompletionResult = {
+  completion: {
+    values: string[];
+    total: number;
+    hasMore: boolean;
+  };
+};
+
 export type McpJsonRpcResponse =
   | {
       jsonrpc: "2.0";
@@ -76,7 +118,10 @@ export type McpJsonRpcResponse =
         | McpToolCallResult
         | { resources: McpResource[] }
         | { resourceTemplates: McpResourceTemplate[] }
-        | { contents: McpResourceContent[] };
+        | { contents: McpResourceContent[] }
+        | { prompts: McpPrompt[] }
+        | McpPromptGetResult
+        | McpCompletionResult;
     }
   | {
       jsonrpc: "2.0";

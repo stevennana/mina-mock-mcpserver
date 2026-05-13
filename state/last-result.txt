@@ -1,11 +1,18 @@
-Implemented/verified the MCP Resources Runtime slice and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt). Also updated the progress log in [031-mcp-resources-runtime.md](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/docs/exec-plans/active/031-mcp-resources-runtime.md).
+Implemented MCP prompts and completion runtime for this slice.
 
-All required gates pass:
+Changed:
+- [lib/mcp/protocol.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/lib/mcp/protocol.ts): added `prompts/list`, `prompts/get`, and `completion/complete`.
+- [lib/mcp/http.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/lib/mcp/http.ts): wired handlers into Streamable HTTP and legacy SSE using existing prompt/resource-template services.
+- [lib/mcp/types.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/lib/mcp/types.ts): added prompt and completion protocol result types.
+- Added [mcp-prompts-runtime.test.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/tests/unit/mcp-prompts-runtime.test.ts) and [mcp-prompts-completion.spec.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/tests/e2e/mcp-prompts-completion.spec.ts).
+- Updated the active task progress log and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
 
+Checks passed:
 - `npm run lint`
 - `npm run typecheck`
-- `npm run test:unit -- tests/unit/mcp-protocol.test.ts tests/unit/mcp-resources-runtime.test.ts`
-- `npm run test:e2e -- tests/e2e/mcp-resources.spec.ts`
-- `npx -y @modelcontextprotocol/inspector@0.21.2 --cli http://127.0.0.1:3100/mcp/none --transport http --method resources/list`
+- `npm run test:unit -- tests/unit/mcp-prompts-runtime.test.ts`
+- `npm run test:e2e -- tests/e2e/mcp-prompts-completion.spec.ts`
+- Inspector CLI `prompts/list`
+- Inspector CLI `prompts/get`
 
-Exit criteria appear satisfied. The Inspector command returned the seeded `server_status` resource, and the E2E covers no-auth, Basic, and legacy SSE resource behavior.
+One note: local Inspector CLI `0.21.2` does not support `completion/complete`; it exits with “Unsupported method: completion/complete.” Completion is covered by the protocol unit test and Playwright E2E.

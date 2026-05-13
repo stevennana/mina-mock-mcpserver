@@ -5,12 +5,27 @@ import { callEndpointByName, callPermittedEndpointByName, listEnabledMcpTools } 
 import { publicCorsHeaders } from "@/lib/http/cors";
 import {
   listEnabledMcpResources,
+  listEnabledMcpPrompts,
   listEnabledMcpResourceTemplates,
   readEnabledMcpResource,
 } from "@/lib/mcp-fixtures/service";
-import type { McpResourceDetail, McpResourceRuntimeRead, McpResourceTemplateDetail } from "@/lib/mcp-fixtures/types";
+import { renderTemplateWithValues } from "@/lib/mcp-fixtures/template-render";
+import type {
+  McpCompletionCandidateInput,
+  McpPromptDetail,
+  McpResourceDetail,
+  McpResourceRuntimeRead,
+  McpResourceTemplateDetail,
+} from "@/lib/mcp-fixtures/types";
 import { handleMcpJsonRpcMessage } from "@/lib/mcp/protocol";
-import type { McpResource, McpResourceContent, McpResourceTemplate } from "@/lib/mcp/types";
+import type {
+  McpCompletionResult,
+  McpPrompt,
+  McpPromptGetResult,
+  McpResource,
+  McpResourceContent,
+  McpResourceTemplate,
+} from "@/lib/mcp/types";
 import { DEFAULT_MCP_PROTOCOL_VERSION, SUPPORTED_MCP_PROTOCOL_VERSIONS } from "@/lib/mcp/types";
 import { oauthDiscoveryUrls } from "@/lib/oauth/discovery";
 import { resolveBaseUrl } from "@/lib/operator/config";
@@ -74,6 +89,83 @@ function mcpResourceContentFromRead(resource: McpResourceRuntimeRead): McpResour
     uri: resource.uri,
     mimeType: resource.mimeType,
     ...(resource.textContent !== null ? { text: resource.textContent } : { blob: resource.blobContentBase64 ?? "" }),
+  };
+}
+
+function mcpPromptFromDetail(prompt: McpPromptDetail): McpPrompt {
+  return {
+    name: prompt.name,
+    ...(prompt.title ? { title: prompt.title } : {}),
+    ...(prompt.description ? { description: prompt.description } : {}),
+    arguments: prompt.arguments.map((argument) => ({
+      name: argument.name,
+      ...(argument.title ? { title: argument.title } : {}),
+      ...(argument.description ? { description: argument.description } : {}),
+      required: argument.required,
+    })),
+  };
+}
+
+function stringArguments(args: Record<string, unknown>) {
+  return Object.fromEntries(
+    Object.entries(args).map(([name, value]) => [
+      name,
+      typeof value === "string" || typeof value === "number" || typeof value === "boolean" ? String(value) : "",
+    ]),
+  );
+}
+
+async function mcpPromptGetFromDetail(prompt: McpPromptDetail, args: Record<string, unknown>): Promise<McpPromptGetResult | null> {
+  const values = stringArguments(args);
+  const missingRequired = prompt.arguments.some((argument) => argument.required && !values[argument.name]);
+  if (missingRequired) return null;
+
+  const messages = [];
+  for (const message of prompt.messages) {
+    if (message.textTemplate) {
+      messages.push({
+        role: message.role,
+        content: {
+          type: "text" as const,
+          text: renderTemplateWithValues(message.textTemplate, values),
+        },
+      });
+    }
+
+    if (message.resourceUri) {
+      const resource = await readEnabledMcpResource(message.resourceUri);
+      if (!resource) return null;
+      const content = mcpResourceContentFromRead(resource);
+      messages.push({
+        role: message.role,
+        content: {
+          type: "resource" as const,
+          resource: {
+            ...content,
+            ...(message.resourceMimeType ? { mimeType: message.resourceMimeType } : {}),
+          },
+        },
+      });
+    }
+  }
+
+  return {
+    ...(prompt.description ? { description: prompt.description } : {}),
+    messages,
+  };
+}
+
+function completionFromCandidates(candidates: McpCompletionCandidateInput[], argumentName: string, value: string): McpCompletionResult {
+  const matchingValues = candidates
+    .filter((candidate) => candidate.argumentName === argumentName && candidate.value.startsWith(value))
+    .map((candidate) => candidate.value);
+  const values = matchingValues.slice(0, 100);
+  return {
+    completion: {
+      values,
+      total: matchingValues.length,
+      hasMore: matchingValues.length > values.length,
+    },
   };
 }
 
@@ -170,6 +262,28 @@ async function handleMcpJsonRpcPost(
           return resource ? mcpResourceContentFromRead(resource) : null;
         },
       };
+  const promptsRuntime = runtime.endpointIds
+    ? {}
+    : {
+        loadPrompts: async () => (await listEnabledMcpPrompts()).map(mcpPromptFromDetail),
+        getPrompt: async (name: string, args: Record<string, unknown>) => {
+          const prompt = (await listEnabledMcpPrompts()).find((item) => item.name === name);
+          return prompt ? mcpPromptGetFromDetail(prompt, args) : null;
+        },
+        complete: async (
+          ref: { type: "ref/prompt"; name: string } | { type: "ref/resource"; uri: string },
+          argumentName: string,
+          value: string,
+        ) => {
+          if (ref.type === "ref/prompt") {
+            const prompt = (await listEnabledMcpPrompts()).find((item) => item.name === ref.name);
+            return prompt ? completionFromCandidates(prompt.completionCandidates, argumentName, value) : null;
+          }
+
+          const template = (await listEnabledMcpResourceTemplates()).find((item) => item.uriTemplate === ref.uri);
+          return template ? completionFromCandidates(template.completionCandidates, argumentName, value) : null;
+        },
+      };
 
   const result = await handleMcpJsonRpcMessage(
     body,
@@ -178,6 +292,7 @@ async function handleMcpJsonRpcPost(
       ? (name, rawArguments) => callPermittedEndpointByName(name, rawArguments, runtime.endpointIds ?? [])
       : callEndpointByName,
     resourcesRuntime,
+    promptsRuntime,
   );
   if (result.kind === "accepted") {
     return new Response(null, { status: 202, headers: mcpResponseHeaders() });

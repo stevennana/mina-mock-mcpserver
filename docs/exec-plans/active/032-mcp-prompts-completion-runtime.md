@@ -5,7 +5,7 @@
   "id": "mcp-prompts-completion-runtime",
   "title": "MCP Prompts And Completion Runtime",
   "order": 32,
-  "status": "queued",
+  "status": "active",
   "next_task_on_success": "oauth-resource-prompt-permissions",
   "prompt_docs": [
     "AGENTS.md",
@@ -78,3 +78,5 @@ Implement MCP Prompts and Completion runtime methods over existing Streamable HT
 ## Progress log
 
 - 2026-05-13T00:00:00Z: seeded as part of MCP Resources/Prompts next-wave planning.
+- 2026-05-13T07:53:16.034Z: restored as current task after mcp-resources-runtime promotion.
+- 2026-05-13T08:01:30Z: implemented Streamable HTTP and legacy SSE handlers for prompts/list, prompts/get, and completion/complete; prompt rendering substitutes text arguments and resolves embedded resources only through enabled resource reads. Added unit and E2E coverage for discovery, rendering, completion bounds metadata, invalid params, and disabled embedded resource protection.
