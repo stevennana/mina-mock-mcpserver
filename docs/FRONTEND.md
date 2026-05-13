@@ -26,7 +26,7 @@ Describe the user-facing structure of MCP Mock Server so an agent can implement 
 | /oauth-users | OAuth user catalog | List/search/status only |
 | /oauth-users/new, /oauth-users/[id] | OAuth login-user workflows | Create, detail, TTL, edit/delete actions |
 | /oauth-clients | OAuth client catalog | List/search/status only |
-| /oauth-clients/new, /oauth-clients/[id] | OAuth client workflows | Create, detail, redirects, allowed endpoints, secret actions |
+| /oauth-clients/new, /oauth-clients/[id] | OAuth client workflows | Create, detail, redirects, allowed tools/resources/prompts, secret actions |
 | /tokens | Issued token catalog | List/filter/status with initial refresh and manual refresh |
 | /tokens/[jti] | Issued token detail | Claims, permissions, revoke |
 | /config | Server config | Effective base URL, health, core connection URLs |
@@ -35,7 +35,7 @@ Describe the user-facing structure of MCP Mock Server so an agent can implement 
 | /audit | Audit log | Filtered, incrementally loaded mutation evidence |
 | /audit/[id] | Audit event detail | Full evidence payload |
 | /oauth/login | OAuth login | Separate from admin UI |
-| /oauth/consent | OAuth consent | Endpoint permission checklist |
+| /oauth/consent | OAuth consent | Grouped Tools, Resources, and Prompts permission checklists |
 | /api/* | Admin/API | Health, CRUD, config, reset, audit |
 | /mcp, /mcp/none, /mcp/basic, /mcp/oauth | MCP JSON-RPC | Unified plus strict auth routes with Streamable HTTP POST and lightweight GET SSE |
 | /sse, /sse/none, /sse/basic, /sse/oauth | Legacy MCP SSE | Inspector-compatible SSE stream and message POST aliases |
@@ -53,8 +53,8 @@ Describe the user-facing structure of MCP Mock Server so an agent can implement 
 | Endpoint console | Preview MCP/REST call shape with selected auth mode, run REST no-auth and Basic calls, and show raw execution evidence |
 | Basic Auth users | List/search/create/password-edit/disable/delete Basic test identities and show the built-in default/default lock state |
 | OAuth users | List/search/create/password-edit/disable/delete OAuth login identities and token TTL presets with built-in default locked |
-| OAuth clients | Manage generated client secrets, redirect URIs, client credentials TTL presets, and allowed endpoint set |
-| OAuth login/consent | Complete authorization-code flow and select endpoint permissions |
+| OAuth clients | Manage generated client secrets, redirect URIs, client credentials TTL presets, and allowed tool/resource/prompt sets |
+| OAuth login/consent | Complete authorization-code flow and select tool/resource/prompt permissions |
 | Issued tokens | Inspect claims, permissions, expiration, and revoke tokens |
 | Config/guide | Show effective base URL, health summary, MCP/REST/OAuth URLs, OAuth discovery metadata, JWKS, sample client config, curl, public UI warning, and log command |
 | Inspector guide | Explain how to launch upstream MCP Inspector against local MCP routes and when to use project UI/curl instead |
@@ -111,8 +111,8 @@ Describe the user-facing structure of MCP Mock Server so an agent can implement 
 - The standalone inspector UI should provide a Mock OAuth `client_credentials` token helper for the `/mcp/oauth` preset while still using the standard Mock Server `/oauth/token` endpoint
 - The Generic MCP target page should include upstream Inspector-inspired helpers for copying the current server target JSON, importing a target JSON preset, and reviewing compact in-page request history
 - The standalone inspector UI may remember non-secret local target settings in browser storage, but must not persist headers, Basic passwords, Bearer tokens, OAuth client secrets, root passwords, reset choices, or tool argument payloads
-- OAuth consent should make selected endpoint permissions unambiguous
-- OAuth consent must show client, redirect URI, resource, login user, authorization-code TTL, and the endpoint checklist outside the public admin navigation
+- OAuth consent should make selected tool/resource/prompt permissions unambiguous
+- OAuth consent must show client, redirect URI, resource, login user, authorization-code TTL, and grouped Tools, Resources, and Prompts checklists outside the public admin navigation
 
 ## Frontend Non-Goals for v1
 - no marketing landing page before the usable dashboard

@@ -1,1 +1,1 @@
-mcp-prompts-completion-runtime
+oauth-resource-prompt-permissions

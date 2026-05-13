@@ -32,3 +32,4 @@
 - 2026-05-13T07:09:40.813Z: branched mcp-resources-runtime -> mcp-resources-runtime-rca-npx-y-modelcontextprotocol-inspector-0-21-2-cli- | blocker=deterministic_failure|npx-y-modelcontextprotocol-inspector-0-21-2-cli-|no-path-details
 - 2026-05-13T07:47:12.431Z: promoted mcp-resources-runtime-rca-npx-y-modelcontextprotocol-inspector-0-21-2-cli- -> mcp-resources-runtime
 - 2026-05-13T07:53:16.034Z: promoted mcp-resources-runtime -> mcp-prompts-completion-runtime
+- 2026-05-13T08:05:20.793Z: promoted mcp-prompts-completion-runtime -> oauth-resource-prompt-permissions

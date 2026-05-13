@@ -122,6 +122,10 @@ function structuredContentFor(value: JsonValue): Record<string, JsonValue> | und
   return isRecord(value) ? (value as Record<string, JsonValue>) : undefined;
 }
 
+function isForbiddenResult(value: unknown): value is { kind: "forbidden"; message: string } {
+  return isRecord(value) && value.kind === "forbidden" && typeof value.message === "string";
+}
+
 export function mcpToolResultFromEndpointCall(callResult: EndpointCallResult): McpToolCallResult {
   if (callResult.kind === "matched") {
     const structuredContent = structuredContentFor(callResult.body);
@@ -158,11 +162,11 @@ export async function handleMcpJsonRpcMessage(
   resourcesRuntime: {
     loadResources?: () => Promise<McpResource[]>;
     loadResourceTemplates?: () => Promise<McpResourceTemplate[]>;
-    readResource?: (uri: string) => Promise<McpResourceContent | null>;
+    readResource?: (uri: string) => Promise<McpResourceContent | null | { kind: "forbidden"; message: string }>;
   } = {},
   promptsRuntime: {
     loadPrompts?: () => Promise<McpPrompt[]>;
-    getPrompt?: (name: string, args: Record<string, unknown>) => Promise<McpPromptGetResult | null>;
+    getPrompt?: (name: string, args: Record<string, unknown>) => Promise<McpPromptGetResult | null | { kind: "forbidden"; message: string }>;
     complete?: (ref: McpCompletionRef, argumentName: string, value: string) => Promise<McpCompletionResult | null>;
   } = {},
 ): Promise<McpProtocolResult> {
@@ -300,6 +304,13 @@ export async function handleMcpJsonRpcMessage(
     }
 
     const resource = await resourcesRuntime.readResource(message.params.uri);
+    if (isForbiddenResult(resource)) {
+      return errorResponse(message.id, -32003, "Forbidden", 403, {
+        error: "forbidden",
+        message: resource.message,
+        uri: message.params.uri,
+      });
+    }
     if (!resource) {
       return errorResponse(message.id, -32002, "Resource not found", 200, {
         error: "resource_not_found",
@@ -340,6 +351,13 @@ export async function handleMcpJsonRpcMessage(
     }
 
     const prompt = await promptsRuntime.getPrompt(message.params.name, message.params.arguments ?? {});
+    if (isForbiddenResult(prompt)) {
+      return errorResponse(message.id, -32003, "Forbidden", 403, {
+        error: "forbidden",
+        message: prompt.message,
+        prompt: message.params.name,
+      });
+    }
     if (!prompt) {
       return errorResponse(message.id, -32602, "Invalid prompt");
     }

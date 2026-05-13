@@ -1,18 +1,16 @@
-Implemented MCP prompts and completion runtime for this slice.
+Implemented OAuth Resource And Prompt Permissions and wrote the operator handoff to `state/last-result.txt`.
 
 Changed:
-- [lib/mcp/protocol.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/lib/mcp/protocol.ts): added `prompts/list`, `prompts/get`, and `completion/complete`.
-- [lib/mcp/http.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/lib/mcp/http.ts): wired handlers into Streamable HTTP and legacy SSE using existing prompt/resource-template services.
-- [lib/mcp/types.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/lib/mcp/types.ts): added prompt and completion protocol result types.
-- Added [mcp-prompts-runtime.test.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/tests/unit/mcp-prompts-runtime.test.ts) and [mcp-prompts-completion.spec.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/tests/e2e/mcp-prompts-completion.spec.ts).
-- Updated the active task progress log and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+- Added OAuth resource/prompt permission persistence, claims, token metadata, and validation.
+- Updated consent/client/token UI to group Tools, Resources, and Prompts.
+- Enforced Bearer filtering/403 denial for resources and prompts on MCP OAuth/unified paths.
+- Added unit and E2E coverage for resource/prompt permission behavior.
+- Updated related docs and the active task progress log.
 
-Checks passed:
+Exit criteria appear satisfied. Valid Bearer tokens can list/read/get only selected resources/prompts; unselected access returns JSON-RPC `403`; invalid Bearer tokens remain `401`; consent and token screens show understandable grouped permissions.
+
+Required checks passed:
 - `npm run lint`
 - `npm run typecheck`
-- `npm run test:unit -- tests/unit/mcp-prompts-runtime.test.ts`
-- `npm run test:e2e -- tests/e2e/mcp-prompts-completion.spec.ts`
-- Inspector CLI `prompts/list`
-- Inspector CLI `prompts/get`
-
-One note: local Inspector CLI `0.21.2` does not support `completion/complete`; it exits with “Unsupported method: completion/complete.” Completion is covered by the protocol unit test and Playwright E2E.
+- `npm run test:unit -- tests/unit/oauth-token.test.ts tests/unit/mcp-permissions.test.ts`
+- `npm run test:e2e -- tests/e2e/oauth-resource-prompt-permissions.spec.ts tests/e2e/oauth-consent.spec.ts`

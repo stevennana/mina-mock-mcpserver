@@ -263,7 +263,11 @@ export async function seedOAuthClientDefaults(client = prisma) {
     },
   });
 
-  const defaultEndpoints = await client.endpoint.findMany({ where: { enabled: true }, select: { id: true } });
+  const [defaultEndpoints, defaultResources, defaultPrompts] = await Promise.all([
+    client.endpoint.findMany({ where: { enabled: true }, select: { id: true } }),
+    client.mcpResource.findMany({ where: { enabled: true }, select: { id: true } }),
+    client.mcpPrompt.findMany({ where: { enabled: true }, select: { id: true } }),
+  ]);
   for (const endpoint of defaultEndpoints) {
     await client.oAuthClientAllowedEndpoint.upsert({
       where: {
@@ -276,6 +280,36 @@ export async function seedOAuthClientDefaults(client = prisma) {
       create: {
         oauthClientId: DEFAULT_OAUTH_CLIENT_ID,
         endpointId: endpoint.id,
+      },
+    });
+  }
+  for (const resource of defaultResources) {
+    await client.oAuthClientAllowedResource.upsert({
+      where: {
+        oauthClientId_resourceId: {
+          oauthClientId: DEFAULT_OAUTH_CLIENT_ID,
+          resourceId: resource.id,
+        },
+      },
+      update: {},
+      create: {
+        oauthClientId: DEFAULT_OAUTH_CLIENT_ID,
+        resourceId: resource.id,
+      },
+    });
+  }
+  for (const prompt of defaultPrompts) {
+    await client.oAuthClientAllowedPrompt.upsert({
+      where: {
+        oauthClientId_promptId: {
+          oauthClientId: DEFAULT_OAUTH_CLIENT_ID,
+          promptId: prompt.id,
+        },
+      },
+      update: {},
+      create: {
+        oauthClientId: DEFAULT_OAUTH_CLIENT_ID,
+        promptId: prompt.id,
       },
     });
   }

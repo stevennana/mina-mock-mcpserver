@@ -231,6 +231,8 @@ async function handleMcpJsonRpcPost(
   request: Request,
   runtime: {
     endpointIds?: string[];
+    resourceIds?: string[];
+    promptIds?: string[];
   } = {},
 ) {
   const invalidHttpRequest = await validateMcpHttpRequest(request);
@@ -252,38 +254,65 @@ async function handleMcpJsonRpcPost(
     );
   }
 
-  const resourcesRuntime = runtime.endpointIds
-    ? {}
-    : {
-        loadResources: async () => (await listEnabledMcpResources()).map(mcpResourceFromDetail),
-        loadResourceTemplates: async () => (await listEnabledMcpResourceTemplates()).map(mcpResourceTemplateFromDetail),
-        readResource: async (uri: string) => {
-          const resource = await readEnabledMcpResource(uri);
-          return resource ? mcpResourceContentFromRead(resource) : null;
-        },
-      };
-  const promptsRuntime = runtime.endpointIds
-    ? {}
-    : {
-        loadPrompts: async () => (await listEnabledMcpPrompts()).map(mcpPromptFromDetail),
-        getPrompt: async (name: string, args: Record<string, unknown>) => {
-          const prompt = (await listEnabledMcpPrompts()).find((item) => item.name === name);
-          return prompt ? mcpPromptGetFromDetail(prompt, args) : null;
-        },
-        complete: async (
-          ref: { type: "ref/prompt"; name: string } | { type: "ref/resource"; uri: string },
-          argumentName: string,
-          value: string,
-        ) => {
-          if (ref.type === "ref/prompt") {
-            const prompt = (await listEnabledMcpPrompts()).find((item) => item.name === ref.name);
-            return prompt ? completionFromCandidates(prompt.completionCandidates, argumentName, value) : null;
+  const resourcesRuntime = {
+    loadResources: async () => {
+      const resources = await listEnabledMcpResources();
+      const allowed = runtime.resourceIds ? new Set(runtime.resourceIds) : null;
+      return resources.filter((resource) => !allowed || allowed.has(resource.id)).map(mcpResourceFromDetail);
+    },
+    loadResourceTemplates: async () => {
+      if (runtime.resourceIds) return [];
+      return (await listEnabledMcpResourceTemplates()).map(mcpResourceTemplateFromDetail);
+    },
+    readResource: async (uri: string) => {
+      if (runtime.resourceIds) {
+        const resources = await listEnabledMcpResources();
+        const directResource = resources.find((resource) => resource.uri === uri);
+        if (directResource && !runtime.resourceIds.includes(directResource.id)) {
+          return { kind: "forbidden" as const, message: "Bearer token does not grant permission for this resource." };
+        }
+        if (!directResource) {
+          const renderedTemplate = await readEnabledMcpResource(uri);
+          if (renderedTemplate) {
+            return { kind: "forbidden" as const, message: "Bearer token does not grant permission for this resource." };
           }
+          return null;
+        }
+      }
+      const resource = await readEnabledMcpResource(uri);
+      return resource ? mcpResourceContentFromRead(resource) : null;
+    },
+  };
+  const promptsRuntime = {
+    loadPrompts: async () => {
+      const prompts = await listEnabledMcpPrompts();
+      const allowed = runtime.promptIds ? new Set(runtime.promptIds) : null;
+      return prompts.filter((prompt) => !allowed || allowed.has(prompt.id)).map(mcpPromptFromDetail);
+    },
+    getPrompt: async (name: string, args: Record<string, unknown>) => {
+      const prompt = (await listEnabledMcpPrompts()).find((item) => item.name === name);
+      if (!prompt) return null;
+      if (runtime.promptIds && !runtime.promptIds.includes(prompt.id)) {
+        return { kind: "forbidden" as const, message: "Bearer token does not grant permission for this prompt." };
+      }
+      return mcpPromptGetFromDetail(prompt, args);
+    },
+    complete: async (
+      ref: { type: "ref/prompt"; name: string } | { type: "ref/resource"; uri: string },
+      argumentName: string,
+      value: string,
+    ) => {
+      if (ref.type === "ref/prompt") {
+        const prompt = (await listEnabledMcpPrompts()).find((item) => item.name === ref.name);
+        if (!prompt || (runtime.promptIds && !runtime.promptIds.includes(prompt.id))) return null;
+        return completionFromCandidates(prompt.completionCandidates, argumentName, value);
+      }
 
-          const template = (await listEnabledMcpResourceTemplates()).find((item) => item.uriTemplate === ref.uri);
-          return template ? completionFromCandidates(template.completionCandidates, argumentName, value) : null;
-        },
-      };
+      if (runtime.resourceIds) return null;
+      const template = (await listEnabledMcpResourceTemplates()).find((item) => item.uriTemplate === ref.uri);
+      return template ? completionFromCandidates(template.completionCandidates, argumentName, value) : null;
+    },
+  };
 
   const result = await handleMcpJsonRpcMessage(
     body,
@@ -322,7 +351,11 @@ export async function handleUnifiedMcpPost(request: Request) {
     if (resolution.kind !== "authenticated") {
       return unauthorizedBearerResponse(request, "Authorization header was invalid.", "invalid_token");
     }
-    return handleMcpJsonRpcPost(request, { endpointIds: resolution.principal.endpointIds });
+    return handleMcpJsonRpcPost(request, {
+      endpointIds: resolution.principal.endpointIds,
+      resourceIds: resolution.principal.resourceIds,
+      promptIds: resolution.principal.promptIds,
+    });
   }
 
   const resolution = await resolveBasicAuthorizationHeader(authorization);
@@ -343,7 +376,11 @@ export async function handleStrictOAuthMcpPost(request: Request) {
     return unauthorizedBearerResponse(request);
   }
 
-  return handleMcpJsonRpcPost(request, { endpointIds: resolution.principal.endpointIds });
+  return handleMcpJsonRpcPost(request, {
+    endpointIds: resolution.principal.endpointIds,
+    resourceIds: resolution.principal.resourceIds,
+    promptIds: resolution.principal.promptIds,
+  });
 }
 
 export async function handleStrictBasicMcpPost(request: Request) {
@@ -361,7 +398,7 @@ type LegacySseSession = {
   mode: LegacySseMode;
   controller: ReadableStreamDefaultController<Uint8Array>;
   encoder: TextEncoder;
-  runtime: { endpointIds?: string[] };
+  runtime: { endpointIds?: string[]; resourceIds?: string[]; promptIds?: string[] };
   heartbeat: ReturnType<typeof setInterval>;
 };
 
@@ -474,7 +511,13 @@ async function legacyRuntimeForRequest(mode: LegacySseMode, request: Request) {
   if (mode === "oauth") {
     const resolution = await resolveOAuthBearerAuthorizationHeader(request.headers.get("Authorization"), request);
     if (resolution.kind !== "authenticated") return { response: await unauthorizedBearerResponse(request) };
-    return { runtime: { endpointIds: resolution.principal.endpointIds } };
+    return {
+      runtime: {
+        endpointIds: resolution.principal.endpointIds,
+        resourceIds: resolution.principal.resourceIds,
+        promptIds: resolution.principal.promptIds,
+      },
+    };
   }
 
   if (mode === "unified") {
@@ -485,7 +528,13 @@ async function legacyRuntimeForRequest(mode: LegacySseMode, request: Request) {
       if (resolution.kind !== "authenticated") {
         return { response: await unauthorizedBearerResponse(request, "Authorization header was invalid.", "invalid_token") };
       }
-      return { runtime: { endpointIds: resolution.principal.endpointIds } };
+      return {
+        runtime: {
+          endpointIds: resolution.principal.endpointIds,
+          resourceIds: resolution.principal.resourceIds,
+          promptIds: resolution.principal.promptIds,
+        },
+      };
     }
 
     const resolution = await resolveBasicAuthorizationHeader(authorization);

@@ -130,6 +130,8 @@ model OAuthClient {
   createdAt                   DateTime                     @default(now())
   updatedAt                   DateTime                     @updatedAt
   allowedEndpoints            OAuthClientAllowedEndpoint[]
+  allowedResources            OAuthClientAllowedResource[]
+  allowedPrompts              OAuthClientAllowedPrompt[]
   authorizationCodes          OAuthAuthorizationCode[]
   issuedTokens                OAuthIssuedToken[]
 
@@ -145,6 +147,28 @@ model OAuthClientAllowedEndpoint {
 
   @@id([oauthClientId, endpointId])
   @@index([endpointId])
+}
+
+model OAuthClientAllowedResource {
+  oauthClientId String
+  resourceId    String
+  createdAt     DateTime    @default(now())
+  oauthClient   OAuthClient @relation(fields: [oauthClientId], references: [id], onDelete: Cascade)
+  resource      McpResource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+
+  @@id([oauthClientId, resourceId])
+  @@index([resourceId])
+}
+
+model OAuthClientAllowedPrompt {
+  oauthClientId String
+  promptId      String
+  createdAt     DateTime    @default(now())
+  oauthClient   OAuthClient @relation(fields: [oauthClientId], references: [id], onDelete: Cascade)
+  prompt        McpPrompt   @relation(fields: [promptId], references: [id], onDelete: Cascade)
+
+  @@id([oauthClientId, promptId])
+  @@index([promptId])
 }
 
 model OAuthAuthorizationCode {
@@ -163,6 +187,8 @@ model OAuthAuthorizationCode {
   oauthClient         OAuthClient                      @relation(fields: [oauthClientId], references: [id], onDelete: Cascade)
   oauthUser           OAuthUser                        @relation(fields: [oauthUserId], references: [id], onDelete: Cascade)
   selectedEndpoints   OAuthAuthorizationCodeEndpoint[]
+  selectedResources   OAuthAuthorizationCodeResource[]
+  selectedPrompts     OAuthAuthorizationCodePrompt[]
 
   @@index([code])
   @@index([oauthClientId, oauthUserId])
@@ -180,6 +206,28 @@ model OAuthAuthorizationCodeEndpoint {
   @@index([endpointId])
 }
 
+model OAuthAuthorizationCodeResource {
+  authorizationCodeId String
+  resourceId          String
+  createdAt           DateTime               @default(now())
+  authorizationCode   OAuthAuthorizationCode @relation(fields: [authorizationCodeId], references: [id], onDelete: Cascade)
+  resource            McpResource            @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+
+  @@id([authorizationCodeId, resourceId])
+  @@index([resourceId])
+}
+
+model OAuthAuthorizationCodePrompt {
+  authorizationCodeId String
+  promptId            String
+  createdAt           DateTime               @default(now())
+  authorizationCode   OAuthAuthorizationCode @relation(fields: [authorizationCodeId], references: [id], onDelete: Cascade)
+  prompt              McpPrompt              @relation(fields: [promptId], references: [id], onDelete: Cascade)
+
+  @@id([authorizationCodeId, promptId])
+  @@index([promptId])
+}
+
 model OAuthIssuedToken {
   id                      String      @id
   jti                     String      @unique
@@ -190,6 +238,8 @@ model OAuthIssuedToken {
   issuer                  String      @default("http://localhost:3000")
   resource                String
   endpointPermissionsJson String      @default("[]")
+  resourcePermissionsJson String      @default("[]")
+  promptPermissionsJson   String      @default("[]")
   issuedAt                DateTime
   expiresAt               DateTime
   revokedAt               DateTime?
@@ -217,6 +267,8 @@ model McpResource {
   annotationsJson   String?
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+  oauthClientAllowances OAuthClientAllowedResource[]
+  oauthCodePermissions  OAuthAuthorizationCodeResource[]
 
   @@index([enabled, uri])
 }
@@ -270,6 +322,8 @@ model McpPrompt {
   arguments            McpPromptArgument[]
   messages             McpPromptMessage[]
   completionCandidates McpCompletionCandidate[]
+  oauthClientAllowances OAuthClientAllowedPrompt[]
+  oauthCodePermissions  OAuthAuthorizationCodePrompt[]
 
   @@index([enabled, name])
 }

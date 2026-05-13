@@ -1,53 +1,54 @@
 Read the following repository documents before making changes:
 - AGENTS.md
 - ARCHITECTURE.md
-- docs/RELIABILITY.md
 - docs/SECURITY.md
-- docs/product-specs/mcp-json-rpc-runtime.md
+- docs/product-specs/oauth-consent-and-token-runtime.md
 - docs/product-specs/mcp-resources-prompts.md
-- docs/exec-plans/active/032-mcp-prompts-completion-runtime.md
+- docs/exec-plans/active/033-oauth-resource-prompt-permissions.md
 
-Current task id: mcp-prompts-completion-runtime
-Current task title: MCP Prompts And Completion Runtime
+Current task id: oauth-resource-prompt-permissions
+Current task title: OAuth Resource And Prompt Permissions
 
 Objective:
-Implement MCP Prompts and Completion runtime methods over existing Streamable HTTP and legacy SSE transports.
+Extend mock OAuth clients, consent, authorization codes, issued tokens, and runtime enforcement to cover tool, resource, and prompt permissions.
 
 Clarity notes:
-- This slice may advertise `prompts` and `completions` after handlers are in place.
-- Completion supports prompt arguments and resource-template arguments only.
+- Existing endpoint permissions become the tool-permission group.
+- No-auth and Basic remain unrestricted for enabled mock features.
+- OAuth Bearer list methods must filter results; read/get methods must deny unselected IDs.
 
 Expected result:
-- A standard MCP client can discover prompts, render a prompt with arguments, and request completions for prompt/resource-template arguments.
-- Completion responses are bounded to 100 values and expose `total`/`hasMore`.
+- A valid Bearer token can list/read/get only selected resources and prompts.
+- Unselected resource or prompt access returns `403` with JSON-RPC error data, while invalid tokens still return `401`.
+- Consent and token screens make selected permissions understandable.
 
 Objections / risks to avoid:
-- Do not make prompt execution model-controlled.
-- Do not persist completion request values.
-- Do not leak disabled embedded resource content.
+- Do not reuse endpoint IDs as resource/prompt IDs.
+- Do not silently grant all resources/prompts to existing OAuth clients unless seed/default migration explicitly records that behavior for test compatibility.
+- Do not expose raw tokens after issuance.
 
 Scope:
-- Extend `initialize` capabilities with `prompts: { listChanged: true }` and `completions: {}`.
-- Implement `prompts/list`, `prompts/get`, and `completion/complete`.
-- Validate required prompt arguments and substitute arguments into text messages.
-- Resolve embedded server resources only when the referenced resource is enabled and readable.
-- Return JSON-RPC `-32602` for invalid prompt names, missing required args, and malformed completion refs.
+- Add resource and prompt allowed sets to OAuth clients.
+- Add resource and prompt selected permissions to authorization codes and issued-token metadata.
+- Update OAuth consent UI to group Tools, Resources, and Prompts.
+- Update `/mcp/oauth`, `/sse/oauth`, and unified Bearer behavior to filter/deny resources and prompts.
+- Update token UI detail to show resource/prompt permission summaries.
 
 Out of scope:
-- OAuth permission filtering.
-- LLM execution, sampling, elicitation, or roots.
-- Image/audio prompt content.
+- External OAuth providers.
+- Refresh tokens.
+- Enterprise RBAC or private admin UI.
 
 Exit criteria:
-- A standard MCP client can discover prompts, render a prompt with arguments, and request completions for prompt/resource-template arguments.
-- Completion responses are bounded to 100 values and expose `total`/`hasMore`.
+- A valid Bearer token can list/read/get only selected resources and prompts.
+- Unselected resource or prompt access returns `403` with JSON-RPC error data, while invalid tokens still return `401`.
+- Consent and token screens make selected permissions understandable.
 
 Required checks:
 - `npm run lint`
 - `npm run typecheck`
-- `npm run test:unit -- tests/unit/mcp-prompts-runtime.test.ts`
-- `npm run test:e2e -- tests/e2e/mcp-prompts-completion.spec.ts`
-- Upstream Inspector CLI checks for `prompts/list`, `prompts/get`, and `completion/complete`.
+- `npm run test:unit -- tests/unit/oauth-token.test.ts tests/unit/mcp-permissions.test.ts`
+- `npm run test:e2e -- tests/e2e/oauth-resource-prompt-permissions.spec.ts tests/e2e/oauth-consent.spec.ts`
 
 Evaluator notes:
 - Confirm the task stays inside its declared slice.
@@ -59,8 +60,8 @@ Required repository artifacts for this task:
 Required commands for this task:
 - npm run lint
 - npm run typecheck
-- npm run test:unit -- tests/unit/mcp-prompts-runtime.test.ts
-- npm run test:e2e -- tests/e2e/mcp-prompts-completion.spec.ts
+- npm run test:unit -- tests/unit/oauth-token.test.ts tests/unit/mcp-permissions.test.ts
+- npm run test:e2e -- tests/e2e/oauth-resource-prompt-permissions.spec.ts tests/e2e/oauth-consent.spec.ts
 
 Previous known gaps from the last evaluation:
 - none

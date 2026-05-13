@@ -26,6 +26,8 @@ async function submitOAuthConsent(formData: FormData) {
       authorizeRequest,
       loginTicket,
       selectedEndpointIds: formData.getAll("endpoint_id").map(String),
+      selectedResourceIds: formData.getAll("resource_id").map(String),
+      selectedPromptIds: formData.getAll("prompt_id").map(String),
     });
     const redirectUrl = new URL(code.redirectUri);
     redirectUrl.searchParams.set("code", code.code);
@@ -61,7 +63,7 @@ export default async function OAuthConsentPage({ searchParams }: { searchParams:
       <main className="shell oauth-shell">
         <section className="oauth-panel" aria-labelledby="oauth-consent-title">
           <p className="eyebrow">Mock OAuth consent</p>
-          <h1 id="oauth-consent-title">Approve endpoint access</h1>
+          <h1 id="oauth-consent-title">Approve MCP access</h1>
           <dl className="oauth-detail-grid" aria-label="Consent details">
             <div>
               <dt>Client</dt>
@@ -84,7 +86,7 @@ export default async function OAuthConsentPage({ searchParams }: { searchParams:
               <dd>{context.codeTtlSeconds} seconds</dd>
             </div>
           </dl>
-          {consentError ? <p className="form-message error">Select at least one allowed endpoint permission.</p> : null}
+          {consentError ? <p className="form-message error">Select allowed permissions from the client's configured sets.</p> : null}
           <form action={submitOAuthConsent} className="oauth-form">
             <input type="hidden" name="response_type" value={context.request.responseType} />
             <input type="hidden" name="client_id" value={context.request.clientId} />
@@ -95,7 +97,7 @@ export default async function OAuthConsentPage({ searchParams }: { searchParams:
             {context.request.codeChallenge ? <input type="hidden" name="code_challenge" value={context.request.codeChallenge} /> : null}
             {context.request.codeChallengeMethod ? <input type="hidden" name="code_challenge_method" value={context.request.codeChallengeMethod} /> : null}
             <fieldset className="oauth-permissions">
-              <legend>Endpoint permissions</legend>
+              <legend>Tools</legend>
               {context.client.allowedEndpoints.length ? (
                 context.client.allowedEndpoints.map((endpoint) => (
                   <label className="compact-check endpoint-check" key={endpoint.id}>
@@ -108,10 +110,44 @@ export default async function OAuthConsentPage({ searchParams }: { searchParams:
                   </label>
                 ))
               ) : (
-                <p className="section-note">This client has no allowed endpoints configured.</p>
+                <p className="section-note">This client has no allowed tools configured.</p>
               )}
             </fieldset>
-            <button className="primary-button" type="submit">Approve selected endpoints</button>
+            <fieldset className="oauth-permissions">
+              <legend>Resources</legend>
+              {context.client.allowedResources.length ? (
+                context.client.allowedResources.map((resource) => (
+                  <label className="compact-check endpoint-check" key={resource.id}>
+                    <input type="checkbox" name="resource_id" value={resource.id} defaultChecked={resource.enabled} />
+                    <span>
+                      <strong>{resource.name}</strong>
+                      {resource.title ? resource.title : resource.uri}
+                      {!resource.enabled ? " (disabled)" : ""}
+                    </span>
+                  </label>
+                ))
+              ) : (
+                <p className="section-note">This client has no allowed resources configured.</p>
+              )}
+            </fieldset>
+            <fieldset className="oauth-permissions">
+              <legend>Prompts</legend>
+              {context.client.allowedPrompts.length ? (
+                context.client.allowedPrompts.map((prompt) => (
+                  <label className="compact-check endpoint-check" key={prompt.id}>
+                    <input type="checkbox" name="prompt_id" value={prompt.id} defaultChecked={prompt.enabled} />
+                    <span>
+                      <strong>{prompt.name}</strong>
+                      {prompt.title ? prompt.title : "Untitled prompt"}
+                      {!prompt.enabled ? " (disabled)" : ""}
+                    </span>
+                  </label>
+                ))
+              ) : (
+                <p className="section-note">This client has no allowed prompts configured.</p>
+              )}
+            </fieldset>
+            <button className="primary-button" type="submit">Approve selected permissions</button>
           </form>
         </section>
       </main>

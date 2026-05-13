@@ -5,7 +5,7 @@
   "id": "oauth-resource-prompt-permissions",
   "title": "OAuth Resource And Prompt Permissions",
   "order": 33,
-  "status": "queued",
+  "status": "active",
   "next_task_on_success": "mcp-resource-subscription-notifications",
   "prompt_docs": [
     "AGENTS.md",
@@ -79,3 +79,7 @@ Extend mock OAuth clients, consent, authorization codes, issued tokens, and runt
 ## Progress log
 
 - 2026-05-13T00:00:00Z: seeded as part of MCP Resources/Prompts next-wave planning.
+- 2026-05-13T08:05:20.793Z: restored as current task after mcp-prompts-completion-runtime promotion.
+- 2026-05-13T18:05:00+09:00: added OAuth client, authorization-code, token-claim, and stored-token metadata for resource and prompt permissions; Bearer MCP runtime now filters resources/prompts and returns JSON-RPC 403 for valid-token permission denials.
+- 2026-05-13T18:05:00+09:00: updated consent/client/token UI copy and controls to group Tools, Resources, and Prompts; added unit and E2E coverage for resource/prompt permission filtering and denial paths.
+- 2026-05-13T18:05:00+09:00: required checks passed: lint, typecheck, targeted unit command, and targeted E2E command.

@@ -1,8 +1,8 @@
 {
-  "task_id": "mcp-prompts-completion-runtime",
-  "started_at": "2026-05-13T16:53:46+09:00",
-  "artifact_dir": "state/artifacts/20260513T165346-mcp-prompts-completion-runtime",
+  "task_id": "oauth-resource-prompt-permissions",
+  "started_at": "2026-05-13T17:05:51+09:00",
+  "artifact_dir": "state/artifacts/20260513T170551-oauth-resource-prompt-permissions",
   "phase": "commit",
   "status": "running",
-  "updated_at": "2026-05-13T08:05:20.627Z"
+  "updated_at": "2026-05-13T08:52:05.493Z"
 }

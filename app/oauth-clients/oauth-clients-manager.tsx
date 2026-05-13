@@ -15,6 +15,8 @@ type FormState = {
   redirectUrisText: string;
   clientCredentialsTtlSeconds: number;
   allowedEndpointIds: string[];
+  allowedResourceIds: string[];
+  allowedPromptIds: string[];
 };
 
 type SaveState = {
@@ -38,6 +40,8 @@ const blankClient: FormState = {
   redirectUrisText: "http://localhost:3000/oauth/callback",
   clientCredentialsTtlSeconds: DEFAULT_TTL_SECONDS,
   allowedEndpointIds: [],
+  allowedResourceIds: [],
+  allowedPromptIds: [],
 };
 
 const OAUTH_CLIENT_FLASH_KEY = "mcp-mock-oauth-client-flash";
@@ -52,6 +56,8 @@ function clientToForm(client: OAuthClientSummary): FormState {
     redirectUrisText: client.redirectUris.join("\n"),
     clientCredentialsTtlSeconds: client.clientCredentialsTtlSeconds,
     allowedEndpointIds: client.allowedEndpointIds,
+    allowedResourceIds: client.allowedResourceIds,
+    allowedPromptIds: client.allowedPromptIds,
   };
 }
 
@@ -154,6 +160,24 @@ export function OAuthClientsManager({
     }));
   }
 
+  function toggleResource(resourceId: string, checked: boolean) {
+    setForm((current) => ({
+      ...current,
+      allowedResourceIds: checked
+        ? Array.from(new Set([...current.allowedResourceIds, resourceId]))
+        : current.allowedResourceIds.filter((id) => id !== resourceId),
+    }));
+  }
+
+  function togglePrompt(promptId: string, checked: boolean) {
+    setForm((current) => ({
+      ...current,
+      allowedPromptIds: checked
+        ? Array.from(new Set([...current.allowedPromptIds, promptId]))
+        : current.allowedPromptIds.filter((id) => id !== promptId),
+    }));
+  }
+
   async function saveClient() {
     setSaveState({ status: "saving", message: "Saving OAuth client.", fieldErrors: {} });
     setIssuedSecret("");
@@ -167,6 +191,8 @@ export function OAuthClientsManager({
           redirectUris: redirectUrisFromText(form.redirectUrisText),
           clientCredentialsTtlSeconds: form.clientCredentialsTtlSeconds,
           allowedEndpointIds: form.allowedEndpointIds,
+          allowedResourceIds: form.allowedResourceIds,
+          allowedPromptIds: form.allowedPromptIds,
         }
       : {
           clientId: form.clientId,
@@ -175,6 +201,8 @@ export function OAuthClientsManager({
           redirectUris: redirectUrisFromText(form.redirectUrisText),
           clientCredentialsTtlSeconds: form.clientCredentialsTtlSeconds,
           allowedEndpointIds: form.allowedEndpointIds,
+          allowedResourceIds: form.allowedResourceIds,
+          allowedPromptIds: form.allowedPromptIds,
         };
 
     try {
@@ -305,7 +333,7 @@ export function OAuthClientsManager({
                 <th>Client</th>
                 <th>Status</th>
                 <th>Lock</th>
-                <th>Allowed</th>
+                <th>Allowed T/R/P</th>
                 <th>TTL</th>
               </tr>
             </thead>
@@ -326,7 +354,7 @@ export function OAuthClientsManager({
                       {client.builtIn ? "Locked" : "Editable"}
                     </span>
                   </td>
-                  <td>{client.allowedEndpointIds.length}</td>
+                  <td>{client.allowedEndpointIds.length}/{client.allowedResourceIds.length}/{client.allowedPromptIds.length}</td>
                   <td>{formatTtl(client.clientCredentialsTtlSeconds)}</td>
                 </tr>
               ))}
@@ -430,8 +458,8 @@ export function OAuthClientsManager({
         </div>
 
         <div className="editor-section">
-          <h3>Allowed endpoints</h3>
-          <p className="section-note">These endpoints become the maximum permission set this client can request or receive in tokens.</p>
+          <h3>Allowed tools</h3>
+          <p className="section-note">These tools become the maximum tool permission set this client can request or receive in tokens.</p>
           <div className="checkbox-grid">
             {listData.endpointOptions.map((endpoint) => (
               <label className="compact-check endpoint-check" key={endpoint.id}>
@@ -450,6 +478,52 @@ export function OAuthClientsManager({
             ))}
           </div>
           {errorFor(saveState.fieldErrors, "allowedEndpointIds")}
+        </div>
+
+        <div className="editor-section">
+          <h3>Allowed resources</h3>
+          <p className="section-note">These direct MCP resources can appear in OAuth resources/list and resources/read results.</p>
+          <div className="checkbox-grid">
+            {listData.resourceOptions.map((resource) => (
+              <label className="compact-check endpoint-check" key={resource.id}>
+                <input
+                  type="checkbox"
+                  checked={form.allowedResourceIds.includes(resource.id)}
+                  onChange={(event) => toggleResource(resource.id, event.target.checked)}
+                  disabled={locked}
+                />
+                <span>
+                  <strong>{resource.name}</strong>
+                  {resource.title ? ` ${resource.title}` : ` ${resource.uri}`}
+                  {!resource.enabled ? " Disabled" : ""}
+                </span>
+              </label>
+            ))}
+          </div>
+          {errorFor(saveState.fieldErrors, "allowedResourceIds")}
+        </div>
+
+        <div className="editor-section">
+          <h3>Allowed prompts</h3>
+          <p className="section-note">These prompts can appear in OAuth prompts/list and prompts/get results.</p>
+          <div className="checkbox-grid">
+            {listData.promptOptions.map((prompt) => (
+              <label className="compact-check endpoint-check" key={prompt.id}>
+                <input
+                  type="checkbox"
+                  checked={form.allowedPromptIds.includes(prompt.id)}
+                  onChange={(event) => togglePrompt(prompt.id, event.target.checked)}
+                  disabled={locked}
+                />
+                <span>
+                  <strong>{prompt.name}</strong>
+                  {prompt.title ? ` ${prompt.title}` : ""}
+                  {!prompt.enabled ? " Disabled" : ""}
+                </span>
+              </label>
+            ))}
+          </div>
+          {errorFor(saveState.fieldErrors, "allowedPromptIds")}
         </div>
 
         <div className="editor-section">
