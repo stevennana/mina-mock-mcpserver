@@ -1,0 +1,8 @@
+{
+  "name": "@modelcontextprotocol/inspector",
+  "version": "0.21.2",
+  "private": true,
+  "bin": {
+    "mcp-inspector": "bin/mcp-inspector.mjs"
+  }
+}

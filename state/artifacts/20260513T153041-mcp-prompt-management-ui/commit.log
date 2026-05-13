@@ -1,0 +1,24 @@
+[codex/mcp-resources-prompts-plans 5901b93] ralph: mcp-prompt-management-ui 2026-05-13T15:42:30+09:00
+ 36 files changed, 1483 insertions(+), 53 deletions(-)
+ create mode 100644 app/api/prompts/[id]/route.ts
+ create mode 100644 app/api/prompts/route.ts
+ create mode 100644 app/prompts/[id]/arguments/page.tsx
+ create mode 100644 app/prompts/[id]/completion/page.tsx
+ create mode 100644 app/prompts/[id]/console/page.tsx
+ create mode 100644 app/prompts/[id]/delete/page.tsx
+ create mode 100644 app/prompts/[id]/edit/page.tsx
+ create mode 100644 app/prompts/[id]/messages/page.tsx
+ create mode 100644 app/prompts/[id]/page.tsx
+ create mode 100644 app/prompts/new/page.tsx
+ create mode 100644 app/prompts/page.tsx
+ create mode 100644 app/prompts/prompt-manager.tsx
+ create mode 100644 app/prompts/workflow-page.tsx
+ rename docs/exec-plans/{active => completed}/029-mcp-resource-template-management-ui.md (93%)
+ create mode 100644 state/artifacts/20260513T151822-mcp-resource-template-management-ui/backlog.log
+ create mode 100644 state/artifacts/20260513T151822-mcp-resource-template-management-ui/promote.log
+ create mode 100644 state/artifacts/20260513T153041-mcp-prompt-management-ui/commit.log
+ create mode 100644 state/artifacts/20260513T153041-mcp-prompt-management-ui/evaluator.log
+ create mode 100644 state/artifacts/20260513T153041-mcp-prompt-management-ui/task-prompt.log
+ create mode 100644 state/artifacts/20260513T153041-mcp-prompt-management-ui/worker.jsonl
+ create mode 100644 tests/e2e/prompts-ui.spec.ts
+commit: created

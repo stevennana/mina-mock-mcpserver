@@ -135,6 +135,13 @@ export type McpFixtureListResult<T> = {
   items: T[];
 };
 
+export type McpResourceRuntimeRead = {
+  uri: string;
+  mimeType: string;
+  textContent: string | null;
+  blobContentBase64: string | null;
+};
+
 export class McpFixtureValidationError extends Error {
   constructor(public readonly fieldErrors: Record<string, string>) {
     super("MCP fixture validation failed");

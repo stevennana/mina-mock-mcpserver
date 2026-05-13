@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import type { Prisma, PrismaClient } from "@prisma/client";
 import { recordAuditEvent } from "@/lib/audit/service";
 import { createPrismaClient } from "@/lib/db/client";
+import { renderTemplateWithValues } from "@/lib/mcp-fixtures/template-render";
 import {
   validateMcpPromptInput,
   validateMcpResourceInput,
@@ -16,6 +17,7 @@ import type {
   McpResourceDetail,
   McpResourceInput,
   McpResourceSummary,
+  McpResourceRuntimeRead,
   McpResourceTemplateDetail,
   McpResourceTemplateInput,
   McpResourceTemplateSummary,
@@ -40,6 +42,47 @@ const promptInclude = {
 type ResourceTemplateRecord = Prisma.McpResourceTemplateGetPayload<{ include: typeof resourceTemplateInclude }>;
 type PromptRecord = Prisma.McpPromptGetPayload<{ include: typeof promptInclude }>;
 type ResourceContentSnapshot = Pick<Prisma.McpResourceGetPayload<object>, "textContent" | "blobContentBase64">;
+const uriTemplatePlaceholderPattern = /\{([A-Za-z_][A-Za-z0-9_]*)\}/g;
+
+function escapeRegex(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function matchResourceTemplateUri(
+  uriTemplate: string,
+  uri: string,
+): Record<string, string> | null {
+  const names: string[] = [];
+  let pattern = "^";
+  let lastIndex = 0;
+
+  for (const match of uriTemplate.matchAll(uriTemplatePlaceholderPattern)) {
+    const name = match[1];
+    if (!name) return null;
+    const index = match.index ?? 0;
+    pattern += escapeRegex(uriTemplate.slice(lastIndex, index));
+    pattern += "([^/?#]+)";
+    names.push(name);
+    lastIndex = index + match[0].length;
+  }
+
+  pattern += escapeRegex(uriTemplate.slice(lastIndex));
+  pattern += "$";
+
+  const match = new RegExp(pattern).exec(uri);
+  if (!match) return null;
+
+  return Object.fromEntries(
+    names.map((name, index) => {
+      const value = match[index + 1] ?? "";
+      try {
+        return [name, decodeURIComponent(value)];
+      } catch {
+        return [name, value];
+      }
+    }),
+  );
+}
 
 function toResourceSummary(resource: Prisma.McpResourceGetPayload<object>): McpResourceSummary {
   return {
@@ -163,6 +206,35 @@ export async function listMcpResources(
 export async function listEnabledMcpResources(client: PrismaClient = createPrismaClient()): Promise<McpResourceDetail[]> {
   const resources = await client.mcpResource.findMany({ where: { enabled: true }, orderBy: [{ uri: "asc" }] });
   return resources.map(toResourceDetail);
+}
+
+export async function readEnabledMcpResource(
+  uri: string,
+  client: PrismaClient = createPrismaClient(),
+): Promise<McpResourceRuntimeRead | null> {
+  const directResource = await client.mcpResource.findUnique({ where: { uri } });
+  if (directResource?.enabled) {
+    return {
+      uri: directResource.uri,
+      mimeType: directResource.mimeType,
+      textContent: directResource.textContent,
+      blobContentBase64: directResource.blobContentBase64,
+    };
+  }
+
+  const templates = await listEnabledMcpResourceTemplates(client);
+  for (const template of templates) {
+    const values = matchResourceTemplateUri(template.uriTemplate, uri);
+    if (!values) continue;
+    return {
+      uri,
+      mimeType: template.mimeType,
+      textContent: template.textTemplate === null ? null : renderTemplateWithValues(template.textTemplate, values),
+      blobContentBase64: template.blobTemplateBase64 === null ? null : renderTemplateWithValues(template.blobTemplateBase64, values),
+    };
+  }
+
+  return null;
 }
 
 export async function getMcpResource(id: string, client: PrismaClient = createPrismaClient()) {

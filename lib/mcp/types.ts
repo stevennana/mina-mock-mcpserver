@@ -25,6 +25,10 @@ export type McpInitializeResult = {
     tools: {
       listChanged: false;
     };
+    resources?: {
+      subscribe: true;
+      listChanged: true;
+    };
   };
   serverInfo: typeof MCP_SERVER_INFO;
 };
@@ -38,11 +42,41 @@ export type McpToolCallResult = {
   isError?: true;
 };
 
+export type McpResource = {
+  uri: string;
+  name: string;
+  title?: string;
+  description?: string;
+  mimeType?: string;
+  size?: number;
+  annotations?: JsonValue;
+};
+
+export type McpResourceTemplate = {
+  uriTemplate: string;
+  name: string;
+  title?: string;
+  description?: string;
+  mimeType?: string;
+  annotations?: JsonValue;
+};
+
+export type McpResourceContent = {
+  uri: string;
+  mimeType?: string;
+} & ({ text: string } | { blob: string });
+
 export type McpJsonRpcResponse =
   | {
       jsonrpc: "2.0";
       id: McpJsonRpcId;
-      result: McpInitializeResult | { tools: McpTool[] } | McpToolCallResult;
+      result:
+        | McpInitializeResult
+        | { tools: McpTool[] }
+        | McpToolCallResult
+        | { resources: McpResource[] }
+        | { resourceTemplates: McpResourceTemplate[] }
+        | { contents: McpResourceContent[] };
     }
   | {
       jsonrpc: "2.0";

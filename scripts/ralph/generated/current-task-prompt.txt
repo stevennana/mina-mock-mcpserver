@@ -1,66 +1,65 @@
 Read the following repository documents before making changes:
 - AGENTS.md
+- docs/PLANS.md
+- docs/exec-plans/active/031-mcp-resources-runtime.md
 - ARCHITECTURE.md
-- docs/FRONTEND.md
-- docs/design-docs/product-ui-primitives.md
+- docs/RELIABILITY.md
+- docs/SECURITY.md
+- docs/product-specs/mcp-json-rpc-runtime.md
 - docs/product-specs/mcp-resources-prompts.md
-- docs/exec-plans/active/030-mcp-prompt-management-ui.md
+- docs/exec-plans/active/mcp-resources-runtime-rca-npx-y-modelcontextprotocol-inspector-0-21-2-cli-.md
 
-Current task id: mcp-prompt-management-ui
-Current task title: MCP Prompt Management UI
+Current task id: mcp-resources-runtime-rca-npx-y-modelcontextprotocol-inspector-0-21-2-cli-
+Current task title: RCA: MCP Resources Runtime blocker
 
 Objective:
-Add focused admin UI and APIs for MCP Prompts so users can configure reusable prompt templates, arguments, ordered messages, embedded resources, and completion candidates.
+Resolve the repeated blocker that is preventing `mcp-resources-runtime` from promoting, then return the queue to the parent task automatically.
 
 Clarity notes:
-- Prompts are user-controlled templates, not model-invoked tools.
-- Prompt messages should support text content first and embedded server resources where the selected resource is enabled.
+- none
 
 Expected result:
-- A user can create a prompt with required arguments and preview the rendered messages for sample arguments.
-- Missing required arguments are visible as validation errors in the UI.
+- none
 
 Objections / risks to avoid:
-- Do not imply prompts run automatically.
-- Do not persist secrets entered as sample arguments.
-- Do not permit embedded disabled resources.
+- none
 
 Scope:
-- Add `/prompts`, `/prompts/new`, and `/prompts/[id]/*` workflows.
-- Support metadata, argument definitions, ordered user/assistant text messages, embedded resource references, completion candidates, console preview, and delete.
-- Add API routes that use task 027 domain services.
-- Show `prompts/list`, `prompts/get`, and `completion/complete` request previews.
+- isolate the repeated blocker signature without broadening back into the parent feature
+- restore the failing required command path: npx -y @modelcontextprotocol/inspector@0.21.2 --cli http://127.0.0.1:3100/mcp/none --transport http --method resources/list
+- update the parent task log and blocker evidence so the return path is explicit
 
 Out of scope:
-- Runtime MCP protocol handlers.
-- External prompt execution or LLM calls.
-- Rich media prompt content beyond text and embedded resources.
+- new product scope beyond mcp-resources-runtime
+- unrelated cleanup outside the blocker signature `deterministic_failure|npx-y-modelcontextprotocol-inspector-0-21-2-cli-|no-path-details`
+- manual queue edits that bypass the normal promotion return path
 
 Exit criteria:
-- A user can create a prompt with required arguments and preview the rendered messages for sample arguments.
-- Missing required arguments are visible as validation errors in the UI.
+1. The repeated blocker is reproduced or conclusively explained with concrete evidence.
+2. npx -y @modelcontextprotocol/inspector@0.21.2 --cli http://127.0.0.1:3100/mcp/none --transport http --method resources/list pass without the blocker signature recurring.
+3. The RCA task can promote back to `mcp-resources-runtime` without manual queue surgery.
+4. The parent task log records the blocker resolution before work returns to `mcp-resources-runtime`.
 
 Required checks:
-- `npm run lint`
-- `npm run typecheck`
-- `npm run test:e2e -- tests/e2e/prompts-ui.spec.ts --grep @ui-prompts`
-- Desktop/mobile screenshots, horizontal overflow check, and accessibility assertions in the UI E2E.
+- `npx -y @modelcontextprotocol/inspector@0.21.2 --cli http://127.0.0.1:3100/mcp/none --transport http --method resources/list`
 
 Evaluator notes:
-- Confirm the task stays inside its declared slice.
-- Confirm required commands are treated as promotion-blocking gates.
+Promote only when the blocker-specific evidence is explicit and the queue can safely return to `mcp-resources-runtime`.
 
 Required repository artifacts for this task:
 - none
 
 Required commands for this task:
-- npm run lint
-- npm run typecheck
-- npm run test:e2e -- tests/e2e/prompts-ui.spec.ts --grep @ui-prompts
+- npx -y @modelcontextprotocol/inspector@0.21.2 --cli http://127.0.0.1:3100/mcp/none --transport http --method resources/list
 
 Previous known gaps from the last evaluation:
 - none
 
+RCA context:
+- This is an auto-generated blocker RCA task for parent task: mcp-resources-runtime
+- Blocker kind: deterministic_failure
+- Blocker summary: Repeated required-command failure: npx -y @modelcontextprotocol/inspector@0.21.2 --cli http://127.0.0.1:3100/mcp/none --transport http --method resources/list
+- Blocker signature: deterministic_failure|npx-y-modelcontextprotocol-inspector-0-21-2-cli-|no-path-details
 
 
 Rules:
@@ -72,7 +71,9 @@ Rules:
 - Update this task doc's progress log with concrete notes.
 - Keep the repository in a state where the required commands can pass.
 - If the task is not done, leave the next task untouched.
-
+- Work only on the blocker evidence described above.
+- Do not resume or broaden into parent task mcp-resources-runtime inside this RCA task.
+- Leave the queue return path to normal promotion back to mcp-resources-runtime.
 
 At the end of the run, write a concise operator handoff summary into state/last-result.txt via your final response:
 - what changed

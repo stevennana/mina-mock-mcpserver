@@ -3,7 +3,14 @@ import { resolveBasicAuthorizationHeader } from "@/lib/auth/basic";
 import { parseBearerAuthorizationHeader, resolveOAuthBearerAuthorizationHeader } from "@/lib/auth/oauth";
 import { callEndpointByName, callPermittedEndpointByName, listEnabledMcpTools } from "@/lib/endpoints/service";
 import { publicCorsHeaders } from "@/lib/http/cors";
+import {
+  listEnabledMcpResources,
+  listEnabledMcpResourceTemplates,
+  readEnabledMcpResource,
+} from "@/lib/mcp-fixtures/service";
+import type { McpResourceDetail, McpResourceRuntimeRead, McpResourceTemplateDetail } from "@/lib/mcp-fixtures/types";
 import { handleMcpJsonRpcMessage } from "@/lib/mcp/protocol";
+import type { McpResource, McpResourceContent, McpResourceTemplate } from "@/lib/mcp/types";
 import { DEFAULT_MCP_PROTOCOL_VERSION, SUPPORTED_MCP_PROTOCOL_VERSIONS } from "@/lib/mcp/types";
 import { oauthDiscoveryUrls } from "@/lib/oauth/discovery";
 import { resolveBaseUrl } from "@/lib/operator/config";
@@ -19,6 +26,55 @@ function mcpResponseHeaders(headers: Record<string, string> = {}) {
 
 function isSupportedMcpProtocolVersion(value: string) {
   return SUPPORTED_MCP_PROTOCOL_VERSIONS.includes(value as (typeof SUPPORTED_MCP_PROTOCOL_VERSIONS)[number]);
+}
+
+function parseAnnotations(value: string | null) {
+  if (!value) return undefined;
+  try {
+    return JSON.parse(value);
+  } catch {
+    return undefined;
+  }
+}
+
+function contentSize(textContent: string | null, blobContentBase64: string | null) {
+  if (textContent !== null) return new TextEncoder().encode(textContent).byteLength;
+  if (blobContentBase64 !== null) return Buffer.from(blobContentBase64, "base64").byteLength;
+  return undefined;
+}
+
+function mcpResourceFromDetail(resource: McpResourceDetail): McpResource {
+  const annotations = parseAnnotations(resource.annotationsJson);
+  const size = contentSize(resource.textContent, resource.blobContentBase64);
+  return {
+    uri: resource.uri,
+    name: resource.name,
+    ...(resource.title ? { title: resource.title } : {}),
+    ...(resource.description ? { description: resource.description } : {}),
+    mimeType: resource.mimeType,
+    ...(size !== undefined ? { size } : {}),
+    ...(annotations ? { annotations } : {}),
+  };
+}
+
+function mcpResourceTemplateFromDetail(template: McpResourceTemplateDetail): McpResourceTemplate {
+  const annotations = parseAnnotations(template.annotationsJson);
+  return {
+    uriTemplate: template.uriTemplate,
+    name: template.name,
+    ...(template.title ? { title: template.title } : {}),
+    ...(template.description ? { description: template.description } : {}),
+    mimeType: template.mimeType,
+    ...(annotations ? { annotations } : {}),
+  };
+}
+
+function mcpResourceContentFromRead(resource: McpResourceRuntimeRead): McpResourceContent {
+  return {
+    uri: resource.uri,
+    mimeType: resource.mimeType,
+    ...(resource.textContent !== null ? { text: resource.textContent } : { blob: resource.blobContentBase64 ?? "" }),
+  };
 }
 
 async function validateMcpHttpRequest(request: Request) {
@@ -104,12 +160,24 @@ async function handleMcpJsonRpcPost(
     );
   }
 
+  const resourcesRuntime = runtime.endpointIds
+    ? {}
+    : {
+        loadResources: async () => (await listEnabledMcpResources()).map(mcpResourceFromDetail),
+        loadResourceTemplates: async () => (await listEnabledMcpResourceTemplates()).map(mcpResourceTemplateFromDetail),
+        readResource: async (uri: string) => {
+          const resource = await readEnabledMcpResource(uri);
+          return resource ? mcpResourceContentFromRead(resource) : null;
+        },
+      };
+
   const result = await handleMcpJsonRpcMessage(
     body,
     () => listEnabledMcpTools(undefined, runtime.endpointIds ? { endpointIds: runtime.endpointIds } : undefined),
     runtime.endpointIds
       ? (name, rawArguments) => callPermittedEndpointByName(name, rawArguments, runtime.endpointIds ?? [])
       : callEndpointByName,
+    resourcesRuntime,
   );
   if (result.kind === "accepted") {
     return new Response(null, { status: 202, headers: mcpResponseHeaders() });

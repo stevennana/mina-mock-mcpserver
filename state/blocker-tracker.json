@@ -1,5 +1,52 @@
 {
   "version": 1,
-  "updated_at": "2026-05-13T06:30:10.820Z",
-  "tasks": {}
+  "updated_at": "2026-05-13T07:29:15.880Z",
+  "tasks": {
+    "mcp-resources-runtime": {
+      "last_signature": "deterministic_failure|npx-y-modelcontextprotocol-inspector-0-21-2-cli-|no-path-details",
+      "last_seen_at": "2026-05-13T07:09:40.664Z",
+      "signatures": {
+        "deterministic_failure|npx-y-modelcontextprotocol-inspector-0-21-2-cli-|no-path-details": {
+          "signature": "deterministic_failure|npx-y-modelcontextprotocol-inspector-0-21-2-cli-|no-path-details",
+          "kind": "deterministic_failure",
+          "summary": "Repeated required-command failure: npx -y @modelcontextprotocol/inspector@0.21.2 --cli http://127.0.0.1:3100/mcp/none --transport http --method resources/list",
+          "branch_slug": "npx-y-modelcontextprotocol-inspector-0-21-2-cli-",
+          "failed_commands": [
+            "npx -y @modelcontextprotocol/inspector@0.21.2 --cli http://127.0.0.1:3100/mcp/none --transport http --method resources/list"
+          ],
+          "failing_spec_paths": [],
+          "missing_files": [],
+          "evidence_artifact_paths": [],
+          "repeat_count": 3,
+          "first_seen_at": "2026-05-13T06:57:04.275Z",
+          "last_seen_at": "2026-05-13T07:09:40.664Z",
+          "branched_to_task_id": "mcp-resources-runtime-rca-npx-y-modelcontextprotocol-inspector-0-21-2-cli-",
+          "branched_at": "2026-05-13T07:09:40.813Z"
+        }
+      }
+    },
+    "mcp-resources-runtime-rca-npx-y-modelcontextprotocol-inspector-0-21-2-cli-": {
+      "last_signature": "deterministic_failure|npx-y-modelcontextprotocol-inspector-0-21-2-cli-|no-path-details",
+      "last_seen_at": "2026-05-13T07:29:15.880Z",
+      "signatures": {
+        "deterministic_failure|npx-y-modelcontextprotocol-inspector-0-21-2-cli-|no-path-details": {
+          "signature": "deterministic_failure|npx-y-modelcontextprotocol-inspector-0-21-2-cli-|no-path-details",
+          "kind": "deterministic_failure",
+          "summary": "Repeated required-command failure: npx -y @modelcontextprotocol/inspector@0.21.2 --cli http://127.0.0.1:3100/mcp/none --transport http --method resources/list",
+          "branch_slug": "npx-y-modelcontextprotocol-inspector-0-21-2-cli-",
+          "failed_commands": [
+            "npx -y @modelcontextprotocol/inspector@0.21.2 --cli http://127.0.0.1:3100/mcp/none --transport http --method resources/list"
+          ],
+          "failing_spec_paths": [],
+          "missing_files": [],
+          "evidence_artifact_paths": [],
+          "repeat_count": 2,
+          "first_seen_at": "2026-05-13T07:23:13.782Z",
+          "last_seen_at": "2026-05-13T07:29:15.880Z",
+          "branched_to_task_id": null,
+          "branched_at": null
+        }
+      }
+    }
+  }
 }

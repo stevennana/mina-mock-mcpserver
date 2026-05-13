@@ -1,8 +1,8 @@
 {
-  "task_id": "mcp-prompt-management-ui",
-  "started_at": "2026-05-13T15:30:41+09:00",
-  "artifact_dir": "state/artifacts/20260513T153041-mcp-prompt-management-ui",
+  "task_id": "mcp-resources-runtime-rca-npx-y-modelcontextprotocol-inspector-0-21-2-cli-",
+  "started_at": "2026-05-13T16:29:46+09:00",
+  "artifact_dir": "state/artifacts/20260513T162946-mcp-resources-runtime-rca-npx-y-modelcontextprotocol-inspector-0-21-2-cli-",
   "phase": "commit",
   "status": "running",
-  "updated_at": "2026-05-13T06:42:30.140Z"
+  "updated_at": "2026-05-13T07:47:12.230Z"
 }

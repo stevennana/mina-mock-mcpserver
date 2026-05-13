@@ -30,8 +30,9 @@
 - [x] mcp-resource-prompt-domain-schema — MCP Resource/Prompt Domain And Schema
 - [x] mcp-resource-management-ui — MCP Resource Management UI
 - [x] mcp-resource-template-management-ui — MCP Resource Template Management UI
-- [ ] mcp-prompt-management-ui — MCP Prompt Management UI ← current
-- [ ] mcp-resources-runtime — MCP Resources Runtime
+- [x] mcp-prompt-management-ui — MCP Prompt Management UI
+- [!] mcp-resources-runtime — MCP Resources Runtime (blocked)
+- [ ] mcp-resources-runtime-rca-npx-y-modelcontextprotocol-inspector-0-21-2-cli- — RCA: MCP Resources Runtime blocker ← current
 - [ ] mcp-prompts-completion-runtime — MCP Prompts And Completion Runtime
 - [ ] oauth-resource-prompt-permissions — OAuth Resource And Prompt Permissions
 - [ ] mcp-resource-subscription-notifications — MCP Resource Subscription Notifications

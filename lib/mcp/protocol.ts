@@ -9,6 +9,10 @@ import type {
   McpJsonRpcId,
   McpJsonRpcRequest,
   McpJsonRpcResponse,
+  McpInitializeResult,
+  McpResource,
+  McpResourceContent,
+  McpResourceTemplate,
   McpTool,
   McpToolCallResult,
 } from "@/lib/mcp/types";
@@ -76,6 +80,10 @@ function isToolCallParams(params: unknown): params is { name: string; arguments?
   return isRecord(params) && typeof params.name === "string" && (params.arguments === undefined || isRecord(params.arguments));
 }
 
+function isResourceReadParams(params: unknown): params is { uri: string } {
+  return isRecord(params) && typeof params.uri === "string" && params.uri.trim().length > 0;
+}
+
 function textForJson(value: JsonValue) {
   return typeof value === "string" ? value : JSON.stringify(value);
 }
@@ -117,6 +125,11 @@ export async function handleMcpJsonRpcMessage(
   message: unknown,
   loadTools: () => Promise<McpTool[]>,
   callTool?: (name: string, rawArguments: unknown) => Promise<EndpointCallResult>,
+  resourcesRuntime: {
+    loadResources?: () => Promise<McpResource[]>;
+    loadResourceTemplates?: () => Promise<McpResourceTemplate[]>;
+    readResource?: (uri: string) => Promise<McpResourceContent | null>;
+  } = {},
 ): Promise<McpProtocolResult> {
   if (!isJsonRpcRequest(message)) {
     return errorResponse(idFromMessage(message), -32600, "Invalid Request", 400);
@@ -130,6 +143,14 @@ export async function handleMcpJsonRpcMessage(
   }
 
   if (message.method === "initialize") {
+    const capabilities: McpInitializeResult["capabilities"] = {
+      tools: {
+        listChanged: false,
+      },
+      ...(resourcesRuntime.loadResources && resourcesRuntime.loadResourceTemplates && resourcesRuntime.readResource
+        ? { resources: { subscribe: true, listChanged: true } }
+        : {}),
+    };
     return {
       kind: "json",
       status: 200,
@@ -138,11 +159,7 @@ export async function handleMcpJsonRpcMessage(
         id: message.id,
         result: {
           protocolVersion: requestedProtocolVersion(message.params),
-          capabilities: {
-            tools: {
-              listChanged: false,
-            },
-          },
+          capabilities,
           serverInfo: MCP_SERVER_INFO,
         },
       },
@@ -207,6 +224,60 @@ export async function handleMcpJsonRpcMessage(
         jsonrpc: "2.0",
         id: message.id,
         result: mcpToolResultFromEndpointCall(callResult),
+      },
+    };
+  }
+
+  if (message.method === "resources/list") {
+    return {
+      kind: "json",
+      status: 200,
+      body: {
+        jsonrpc: "2.0",
+        id: message.id,
+        result: {
+          resources: resourcesRuntime.loadResources ? await resourcesRuntime.loadResources() : [],
+        },
+      },
+    };
+  }
+
+  if (message.method === "resources/templates/list") {
+    return {
+      kind: "json",
+      status: 200,
+      body: {
+        jsonrpc: "2.0",
+        id: message.id,
+        result: {
+          resourceTemplates: resourcesRuntime.loadResourceTemplates ? await resourcesRuntime.loadResourceTemplates() : [],
+        },
+      },
+    };
+  }
+
+  if (message.method === "resources/read") {
+    if (!resourcesRuntime.readResource || !isResourceReadParams(message.params)) {
+      return errorResponse(message.id, -32602, "Invalid params");
+    }
+
+    const resource = await resourcesRuntime.readResource(message.params.uri);
+    if (!resource) {
+      return errorResponse(message.id, -32002, "Resource not found", 200, {
+        error: "resource_not_found",
+        uri: message.params.uri,
+      });
+    }
+
+    return {
+      kind: "json",
+      status: 200,
+      body: {
+        jsonrpc: "2.0",
+        id: message.id,
+        result: {
+          contents: [resource],
+        },
       },
     };
   }

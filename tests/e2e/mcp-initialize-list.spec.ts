@@ -95,7 +95,7 @@ test("no-auth MCP initialize, initialized notification, and tools/list use enabl
     id: 1,
     result: {
       protocolVersion: "2025-06-18",
-      capabilities: { tools: { listChanged: false } },
+      capabilities: { tools: { listChanged: false }, resources: { subscribe: true, listChanged: true } },
       serverInfo: { name: "mina-mock-mcpserver", version: "1.0.0" },
     },
   });

@@ -1,28 +1,11 @@
 {
-  "checked_at": "2026-05-13T06:42:30.068Z",
-  "task_id": "mcp-prompt-management-ui",
+  "checked_at": "2026-05-13T07:43:49.356Z",
+  "task_id": "mcp-resources-runtime-rca-npx-y-modelcontextprotocol-inspector-0-21-2-cli-",
   "commands": [
     {
-      "command": "npm run lint",
+      "command": "npx -y @modelcontextprotocol/inspector@0.21.2 --cli http://127.0.0.1:3100/mcp/none --transport http --method resources/list",
       "ok": true,
-      "output": "\n> mina-mock-mcpserver@1.0.9 lint\n> eslint .\n\n"
-    },
-    {
-      "command": "npm run typecheck",
-      "ok": true,
-      "output": "\n> mina-mock-mcpserver@1.0.9 typecheck\n> tsc --noEmit\n\n"
-    },
-    {
-      "command": "npm run test:e2e -- tests/e2e/prompts-ui.spec.ts --grep @ui-prompts",
-      "ok": true,
-      "output": "\n> mina-mock-mcpserver@1.0.9 test:e2e\n> playwright test tests/e2e/prompts-ui.spec.ts --grep @ui-prompts\n\n\nRunning 1 test using 1 worker\n\n  ✓  1 [chromium] › tests/e2e/prompts-ui.spec.ts:5:5 › prompt UI supports focused CRUD, previews, screenshots, overflow, and accessibility checks @ui-prompts (11.2s)\n\n  1 passed (14.7s)\n",
-      "preflight": {
-        "command": "ensure-e2e-port-free.sh 3100",
-        "error": "",
-        "ok": true,
-        "output": "port-cleanup: 127.0.0.1:3100 already free\n"
-      },
-      "next_server_log_path": "/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260513T153041-mcp-prompt-management-ui/npm-run-test-e2e-tests-e2e-prompts-ui-spec-ts-gr-next-server.log"
+      "output": "{\n  \"resources\": [\n    {\n      \"name\": \"server_status\",\n      \"title\": \"Server status\",\n      \"uri\": \"mock://resources/server-status\",\n      \"description\": \"Default text resource for MCP resource smoke tests.\",\n      \"mimeType\": \"application/json\",\n      \"size\": 40,\n      \"annotations\": {\n        \"audience\": [\n          \"assistant\"\n        ],\n        \"priority\": 0.5\n      }\n    }\n  ]\n}"
     }
   ],
   "missing_files": [],

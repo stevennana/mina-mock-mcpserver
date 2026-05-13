@@ -41,6 +41,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.26.0",
+    "@modelcontextprotocol/inspector": "file:vendor/modelcontextprotocol-inspector-shim",
     "@playwright/test": "^1.52.0",
     "@types/node": "^22.15.3",
     "@types/react": "^19.1.2",

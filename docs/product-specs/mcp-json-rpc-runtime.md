@@ -27,7 +27,7 @@ MCP connection guide examples
 - MCP, SSE, REST, OAuth metadata, JWKS, token, and revocation routes answer browser preflight `OPTIONS` requests with HTTP `204`, `Access-Control-Allow-Methods: GET, POST, DELETE, OPTIONS`, and allow the standard MCP test headers, including `Authorization`, `Content-Type`, `Last-Event-ID`, `MCP-Session-Id`, and `MCP-Protocol-Version`.
 - MCP clients should send `Accept: application/json, text/event-stream`; the MVP server is lenient and does not reject missing `Accept` headers because many manual test clients omit them.
 - `initialize` returns protocol version `2025-06-18` when requested, otherwise the newest MVP-supported version from `2025-06-18` and `2025-03-26`.
-- `initialize` advertises only the `tools` capability with `listChanged: false`; resources, prompts, logging, sampling, durable session, and resumability capabilities are not claimed.
+- `initialize` advertises `tools: { listChanged: false }` and, on no-auth and Basic routes, `resources: { subscribe: true, listChanged: true }`; prompts, logging, sampling, durable session, and resumability capabilities are not claimed.
 - `serverInfo` is `name: "mina-mock-mcpserver"` and `version: "1.0.0"`.
 - `notifications/initialized` is accepted as a JSON-RPC notification with HTTP `202` and no response body.
 - `tools/list` returns enabled endpoint tools only, with each tool's name, description, and generated endpoint-domain `inputSchema`.

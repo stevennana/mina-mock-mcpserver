@@ -77,3 +77,10 @@ export function renderValidatedTemplate(
   });
   return { ok: true, value, errors: [], sampleValues };
 }
+
+export function renderTemplateWithValues(template: string, values: Record<string, string>, options: { encodeValues?: boolean } = {}) {
+  return template.replace(placeholderPattern, (_match, name: string) => {
+    const value = values[name] ?? "";
+    return options.encodeValues ? encodeURIComponent(value) : value;
+  });
+}
