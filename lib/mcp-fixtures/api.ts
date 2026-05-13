@@ -1,7 +1,15 @@
 import { Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { McpFixtureNotFoundError, McpFixtureValidationError } from "@/lib/mcp-fixtures/types";
-import type { McpCompletionCandidateInput, McpResourceInput, McpResourceTemplateArgumentInput, McpResourceTemplateInput } from "@/lib/mcp-fixtures/types";
+import type {
+  McpCompletionCandidateInput,
+  McpPromptArgumentInput,
+  McpPromptInput,
+  McpPromptMessageInput,
+  McpResourceInput,
+  McpResourceTemplateArgumentInput,
+  McpResourceTemplateInput,
+} from "@/lib/mcp-fixtures/types";
 
 function asRecord(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : {};
@@ -69,6 +77,47 @@ export function mcpResourceTemplateInputFromBody(body: unknown): McpResourceTemp
     blobTemplateBase64: nullableString(record.blobTemplateBase64),
     annotationsJson: nullableString(record.annotationsJson),
     arguments: argumentsInput,
+    completionCandidates,
+  };
+}
+
+export function mcpPromptInputFromBody(body: unknown): McpPromptInput {
+  const record = asRecord(body);
+  const argumentsInput: McpPromptArgumentInput[] = asArray(record.arguments).map((value) => {
+    const argument = asRecord(value);
+    return {
+      name: asString(argument.name),
+      title: asString(argument.title),
+      description: asString(argument.description),
+      required: asBoolean(argument.required, true),
+    };
+  });
+  const messages: McpPromptMessageInput[] = asArray(record.messages).map((value) => {
+    const message = asRecord(value);
+    const role = asString(message.role, "user");
+    return {
+      role: role === "assistant" ? "assistant" : "user",
+      textTemplate: nullableString(message.textTemplate),
+      resourceUri: nullableString(message.resourceUri),
+      resourceMimeType: nullableString(message.resourceMimeType),
+    };
+  });
+  const completionCandidates: McpCompletionCandidateInput[] = asArray(record.completionCandidates).map((value) => {
+    const candidate = asRecord(value);
+    return {
+      argumentName: asString(candidate.argumentName),
+      value: asString(candidate.value),
+      label: asString(candidate.label),
+    };
+  });
+
+  return {
+    name: asString(record.name),
+    title: asString(record.title),
+    description: asString(record.description),
+    enabled: asBoolean(record.enabled, true),
+    arguments: argumentsInput,
+    messages,
     completionCandidates,
   };
 }

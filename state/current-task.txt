@@ -1,1 +1,1 @@
-mcp-resource-template-management-ui
+mcp-prompt-management-ui

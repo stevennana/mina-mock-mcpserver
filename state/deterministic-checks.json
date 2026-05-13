@@ -1,6 +1,6 @@
 {
-  "checked_at": "2026-05-13T06:30:10.567Z",
-  "task_id": "mcp-resource-template-management-ui",
+  "checked_at": "2026-05-13T06:42:30.068Z",
+  "task_id": "mcp-prompt-management-ui",
   "commands": [
     {
       "command": "npm run lint",
@@ -13,16 +13,16 @@
       "output": "\n> mina-mock-mcpserver@1.0.9 typecheck\n> tsc --noEmit\n\n"
     },
     {
-      "command": "npm run test:e2e -- tests/e2e/resource-templates-ui.spec.ts --grep @ui-resource-templates",
+      "command": "npm run test:e2e -- tests/e2e/prompts-ui.spec.ts --grep @ui-prompts",
       "ok": true,
-      "output": "\n> mina-mock-mcpserver@1.0.9 test:e2e\n> playwright test tests/e2e/resource-templates-ui.spec.ts --grep @ui-resource-templates\n\n\nRunning 1 test using 1 worker\n\n  ✓  1 [chromium] › tests/e2e/resource-templates-ui.spec.ts:5:5 › resource template UI supports focused CRUD, previews, screenshots, and accessibility checks @ui-resource-templates (10.2s)\n\n  1 passed (13.6s)\n",
+      "output": "\n> mina-mock-mcpserver@1.0.9 test:e2e\n> playwright test tests/e2e/prompts-ui.spec.ts --grep @ui-prompts\n\n\nRunning 1 test using 1 worker\n\n  ✓  1 [chromium] › tests/e2e/prompts-ui.spec.ts:5:5 › prompt UI supports focused CRUD, previews, screenshots, overflow, and accessibility checks @ui-prompts (11.2s)\n\n  1 passed (14.7s)\n",
       "preflight": {
         "command": "ensure-e2e-port-free.sh 3100",
         "error": "",
         "ok": true,
         "output": "port-cleanup: 127.0.0.1:3100 already free\n"
       },
-      "next_server_log_path": "/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260513T151822-mcp-resource-template-management-ui/npm-run-test-e2e-tests-e2e-resource-templates-ui-next-server.log"
+      "next_server_log_path": "/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260513T153041-mcp-prompt-management-ui/npm-run-test-e2e-tests-e2e-prompts-ui-spec-ts-gr-next-server.log"
     }
   ],
   "missing_files": [],

@@ -1,8 +1,8 @@
 {
-  "task_id": "mcp-resource-template-management-ui",
-  "started_at": "2026-05-13T15:18:22+09:00",
-  "artifact_dir": "state/artifacts/20260513T151822-mcp-resource-template-management-ui",
+  "task_id": "mcp-prompt-management-ui",
+  "started_at": "2026-05-13T15:30:41+09:00",
+  "artifact_dir": "state/artifacts/20260513T153041-mcp-prompt-management-ui",
   "phase": "commit",
   "status": "running",
-  "updated_at": "2026-05-13T06:30:10.647Z"
+  "updated_at": "2026-05-13T06:42:30.140Z"
 }

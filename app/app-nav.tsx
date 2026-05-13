@@ -3,6 +3,7 @@ import {
   Activity,
   BarChart3,
   Braces,
+  MessageSquareText,
   KeyRound,
   ListChecks,
   Library,
@@ -35,6 +36,7 @@ export type AppNavKey =
   | "endpoints"
   | "resources"
   | "resource-templates"
+  | "prompts"
   | "inspector"
   | "basic-users"
   | "oauth-users"
@@ -55,6 +57,7 @@ const navGroups: AppNavGroup[] = [
       { key: "endpoints", href: "/endpoints", label: "Endpoints", icon: ListChecks },
       { key: "resources", href: "/resources", label: "Resources", icon: Library },
       { key: "resource-templates", href: "/resource-templates", label: "Resource Templates", icon: Braces },
+      { key: "prompts", href: "/prompts", label: "Prompts", icon: MessageSquareText },
       { key: "inspector", href: "/inspector", label: "Inspector", icon: TestTube2 },
     ],
   },

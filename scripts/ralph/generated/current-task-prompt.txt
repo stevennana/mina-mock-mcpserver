@@ -4,45 +4,46 @@ Read the following repository documents before making changes:
 - docs/FRONTEND.md
 - docs/design-docs/product-ui-primitives.md
 - docs/product-specs/mcp-resources-prompts.md
-- docs/exec-plans/active/029-mcp-resource-template-management-ui.md
+- docs/exec-plans/active/030-mcp-prompt-management-ui.md
 
-Current task id: mcp-resource-template-management-ui
-Current task title: MCP Resource Template Management UI
+Current task id: mcp-prompt-management-ui
+Current task title: MCP Prompt Management UI
 
 Objective:
-Add focused admin UI and APIs for MCP Resource Templates, including URI-template arguments, rendered mock content, and completion candidates.
+Add focused admin UI and APIs for MCP Prompts so users can configure reusable prompt templates, arguments, ordered messages, embedded resources, and completion candidates.
 
 Clarity notes:
-- Resource Templates are distinct from direct Resources because clients discover them through `resources/templates/list`.
-- Completion candidates configured here are later served through `completion/complete`.
+- Prompts are user-controlled templates, not model-invoked tools.
+- Prompt messages should support text content first and embedded server resources where the selected resource is enabled.
 
 Expected result:
-- A user can configure a URI template such as `resource://mock/tool/{name}` and sample completion values.
-- The UI makes argument substitution and completion behavior visible before runtime handlers are wired.
+- A user can create a prompt with required arguments and preview the rendered messages for sample arguments.
+- Missing required arguments are visible as validation errors in the UI.
 
 Objections / risks to avoid:
-- Do not use ad hoc string replacement without validating template arguments.
-- Do not let template previews imply external network fetching.
+- Do not imply prompts run automatically.
+- Do not persist secrets entered as sample arguments.
+- Do not permit embedded disabled resources.
 
 Scope:
-- Add `/resource-templates`, `/resource-templates/new`, and `/resource-templates/[id]/*` workflows.
-- Support metadata, URI template, argument definitions, rendered content body, completion candidates, console preview, and delete.
+- Add `/prompts`, `/prompts/new`, and `/prompts/[id]/*` workflows.
+- Support metadata, argument definitions, ordered user/assistant text messages, embedded resource references, completion candidates, console preview, and delete.
 - Add API routes that use task 027 domain services.
-- Show a console preview for `resources/templates/list`, `resources/read` with sample args, and `completion/complete`.
+- Show `prompts/list`, `prompts/get`, and `completion/complete` request previews.
 
 Out of scope:
-- Direct resource CRUD changes beyond shared components.
-- Prompt templates.
 - Runtime MCP protocol handlers.
+- External prompt execution or LLM calls.
+- Rich media prompt content beyond text and embedded resources.
 
 Exit criteria:
-- A user can configure a URI template such as `resource://mock/tool/{name}` and sample completion values.
-- The UI makes argument substitution and completion behavior visible before runtime handlers are wired.
+- A user can create a prompt with required arguments and preview the rendered messages for sample arguments.
+- Missing required arguments are visible as validation errors in the UI.
 
 Required checks:
 - `npm run lint`
 - `npm run typecheck`
-- `npm run test:e2e -- tests/e2e/resource-templates-ui.spec.ts --grep @ui-resource-templates`
+- `npm run test:e2e -- tests/e2e/prompts-ui.spec.ts --grep @ui-prompts`
 - Desktop/mobile screenshots, horizontal overflow check, and accessibility assertions in the UI E2E.
 
 Evaluator notes:
@@ -55,7 +56,7 @@ Required repository artifacts for this task:
 Required commands for this task:
 - npm run lint
 - npm run typecheck
-- npm run test:e2e -- tests/e2e/resource-templates-ui.spec.ts --grep @ui-resource-templates
+- npm run test:e2e -- tests/e2e/prompts-ui.spec.ts --grep @ui-prompts
 
 Previous known gaps from the last evaluation:
 - none

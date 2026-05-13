@@ -5,7 +5,7 @@
   "id": "mcp-prompt-management-ui",
   "title": "MCP Prompt Management UI",
   "order": 30,
-  "status": "queued",
+  "status": "active",
   "next_task_on_success": "mcp-resources-runtime",
   "prompt_docs": [
     "AGENTS.md",
@@ -74,3 +74,5 @@ Add focused admin UI and APIs for MCP Prompts so users can configure reusable pr
 ## Progress log
 
 - 2026-05-13T00:00:00Z: seeded as part of MCP Resources/Prompts next-wave planning.
+- 2026-05-13T06:30:10.819Z: restored as current task after mcp-resource-template-management-ui promotion.
+- 2026-05-13T06:39:45Z: added prompt CRUD API routes, focused prompt catalog/create/detail subroutes, prompt argument/message/completion/console/delete UI, enabled-resource-only embed validation, protocol request/response previews, and `@ui-prompts` E2E coverage with desktop/mobile screenshots, overflow, and accessibility assertions. Required gates `npm run lint`, `npm run typecheck`, and `npm run test:e2e -- tests/e2e/prompts-ui.spec.ts --grep @ui-prompts` pass.

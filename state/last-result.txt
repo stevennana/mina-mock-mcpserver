@@ -1,16 +1,15 @@
-Implemented `mcp-resource-template-management-ui` and updated [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+Implemented `mcp-prompt-management-ui` and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
 
 Changed:
-- Added `/api/resource-templates` CRUD routes using existing task 027 services.
-- Added focused `/resource-templates` workflows for metadata, arguments, rendered content, completion candidates, preview, and delete.
-- Added validated URI/content template preview substitution.
-- Added Resource Templates to nav.
-- Added `@ui-resource-templates` E2E with desktop/mobile screenshots, overflow, and accessibility assertions.
-- Updated the active plan progress log.
+- Added prompt CRUD APIs in [app/api/prompts/route.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/app/api/prompts/route.ts) and [app/api/prompts/[id]/route.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/app/api/prompts/[id]/route.ts).
+- Added focused `/prompts` workflows via [app/prompts/prompt-manager.tsx](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/app/prompts/prompt-manager.tsx) for metadata, arguments, messages, completion, preview, and delete.
+- Added enabled-resource-only embedded resource validation in [lib/mcp-fixtures/service.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/lib/mcp-fixtures/service.ts:481).
+- Added Prompts to the Tools nav.
+- Added `@ui-prompts` E2E coverage with desktop/mobile screenshots, overflow check, accessibility assertions, missing required argument validation, and disabled resource embed guard coverage.
 
 Required gates passed:
 - `npm run lint`
 - `npm run typecheck`
-- `npm run test:e2e -- tests/e2e/resource-templates-ui.spec.ts --grep @ui-resource-templates`
+- `npm run test:e2e -- tests/e2e/prompts-ui.spec.ts --grep @ui-prompts`
 
-Exit criteria appear satisfied. Runtime MCP handlers remain out of scope for later tasks.
+Exit criteria appear satisfied. Runtime MCP prompt/completion handlers remain out of scope for later tasks.

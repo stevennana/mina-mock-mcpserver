@@ -7,7 +7,7 @@ import {
   validateMcpResourceInput,
   validateMcpResourceTemplateInput,
 } from "@/lib/mcp-fixtures/validation";
-import { McpFixtureNotFoundError } from "@/lib/mcp-fixtures/types";
+import { McpFixtureNotFoundError, McpFixtureValidationError } from "@/lib/mcp-fixtures/types";
 import type {
   McpFixtureListResult,
   McpPromptDetail,
@@ -478,8 +478,30 @@ function promptCreateData(id: string, input: McpPromptInput) {
   };
 }
 
+async function assertPromptEmbeddedResourcesEnabled(input: McpPromptInput, client: PrismaClient) {
+  const resourceUris = [...new Set(input.messages.map((message) => message.resourceUri).filter((uri): uri is string => Boolean(uri)))];
+  if (resourceUris.length === 0) return;
+
+  const enabledResources = await client.mcpResource.findMany({
+    where: { uri: { in: resourceUris }, enabled: true },
+    select: { uri: true },
+  });
+  const enabledUris = new Set(enabledResources.map((resource) => resource.uri));
+  const fieldErrors: Record<string, string> = {};
+  input.messages.forEach((message, index) => {
+    if (message.resourceUri && !enabledUris.has(message.resourceUri)) {
+      fieldErrors[`messages.${index}.resourceUri`] = "Choose an enabled MCP resource.";
+    }
+  });
+
+  if (Object.keys(fieldErrors).length > 0) {
+    throw new McpFixtureValidationError(fieldErrors);
+  }
+}
+
 export async function createMcpPrompt(input: McpPromptInput, client: PrismaClient = createPrismaClient()) {
   const validInput = validateMcpPromptInput(input);
+  await assertPromptEmbeddedResourcesEnabled(validInput, client);
   const id = `mcp_prompt_${randomUUID()}`;
   const prompt = await client.mcpPrompt.create({ data: promptCreateData(id, validInput), include: promptInclude });
   return toPromptDetail(prompt);
@@ -487,6 +509,7 @@ export async function createMcpPrompt(input: McpPromptInput, client: PrismaClien
 
 export async function updateMcpPrompt(id: string, input: McpPromptInput, client: PrismaClient = createPrismaClient()) {
   const validInput = validateMcpPromptInput(input);
+  await assertPromptEmbeddedResourcesEnabled(validInput, client);
   const prompt = await client.$transaction(async (tx) => {
     await tx.mcpCompletionCandidate.deleteMany({ where: { promptId: id } });
     await tx.mcpPromptMessage.deleteMany({ where: { promptId: id } });

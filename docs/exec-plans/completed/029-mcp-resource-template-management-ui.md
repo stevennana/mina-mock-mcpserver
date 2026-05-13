@@ -5,7 +5,7 @@
   "id": "mcp-resource-template-management-ui",
   "title": "MCP Resource Template Management UI",
   "order": 29,
-  "status": "active",
+  "status": "completed",
   "next_task_on_success": "mcp-prompt-management-ui",
   "prompt_docs": [
     "AGENTS.md",
@@ -25,7 +25,8 @@
     "Required checks do not prove the claimed behavior.",
     "Implementation changes contradict the product spec or security/reliability docs."
   ],
-  "promotion_mode": "deterministic_only"
+  "promotion_mode": "deterministic_only",
+  "completed_at": "2026-05-13T06:30:10.819Z"
 }
 ```
 
@@ -75,3 +76,4 @@ Add focused admin UI and APIs for MCP Resource Templates, including URI-template
 - 2026-05-13T00:00:00Z: seeded as part of MCP Resources/Prompts next-wave planning.
 - 2026-05-13T06:17:52.502Z: restored as current task after mcp-resource-management-ui promotion.
 - 2026-05-13T06:27:35Z: added resource-template API routes, focused admin workflows, validated preview substitution, completion candidate editing, console previews, and `@ui-resource-templates` E2E coverage; required lint, typecheck, and focused E2E checks pass.
+- 2026-05-13T06:30:10.819Z: automatically promoted after deterministic checks and evaluator approval.

@@ -27,3 +27,4 @@
 - 2026-05-05T14:34:27.875Z: promoted docker-nginx-final-hardening -> NONE
 - 2026-05-13T06:06:31.838Z: promoted mcp-resource-prompt-domain-schema -> mcp-resource-management-ui
 - 2026-05-13T06:17:52.502Z: promoted mcp-resource-management-ui -> mcp-resource-template-management-ui
+- 2026-05-13T06:30:10.819Z: promoted mcp-resource-template-management-ui -> mcp-prompt-management-ui
