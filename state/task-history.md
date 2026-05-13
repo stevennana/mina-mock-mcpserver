@@ -30,3 +30,4 @@
 - 2026-05-13T06:30:10.819Z: promoted mcp-resource-template-management-ui -> mcp-prompt-management-ui
 - 2026-05-13T06:42:30.312Z: promoted mcp-prompt-management-ui -> mcp-resources-runtime
 - 2026-05-13T07:09:40.813Z: branched mcp-resources-runtime -> mcp-resources-runtime-rca-npx-y-modelcontextprotocol-inspector-0-21-2-cli- | blocker=deterministic_failure|npx-y-modelcontextprotocol-inspector-0-21-2-cli-|no-path-details
+- 2026-05-13T07:47:12.431Z: promoted mcp-resources-runtime-rca-npx-y-modelcontextprotocol-inspector-0-21-2-cli- -> mcp-resources-runtime

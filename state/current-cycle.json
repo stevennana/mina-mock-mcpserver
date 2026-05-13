@@ -1,8 +1,8 @@
 {
-  "task_id": "mcp-resources-runtime-rca-npx-y-modelcontextprotocol-inspector-0-21-2-cli-",
-  "started_at": "2026-05-13T16:29:46+09:00",
-  "artifact_dir": "state/artifacts/20260513T162946-mcp-resources-runtime-rca-npx-y-modelcontextprotocol-inspector-0-21-2-cli-",
+  "task_id": "mcp-resources-runtime",
+  "started_at": "2026-05-13T16:47:42+09:00",
+  "artifact_dir": "state/artifacts/20260513T164742-mcp-resources-runtime",
   "phase": "commit",
   "status": "running",
-  "updated_at": "2026-05-13T07:47:12.230Z"
+  "updated_at": "2026-05-13T07:53:15.871Z"
 }

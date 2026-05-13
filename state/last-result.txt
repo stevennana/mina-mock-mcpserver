@@ -1,13 +1,11 @@
-Resolved the RCA blocker and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+Implemented/verified the MCP Resources Runtime slice and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt). Also updated the progress log in [031-mcp-resources-runtime.md](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/docs/exec-plans/active/031-mcp-resources-runtime.md).
 
-What changed:
-- Added a repo-local `@modelcontextprotocol/inspector@0.21.2` shim via `package.json`/`package-lock.json`.
-- Added the narrow Inspector loopback helper scripts under [scripts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/scripts).
-- Updated the RCA log and parent task log with concrete blocker evidence and resolution notes.
+All required gates pass:
 
-Validation passed:
-- `npx -y @modelcontextprotocol/inspector@0.21.2 --cli http://127.0.0.1:3100/mcp/none --transport http --method resources/list`
 - `npm run lint`
 - `npm run typecheck`
+- `npm run test:unit -- tests/unit/mcp-protocol.test.ts tests/unit/mcp-resources-runtime.test.ts`
+- `npm run test:e2e -- tests/e2e/mcp-resources.spec.ts`
+- `npx -y @modelcontextprotocol/inspector@0.21.2 --cli http://127.0.0.1:3100/mcp/none --transport http --method resources/list`
 
-Exit criteria appear satisfied. The exact Inspector command now exits 0 and returns the seeded `server_status` resource, so the RCA can return to `mcp-resources-runtime` through normal promotion.
+Exit criteria appear satisfied. The Inspector command returned the seeded `server_status` resource, and the E2E covers no-auth, Basic, and legacy SSE resource behavior.
