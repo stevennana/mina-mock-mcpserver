@@ -36,3 +36,4 @@
 - 2026-05-13T08:52:05.662Z: promoted oauth-resource-prompt-permissions -> mcp-resource-subscription-notifications
 - 2026-05-13T09:09:12.718Z: promoted mcp-resource-subscription-notifications -> inspector-full-server-features
 - 2026-05-13T10:21:00.429Z: branched inspector-full-server-features -> inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b | blocker=deterministic_failure|npm-run-inspector-mock|no-path-details
+- 2026-05-13T10:26:02.472Z: promoted inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b -> inspector-full-server-features

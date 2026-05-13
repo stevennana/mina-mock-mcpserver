@@ -1,9 +1,14 @@
-Resolved the RCA blocker and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt:1).
+Completed the handoff for `inspector-full-server-features`.
 
-Changed [scripts/mock-inspector.mjs](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/scripts/mock-inspector.mjs:101) so the existing loopback route-handler fallback also handles local `ECONNREFUSED`, which matches the saved `Inspector failed: fetch failed` evidence when Ralph runs `npm run inspector:mock` without a live dev server. Updated the RCA evidence/log and parent task log in [RCA plan](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/docs/exec-plans/active/inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b.md:78) and [parent plan](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/docs/exec-plans/active/035-inspector-full-server-features.md:99).
+I verified the existing implementation and docs against the task scope, updated the active task progress log, and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt:1).
 
 Verification passed:
-- `npm run inspector:mock -- --base-url http://127.0.0.1:3199`
-- `npm run inspector:mock`
 
-Exit criteria appear satisfied; the RCA task still returns normally via `next_task_on_success: inspector-full-server-features`.
+- `npm run lint`
+- `npm run typecheck`
+- `npm run test:unit`
+- `npm run test:e2e`
+- `npm run inspector:mock`
+- Supported upstream Inspector CLI helpers for tools, resources, prompts, Basic, and SSE list/read flows
+
+Exit criteria appear satisfied. The remaining documented gap is upstream Inspector CLI `0.21.2` not supporting `completion/complete`; completion is covered through the project Inspector Generic presets and Mock Server scenario.

@@ -1,0 +1,36 @@
+[codex/mcp-resources-prompts-plans 0f30f60] ralph: inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b 2026-05-13T19:26:02+09:00
+ 74 files changed, 7057 insertions(+), 269 deletions(-)
+ create mode 100644 docs/exec-plans/active/inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b.md
+ rename docs/exec-plans/{active => completed}/034-mcp-resource-subscription-notifications.md (94%)
+ create mode 100644 state/artifacts/20260513T175235-mcp-resource-subscription-notifications/backlog.log
+ create mode 100644 state/artifacts/20260513T175235-mcp-resource-subscription-notifications/promote.log
+ create mode 100644 state/artifacts/20260513T180942-inspector-full-server-features/backlog.log
+ create mode 100644 state/artifacts/20260513T180942-inspector-full-server-features/blocker-evaluation.json
+ create mode 100644 state/artifacts/20260513T180942-inspector-full-server-features/blocker-evaluation.json.log
+ create mode 100644 state/artifacts/20260513T180942-inspector-full-server-features/commit.log
+ create mode 100644 state/artifacts/20260513T180942-inspector-full-server-features/evaluator.log
+ create mode 100644 state/artifacts/20260513T180942-inspector-full-server-features/promote.log
+ create mode 100644 state/artifacts/20260513T180942-inspector-full-server-features/task-prompt.log
+ create mode 100644 state/artifacts/20260513T180942-inspector-full-server-features/worker.jsonl
+ create mode 100644 state/artifacts/20260513T190010-inspector-full-server-features/backlog.log
+ create mode 100644 state/artifacts/20260513T190010-inspector-full-server-features/blocker-evaluation.json
+ create mode 100644 state/artifacts/20260513T190010-inspector-full-server-features/blocker-evaluation.json.log
+ create mode 100644 state/artifacts/20260513T190010-inspector-full-server-features/commit.log
+ create mode 100644 state/artifacts/20260513T190010-inspector-full-server-features/evaluator.log
+ create mode 100644 state/artifacts/20260513T190010-inspector-full-server-features/promote.log
+ create mode 100644 state/artifacts/20260513T190010-inspector-full-server-features/task-prompt.log
+ create mode 100644 state/artifacts/20260513T190010-inspector-full-server-features/worker.jsonl
+ create mode 100644 state/artifacts/20260513T191302-inspector-full-server-features/backlog.log
+ create mode 100644 state/artifacts/20260513T191302-inspector-full-server-features/blocker-branch.json
+ create mode 100644 state/artifacts/20260513T191302-inspector-full-server-features/blocker-branch.json.log
+ create mode 100644 state/artifacts/20260513T191302-inspector-full-server-features/blocker-evaluation.json
+ create mode 100644 state/artifacts/20260513T191302-inspector-full-server-features/blocker-evaluation.json.log
+ create mode 100644 state/artifacts/20260513T191302-inspector-full-server-features/commit.log
+ create mode 100644 state/artifacts/20260513T191302-inspector-full-server-features/evaluator.log
+ create mode 100644 state/artifacts/20260513T191302-inspector-full-server-features/task-prompt.log
+ create mode 100644 state/artifacts/20260513T191302-inspector-full-server-features/worker.jsonl
+ create mode 100644 state/artifacts/20260513T192130-inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b/commit.log
+ create mode 100644 state/artifacts/20260513T192130-inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b/evaluator.log
+ create mode 100644 state/artifacts/20260513T192130-inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b/task-prompt.log
+ create mode 100644 state/artifacts/20260513T192130-inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b/worker.jsonl
+commit: created

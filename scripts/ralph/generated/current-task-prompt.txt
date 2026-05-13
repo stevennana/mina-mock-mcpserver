@@ -1,7 +1,5 @@
 Read the following repository documents before making changes:
 - AGENTS.md
-- docs/PLANS.md
-- docs/exec-plans/active/035-inspector-full-server-features.md
 - ARCHITECTURE.md
 - docs/FEATURES.md
 - docs/GETTING_STARTED.md
@@ -10,59 +8,71 @@ Read the following repository documents before making changes:
 - MCPBrowserInspector.md
 - MinaInspector.md
 - docs/product-specs/mcp-resources-prompts.md
-- docs/exec-plans/active/inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b.md
+- docs/exec-plans/active/035-inspector-full-server-features.md
 
-Current task id: inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b
-Current task title: RCA: Inspector Full Server Features blocker
+Current task id: inspector-full-server-features
+Current task title: Inspector Full Server Features
 
 Objective:
-Resolve the repeated blocker that is preventing `inspector-full-server-features` from promoting, then return the queue to the parent task automatically.
+Update the project Inspector, upstream Inspector docs, README guides, and final E2E proof so users can verify Tools, Resources, Prompts, Completion, OAuth permissions, and SSE notifications end to end.
 
 Clarity notes:
-- none
+- This is a final integration/hardening slice for the Resources/Prompts wave.
+- It should not introduce new protocol behavior; it proves and documents behavior delivered by tasks 027-034.
 
 Expected result:
-- none
+- A first-time user can follow docs to verify the full server-side MCP feature set locally and against the hosted mock server.
+- The project Inspector gives sequential evidence instead of one crowded page.
+- Upstream Inspector examples cover tools, resources, prompts, completion, Basic, OAuth, and SSE where supported.
 
 Objections / risks to avoid:
-- none
+- Do not claim client-side Sampling, Roots, or Elicitation support.
+- Do not include screenshots with raw Bearer tokens or secrets.
+- Do not leave docs saying Resources/Prompts are out of scope.
 
 Scope:
-- isolate the repeated blocker signature without broadening back into the parent feature
-- restore the failing required command path: npm run inspector:mock
-- update the parent task log and blocker evidence so the return path is explicit
+- Add Resources, Resource Templates, Prompts, Completion, OAuth permission, and SSE subscription checks to the project Inspector scenario.
+- Add Generic target presets for `resources/list`, `resources/read`, `resources/templates/list`, `prompts/list`, `prompts/get`, and `completion/complete`.
+- Update README, `docs/FEATURES.md`, `docs/GETTING_STARTED.md`, `docs/TRANSPORTS.md`, `docs/INSPECTOR.md`, `MCPBrowserInspector.md`, and `MinaInspector.md`.
+- Add screenshots or browser-based evidence for the standalone Inspector and Mock Server UI.
+- Run full verification and record any residual gaps in the tech-debt tracker.
 
 Out of scope:
-- new product scope beyond inspector-full-server-features
-- unrelated cleanup outside the blocker signature `deterministic_failure|npm-run-inspector-mock|no-path-details`
-- manual queue edits that bypass the normal promotion return path
+- New database schema or runtime methods.
+- Changing public Docker/release tagging policy.
+- Vendor or fork upstream MCP Inspector.
 
 Exit criteria:
-1. The repeated blocker is reproduced or conclusively explained with concrete evidence.
-2. npm run inspector:mock pass without the blocker signature recurring.
-3. The RCA task can promote back to `inspector-full-server-features` without manual queue surgery.
-4. The parent task log records the blocker resolution before work returns to `inspector-full-server-features`.
+- A first-time user can follow docs to verify the full server-side MCP feature set locally and against the hosted mock server.
+- The project Inspector gives sequential evidence instead of one crowded page.
+- Upstream Inspector examples cover tools, resources, prompts, completion, Basic, OAuth, and SSE where supported.
 
 Required checks:
+- `npm run lint`
+- `npm run typecheck`
+- `npm run test:unit`
+- `npm run test:e2e`
 - `npm run inspector:mock`
+- `npm run inspector:ui` manual browser E2E through Mock Server scenario and Generic target
+- Upstream Inspector CLI checks for tools, resources, prompts, completion, and SSE list/read flows.
 
 Evaluator notes:
-Promote only when the blocker-specific evidence is explicit and the queue can safely return to `inspector-full-server-features`.
+- Confirm the task stays inside its declared slice.
+- Confirm required commands are treated as promotion-blocking gates.
 
 Required repository artifacts for this task:
 - none
 
 Required commands for this task:
+- npm run lint
+- npm run typecheck
+- npm run test:unit
+- npm run test:e2e
 - npm run inspector:mock
 
 Previous known gaps from the last evaluation:
 - none
 
-RCA context:
-- This is an auto-generated blocker RCA task for parent task: inspector-full-server-features
-- Blocker kind: deterministic_failure
-- Blocker summary: Repeated required-command failure: npm run inspector:mock
-- Blocker signature: deterministic_failure|npm-run-inspector-mock|no-path-details
 
 
 Rules:
@@ -74,9 +84,7 @@ Rules:
 - Update this task doc's progress log with concrete notes.
 - Keep the repository in a state where the required commands can pass.
 - If the task is not done, leave the next task untouched.
-- Work only on the blocker evidence described above.
-- Do not resume or broaden into parent task inspector-full-server-features inside this RCA task.
-- Leave the queue return path to normal promotion back to inspector-full-server-features.
+
 
 At the end of the run, write a concise operator handoff summary into state/last-result.txt via your final response:
 - what changed

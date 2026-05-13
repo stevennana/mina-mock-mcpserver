@@ -5,7 +5,7 @@
   "id": "inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b",
   "title": "RCA: Inspector Full Server Features blocker",
   "order": 35.01,
-  "status": "active",
+  "status": "completed",
   "promotion_mode": "standard",
   "next_task_on_success": "inspector-full-server-features",
   "prompt_docs": [
@@ -32,7 +32,8 @@
   "rca_for_task_id": "inspector-full-server-features",
   "blocker_signature": "deterministic_failure|npm-run-inspector-mock|no-path-details",
   "blocker_kind": "deterministic_failure",
-  "blocker_summary": "Repeated required-command failure: npm run inspector:mock"
+  "blocker_summary": "Repeated required-command failure: npm run inspector:mock",
+  "completed_at": "2026-05-13T10:26:02.472Z"
 }
 ```
 
@@ -85,3 +86,4 @@ Promote only when the blocker-specific evidence is explicit and the queue can sa
 - 2026-05-13T10:23:17Z: Extended the existing loopback-only route-handler fallback in `scripts/mock-inspector.mjs` from sandbox `EPERM` failures to local `ECONNREFUSED` failures, preserving remote and HTTPS behavior while allowing the required command path to run deterministically when no dev server is listening.
 - 2026-05-13T10:23:17Z: Verified the no-server failure class with `npm run inspector:mock -- --base-url http://127.0.0.1:3199`; it passed through health, config, OAuth metadata, tools, resources, prompts, completion, SSE notifications, Basic, OAuth permission filtering, audit, reset guard, and cleanup evidence.
 - 2026-05-13T10:23:17Z: Verified the required command `npm run inspector:mock`; it passed with final output `Inspector completed successfully.` The RCA task retains `next_task_on_success: inspector-full-server-features`, so normal promotion can return to the parent task without manual queue edits.
+- 2026-05-13T10:26:02.472Z: automatically promoted after deterministic checks and evaluator approval.

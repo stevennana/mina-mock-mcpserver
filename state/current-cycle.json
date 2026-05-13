@@ -1,8 +1,8 @@
 {
-  "task_id": "inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b",
-  "started_at": "2026-05-13T19:21:30+09:00",
-  "artifact_dir": "state/artifacts/20260513T192130-inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b",
+  "task_id": "inspector-full-server-features",
+  "started_at": "2026-05-13T19:26:32+09:00",
+  "artifact_dir": "state/artifacts/20260513T192632-inspector-full-server-features",
   "phase": "commit",
   "status": "running",
-  "updated_at": "2026-05-13T10:26:02.287Z"
+  "updated_at": "2026-05-13T10:34:22.683Z"
 }
