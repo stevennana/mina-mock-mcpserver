@@ -26,3 +26,4 @@
 - 2026-05-05T14:10:35.380Z: promoted operator-config-health-logs -> docker-nginx-final-hardening
 - 2026-05-05T14:34:27.875Z: promoted docker-nginx-final-hardening -> NONE
 - 2026-05-13T06:06:31.838Z: promoted mcp-resource-prompt-domain-schema -> mcp-resource-management-ui
+- 2026-05-13T06:17:52.502Z: promoted mcp-resource-management-ui -> mcp-resource-template-management-ui

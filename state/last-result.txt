@@ -1,15 +1,16 @@
-Implemented `mcp-resource-management-ui` and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+Implemented `mcp-resource-template-management-ui` and updated [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
 
 Changed:
-- Added Resource admin APIs under `/api/resources`.
-- Added focused `/resources`, `/resources/new`, and `/resources/[id]/*` workflows.
-- Added copyable `resources/read` JSON-RPC previews, tooltips, nav entry, icons, and audit events.
-- Added `@ui-resources` Playwright coverage with desktop/mobile screenshots, overflow, and accessibility assertions.
-- Updated the active task progress log.
+- Added `/api/resource-templates` CRUD routes using existing task 027 services.
+- Added focused `/resource-templates` workflows for metadata, arguments, rendered content, completion candidates, preview, and delete.
+- Added validated URI/content template preview substitution.
+- Added Resource Templates to nav.
+- Added `@ui-resource-templates` E2E with desktop/mobile screenshots, overflow, and accessibility assertions.
+- Updated the active plan progress log.
 
 Required gates passed:
 - `npm run lint`
 - `npm run typecheck`
-- `npm run test:e2e -- tests/e2e/resources-ui.spec.ts --grep @ui-resources`
+- `npm run test:e2e -- tests/e2e/resource-templates-ui.spec.ts --grep @ui-resource-templates`
 
-Exit criteria appear satisfied. I left the pre-existing dirty Ralph/domain-schema state untouched.
+Exit criteria appear satisfied. Runtime MCP handlers remain out of scope for later tasks.

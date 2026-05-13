@@ -1,7 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { McpFixtureNotFoundError, McpFixtureValidationError } from "@/lib/mcp-fixtures/types";
-import type { McpResourceInput } from "@/lib/mcp-fixtures/types";
+import type { McpCompletionCandidateInput, McpResourceInput, McpResourceTemplateArgumentInput, McpResourceTemplateInput } from "@/lib/mcp-fixtures/types";
 
 function asRecord(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : {};
@@ -34,6 +34,45 @@ export function mcpResourceInputFromBody(body: unknown): McpResourceInput {
   };
 }
 
+function asArray(value: unknown): unknown[] {
+  return Array.isArray(value) ? value : [];
+}
+
+export function mcpResourceTemplateInputFromBody(body: unknown): McpResourceTemplateInput {
+  const record = asRecord(body);
+  const argumentsInput: McpResourceTemplateArgumentInput[] = asArray(record.arguments).map((value) => {
+    const argument = asRecord(value);
+    return {
+      name: asString(argument.name),
+      description: asString(argument.description),
+      required: asBoolean(argument.required, true),
+      sampleValueJson: nullableString(argument.sampleValueJson),
+    };
+  });
+  const completionCandidates: McpCompletionCandidateInput[] = asArray(record.completionCandidates).map((value) => {
+    const candidate = asRecord(value);
+    return {
+      argumentName: asString(candidate.argumentName),
+      value: asString(candidate.value),
+      label: asString(candidate.label),
+    };
+  });
+
+  return {
+    uriTemplate: asString(record.uriTemplate),
+    name: asString(record.name),
+    title: asString(record.title),
+    description: asString(record.description),
+    mimeType: asString(record.mimeType, "text/plain"),
+    enabled: asBoolean(record.enabled, true),
+    textTemplate: nullableString(record.textTemplate),
+    blobTemplateBase64: nullableString(record.blobTemplateBase64),
+    annotationsJson: nullableString(record.annotationsJson),
+    arguments: argumentsInput,
+    completionCandidates,
+  };
+}
+
 export function mcpFixtureErrorResponse(error: unknown) {
   if (error instanceof McpFixtureValidationError) {
     return NextResponse.json({ error: "validation_failed", fieldErrors: error.fieldErrors }, { status: 400 });
@@ -46,7 +85,14 @@ export function mcpFixtureErrorResponse(error: unknown) {
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     if (error.code === "P2002") {
       return NextResponse.json(
-        { error: "validation_failed", fieldErrors: { uri: "Resource URI must be unique." } },
+        {
+          error: "validation_failed",
+          fieldErrors: {
+            uri: "Resource URI or template identity must be unique.",
+            uriTemplate: "Resource URI template or name must be unique.",
+            name: "Resource name or template name must be unique.",
+          },
+        },
         { status: 409 },
       );
     }

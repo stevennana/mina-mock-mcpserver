@@ -1,1 +1,1 @@
-mcp-resource-management-ui
+mcp-resource-template-management-ui

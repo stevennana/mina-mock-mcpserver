@@ -1,6 +1,6 @@
 {
-  "checked_at": "2026-05-13T06:17:52.236Z",
-  "task_id": "mcp-resource-management-ui",
+  "checked_at": "2026-05-13T06:30:10.567Z",
+  "task_id": "mcp-resource-template-management-ui",
   "commands": [
     {
       "command": "npm run lint",
@@ -13,16 +13,16 @@
       "output": "\n> mina-mock-mcpserver@1.0.9 typecheck\n> tsc --noEmit\n\n"
     },
     {
-      "command": "npm run test:e2e -- tests/e2e/resources-ui.spec.ts --grep @ui-resources",
+      "command": "npm run test:e2e -- tests/e2e/resource-templates-ui.spec.ts --grep @ui-resource-templates",
       "ok": true,
-      "output": "\n> mina-mock-mcpserver@1.0.9 test:e2e\n> playwright test tests/e2e/resources-ui.spec.ts --grep @ui-resources\n\n\nRunning 1 test using 1 worker\n\n  ✓  1 [chromium] › tests/e2e/resources-ui.spec.ts:5:5 › resource UI supports focused CRUD, read preview, screenshots, and accessibility checks @ui-resources (10.0s)\n\n  1 passed (13.8s)\n",
+      "output": "\n> mina-mock-mcpserver@1.0.9 test:e2e\n> playwright test tests/e2e/resource-templates-ui.spec.ts --grep @ui-resource-templates\n\n\nRunning 1 test using 1 worker\n\n  ✓  1 [chromium] › tests/e2e/resource-templates-ui.spec.ts:5:5 › resource template UI supports focused CRUD, previews, screenshots, and accessibility checks @ui-resource-templates (10.2s)\n\n  1 passed (13.6s)\n",
       "preflight": {
         "command": "ensure-e2e-port-free.sh 3100",
         "error": "",
         "ok": true,
-        "output": "port-cleanup: terminating listener(s) on 127.0.0.1:3100: 5046\nport-cleanup: 127.0.0.1:3100 is free\n"
+        "output": "port-cleanup: 127.0.0.1:3100 already free\n"
       },
-      "next_server_log_path": "/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260513T150702-mcp-resource-management-ui/npm-run-test-e2e-tests-e2e-resources-ui-spec-ts--next-server.log"
+      "next_server_log_path": "/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260513T151822-mcp-resource-template-management-ui/npm-run-test-e2e-tests-e2e-resource-templates-ui-next-server.log"
     }
   ],
   "missing_files": [],

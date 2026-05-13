@@ -2,6 +2,7 @@ import Link from "next/link";
 import {
   Activity,
   BarChart3,
+  Braces,
   KeyRound,
   ListChecks,
   Library,
@@ -33,6 +34,7 @@ export type AppNavKey =
   | "dashboard"
   | "endpoints"
   | "resources"
+  | "resource-templates"
   | "inspector"
   | "basic-users"
   | "oauth-users"
@@ -52,6 +54,7 @@ const navGroups: AppNavGroup[] = [
     items: [
       { key: "endpoints", href: "/endpoints", label: "Endpoints", icon: ListChecks },
       { key: "resources", href: "/resources", label: "Resources", icon: Library },
+      { key: "resource-templates", href: "/resource-templates", label: "Resource Templates", icon: Braces },
       { key: "inspector", href: "/inspector", label: "Inspector", icon: TestTube2 },
     ],
   },
