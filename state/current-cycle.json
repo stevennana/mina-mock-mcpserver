@@ -1,8 +1,8 @@
 {
-  "task_id": "oauth-resource-prompt-permissions",
-  "started_at": "2026-05-13T17:05:51+09:00",
-  "artifact_dir": "state/artifacts/20260513T170551-oauth-resource-prompt-permissions",
+  "task_id": "mcp-resource-subscription-notifications",
+  "started_at": "2026-05-13T17:52:35+09:00",
+  "artifact_dir": "state/artifacts/20260513T175235-mcp-resource-subscription-notifications",
   "phase": "commit",
   "status": "running",
-  "updated_at": "2026-05-13T08:52:05.493Z"
+  "updated_at": "2026-05-13T09:09:12.551Z"
 }

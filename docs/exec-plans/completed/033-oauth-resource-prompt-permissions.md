@@ -5,7 +5,7 @@
   "id": "oauth-resource-prompt-permissions",
   "title": "OAuth Resource And Prompt Permissions",
   "order": 33,
-  "status": "active",
+  "status": "completed",
   "next_task_on_success": "mcp-resource-subscription-notifications",
   "prompt_docs": [
     "AGENTS.md",
@@ -26,7 +26,8 @@
     "Required checks do not prove the claimed behavior.",
     "Implementation changes contradict the product spec or security/reliability docs."
   ],
-  "promotion_mode": "deterministic_only"
+  "promotion_mode": "deterministic_only",
+  "completed_at": "2026-05-13T08:52:05.662Z"
 }
 ```
 
@@ -83,3 +84,4 @@ Extend mock OAuth clients, consent, authorization codes, issued tokens, and runt
 - 2026-05-13T18:05:00+09:00: added OAuth client, authorization-code, token-claim, and stored-token metadata for resource and prompt permissions; Bearer MCP runtime now filters resources/prompts and returns JSON-RPC 403 for valid-token permission denials.
 - 2026-05-13T18:05:00+09:00: updated consent/client/token UI copy and controls to group Tools, Resources, and Prompts; added unit and E2E coverage for resource/prompt permission filtering and denial paths.
 - 2026-05-13T18:05:00+09:00: required checks passed: lint, typecheck, targeted unit command, and targeted E2E command.
+- 2026-05-13T08:52:05.662Z: automatically promoted after deterministic checks and evaluator approval.

@@ -26,7 +26,7 @@ Expand MCP Mock Server beyond tool calls so users can test the full server-side 
 - `resources/list` returns enabled direct resources, supports cursor pagination, and includes URI, name, title, description, MIME type, size, and annotations when present.
 - `resources/templates/list` returns enabled templates with URI template, name, title, description, MIME type, and annotations when present.
 - `resources/read` returns text or blob contents for a direct URI or a rendered template URI.
-- `resources/subscribe` and `resources/unsubscribe` are supported only for live legacy SSE sessions and return empty success results for valid accessible resources.
+- `resources/subscribe` and `resources/unsubscribe` are supported only for live legacy SSE sessions and return empty success results for valid accessible resources. Subscription state is process-local and best-effort; it is not stored in SQLite and is not replayed after disconnects, restarts, or cross-process handoff.
 - `prompts/list` returns enabled prompts, supports cursor pagination, and includes name, title, description, and argument metadata.
 - `prompts/get` validates required arguments and returns ordered prompt messages with substituted text and optional embedded resource content.
 - `completion/complete` supports `ref/prompt` by prompt name and `ref/resource` by URI template.

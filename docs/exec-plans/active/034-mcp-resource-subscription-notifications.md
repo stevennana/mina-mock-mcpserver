@@ -5,7 +5,7 @@
   "id": "mcp-resource-subscription-notifications",
   "title": "MCP Resource Subscription Notifications",
   "order": 34,
-  "status": "queued",
+  "status": "active",
   "next_task_on_success": "inspector-full-server-features",
   "prompt_docs": [
     "AGENTS.md",
@@ -77,3 +77,5 @@ Implement best-effort in-memory resource subscription and list-change notificati
 ## Progress log
 
 - 2026-05-13T00:00:00Z: seeded as part of MCP Resources/Prompts next-wave planning.
+- 2026-05-13T08:52:05.662Z: restored as current task after oauth-resource-prompt-permissions promotion.
+- 2026-05-13T09:04:52Z: implemented process-local legacy SSE resource subscription tracking, subscribe/unsubscribe JSON-RPC handling, best-effort resource updated and resource/prompt list-change notifications from admin APIs, and focused unit/E2E coverage. Required checks passed: `npm run lint`, `npm run typecheck`, `npm run test:unit -- tests/unit/mcp-sse-notifications.test.ts`, and `npm run test:e2e -- tests/e2e/mcp-resource-subscriptions.spec.ts`.

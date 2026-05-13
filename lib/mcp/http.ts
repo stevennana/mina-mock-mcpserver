@@ -18,6 +18,17 @@ import type {
   McpResourceTemplateDetail,
 } from "@/lib/mcp-fixtures/types";
 import { handleMcpJsonRpcMessage } from "@/lib/mcp/protocol";
+import {
+  cleanupLegacySseSession,
+  enqueueSse,
+  legacySseSessions,
+  sseComment,
+  sseEvent,
+  subscribeLegacySseResource,
+  unsubscribeLegacySseResource,
+  type LegacySseMode,
+  type LegacySseRuntime,
+} from "@/lib/mcp/sse-notifications";
 import type {
   McpCompletionResult,
   McpPrompt,
@@ -234,6 +245,10 @@ async function handleMcpJsonRpcPost(
     resourceIds?: string[];
     promptIds?: string[];
   } = {},
+  sseSession?: {
+    subscribeResource: (uri: string) => boolean;
+    unsubscribeResource: (uri: string) => boolean;
+  },
 ) {
   const invalidHttpRequest = await validateMcpHttpRequest(request);
   if (invalidHttpRequest) {
@@ -282,6 +297,12 @@ async function handleMcpJsonRpcPost(
       const resource = await readEnabledMcpResource(uri);
       return resource ? mcpResourceContentFromRead(resource) : null;
     },
+    ...(sseSession
+      ? {
+          subscribeResource: async (uri: string) => sseSession.subscribeResource(uri),
+          unsubscribeResource: async (uri: string) => sseSession.unsubscribeResource(uri),
+        }
+      : {}),
   };
   const promptsRuntime = {
     loadPrompts: async () => {
@@ -392,50 +413,6 @@ export async function handleStrictBasicMcpPost(request: Request) {
   return handleMcpJsonRpcPost(request);
 }
 
-type LegacySseMode = "none" | "basic" | "oauth" | "unified";
-
-type LegacySseSession = {
-  mode: LegacySseMode;
-  controller: ReadableStreamDefaultController<Uint8Array>;
-  encoder: TextEncoder;
-  runtime: { endpointIds?: string[]; resourceIds?: string[]; promptIds?: string[] };
-  heartbeat: ReturnType<typeof setInterval>;
-};
-
-const legacySseGlobal = globalThis as typeof globalThis & {
-  __mcpMockLegacySseSessions?: Map<string, LegacySseSession>;
-};
-const legacySseSessions = legacySseGlobal.__mcpMockLegacySseSessions ?? new Map<string, LegacySseSession>();
-legacySseGlobal.__mcpMockLegacySseSessions = legacySseSessions;
-
-function sseEvent(event: string, data: unknown, id?: string) {
-  const serialized = typeof data === "string" ? data : JSON.stringify(data);
-  const dataLines = serialized.split(/\r?\n/).map((line) => `data: ${line}`);
-  const lines = [...(id ? [`id: ${id}`] : []), `event: ${event}`, ...dataLines, "", ""];
-  return lines.join("\n");
-}
-
-function sseComment(message: string) {
-  return `: ${message}\n\n`;
-}
-
-function enqueueSse(session: LegacySseSession, payload: string) {
-  try {
-    session.controller.enqueue(session.encoder.encode(payload));
-    return true;
-  } catch {
-    clearInterval(session.heartbeat);
-    return false;
-  }
-}
-
-function cleanupLegacySseSession(sessionId: string) {
-  const session = legacySseSessions.get(sessionId);
-  if (!session) return;
-  clearInterval(session.heartbeat);
-  legacySseSessions.delete(sessionId);
-}
-
 function sseStreamResponse(stream: ReadableStream<Uint8Array>) {
   return new Response(stream, {
     status: 200,
@@ -501,7 +478,12 @@ function legacyMessagePath(request: Request, mode: LegacySseMode, sessionId: str
   return `${url.pathname}${url.search}`;
 }
 
-async function legacyRuntimeForRequest(mode: LegacySseMode, request: Request) {
+async function legacyRuntimeForRequest(mode: LegacySseMode, request: Request): Promise<
+  | { response: Response }
+  | {
+      runtime: LegacySseRuntime;
+    }
+> {
   if (mode === "basic") {
     const resolution = await resolveBasicAuthorizationHeader(request.headers.get("Authorization"));
     if (resolution.kind !== "authenticated") return { response: unauthorizedBasicResponse() };
@@ -567,6 +549,7 @@ export function handleLegacySseGet(mode: LegacySseMode = "unified") {
           encoder,
           runtime: runtime.runtime,
           heartbeat,
+          subscribedResourceUris: new Set(),
         });
         controller.enqueue(encoder.encode(sseEvent("endpoint", legacyMessagePath(request, mode, sessionId))));
         controller.enqueue(encoder.encode(sseComment("legacy SSE compatibility stream")));
@@ -591,7 +574,10 @@ export function handleLegacySseMessagePost(mode: LegacySseMode = "unified") {
       );
     }
 
-    const response = await handleMcpJsonRpcPost(request, session.runtime);
+    const response = await handleMcpJsonRpcPost(request, session.runtime, {
+      subscribeResource: (uri) => subscribeLegacySseResource(sessionId, uri),
+      unsubscribeResource: (uri) => unsubscribeLegacySseResource(sessionId, uri),
+    });
     if (response.status !== 202) {
       enqueueSse(session, sseEvent("message", await response.text(), `${Date.now()}-${sessionId}`));
     }

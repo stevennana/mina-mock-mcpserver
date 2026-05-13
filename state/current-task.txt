@@ -1,1 +1,1 @@
-oauth-resource-prompt-permissions
+mcp-resource-subscription-notifications

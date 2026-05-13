@@ -119,6 +119,7 @@ export type McpJsonRpcResponse =
         | { resources: McpResource[] }
         | { resourceTemplates: McpResourceTemplate[] }
         | { contents: McpResourceContent[] }
+        | Record<string, never>
         | { prompts: McpPrompt[] }
         | McpPromptGetResult
         | McpCompletionResult;

@@ -163,6 +163,8 @@ export async function handleMcpJsonRpcMessage(
     loadResources?: () => Promise<McpResource[]>;
     loadResourceTemplates?: () => Promise<McpResourceTemplate[]>;
     readResource?: (uri: string) => Promise<McpResourceContent | null | { kind: "forbidden"; message: string }>;
+    subscribeResource?: (uri: string) => Promise<boolean>;
+    unsubscribeResource?: (uri: string) => Promise<boolean>;
   } = {},
   promptsRuntime: {
     loadPrompts?: () => Promise<McpPrompt[]>;
@@ -327,6 +329,47 @@ export async function handleMcpJsonRpcMessage(
         result: {
           contents: [resource],
         },
+      },
+    };
+  }
+
+  if (message.method === "resources/subscribe" || message.method === "resources/unsubscribe") {
+    if (!isResourceReadParams(message.params)) {
+      return errorResponse(message.id, -32602, "Invalid params");
+    }
+
+    if (!resourcesRuntime.readResource) {
+      return errorResponse(message.id, -32601, "Method not found");
+    }
+
+    const resource = await resourcesRuntime.readResource(message.params.uri);
+    if (isForbiddenResult(resource)) {
+      return errorResponse(message.id, -32003, "Forbidden", 403, {
+        error: "forbidden",
+        message: resource.message,
+        uri: message.params.uri,
+      });
+    }
+    if (!resource) {
+      return errorResponse(message.id, -32002, "Resource not found", 200, {
+        error: "resource_not_found",
+        uri: message.params.uri,
+      });
+    }
+
+    const handler =
+      message.method === "resources/subscribe" ? resourcesRuntime.subscribeResource : resourcesRuntime.unsubscribeResource;
+    if (!handler || !(await handler(message.params.uri))) {
+      return errorResponse(message.id, -32602, "Resource subscriptions require a live legacy SSE session");
+    }
+
+    return {
+      kind: "json",
+      status: 200,
+      body: {
+        jsonrpc: "2.0",
+        id: message.id,
+        result: {},
       },
     };
   }

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { mcpFixtureErrorResponse, mcpResourceTemplateInputFromBody } from "@/lib/mcp-fixtures/api";
 import { createMcpResourceTemplate, listMcpResourceTemplates } from "@/lib/mcp-fixtures/service";
+import { notifyLegacySseResourceListChanged } from "@/lib/mcp/sse-notifications";
 
 export async function GET() {
   try {
@@ -13,6 +14,9 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const template = await createMcpResourceTemplate(mcpResourceTemplateInputFromBody(await request.json()));
+    if (template.enabled) {
+      notifyLegacySseResourceListChanged();
+    }
     return NextResponse.json({ template }, { status: 201 });
   } catch (error) {
     return mcpFixtureErrorResponse(error);

@@ -19,6 +19,8 @@ For the short project overview, see [README](../README.md). For end-to-end UI st
 
 The SSE bridge is for local compatibility and upstream Inspector checks. It is not durable session storage, resumable replay, or a production event queue.
 
+Legacy SSE sessions also support best-effort, in-memory `resources/subscribe` and `resources/unsubscribe` calls. When an open legacy SSE session is subscribed to an enabled resource URI, admin resource content mutations emit `notifications/resources/updated` on that stream. Enabled resource/template catalog changes emit `notifications/resources/list_changed`, and enabled prompt catalog changes emit `notifications/prompts/list_changed`. Streamable HTTP `GET` remains only a lightweight compatibility stream and does not provide durable session replay.
+
 ## Streamable HTTP No-Auth
 
 Initialize:

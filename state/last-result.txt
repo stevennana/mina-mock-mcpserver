@@ -1,16 +1,16 @@
-Implemented OAuth Resource And Prompt Permissions and wrote the operator handoff to `state/last-result.txt`.
+Implemented the scoped MCP resource subscription notification slice and wrote the handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
 
 Changed:
-- Added OAuth resource/prompt permission persistence, claims, token metadata, and validation.
-- Updated consent/client/token UI to group Tools, Resources, and Prompts.
-- Enforced Bearer filtering/403 denial for resources and prompts on MCP OAuth/unified paths.
-- Added unit and E2E coverage for resource/prompt permission behavior.
-- Updated related docs and the active task progress log.
-
-Exit criteria appear satisfied. Valid Bearer tokens can list/read/get only selected resources/prompts; unselected access returns JSON-RPC `403`; invalid Bearer tokens remain `401`; consent and token screens show understandable grouped permissions.
+- Added process-local legacy SSE subscription tracking in [lib/mcp/sse-notifications.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/lib/mcp/sse-notifications.ts).
+- Implemented `resources/subscribe` / `resources/unsubscribe` in JSON-RPC handling.
+- Wired admin resource/template/prompt mutations to best-effort SSE notifications.
+- Added unit and E2E coverage.
+- Updated the transport/spec docs and active task progress log.
 
 Required checks passed:
 - `npm run lint`
 - `npm run typecheck`
-- `npm run test:unit -- tests/unit/oauth-token.test.ts tests/unit/mcp-permissions.test.ts`
-- `npm run test:e2e -- tests/e2e/oauth-resource-prompt-permissions.spec.ts tests/e2e/oauth-consent.spec.ts`
+- `npm run test:unit -- tests/unit/mcp-sse-notifications.test.ts`
+- `npm run test:e2e -- tests/e2e/mcp-resource-subscriptions.spec.ts`
+
+Exit criteria appear satisfied. Existing Ralph/task-state worktree changes were already present; I left unrelated state movement alone.
