@@ -5,7 +5,7 @@
   "id": "mcp-resource-prompt-domain-schema",
   "title": "MCP Resource/Prompt Domain And Schema",
   "order": 27,
-  "status": "active",
+  "status": "completed",
   "next_task_on_success": "mcp-resource-management-ui",
   "prompt_docs": [
     "AGENTS.md",
@@ -28,7 +28,8 @@
     "Required checks do not prove the claimed behavior.",
     "Implementation changes contradict the product spec or security/reliability docs."
   ],
-  "promotion_mode": "deterministic_only"
+  "promotion_mode": "deterministic_only",
+  "completed_at": "2026-05-13T06:06:31.838Z"
 }
 ```
 
@@ -85,3 +86,4 @@ Add durable SQLite/Prisma persistence, seed defaults, validators, and domain ser
 - 2026-05-13T06:02:15Z: added MCP resource/prompt Prisma schema and migration, domain validators/services, idempotent seed defaults, and focused unit coverage for validation, seed rows, and enabled runtime reads. `npm run lint`, `npm run typecheck`, and `npm run test:unit -- tests/unit/mcp-resources-prompts.test.ts` pass; `npm run db:prepare` still pending in this run.
 - 2026-05-13T06:03:04Z: completed required gate run. `npm run lint`, `npm run typecheck`, `npm run test:unit -- tests/unit/mcp-resources-prompts.test.ts`, and `npm run db:prepare` all pass.
 - 2026-05-13T06:04:02Z: added reset cleanup for the new fixture tables so shared default seeding does not preserve mutable resource/prompt rows through root reset. Re-ran all required gates; all still pass.
+- 2026-05-13T06:06:31.838Z: automatically promoted after deterministic checks and evaluator approval.

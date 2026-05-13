@@ -25,3 +25,4 @@
 - 2026-05-05T13:40:45.211Z: promoted malformed-response-console-audit -> operator-config-health-logs
 - 2026-05-05T14:10:35.380Z: promoted operator-config-health-logs -> docker-nginx-final-hardening
 - 2026-05-05T14:34:27.875Z: promoted docker-nginx-final-hardening -> NONE
+- 2026-05-13T06:06:31.838Z: promoted mcp-resource-prompt-domain-schema -> mcp-resource-management-ui

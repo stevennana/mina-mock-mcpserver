@@ -1,57 +1,54 @@
 Read the following repository documents before making changes:
 - AGENTS.md
 - ARCHITECTURE.md
-- docs/PRODUCT_SENSE.md
-- docs/RELIABILITY.md
-- docs/SECURITY.md
+- docs/FRONTEND.md
+- docs/design-docs/product-ui-primitives.md
 - docs/product-specs/mcp-resources-prompts.md
-- docs/product-specs/mcp-json-rpc-runtime.md
-- docs/exec-plans/active/027-mcp-resource-prompt-domain-schema.md
+- docs/exec-plans/active/028-mcp-resource-management-ui.md
 
-Current task id: mcp-resource-prompt-domain-schema
-Current task title: MCP Resource/Prompt Domain And Schema
+Current task id: mcp-resource-management-ui
+Current task title: MCP Resource Management UI
 
 Objective:
-Add durable SQLite/Prisma persistence, seed defaults, validators, and domain services for MCP Resources, Resource Templates, Prompts, and Completion candidates.
+Add focused admin UI and APIs for direct MCP Resources so users can create, inspect, edit, preview, and delete read-only context resources.
 
 Clarity notes:
-- This is the enabling slice for `docs/product-specs/mcp-resources-prompts.md`.
-- Resources and prompts are mock fixtures, not filesystem or external API readers.
-- The domain must follow the existing `Types -> Config -> Repo -> Service -> Runtime -> UI` shape.
-- Seed defaults should make protocol smoke tests possible without admin setup.
+- Follow the existing single-purpose page rule from endpoint workflows.
+- Resources belong under the Tools navigation group.
+- This slice covers direct resources only, not URI templates.
 
 Expected result:
-- `db:prepare` creates and seeds resource/prompt data idempotently.
-- Unit tests prove validation, seed defaults, and service mapping.
-- Existing endpoint/tool behavior remains unchanged.
+- A user can create an enabled text resource and preview the exact MCP `resources/read` request/response shape from the UI.
+- Catalog pages stay list/search/status focused.
+- UI uses existing product primitives and icons.
 
 Objections / risks to avoid:
-- Do not store arbitrary local file paths or read host files.
-- Do not combine this with UI work.
-- Do not advertise new MCP capabilities until runtime handlers exist.
+- Do not place content editors inline in the catalog.
+- Do not add file upload or filesystem browsing.
+- Do not create a second visual system.
 
 Scope:
-- Add Prisma models/migration for direct resources, resource templates, prompt definitions, prompt arguments/messages, completion candidates, and permission-ready IDs.
-- Add service APIs for list/get/create/update/delete and enabled runtime reads.
-- Add validators for URI format, URI template argument names, MIME type, text/blob exclusivity, prompt required arguments, and completion candidate limits.
-- Add seed defaults for one direct resource, one template, and two prompts.
+- Add `/resources`, `/resources/new`, and `/resources/[id]/*` workflows for catalog, overview, edit metadata, content, console/read preview, and delete.
+- Add admin API routes for resource CRUD using the domain service from task 027.
+- Add copyable `resources/read` request examples and beginner tooltips explaining application-controlled context.
+- Add audit events for create/update/delete and content changes without logging sensitive submitted content beyond normal mock payload evidence.
 
 Out of scope:
-- Admin UI routes.
-- MCP JSON-RPC runtime methods.
-- OAuth permission enforcement.
-- SSE subscription notifications.
+- Resource templates.
+- Prompt UI.
+- MCP runtime handler implementation.
+- OAuth consent changes.
 
 Exit criteria:
-- `db:prepare` creates and seeds resource/prompt data idempotently.
-- Unit tests prove validation, seed defaults, and service mapping.
-- Existing endpoint/tool behavior remains unchanged.
+- A user can create an enabled text resource and preview the exact MCP `resources/read` request/response shape from the UI.
+- Catalog pages stay list/search/status focused.
+- UI uses existing product primitives and icons.
 
 Required checks:
 - `npm run lint`
 - `npm run typecheck`
-- `npm run test:unit -- tests/unit/mcp-resources-prompts.test.ts`
-- `npm run db:prepare`
+- `npm run test:e2e -- tests/e2e/resources-ui.spec.ts --grep @ui-resources`
+- Desktop/mobile screenshots, horizontal overflow check, and accessibility assertions in the UI E2E.
 
 Evaluator notes:
 - Confirm the task stays inside its declared slice.
@@ -63,8 +60,7 @@ Required repository artifacts for this task:
 Required commands for this task:
 - npm run lint
 - npm run typecheck
-- npm run test:unit -- tests/unit/mcp-resources-prompts.test.ts
-- npm run db:prepare
+- npm run test:e2e -- tests/e2e/resources-ui.spec.ts --grep @ui-resources
 
 Previous known gaps from the last evaluation:
 - none

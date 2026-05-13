@@ -1,5 +1,6 @@
 import { randomUUID } from "node:crypto";
 import type { Prisma, PrismaClient } from "@prisma/client";
+import { recordAuditEvent } from "@/lib/audit/service";
 import { createPrismaClient } from "@/lib/db/client";
 import {
   validateMcpPromptInput,
@@ -38,6 +39,7 @@ const promptInclude = {
 
 type ResourceTemplateRecord = Prisma.McpResourceTemplateGetPayload<{ include: typeof resourceTemplateInclude }>;
 type PromptRecord = Prisma.McpPromptGetPayload<{ include: typeof promptInclude }>;
+type ResourceContentSnapshot = Pick<Prisma.McpResourceGetPayload<object>, "textContent" | "blobContentBase64">;
 
 function toResourceSummary(resource: Prisma.McpResourceGetPayload<object>): McpResourceSummary {
   return {
@@ -184,26 +186,87 @@ export async function createMcpResource(input: McpResourceInput, client: PrismaC
       annotationsJson: validInput.annotationsJson ?? null,
     },
   });
+  await recordAuditEvent(
+    {
+      eventType: "mcp_resource.create",
+      subjectType: "mcp_resource",
+      subjectId: resource.id,
+      subjectName: resource.name,
+      outcome: "success",
+      metadata: {
+        uri: resource.uri,
+        enabled: resource.enabled,
+        mimeType: resource.mimeType,
+        contentKind: resource.textContent === null ? "blob" : "text",
+      },
+    },
+    client,
+  );
   return toResourceDetail(resource);
 }
 
 export async function updateMcpResource(id: string, input: McpResourceInput, client: PrismaClient = createPrismaClient()) {
   const validInput = validateMcpResourceInput(input);
-  const resource = await client.mcpResource.update({
-    where: { id },
-    data: {
-      uri: validInput.uri,
-      name: validInput.name,
-      title: validInput.title ?? "",
-      description: validInput.description ?? "",
-      mimeType: validInput.mimeType,
-      enabled: validInput.enabled,
-      textContent: validInput.textContent ?? null,
-      blobContentBase64: validInput.blobContentBase64 ?? null,
-      annotationsJson: validInput.annotationsJson ?? null,
-    },
+  const resource = await client.$transaction(async (tx) => {
+    const previous = await tx.mcpResource.findUnique({
+      where: { id },
+      select: { textContent: true, blobContentBase64: true },
+    });
+    const updated = await tx.mcpResource.update({
+      where: { id },
+      data: {
+        uri: validInput.uri,
+        name: validInput.name,
+        title: validInput.title ?? "",
+        description: validInput.description ?? "",
+        mimeType: validInput.mimeType,
+        enabled: validInput.enabled,
+        textContent: validInput.textContent ?? null,
+        blobContentBase64: validInput.blobContentBase64 ?? null,
+        annotationsJson: validInput.annotationsJson ?? null,
+      },
+    });
+    await recordAuditEvent(
+      {
+        eventType: "mcp_resource.update",
+        subjectType: "mcp_resource",
+        subjectId: updated.id,
+        subjectName: updated.name,
+        outcome: "success",
+        metadata: {
+          uri: updated.uri,
+          enabled: updated.enabled,
+          mimeType: updated.mimeType,
+          contentKind: updated.textContent === null ? "blob" : "text",
+        },
+      },
+      tx,
+    );
+    if (previous && resourceContentChanged(previous, updated)) {
+      await recordAuditEvent(
+        {
+          eventType: "mcp_resource.content.update",
+          subjectType: "mcp_resource",
+          subjectId: updated.id,
+          subjectName: updated.name,
+          outcome: "success",
+          metadata: {
+            uri: updated.uri,
+            contentKind: updated.textContent === null ? "blob" : "text",
+            textLength: updated.textContent?.length ?? null,
+            blobLength: updated.blobContentBase64?.length ?? null,
+          },
+        },
+        tx,
+      );
+    }
+    return updated;
   });
   return toResourceDetail(resource);
+}
+
+function resourceContentChanged(previous: ResourceContentSnapshot, next: ResourceContentSnapshot) {
+  return previous.textContent !== next.textContent || previous.blobContentBase64 !== next.blobContentBase64;
 }
 
 export async function deleteMcpResource(id: string, client: PrismaClient = createPrismaClient()) {
@@ -211,7 +274,20 @@ export async function deleteMcpResource(id: string, client: PrismaClient = creat
   if (!resource) {
     throw new McpFixtureNotFoundError();
   }
-  await client.mcpResource.delete({ where: { id } });
+  await client.$transaction(async (tx) => {
+    await tx.mcpResource.delete({ where: { id } });
+    await recordAuditEvent(
+      {
+        eventType: "mcp_resource.delete",
+        subjectType: "mcp_resource",
+        subjectId: resource.id,
+        subjectName: resource.name,
+        outcome: "success",
+        metadata: { uri: resource.uri, enabled: resource.enabled },
+      },
+      tx,
+    );
+  });
   return toResourceSummary(resource);
 }
 

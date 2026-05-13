@@ -5,7 +5,7 @@
   "id": "mcp-resource-management-ui",
   "title": "MCP Resource Management UI",
   "order": 28,
-  "status": "queued",
+  "status": "active",
   "next_task_on_success": "mcp-resource-template-management-ui",
   "prompt_docs": [
     "AGENTS.md",
@@ -78,3 +78,5 @@ Add focused admin UI and APIs for direct MCP Resources so users can create, insp
 ## Progress log
 
 - 2026-05-13T00:00:00Z: seeded as part of MCP Resources/Prompts next-wave planning.
+- 2026-05-13T06:06:31.838Z: restored as current task after mcp-resource-prompt-domain-schema promotion.
+- 2026-05-13T06:16:36Z: added direct Resource admin API routes, focused Resources catalog/detail workflows, resources/read preview UI, resource mutation audit events, and required @ui-resources E2E coverage with screenshots, overflow, and accessibility-name assertions. Required lint, typecheck, and tagged E2E checks passed.

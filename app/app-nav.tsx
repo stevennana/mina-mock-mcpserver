@@ -4,6 +4,7 @@ import {
   BarChart3,
   KeyRound,
   ListChecks,
+  Library,
   RotateCcw,
   ScrollText,
   ServerCog,
@@ -31,6 +32,7 @@ type AppNavGroup = {
 export type AppNavKey =
   | "dashboard"
   | "endpoints"
+  | "resources"
   | "inspector"
   | "basic-users"
   | "oauth-users"
@@ -49,6 +51,7 @@ const navGroups: AppNavGroup[] = [
     label: "Tools",
     items: [
       { key: "endpoints", href: "/endpoints", label: "Endpoints", icon: ListChecks },
+      { key: "resources", href: "/resources", label: "Resources", icon: Library },
       { key: "inspector", href: "/inspector", label: "Inspector", icon: TestTube2 },
     ],
   },

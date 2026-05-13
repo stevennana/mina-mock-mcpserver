@@ -1,17 +1,15 @@
-Completed `mcp-resource-prompt-domain-schema`.
+Implemented `mcp-resource-management-ui` and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
 
 Changed:
-- Added Prisma schema/migration for MCP resources, resource templates, prompts, prompt messages/arguments, and completion candidates.
-- Added `lib/mcp-fixtures` domain types, validators, and services.
-- Added idempotent seed defaults for one resource, one template, and two prompts.
-- Added reset cleanup for the new fixture tables.
-- Added unit coverage in `tests/unit/mcp-resources-prompts.test.ts`.
-- Updated task progress, generated DB schema docs, and `state/last-result.txt`.
+- Added Resource admin APIs under `/api/resources`.
+- Added focused `/resources`, `/resources/new`, and `/resources/[id]/*` workflows.
+- Added copyable `resources/read` JSON-RPC previews, tooltips, nav entry, icons, and audit events.
+- Added `@ui-resources` Playwright coverage with desktop/mobile screenshots, overflow, and accessibility assertions.
+- Updated the active task progress log.
 
 Required gates passed:
 - `npm run lint`
 - `npm run typecheck`
-- `npm run test:unit -- tests/unit/mcp-resources-prompts.test.ts`
-- `npm run db:prepare`
+- `npm run test:e2e -- tests/e2e/resources-ui.spec.ts --grep @ui-resources`
 
-Exit criteria appear satisfied. Runtime handlers, UI, OAuth resource/prompt permissions, and subscriptions remain untouched for later tasks. Note: the repo already had unrelated dirty/untracked planning/doc state when I started; I left that intact.
+Exit criteria appear satisfied. I left the pre-existing dirty Ralph/domain-schema state untouched.

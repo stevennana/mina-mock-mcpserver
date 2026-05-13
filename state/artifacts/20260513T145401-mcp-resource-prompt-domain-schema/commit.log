@@ -1,0 +1,24 @@
+[codex/mcp-resources-prompts-plans d91a624] ralph: mcp-resource-prompt-domain-schema 2026-05-13T15:06:31+09:00
+ 41 files changed, 3219 insertions(+), 273 deletions(-)
+ create mode 100644 docs/exec-plans/active/027-mcp-resource-prompt-domain-schema.md
+ create mode 100644 docs/exec-plans/active/028-mcp-resource-management-ui.md
+ create mode 100644 docs/exec-plans/active/029-mcp-resource-template-management-ui.md
+ create mode 100644 docs/exec-plans/active/030-mcp-prompt-management-ui.md
+ create mode 100644 docs/exec-plans/active/031-mcp-resources-runtime.md
+ create mode 100644 docs/exec-plans/active/032-mcp-prompts-completion-runtime.md
+ create mode 100644 docs/exec-plans/active/033-oauth-resource-prompt-permissions.md
+ create mode 100644 docs/exec-plans/active/034-mcp-resource-subscription-notifications.md
+ create mode 100644 docs/exec-plans/active/035-inspector-full-server-features.md
+ rename docs/exec-plans/{active => completed}/025-inspector-compatibility-pack.md (55%)
+ rename docs/exec-plans/{active => completed}/026-inspector-popup-oauth-flow.md (67%)
+ create mode 100644 docs/product-specs/mcp-resources-prompts.md
+ create mode 100644 lib/mcp-fixtures/service.ts
+ create mode 100644 lib/mcp-fixtures/types.ts
+ create mode 100644 lib/mcp-fixtures/validation.ts
+ create mode 100644 prisma/migrations/202605130001_mcp_resource_prompt_catalog/migration.sql
+ create mode 100644 state/artifacts/20260513T145401-mcp-resource-prompt-domain-schema/commit.log
+ create mode 100644 state/artifacts/20260513T145401-mcp-resource-prompt-domain-schema/evaluator.log
+ create mode 100644 state/artifacts/20260513T145401-mcp-resource-prompt-domain-schema/task-prompt.log
+ create mode 100644 state/artifacts/20260513T145401-mcp-resource-prompt-domain-schema/worker.jsonl
+ create mode 100644 tests/unit/mcp-resources-prompts.test.ts
+commit: created
