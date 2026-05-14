@@ -8,8 +8,8 @@ The package is publicly available on npm: [`@minasoft/mcp-runtime`](https://www.
 
 Developer-focused package examples live in
 [`packages/mcp-runtime/EXAMPLES.md`](../packages/mcp-runtime/EXAMPLES.md).
-They cover resources-only integrations, host-owned auth, Inspector CORS,
-tools, prompts, completion, low-level JSON-RPC dispatch, custom protocol
+They cover resources, tools, prompts, host-owned auth, Inspector CORS,
+completion, low-level JSON-RPC dispatch, custom protocol
 versions, pagination, expected errors, and upstream Inspector CLI checks.
 
 ## Positioning
@@ -23,7 +23,7 @@ resolved those concerns.
 Use this package when:
 
 - the host app already has HTTP routes, middleware, auth, storage, and domain models
-- MCP should expose existing product data as resources, templates, prompts, tools, or completion
+- MCP should expose existing product data as resources, app actions as tools, and reusable model workflows as prompts or completion
 - auth must stay in the host app, such as Bearer tokens, sessions, tenants, feature flags, or custom permission checks
 - the host wants MCP protocol handling without importing Next.js, Prisma, React, SQLite, or Mock Server admin modules into the reusable runtime
 - browser-based tools such as upstream MCP Inspector need opt-in CORS without forcing open CORS by default
@@ -58,6 +58,23 @@ Consumers own:
 - tool, resource, and prompt business logic
 
 The package exports MCP DTOs and provider contracts. Providers should return MCP-domain objects, not Prisma records or Mock Server app entities.
+
+## Provider Families
+
+The package is intentionally provider-family oriented. A host app can implement
+only the families it needs.
+
+| Family | Host app owns | Runtime package owns |
+|---|---|---|
+| Resources | Which records are visible, how URIs map to records, how templates render, how cursors are generated | `resources/list`, `resources/read`, `resources/templates/list`, standard response and error envelopes |
+| Tools | Which commands exist, input validation, side effects, permissions, audit, idempotency, and app-specific failures | `tools/list`, `tools/call`, tool success, tool error, raw responses, and provider error mapping |
+| Prompts | Prompt catalog, prompt arguments, workflow copy, resource references, completion candidates, permissions | `prompts/list`, `prompts/get`, `completion/complete`, provider-derived capabilities |
+
+MCP Mock Server uses all three:
+
+- endpoint fixtures become MCP tools
+- resource and resource-template fixtures become MCP resources and templates
+- prompt fixtures and completion candidates become MCP prompts and completions
 
 ## How MCP Mock Server Uses The Runtime
 
@@ -187,7 +204,156 @@ export function createPublishedContentProvider(): McpRuntimeProvider {
 }
 ```
 
-Tools and prompts are optional. A resources-only provider advertises resource capabilities without claiming unsupported tool or prompt methods.
+Tools and prompts are optional. A provider that implements only resources advertises resource capabilities without claiming unsupported tool or prompt methods.
+
+## Product Action Tool Provider
+
+A product app can expose app-owned actions as MCP tools. The host app still owns
+authorization, side effects, audit, idempotency, and input semantics.
+
+```ts
+import type { McpRuntimeProvider } from "@minasoft/mcp-runtime";
+
+type SearchResult = {
+  uri: string;
+  title: string;
+};
+
+async function searchVisibleContent(query: string, userId: string): Promise<SearchResult[]> {
+  // Host app helper: query your own database or search index here.
+  return [{ uri: "content://articles/note/welcome", title: `Result for ${query} by ${userId}` }];
+}
+
+export function createProductActionProvider(): McpRuntimeProvider {
+  return {
+    serverInfo: {
+      name: "product-actions",
+      version: "0.1.0",
+    },
+    tools: {
+      async list() {
+        return {
+          items: [
+            {
+              name: "search_content",
+              title: "Search content",
+              description: "Search content visible to the current user.",
+              inputSchema: {
+                type: "object",
+                properties: {
+                  query: { type: "string" },
+                },
+                required: ["query"],
+                additionalProperties: false,
+              },
+            },
+          ],
+        };
+      },
+      async call({ name, arguments: args, context }) {
+        if (name !== "search_content") {
+          return { kind: "not_found", message: "Unknown tool." };
+        }
+
+        const principal = context.principal as { userId: string; scopes: string[] } | null;
+        if (!principal?.scopes.includes("content:read")) {
+          return { kind: "forbidden", message: "Missing content:read scope." };
+        }
+
+        const query = typeof args?.query === "string" ? args.query : "";
+        if (!query) {
+          return { kind: "invalid_params", message: "query is required." };
+        }
+
+        const results = await searchVisibleContent(query, principal.userId);
+        return {
+          kind: "success",
+          content: [{ type: "text", text: JSON.stringify(results) }],
+          structuredContent: { results },
+        };
+      },
+    },
+  };
+}
+```
+
+In MCP Mock Server, endpoint fixtures follow this pattern: enabled endpoints are
+listed as tools, and `tools/call` delegates into the endpoint runtime.
+
+## Prompt Workflow Provider
+
+A product app can expose reusable model workflows as MCP prompts. This is useful
+when the app wants clients to invoke consistent review, summarize, triage, or
+generation templates.
+
+```ts
+import type { McpRuntimeProvider } from "@minasoft/mcp-runtime";
+
+async function suggestVisibleContentUris(prefix: string): Promise<string[]> {
+  // Host app helper: return URI suggestions visible to the current user.
+  return ["content://articles/note/welcome", "content://articles/note/release-notes"].filter((uri) =>
+    uri.startsWith(prefix),
+  );
+}
+
+export function createWorkflowPromptProvider(): McpRuntimeProvider {
+  return {
+    serverInfo: {
+      name: "product-workflows",
+      version: "0.1.0",
+    },
+    prompts: {
+      async list() {
+        return {
+          items: [
+            {
+              name: "review_content",
+              title: "Review content",
+              description: "Review a visible content item for clarity and missing context.",
+              arguments: [{ name: "uri", required: true, description: "MCP resource URI" }],
+            },
+          ],
+        };
+      },
+      async get({ name, arguments: args }) {
+        if (name !== "review_content") {
+          return { kind: "not_found", message: "Unknown prompt." };
+        }
+
+        const uri = typeof args?.uri === "string" ? args.uri : "";
+        if (!uri) {
+          return { kind: "invalid_params", message: "uri is required." };
+        }
+
+        return {
+          kind: "success",
+          messages: [
+            {
+              role: "user",
+              content: {
+                type: "text",
+                text: `Review ${uri} for clarity, correctness, and missing context.`,
+              },
+            },
+          ],
+        };
+      },
+      async complete({ argument }) {
+        if (argument.name !== "uri") {
+          return { kind: "not_found", message: "No completions for this argument." };
+        }
+
+        const values = await suggestVisibleContentUris(argument.value ?? "");
+        return { kind: "success", values, total: values.length, hasMore: false };
+      },
+    },
+  };
+}
+```
+
+In MCP Mock Server, prompt fixtures and completion candidates follow this
+pattern: prompts are listed, prompt arguments are rendered into messages, and
+completion candidates power `completion/complete`.
 
 ## Next.js Fetch Route Example
 
@@ -251,7 +417,7 @@ npm run db:prepare
 npm run dev
 ```
 
-Then verify the app integration and upstream-compatible resources flow:
+Then verify the app integration and upstream-compatible runtime flow:
 
 ```bash
 npm run inspector:mock
@@ -259,7 +425,11 @@ npm run inspector:cli:resources:list
 npm run inspector:cli:resources:read
 ```
 
-These checks prove the migrated Mock Server routes still expose resources through the reusable runtime boundary. The broader task gate also runs lint, typecheck, package build/test, unit tests, and Playwright E2E.
+`inspector:mock` exercises the Mock Server's broader runtime surface, including
+tools, resources, prompts, completion, auth modes, tokens, audit, and cleanup.
+The resource CLI checks are focused package-level smoke tests for the reusable
+runtime boundary. The broader task gate also runs lint, typecheck, package
+build/test, unit tests, and Playwright E2E.
 
 For a downstream app, the equivalent upstream Inspector CLI shape is:
 
@@ -291,7 +461,7 @@ npm run mcp-runtime:inspector:smoke
 
 `npm run mcp-runtime:consumer:test` creates a temporary external TypeScript project, installs the packed runtime tarball, imports only `@minasoft/mcp-runtime`, and runs `tsc --noEmit`. This catches missing declaration files, broken exports, and accidental app-local imports.
 
-`npm run mcp-runtime:inspector:smoke` starts a tiny resources-only package-backed server and verifies upstream MCP Inspector CLI `resources/list`, `resources/templates/list`, and `resources/read`.
+`npm run mcp-runtime:inspector:smoke` starts a tiny package-backed server and verifies upstream MCP Inspector CLI `resources/list`, `resources/templates/list`, and `resources/read`. It is intentionally small; application-level E2E should also cover any tools and prompts the host app exposes.
 
 ## API Stability
 
@@ -307,7 +477,7 @@ Current policy:
 
 ## Current Publish Status
 
-`@minasoft/mcp-runtime` is published publicly on npm. The latest documented package version is `0.1.4`.
+`@minasoft/mcp-runtime` is published publicly on npm. The latest documented package version is `0.1.5`.
 
 `packages/mcp-runtime` remains buildable, packable, and externally typechecked from this workspace with:
 

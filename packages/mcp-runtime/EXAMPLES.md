@@ -1,7 +1,8 @@
 # @minasoft/mcp-runtime Developer Examples
 
 This file collects integration patterns for developers who want to expose
-application data through MCP without copying MCP Mock Server protocol code.
+application data, product actions, and reusable workflows through MCP without
+copying MCP Mock Server protocol code.
 
 The examples assume the host app owns HTTP routing, authentication, storage,
 rate limits, audit logs, tenant checks, and product-specific permission rules.
@@ -23,6 +24,54 @@ Use the official MCP TypeScript SDK when you want the canonical full SDK or
 client/server framework. Use this runtime when your app already has routes,
 auth, storage, and product permissions, and MCP should be a thin protocol layer
 over those existing systems.
+
+## Provider Families At A Glance
+
+The runtime is not resources-only. A provider can expose any combination of
+resources, tools, and prompts.
+
+| Family | App-side source | MCP methods |
+|---|---|---|
+| Resources | Readable app records, documents, articles, files, templates, or generated content | `resources/list`, `resources/read`, `resources/templates/list`, optional subscribe/unsubscribe |
+| Tools | App commands, business operations, searches, validators, or calculations | `tools/list`, `tools/call` |
+| Prompts | Reusable model workflows, prompt templates, and guided argument completion | `prompts/list`, `prompts/get`, `completion/complete` |
+
+```ts
+import type { McpRuntimeProvider } from "@minasoft/mcp-runtime";
+
+export const productProvider: McpRuntimeProvider = {
+  serverInfo: { name: "product-mcp", version: "0.1.0" },
+  resources: {
+    async list() {
+      return { items: [{ uri: "content://articles/welcome", name: "welcome" }] };
+    },
+    async read({ uri }) {
+      return { kind: "success", contents: [{ uri, mimeType: "text/markdown", text: "# Welcome" }] };
+    },
+  },
+  tools: {
+    async list() {
+      return { items: [{ name: "search_content", description: "Search visible content." }] };
+    },
+    async call({ name }) {
+      if (name !== "search_content") return { kind: "not_found", message: "Unknown tool." };
+      return { kind: "success", content: [{ type: "text", text: "Search results" }] };
+    },
+  },
+  prompts: {
+    async list() {
+      return { items: [{ name: "review_content", description: "Review a content item." }] };
+    },
+    async get({ name }) {
+      if (name !== "review_content") return { kind: "not_found", message: "Unknown prompt." };
+      return {
+        kind: "success",
+        messages: [{ role: "user", content: { type: "text", text: "Review content://articles/welcome" } }],
+      };
+    },
+  },
+};
+```
 
 ## 0. Host-App Reference: MCP Mock Server
 
@@ -47,7 +96,7 @@ The same split works for another product app:
 4. Implement a provider that returns MCP resources, templates, tools, prompts, or completion from app data.
 5. Keep logs, audits, rate limits, and deployment policy in the host app.
 
-## 1. Resources-Only Content Provider
+## 1. Resources Provider
 
 Use this shape when your app wants MCP clients to read published content,
 documents, articles, notes, or other stable records.
@@ -234,6 +283,11 @@ Add tools only when the app has command-like behavior that should be invoked by
 MCP clients. Expected user or input failures should return typed provider
 errors. Unexpected thrown errors are sanitized to JSON-RPC `-32603`.
 
+Tools are the right family for "do something" operations. In MCP Mock Server,
+admin-configured endpoints become MCP tools: `lib/mcp/runtime-provider.ts` maps
+enabled endpoint fixtures to `tools/list`, then delegates `tools/call` to the
+endpoint runtime.
+
 ```ts
 import type { McpRuntimeProvider } from "@minasoft/mcp-runtime";
 
@@ -291,6 +345,10 @@ export function createToolProvider(): McpRuntimeProvider {
 Prompts are useful when the app can provide reusable instructions or templates
 for MCP clients. Completion can suggest prompt argument values or resource URI
 parts.
+
+Prompts are the right family for guided model workflows. In MCP Mock Server,
+prompt fixtures become `prompts/list` and `prompts/get`, and completion
+candidates on prompts or resource templates power `completion/complete`.
 
 ```ts
 import type { McpRuntimeProvider } from "@minasoft/mcp-runtime";
@@ -482,6 +540,9 @@ private content are not returned to clients.
 ## 10. Upstream Inspector CLI Smoke
 
 After exposing a route, use upstream MCP Inspector CLI to verify the integration.
+Run the methods that match the provider families your app exposes.
+
+Resources:
 
 ```bash
 npx -y @modelcontextprotocol/inspector@0.21.2 \
@@ -499,6 +560,38 @@ npx -y @modelcontextprotocol/inspector@0.21.2 \
   --transport http \
   --method resources/read \
   --uri content://articles/note/welcome
+```
+
+Tools:
+
+```bash
+npx -y @modelcontextprotocol/inspector@0.21.2 \
+  --cli http://127.0.0.1:3000/api/mcp \
+  --transport http \
+  --method tools/list
+
+npx -y @modelcontextprotocol/inspector@0.21.2 \
+  --cli http://127.0.0.1:3000/api/mcp \
+  --transport http \
+  --method tools/call \
+  --tool-name search_content \
+  --tool-arg query=welcome
+```
+
+Prompts:
+
+```bash
+npx -y @modelcontextprotocol/inspector@0.21.2 \
+  --cli http://127.0.0.1:3000/api/mcp \
+  --transport http \
+  --method prompts/list
+
+npx -y @modelcontextprotocol/inspector@0.21.2 \
+  --cli http://127.0.0.1:3000/api/mcp \
+  --transport http \
+  --method prompts/get \
+  --prompt-name review_content \
+  --prompt-args uri=content://articles/note/welcome
 ```
 
 When your host route requires auth, add the same auth header your app expects:

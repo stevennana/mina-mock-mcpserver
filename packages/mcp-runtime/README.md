@@ -26,7 +26,7 @@ This package intentionally does not include MCP Mock Server admin screens, endpo
 
 Use `@minasoft/mcp-runtime` when you want:
 
-- a provider interface that maps existing app records to MCP objects
+- a provider interface that maps existing app records, commands, and workflows to MCP objects
 - host-owned Bearer, Basic, session, tenant, or custom auth
 - Next.js App Router or Fetch-compatible route integration
 - MCP JSON-RPC envelopes, `initialize`, capabilities, resources, tools, prompts, completion, pagination, and standard errors handled for you
@@ -38,6 +38,54 @@ Prefer the official MCP SDK when you need a broad SDK with client APIs, richer
 transport abstractions, or the canonical first-stop implementation for new MCP
 servers. Prefer this runtime when the server is already an application route and
 MCP should be a thin protocol layer over that app.
+
+## Provider Families
+
+The runtime supports three MCP feature families. You can implement one, two, or
+all three in the same provider.
+
+| Family | Use it for | Runtime methods |
+|---|---|---|
+| Resources | Existing product data that clients can read, such as articles, files, records, docs, or templates | `resources/list`, `resources/read`, `resources/templates/list`, optional resource subscriptions |
+| Tools | Product actions that clients can invoke, such as search, validation, sync, ticket creation, or calculations | `tools/list`, `tools/call` |
+| Prompts | Reusable workflows and prompt templates backed by app data, plus argument completion | `prompts/list`, `prompts/get`, `completion/complete` |
+
+```ts
+import type { McpRuntimeProvider } from "@minasoft/mcp-runtime";
+
+export const provider: McpRuntimeProvider = {
+  serverInfo: { name: "product-mcp", version: "0.1.0" },
+  resources: {
+    async list() {
+      return { items: [{ uri: "content://articles/welcome", name: "welcome" }] };
+    },
+    async read({ uri }) {
+      return { kind: "success", contents: [{ uri, mimeType: "text/markdown", text: "# Welcome" }] };
+    },
+  },
+  tools: {
+    async list() {
+      return { items: [{ name: "search_content", description: "Search visible content." }] };
+    },
+    async call({ name }) {
+      if (name !== "search_content") return { kind: "not_found", message: "Unknown tool." };
+      return { kind: "success", content: [{ type: "text", text: "Search results" }] };
+    },
+  },
+  prompts: {
+    async list() {
+      return { items: [{ name: "review_content", description: "Review a content item." }] };
+    },
+    async get({ name }) {
+      if (name !== "review_content") return { kind: "not_found", message: "Unknown prompt." };
+      return {
+        kind: "success",
+        messages: [{ role: "user", content: { type: "text", text: "Review content://articles/welcome" } }],
+      };
+    },
+  },
+};
+```
 
 ## Install
 
@@ -60,11 +108,11 @@ Then install the generated `.tgz` in a separate TypeScript project.
 ## Developer Examples
 
 For more integration patterns, see [Developer Examples](EXAMPLES.md). It covers
-resources-only apps, host-owned Bearer auth, Inspector-compatible CORS, tools,
-prompts, completion, low-level JSON-RPC dispatch, custom protocol versions,
+resources, tools, prompts, host-owned Bearer auth, Inspector-compatible CORS,
+completion, low-level JSON-RPC dispatch, custom protocol versions,
 pagination, and upstream Inspector CLI smoke checks.
 
-## Resources-Only Route
+## Route Example
 
 ```ts
 // app/api/mcp/route.ts
@@ -170,12 +218,17 @@ The Fetch helper handles JSON parsing, JSON-RPC response envelopes, `MCP-Protoco
 
 Provider-thrown errors are sanitized as JSON-RPC `-32603` internal errors with the generic message `Internal error`. Expected domain failures should still be returned as typed provider errors such as `not_found`, `forbidden`, or `invalid_params`.
 
-## Minimal Provider
+## Minimal Family Providers
+
+Implement only the families your app needs. Capability advertisement follows
+the provider shape, so unsupported tools or prompts are not claimed.
+
+### Minimal Resources
 
 ```ts
 import type { McpRuntimeProvider } from "@minasoft/mcp-runtime";
 
-const provider: McpRuntimeProvider = {
+const resourcesProvider: McpRuntimeProvider = {
   serverInfo: { name: "content-app", version: "0.1.0" },
   resources: {
     async list() {
@@ -211,6 +264,72 @@ const provider: McpRuntimeProvider = {
 
 ```
 
+### Minimal Tools
+
+```ts
+import type { McpRuntimeProvider } from "@minasoft/mcp-runtime";
+
+const toolsProvider: McpRuntimeProvider = {
+  serverInfo: { name: "actions-app", version: "0.1.0" },
+  tools: {
+    async list() {
+      return {
+        items: [
+          {
+            name: "echo",
+            description: "Echo a message.",
+            inputSchema: {
+              type: "object",
+              properties: { message: { type: "string" } },
+              required: ["message"],
+              additionalProperties: false,
+            },
+          },
+        ],
+      };
+    },
+    async call({ name, arguments: args }) {
+      if (name !== "echo") return { kind: "not_found", message: "Unknown tool." };
+      const message = typeof args?.message === "string" ? args.message : "";
+      if (!message) return { kind: "invalid_params", message: "message is required." };
+      return { kind: "success", content: [{ type: "text", text: message }] };
+    },
+  },
+};
+```
+
+### Minimal Prompts
+
+```ts
+import type { McpRuntimeProvider } from "@minasoft/mcp-runtime";
+
+const promptsProvider: McpRuntimeProvider = {
+  serverInfo: { name: "workflow-app", version: "0.1.0" },
+  prompts: {
+    async list() {
+      return {
+        items: [
+          {
+            name: "review_text",
+            description: "Review supplied text.",
+            arguments: [{ name: "text", required: true }],
+          },
+        ],
+      };
+    },
+    async get({ name, arguments: args }) {
+      if (name !== "review_text") return { kind: "not_found", message: "Unknown prompt." };
+      const text = typeof args?.text === "string" ? args.text : "";
+      if (!text) return { kind: "invalid_params", message: "text is required." };
+      return {
+        kind: "success",
+        messages: [{ role: "user", content: { type: "text", text: `Review this text:\n\n${text}` } }],
+      };
+    },
+  },
+};
+```
+
 ## Provider Boundary
 
 The provider is the only required integration surface. It should return MCP-domain objects rather than database records.
@@ -235,7 +354,7 @@ export function createProvider(): McpRuntimeProvider {
 
 Provider rules:
 
-- resources are first-class; tools and prompts are optional
+- resources, tools, and prompts are all first-class optional provider families
 - capabilities are advertised only when the matching provider methods exist
 - provider errors should be returned as typed results such as `not_found`, `forbidden`, or `invalid_params`
 - thrown errors are treated as unexpected failures and returned as sanitized internal JSON-RPC errors
@@ -279,9 +398,15 @@ npm run mcp-runtime:inspector:smoke
 For upstream Inspector compatibility against the Mock Server app, run the host MCP server and then:
 
 ```bash
+npm run inspector:mock
 npm run inspector:cli:resources:list
 npm run inspector:cli:resources:read
 ```
+
+`inspector:mock` exercises the Mock Server's broader runtime surface, including
+tools, resources, prompts, completion, auth modes, and audit evidence. The
+resource CLI checks are focused package-level smoke tests for the reusable
+runtime boundary.
 
 ## API Stability
 
