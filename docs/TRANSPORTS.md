@@ -17,7 +17,7 @@ For the short project overview, see [README](../README.md). For end-to-end UI st
 
 `/sse/*` routes are legacy-style SSE compatibility aliases. A client opens the SSE stream, reads the emitted `endpoint` event, then POSTs JSON-RPC messages to that endpoint. Responses arrive as SSE `message` events.
 
-The reusable MCP JSON-RPC method handling behind these routes comes from the workspace-private `@minasoft/mcp-runtime` package. Mock Server-owned wrappers still perform route auth, OAuth permission filtering, CORS, SSE session handling, failure simulation, and audit evidence.
+The reusable MCP JSON-RPC method handling behind these routes comes from the `@minasoft/mcp-runtime` package boundary. Mock Server-owned wrappers still perform route auth, OAuth permission filtering, CORS, SSE session handling, failure simulation, and audit evidence.
 
 The SSE bridge is for local compatibility and upstream Inspector checks. It is not durable session storage, resumable replay, or a production event queue.
 

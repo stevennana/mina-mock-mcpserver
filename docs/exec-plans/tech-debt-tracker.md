@@ -11,7 +11,7 @@ Track recurring cleanup and deferred concerns that should not remain implicit.
 
 - 2026-05-13T11:20:00Z: In the Codex sandbox, raw shell/Node loopback TCP to `127.0.0.1:3100` fails with `connect EPERM`; the repo-local upstream Inspector CLI shim now covers documented `/mcp/none`, `/mcp/basic`, and no-auth `/sse/none` tools/resources list/read checks. Recheck without the shim on a normal operator machine before deleting the sandbox workaround.
 
-- 2026-05-14T07:49:46Z: `@minasoft/mcp-runtime` remains workspace-private after extraction. Before claiming npm availability, add a publishing task that finalizes semver/API stability, package metadata, release checks, and install instructions for downstream apps.
+- 2026-05-14T09:05:00Z: `@minasoft/mcp-runtime` has publish-ready metadata and an external tarball consumer smoke test, but actual npm publication is still a release decision. Before announcing npm availability, run the package release checklist, confirm final repository URLs, and publish from `packages/mcp-runtime`.
 
 - 2026-05-13T07:09:40.812Z: mcp-resources-runtime auto-branched to `mcp-resources-runtime-rca-npx-y-modelcontextprotocol-inspector-0-21-2-cli-` after repeated blocker `deterministic_failure|npx-y-modelcontextprotocol-inspector-0-21-2-cli-|no-path-details` (Repeated required-command failure: npx -y @modelcontextprotocol/inspector@0.21.2 --cli http://127.0.0.1:3100/mcp/none --transport http --method resources/list).
 

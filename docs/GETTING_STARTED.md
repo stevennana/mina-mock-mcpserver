@@ -213,14 +213,18 @@ For `completion/complete`, use the project Generic target preset or upstream bro
 
 ## 8. Inspect The Runtime Package Boundary
 
-MCP Mock Server consumes the workspace-private `@minasoft/mcp-runtime` package for reusable JSON-RPC method handling. Build and test the package directly with:
+MCP Mock Server consumes the `@minasoft/mcp-runtime` package boundary for reusable JSON-RPC method handling. Build, pack, and test the package directly with:
 
 ```bash
 npm run mcp-runtime:build
 npm run mcp-runtime:test
+npm run mcp-runtime:pack
+npm run mcp-runtime:consumer:test
 ```
 
-Downstream consumption guidance and a Next.js Fetch route example are in [MCP runtime package](MCP_RUNTIME_PACKAGE.md).
+`npm run mcp-runtime:consumer:test` installs the packed runtime into a temporary external TypeScript project and verifies that public exports and generated declaration files work without app-local aliases.
+
+Downstream consumption guidance, API stability notes, and a Next.js Fetch route example are in [MCP runtime package](MCP_RUNTIME_PACKAGE.md).
 
 ## 9. Inspect Tokens And Audit Events
 
@@ -289,11 +293,13 @@ npm run start:tls
 
 Self-signed certificates need a local browser trust exception or `curl -k`.
 
-## 12. Validation Commands
+## 13. Validation Commands
 
 ```bash
 npm run lint
 npm run typecheck
+npm run mcp-runtime:test
+npm run mcp-runtime:consumer:test
 npm run build
 npm run test:unit
 npm run test:e2e

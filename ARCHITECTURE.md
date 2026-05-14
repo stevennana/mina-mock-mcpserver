@@ -43,12 +43,12 @@ The repository is intended to work well with long-running agent loops. Strict bo
 | Operations | SQLite prep, seed defaults, base URL, Docker/Nginx docs, logs, health |
 
 ## Reusable Runtime Boundary
-The MCP JSON-RPC runtime is planned as `@minasoft/mcp-runtime`, documented in `docs/design-docs/mcp-runtime-library-architecture.md`.
+The MCP JSON-RPC runtime lives in `packages/mcp-runtime` as `@minasoft/mcp-runtime`, documented in `docs/design-docs/mcp-runtime-library-architecture.md`.
 
 The package boundary is intentionally narrower than the Mock Server product:
 - it owns MCP DTOs, JSON-RPC envelope handling, provider-driven method dispatch, protocol-version negotiation, pagination shapes, and standard MCP errors
 - it does not own endpoint catalogs, OAuth screens, Prisma persistence, audit logs, admin UI, failure-simulation authoring, or standalone Inspector screens
-- MCP Mock Server must consume the package for its own protocol handling so the package is proven by the production app before downstream reuse
+- MCP Mock Server consumes the package for its own protocol handling so the package is proven by the production app before downstream reuse
 - app-owned adapters translate endpoint, resource, prompt, auth, and permission decisions into package provider results
 
 This keeps the Mock Server useful as a product while allowing other npm projects, such as Minakeep, to expose their own content as MCP resources without copying protocol code.
@@ -79,7 +79,7 @@ This keeps the Mock Server useful as a product while allowing other npm projects
 - unit tests cover validators, matching, auth precedence, JWT claims, permissions, reset, and protocol formatting
 - Playwright proves browser-visible workflows and external-client-like OAuth/MCP/REST flows
 - start:smoke builds, prepares runtime state, starts the production server, probes health, and shuts down
-- verify runs lint, typecheck, build, unit, E2E, and startup smoke
+- verify runs lint, typecheck, runtime package tests, external runtime consumer install/typecheck, build, unit, E2E, and startup smoke
 - failing required checks block Ralph promotion
 
 ## Long-Running Agent Readiness

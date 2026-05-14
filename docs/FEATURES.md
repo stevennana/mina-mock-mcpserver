@@ -55,7 +55,7 @@ MCP Mock Server gives MCP client developers a repeatable remote-like target for 
 | OAuth discovery | `/.well-known/oauth-authorization-server`, `/.well-known/oauth-protected-resource`, `/.well-known/openid-configuration` | Metadata for clients and Inspectors. |
 | Operations | `/api/health`, `/api/config`, `/api/reset`, `/api/audit` | Health, public config, reset, and audit APIs. |
 
-MCP JSON-RPC protocol handling for tools, resources, prompts, completion, capabilities, pagination, and standard errors runs through the workspace-private `@minasoft/mcp-runtime` package. Mock Server remains responsible for route auth, permissions, persistence, SSE hosting, audit, failure simulation, and admin workflows.
+MCP JSON-RPC protocol handling for tools, resources, prompts, completion, capabilities, pagination, and standard errors runs through the `@minasoft/mcp-runtime` package boundary. Mock Server remains responsible for route auth, permissions, persistence, SSE hosting, audit, failure simulation, and admin workflows.
 
 ## Authentication Modes
 

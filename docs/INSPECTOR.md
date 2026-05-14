@@ -15,7 +15,7 @@ MCP Mock Server integrates with the upstream MCP Inspector as the recommended in
 The Inspector is used as an external tool through `npx`; this repository does not vendor or fork Inspector source code.
 
 This keeps the mock server focused on its own runtime, REST, OAuth, admin UI, audit, and persistence behavior while still giving users a familiar MCP-native debugger for `initialize`, tools, resources, prompts, and completion checks.
-Reusable JSON-RPC method handling is provided by the workspace-private `@minasoft/mcp-runtime` package, so Inspector runs also prove the app-owned routes are correctly adapted to the extracted runtime boundary.
+Reusable JSON-RPC method handling is provided by the `@minasoft/mcp-runtime` package boundary, so Inspector runs also prove the app-owned routes are correctly adapted to the extracted runtime boundary.
 
 This repository provides two local inspector paths:
 

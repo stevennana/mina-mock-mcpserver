@@ -9,7 +9,8 @@ If a UI or API behavior is visible to users, it should be defined here before im
 |---|---|---|
 | `endpoint-tool-management.md` | confirmed | Endpoint and Tool Management |
 | `mcp-json-rpc-runtime.md` | confirmed | MCP JSON-RPC Runtime |
-| `../design-docs/mcp-runtime-library-architecture.md` | draft | Reusable MCP Runtime Package Architecture |
+| `mcp-runtime-package.md` | confirmed | Reusable MCP Runtime Package |
+| `../design-docs/mcp-runtime-library-architecture.md` | confirmed | Reusable MCP Runtime Package Architecture |
 | `mcp-resources-prompts.md` | confirmed | MCP Resources, Resource Templates, Prompts, Completion, and related permissions |
 | `rest-mock-api.md` | confirmed | REST Mock API |
 | `basic-auth-management.md` | confirmed | Basic Auth Management |

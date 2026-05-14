@@ -12,6 +12,7 @@ The first required consumer is this project itself. MCP Mock Server must run thr
 - Runtime dependency policy: no Next.js, React, Prisma, SQLite, OAuth UI, or Mock Server admin dependencies
 - Framework contract: standard Web `Request` / `Response` helpers may be provided, but the core JSON-RPC handler must be usable without a web framework
 - Versioning: package version starts independently from the app version; breaking public interface changes require a package major version bump once published
+- Publish readiness: package metadata must include license, repository, exports, types, Node engine support, public publish config, and pack/consumer verification before npm availability is announced
 
 ## Internal Package Layers
 The package should stay small, but it still needs clear internal layers so external users do not inherit Mock Server coupling:
@@ -198,3 +199,21 @@ The implementation task that follows this design must include:
 - a static import guard that fails if app/test code keeps using old internal MCP protocol modules
 - upstream MCP Inspector CLI smoke checks for resources/list and resources/read
 - docs showing a minimal Next.js route and provider implementation for Minakeep-style published content
+
+## Publication Readiness Requirements
+The package is not considered generally consumable until these checks pass from a clean checkout:
+
+- `npm run mcp-runtime:test`
+- `npm run mcp-runtime:pack`
+- `npm run mcp-runtime:consumer:test`
+- upstream Inspector CLI smoke for resources/list and resources/read against an app consuming the package
+
+`npm run mcp-runtime:consumer:test` must install the packed tarball into a temporary external TypeScript project and run `tsc --noEmit` without importing app-local aliases. This protects the most important downstream contract: another npm project can install the package, import public exports, and typecheck without inheriting Mock Server internals.
+
+Publication docs must keep these states separate:
+
+- package boundary exists and is used by MCP Mock Server
+- package is packable and externally typechecked
+- package is actually published to npm
+
+Only the last state allows docs to claim that `npm install @minasoft/mcp-runtime` works from the public registry.

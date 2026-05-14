@@ -4,27 +4,19 @@ This directory contains only runnable feature and hardening tasks. Completed tas
 
 ## Current recommended sequence
 
-The next runnable wave extracts the reusable MCP JSON-RPC runtime package and then migrates MCP Mock Server to consume it. This wave is intentionally library-first: the package API must become clean and testable before the app is migrated.
+There are no active runnable Ralph tasks right now.
 
-1. `036-mcp-runtime-package-foundation.md` -> create the package boundary, public types, build/test scripts, and consumer-style import proof.
-2. `037-mcp-runtime-core-json-rpc.md` -> implement JSON-RPC envelope, initialization, capability, and error-mapping foundations.
-3. `038-mcp-runtime-resources-json-rpc.md` -> implement resources, resource templates, resource reads, pagination, and optional subscription dispatch.
-4. `039-mcp-runtime-tools-prompts-json-rpc.md` -> implement optional tools, prompts, completion, and raw tool-call outcomes.
-5. `040-mcp-runtime-http-consumer-fixture.md` -> add the optional Fetch adapter and external consumer fixture proof.
-6. `041-mock-server-runtime-adapter-migration.md` -> migrate Mock Server runtime routes/tests to consume `@minasoft/mcp-runtime`.
-7. `042-mcp-runtime-inspector-docs-hardening.md` -> run final E2E/Inspector proof and document downstream consumption.
-
-Completed task history lives under `docs/exec-plans/completed/`.
+The MCP runtime extraction wave (`036` through `042`) has been completed and moved to `docs/exec-plans/completed/`. The direct follow-up hardening for public package readiness was handled outside the Ralph queue by adding package metadata, pack verification, an external tarball consumer smoke, and updated package docs.
 
 ## Queue rationale
 
-The runtime library wave is split by boundary risk:
+Keep this directory empty except for truly runnable next tasks. When the next wave starts, add small executable plans with:
 
-- package API and public type stability come before protocol implementation
-- core JSON-RPC behavior is split by foundation, resources, and tools/prompts so Ralph can isolate failures
-- the Fetch helper and consumer fixture prove downstream npm usability before production app migration
-- Mock Server migration proves this package is the real protocol path, not a sidecar implementation
-- final Inspector/docs hardening proves compatibility and explains Minakeep-style consumption
+- clear feature boundaries
+- explicit satisfaction goals
+- hard-gate validation commands
+- affected docs and implementation files
+- promotion notes that explain what changed
 
 ## Promotion rules
 
@@ -33,8 +25,6 @@ The runtime library wave is split by boundary risk:
 - UI-heavy tasks use deterministic screenshot, responsive, and accessibility proof.
 - External-client behavior such as MCP, OAuth, SSE, and upstream Inspector compatibility requires E2E proof before promotion.
 - Completed task files must be moved to `docs/exec-plans/completed/` and removed from this active directory.
-- `025-inspector-compatibility-pack` and `026-inspector-popup-oauth-flow` are completed history and are intentionally not part of this active wave.
-- This wave must not promote if `@minasoft/mcp-runtime` exists but Mock Server still uses the old app-local MCP protocol/type modules.
 
 ## Maintenance notes
 
