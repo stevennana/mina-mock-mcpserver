@@ -15,6 +15,7 @@ MCP Mock Server integrates with the upstream MCP Inspector as the recommended in
 The Inspector is used as an external tool through `npx`; this repository does not vendor or fork Inspector source code.
 
 This keeps the mock server focused on its own runtime, REST, OAuth, admin UI, audit, and persistence behavior while still giving users a familiar MCP-native debugger for `initialize`, tools, resources, prompts, and completion checks.
+Reusable JSON-RPC method handling is provided by the `@minasoft/mcp-runtime` package boundary, so Inspector runs also prove the app-owned routes are correctly adapted to the extracted runtime boundary.
 
 This repository provides two local inspector paths:
 
@@ -210,6 +211,8 @@ The legacy SSE aliases keep a live event stream open, emit an `endpoint` event f
 Upstream Inspector CLI `0.21.2` supports `tools/list`, `tools/call`, `resources/list`, `resources/read`, `resources/templates/list`, `prompts/list`, and `prompts/get`. It does not expose a `completion/complete` CLI command in that version; verify completion with the project Generic target presets or with an upstream browser Inspector version that shows Completion controls.
 
 The repository includes `config/mcp-inspector.local.json` for local targets and `config/mcp-inspector.remote.json` for deployed target checks.
+
+The runtime package guide also lists the required resource CLI smoke checks used to prove the reusable package integration: [MCP runtime package](MCP_RUNTIME_PACKAGE.md).
 
 ## Interoperability Roadmap
 

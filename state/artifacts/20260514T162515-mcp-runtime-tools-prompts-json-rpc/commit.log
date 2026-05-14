@@ -1,0 +1,12 @@
+Auto packing the repository in background for optimum performance.
+See "git help gc" for manual housekeeping.
+[codex/mcp-runtime-library-docs 707508d] ralph: mcp-runtime-tools-prompts-json-rpc 2026-05-14T16:30:19+09:00
+ 22 files changed, 814 insertions(+), 37 deletions(-)
+ rename docs/exec-plans/{active => completed}/038-mcp-runtime-resources-json-rpc.md (93%)
+ create mode 100644 state/artifacts/20260514T162010-mcp-runtime-resources-json-rpc/backlog.log
+ create mode 100644 state/artifacts/20260514T162010-mcp-runtime-resources-json-rpc/promote.log
+ create mode 100644 state/artifacts/20260514T162515-mcp-runtime-tools-prompts-json-rpc/commit.log
+ create mode 100644 state/artifacts/20260514T162515-mcp-runtime-tools-prompts-json-rpc/evaluator.log
+ create mode 100644 state/artifacts/20260514T162515-mcp-runtime-tools-prompts-json-rpc/task-prompt.log
+ create mode 100644 state/artifacts/20260514T162515-mcp-runtime-tools-prompts-json-rpc/worker.jsonl
+commit: created

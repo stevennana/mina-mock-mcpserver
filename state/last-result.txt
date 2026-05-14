@@ -1,14 +1,11 @@
-Completed the handoff for `inspector-full-server-features`.
+Implemented the MCP Runtime Inspector Docs Hardening task and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
 
-I verified the existing implementation and docs against the task scope, updated the active task progress log, and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt:1).
+Changed:
+- Added [docs/MCP_RUNTIME_PACKAGE.md](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/docs/MCP_RUNTIME_PACKAGE.md) with package boundaries, Minakeep-style provider examples, Fetch route usage, and Inspector CLI checks.
+- Updated README and protocol/Inspector docs to state Mock Server uses the workspace-private `@minasoft/mcp-runtime` internally without claiming npm publication.
+- Added a minimal Next resolver fix for package source imports and preserved expected permission/error evidence in E2E/runtime paths.
 
-Verification passed:
+All required checks passed:
+`lint`, `typecheck`, `mcp-runtime:build`, `mcp-runtime:test`, `test:unit`, `test:e2e`, `inspector:mock`, `inspector:cli:resources:list`, and `inspector:cli:resources:read`.
 
-- `npm run lint`
-- `npm run typecheck`
-- `npm run test:unit`
-- `npm run test:e2e`
-- `npm run inspector:mock`
-- Supported upstream Inspector CLI helpers for tools, resources, prompts, Basic, and SSE list/read flows
-
-Exit criteria appear satisfied. The remaining documented gap is upstream Inspector CLI `0.21.2` not supporting `completion/complete`; completion is covered through the project Inspector Generic presets and Mock Server scenario.
+Exit criteria appear satisfied. Remaining publish/API-stability work is tracked in the tech-debt tracker.

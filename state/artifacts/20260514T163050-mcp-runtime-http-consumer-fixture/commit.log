@@ -1,0 +1,21 @@
+Auto packing the repository in background for optimum performance.
+See "git help gc" for manual housekeeping.
+warning: The last gc run reported the following. Please correct the root cause
+and remove .git/gc.log
+Automatic cleanup will not be performed until the file is removed.
+
+warning: There are too many unreachable loose objects; run 'git prune' to remove them.
+
+[codex/mcp-runtime-library-docs d52f54a] ralph: mcp-runtime-http-consumer-fixture 2026-05-14T16:35:29+09:00
+ 24 files changed, 744 insertions(+), 59 deletions(-)
+ rename docs/exec-plans/{active => completed}/039-mcp-runtime-tools-prompts-json-rpc.md (93%)
+ create mode 100644 packages/mcp-runtime/README.md
+ create mode 100644 packages/mcp-runtime/src/http.ts
+ create mode 100644 packages/mcp-runtime/test/http.test.ts
+ create mode 100644 state/artifacts/20260514T162515-mcp-runtime-tools-prompts-json-rpc/backlog.log
+ create mode 100644 state/artifacts/20260514T162515-mcp-runtime-tools-prompts-json-rpc/promote.log
+ create mode 100644 state/artifacts/20260514T163050-mcp-runtime-http-consumer-fixture/commit.log
+ create mode 100644 state/artifacts/20260514T163050-mcp-runtime-http-consumer-fixture/evaluator.log
+ create mode 100644 state/artifacts/20260514T163050-mcp-runtime-http-consumer-fixture/task-prompt.log
+ create mode 100644 state/artifacts/20260514T163050-mcp-runtime-http-consumer-fixture/worker.jsonl
+commit: created

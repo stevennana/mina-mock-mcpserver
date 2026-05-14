@@ -23,12 +23,13 @@ This is a good fit if you want:
 - endpoint response cases, generated MCP `inputSchema`, and failure simulation
 - token inspection, audit logs, reset, health, Docker, Nginx, and local TLS guidance
 - a standalone project Inspector UI plus upstream `npx @modelcontextprotocol/inspector` examples
+- reusable MCP JSON-RPC runtime package guidance for TypeScript apps that want to expose their own resources, tools, or prompts
 
 This is not a good fit if you need production identity management, multi-tenant isolation, enterprise RBAC, external OAuth provider integration, or MCP client-side Sampling, Roots, Elicitation, or task-augmented execution.
 
 ## Current Version
 
-Latest documented release: `v1.0.9`
+Latest documented release: `v1.0.11`
 
 Highlights:
 
@@ -38,6 +39,7 @@ Highlights:
 - MCP Resources, Resource Templates, Prompts, Completion, OAuth resource/resource-template/prompt permissions, and SSE resource notifications
 - upstream MCP Inspector browser and CLI verification paths
 - OAuth authorization-code with PKCE, client credentials, Bearer permission filtering, and token revocation
+- Mock Server routes consume the public npm package `@minasoft/mcp-runtime` for reusable JSON-RPC protocol handling
 
 ## Quick Start
 
@@ -101,6 +103,8 @@ Start here:
 - [Getting started guide](docs/GETTING_STARTED.md)
 - [MCP transports, SSE, REST, and OAuth calls](docs/TRANSPORTS.md)
 - [Inspector integration](docs/INSPECTOR.md)
+- [Reusable MCP runtime package guide](docs/MCP_RUNTIME_PACKAGE.md)
+- [Runtime package README](packages/mcp-runtime/README.md)
 
 Inspector-specific guides:
 
@@ -119,6 +123,10 @@ Operator and architecture docs:
 ```bash
 npm run lint
 npm run typecheck
+npm run mcp-runtime:build
+npm run mcp-runtime:test
+npm run mcp-runtime:pack
+npm run mcp-runtime:consumer:test
 npm run test:unit
 npm run test:e2e
 npm run verify
@@ -148,3 +156,29 @@ npm run inspector:cli:sse:resources:read
 The admin UI and mutation APIs are intentionally public for mock-server use. Use mock data only. Do not store sensitive customer data, production secrets, or real identity data.
 
 Destructive reset and protected delete flows use root-password or delete-code checks, but this is not an enterprise authorization system.
+
+## Reusable Runtime Package
+
+The reusable JSON-RPC runtime is published on npm as [`@minasoft/mcp-runtime`](https://www.npmjs.com/package/@minasoft/mcp-runtime). The source lives at `packages/mcp-runtime`.
+
+Install it in another TypeScript project:
+
+```bash
+npm install @minasoft/mcp-runtime
+```
+
+It is intended for TypeScript apps that want to expose their own MCP resources, resource templates, optional tools, optional prompts, and completion without copying the Mock Server's protocol code. The package does not include the Mock Server admin UI, endpoint catalogs, OAuth screens, Prisma schema, audit log, or fixture CRUD.
+
+Before publishing a new package version, verify the package boundary:
+
+```bash
+npm run mcp-runtime:test
+npm run mcp-runtime:pack
+npm run mcp-runtime:consumer:test
+```
+
+The consumer test builds the package, packs it, installs the tarball into a temporary external TypeScript project, imports only `@minasoft/mcp-runtime`, and runs `tsc --noEmit`.
+
+## License
+
+Apache-2.0. See [LICENSE](LICENSE).

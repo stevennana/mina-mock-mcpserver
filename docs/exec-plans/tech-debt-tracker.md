@@ -11,6 +11,8 @@ Track recurring cleanup and deferred concerns that should not remain implicit.
 
 - 2026-05-13T11:20:00Z: In the Codex sandbox, raw shell/Node loopback TCP to `127.0.0.1:3100` fails with `connect EPERM`; the repo-local upstream Inspector CLI shim now covers documented `/mcp/none`, `/mcp/basic`, and no-auth `/sse/none` tools/resources list/read checks. Recheck without the shim on a normal operator machine before deleting the sandbox workaround.
 
+- 2026-05-14T09:40:00Z: `@minasoft/mcp-runtime` was published publicly on npm. Future package releases should run the package release checklist and then publish from `packages/mcp-runtime`.
+
 - 2026-05-13T07:09:40.812Z: mcp-resources-runtime auto-branched to `mcp-resources-runtime-rca-npx-y-modelcontextprotocol-inspector-0-21-2-cli-` after repeated blocker `deterministic_failure|npx-y-modelcontextprotocol-inspector-0-21-2-cli-|no-path-details` (Repeated required-command failure: npx -y @modelcontextprotocol/inspector@0.21.2 --cli http://127.0.0.1:3100/mcp/none --transport http --method resources/list).
 
 - Define SQLite backup, restore, and retention guidance before any long-lived public deployment.

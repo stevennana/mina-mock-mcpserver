@@ -1,0 +1,12 @@
+[codex/mcp-runtime-library-docs cd16792] ralph: mcp-runtime-core-json-rpc 2026-05-14T16:19:40+09:00
+ 22 files changed, 747 insertions(+), 35 deletions(-)
+ rename docs/exec-plans/{active => completed}/036-mcp-runtime-package-foundation.md (92%)
+ create mode 100644 packages/mcp-runtime/src/core.ts
+ create mode 100644 packages/mcp-runtime/test/core.test.ts
+ create mode 100644 state/artifacts/20260514T160931-mcp-runtime-package-foundation/backlog.log
+ create mode 100644 state/artifacts/20260514T160931-mcp-runtime-package-foundation/promote.log
+ create mode 100644 state/artifacts/20260514T161405-mcp-runtime-core-json-rpc/commit.log
+ create mode 100644 state/artifacts/20260514T161405-mcp-runtime-core-json-rpc/evaluator.log
+ create mode 100644 state/artifacts/20260514T161405-mcp-runtime-core-json-rpc/task-prompt.log
+ create mode 100644 state/artifacts/20260514T161405-mcp-runtime-core-json-rpc/worker.jsonl
+commit: created

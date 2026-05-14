@@ -178,6 +178,6 @@ test("no-auth MCP tools/call executes enabled endpoint cases and deterministic e
   expect(await unknownMethod.json()).toEqual({
     jsonrpc: "2.0",
     id: "method-unknown",
-    error: { code: -32601, message: "Method not found" },
+    error: { code: -32601, message: "Method not found", data: { method: "tools/nope" } },
   });
 });

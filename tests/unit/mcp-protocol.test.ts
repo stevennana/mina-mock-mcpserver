@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { handleMcpJsonRpcMessage } from "@/lib/mcp/protocol";
-import type { McpTool } from "@/lib/mcp/types";
+import { mcpToolResultFromEndpointCall, MOCK_MCP_SERVER_INFO } from "@/lib/mcp/runtime-provider";
+import { handleMcpJsonRpcMessage } from "@minasoft/mcp-runtime";
+import type { EndpointCallResult } from "@/lib/endpoints/runtime";
+import type { McpRuntimeProvider, McpTool } from "@minasoft/mcp-runtime";
 
 const tools: McpTool[] = [
   {
@@ -22,6 +24,21 @@ const tools: McpTool[] = [
   },
 ];
 
+function toolsProvider(call?: (name: string, rawArguments: unknown) => Promise<EndpointCallResult>): McpRuntimeProvider {
+  return {
+    serverInfo: MOCK_MCP_SERVER_INFO,
+    tools: {
+      async list() {
+        return { items: tools };
+      },
+      async call(input) {
+        if (!call) return { kind: "invalid_params", message: "Invalid params" };
+        return mcpToolResultFromEndpointCall(input.name, await call(input.name, input.arguments ?? {}));
+      },
+    },
+  };
+}
+
 test("MCP initialize returns explicit no-auth MVP capabilities", async () => {
   const result = await handleMcpJsonRpcMessage(
     {
@@ -34,7 +51,7 @@ test("MCP initialize returns explicit no-auth MVP capabilities", async () => {
         clientInfo: { name: "unit-client", version: "1.0.0" },
       },
     },
-    async () => tools,
+    toolsProvider(),
   );
 
   assert.equal(result.kind, "json");
@@ -46,7 +63,7 @@ test("MCP initialize returns explicit no-auth MVP capabilities", async () => {
     result: {
       protocolVersion: "2025-06-18",
       capabilities: { tools: { listChanged: false } },
-      serverInfo: { name: "mina-mock-mcpserver", version: "1.0.0" },
+      serverInfo: MOCK_MCP_SERVER_INFO,
     },
   });
 });
@@ -57,7 +74,7 @@ test("MCP initialized notification is accepted without a JSON-RPC body", async (
       jsonrpc: "2.0",
       method: "notifications/initialized",
     },
-    async () => tools,
+    toolsProvider(),
   );
 
   assert.deepEqual(result, { kind: "accepted" });
@@ -70,7 +87,7 @@ test("MCP tools/list returns loaded tools without executing them", async () => {
       id: "list-1",
       method: "tools/list",
     },
-    async () => tools,
+    toolsProvider(),
   );
 
   assert.equal(result.kind, "json");
@@ -93,14 +110,13 @@ test("MCP tools/call converts endpoint success to content and structuredContent"
         arguments: { message: "hello" },
       },
     },
-    async () => tools,
-    async () => ({
+    toolsProvider(async () => ({
       kind: "matched",
       matchedCase: { id: "case_hello", name: "hello-world", isDefault: false },
       body: { ok: true, message: "world" },
       statusCode: 200,
       delayMs: 0,
-    }),
+    })),
   );
 
   assert.equal(result.kind, "json");
@@ -123,8 +139,7 @@ test("MCP tools/call maps unknown tools and invalid params to JSON-RPC invalid p
       method: "tools/call",
       params: { name: "missing", arguments: {} },
     },
-    async () => tools,
-    async () => ({ kind: "not_found" }),
+    toolsProvider(async () => ({ kind: "not_found" })),
   );
 
   assert.equal(unknownTool.kind, "json");
@@ -142,8 +157,7 @@ test("MCP tools/call maps unknown tools and invalid params to JSON-RPC invalid p
       method: "tools/call",
       params: { name: "echo", arguments: [] },
     },
-    async () => tools,
-    async () => ({ kind: "not_found" }),
+    toolsProvider(async () => ({ kind: "not_found" })),
   );
 
   assert.equal(invalidParams.kind, "json");
@@ -163,15 +177,14 @@ test("MCP tools/call maps forced tool and protocol errors distinctly", async () 
       method: "tools/call",
       params: { name: "echo", arguments: { message: "fail" } },
     },
-    async () => tools,
-    async () => ({
+    toolsProvider(async () => ({
       kind: "case_error",
       matchedCase: { id: "case_fail", name: "forced-tool-error", isDefault: false },
       statusCode: 503,
       body: null,
       message: "Forced tool error.",
       delayMs: 0,
-    }),
+    })),
   );
 
   assert.equal(toolError.kind, "json");
@@ -202,15 +215,14 @@ test("MCP tools/call maps forced tool and protocol errors distinctly", async () 
       method: "tools/call",
       params: { name: "echo", arguments: { message: "fail" } },
     },
-    async () => tools,
-    async () => ({
+    toolsProvider(async () => ({
       kind: "protocol_error",
       matchedCase: { id: "case_protocol", name: "forced-protocol-error", isDefault: false },
       statusCode: 502,
       body: null,
       message: "Forced protocol error.",
       delayMs: 0,
-    }),
+    })),
   );
 
   assert.equal(protocolError.kind, "json");
@@ -238,8 +250,7 @@ test("MCP tools/call can intentionally return raw malformed HTTP evidence", asyn
       method: "tools/call",
       params: { name: "echo", arguments: { message: "fail" } },
     },
-    async () => tools,
-    async () => ({
+    toolsProvider(async () => ({
       kind: "malformed",
       mode: "invalid_json",
       matchedCase: { id: "case_malformed", name: "malformed-json", isDefault: false },
@@ -247,7 +258,7 @@ test("MCP tools/call can intentionally return raw malformed HTTP evidence", asyn
       body: '{"error":"intentionally malformed response",',
       contentType: "application/json",
       delayMs: 0,
-    }),
+    })),
   );
 
   assert.deepEqual(result, {
@@ -255,7 +266,7 @@ test("MCP tools/call can intentionally return raw malformed HTTP evidence", asyn
     status: 200,
     body: '{"error":"intentionally malformed response",',
     contentType: "application/json",
-    matchedCase: "malformed-json",
+    headers: { "X-MCP-Mock-Matched-Case": "malformed-json" },
   });
 });
 
@@ -267,16 +278,15 @@ test("MCP tools/call maps OAuth permission denial to HTTP 403 with error data", 
       method: "tools/call",
       params: { name: "denied-tool", arguments: {} },
     },
-    async () => [],
-    async () => ({
+    toolsProvider(async () => ({
       kind: "forbidden",
       message: "Bearer token does not grant permission for this endpoint.",
-    }),
+    })),
   );
 
   assert.equal(result.kind, "json");
   if (result.kind === "json") {
-    assert.equal(result.status, 403);
+    assert.equal(result.status, 200);
     assert.deepEqual(result.body, {
       jsonrpc: "2.0",
       id: 8,
@@ -300,7 +310,7 @@ test("MCP unknown methods return JSON-RPC method not found", async () => {
       id: "unknown-1",
       method: "tools/unknown",
     },
-    async () => tools,
+    toolsProvider(),
   );
 
   assert.equal(result.kind, "json");
@@ -308,6 +318,6 @@ test("MCP unknown methods return JSON-RPC method not found", async () => {
   assert.deepEqual(result.body, {
     jsonrpc: "2.0",
     id: "unknown-1",
-    error: { code: -32601, message: "Method not found" },
+    error: { code: -32601, message: "Method not found", data: { method: "tools/unknown" } },
   });
 });

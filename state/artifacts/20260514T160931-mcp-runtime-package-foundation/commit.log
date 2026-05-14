@@ -1,0 +1,12 @@
+[codex/mcp-runtime-library-docs 67b2941] ralph: mcp-runtime-package-foundation 2026-05-14T16:13:35+09:00
+ 19 files changed, 617 insertions(+), 100 deletions(-)
+ create mode 100644 packages/mcp-runtime/package.json
+ create mode 100644 packages/mcp-runtime/src/index.ts
+ create mode 100644 packages/mcp-runtime/src/types.ts
+ create mode 100644 packages/mcp-runtime/test/public-api.test.ts
+ create mode 100644 packages/mcp-runtime/tsconfig.json
+ create mode 100644 state/artifacts/20260514T160931-mcp-runtime-package-foundation/commit.log
+ create mode 100644 state/artifacts/20260514T160931-mcp-runtime-package-foundation/evaluator.log
+ create mode 100644 state/artifacts/20260514T160931-mcp-runtime-package-foundation/task-prompt.log
+ create mode 100644 state/artifacts/20260514T160931-mcp-runtime-package-foundation/worker.jsonl
+commit: created

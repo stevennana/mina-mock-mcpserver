@@ -4,19 +4,19 @@ This directory contains only runnable feature and hardening tasks. Completed tas
 
 ## Current recommended sequence
 
-The Resources/Prompts wave has been promoted. There are no active runnable tasks in this queue right now.
+There are no active runnable Ralph tasks right now.
 
-Completed task history lives under `docs/exec-plans/completed/`. Start the next wave by updating the relevant product/design docs first, then add new focused active plans.
+The MCP runtime extraction wave (`036` through `042`) has been completed and moved to `docs/exec-plans/completed/`. The direct follow-up hardening for public package readiness was handled outside the Ralph queue by adding package metadata, pack verification, an external tarball consumer smoke, package docs, and the public npm release for `@minasoft/mcp-runtime`.
 
 ## Queue rationale
 
-The completed Resources/Prompts wave was intentionally split by risk boundary:
+Keep this directory empty except for truly runnable next tasks. When the next wave starts, add small executable plans with:
 
-- schema/domain first, before UI or runtime capability advertisement
-- each admin surface has a focused UI task with screenshot/responsive/accessibility gates
-- runtime handlers are separated from OAuth filtering so no-auth/Basic protocol behavior can stabilize first
-- SSE notification support is isolated because it is session-stateful and intentionally in-memory
-- Inspector/docs are final hardening, not the place to introduce new protocol behavior
+- clear feature boundaries
+- explicit satisfaction goals
+- hard-gate validation commands
+- affected docs and implementation files
+- promotion notes that explain what changed
 
 ## Promotion rules
 
@@ -25,10 +25,9 @@ The completed Resources/Prompts wave was intentionally split by risk boundary:
 - UI-heavy tasks use deterministic screenshot, responsive, and accessibility proof.
 - External-client behavior such as MCP, OAuth, SSE, and upstream Inspector compatibility requires E2E proof before promotion.
 - Completed task files must be moved to `docs/exec-plans/completed/` and removed from this active directory.
-- `025-inspector-compatibility-pack` and `026-inspector-popup-oauth-flow` are completed history and are intentionally not part of this active wave.
 
 ## Maintenance notes
 
 - Keep `taskmeta.order` aligned with the next active sequence when one exists.
 - Do not collapse multiple MCP feature fronts into one broad task.
-- If a task needs behavior not described by `docs/product-specs/mcp-resources-prompts.md`, update the product spec before implementation.
+- If a task needs behavior not described by `docs/design-docs/mcp-runtime-library-architecture.md` or the MCP product specs, update the supporting docs before implementation.

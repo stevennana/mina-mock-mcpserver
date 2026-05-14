@@ -3,6 +3,8 @@
 ## Goal
 Remote MCP routes implement initialize, initialized notification, tools/list, tools/call, strict auth aliases, and JSON-RPC error semantics.
 
+The reusable JSON-RPC method handling lives behind the `@minasoft/mcp-runtime` package boundary described in `../design-docs/mcp-runtime-library-architecture.md`. MCP Mock Server remains responsible for auth, CORS, SSE route hosting, endpoint matching, fixture persistence, and audit evidence, and consumes the package instead of keeping a second app-local implementation of reusable MCP protocol behavior.
+
 ## Trigger / Entry
 MCP connection guide examples
 
@@ -48,3 +50,4 @@ MCP connection guide examples
 - Notification empty response
 - MCP content/structuredContent formatting
 - Call initialize, list tools, call a configured tool, and observe route-specific auth behavior
+- Package extraction validation proves MCP Mock Server consumes `@minasoft/mcp-runtime` for reusable protocol handling instead of keeping active imports from app-local MCP protocol/type modules.

@@ -38,3 +38,10 @@
 - 2026-05-13T10:21:00.429Z: branched inspector-full-server-features -> inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b | blocker=deterministic_failure|npm-run-inspector-mock|no-path-details
 - 2026-05-13T10:26:02.472Z: promoted inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b -> inspector-full-server-features
 - 2026-05-13T10:34:22.854Z: promoted inspector-full-server-features -> NONE
+- 2026-05-14T07:13:35.309Z: promoted mcp-runtime-package-foundation -> mcp-runtime-core-json-rpc
+- 2026-05-14T07:19:40.332Z: promoted mcp-runtime-core-json-rpc -> mcp-runtime-resources-json-rpc
+- 2026-05-14T07:24:44.980Z: promoted mcp-runtime-resources-json-rpc -> mcp-runtime-tools-prompts-json-rpc
+- 2026-05-14T07:30:19.999Z: promoted mcp-runtime-tools-prompts-json-rpc -> mcp-runtime-http-consumer-fixture
+- 2026-05-14T07:35:29.412Z: promoted mcp-runtime-http-consumer-fixture -> mock-server-runtime-adapter-migration
+- 2026-05-14T07:48:02.208Z: promoted mock-server-runtime-adapter-migration -> mcp-runtime-inspector-docs-hardening
+- 2026-05-14T08:04:57.197Z: promoted mcp-runtime-inspector-docs-hardening -> NONE

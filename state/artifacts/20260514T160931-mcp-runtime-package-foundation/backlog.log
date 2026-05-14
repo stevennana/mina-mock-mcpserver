@@ -1,0 +1,47 @@
+# Backlog
+
+- [x] bootstrap-foundation — Bootstrap Next.js TypeScript Harness
+- [x] endpoint-domain-and-schema — Endpoint Persistence Schema and Seed Defaults
+- [x] endpoint-validation-and-matching — Endpoint Validation, Schema Preview, and Response Matching
+- [x] endpoint-management-list-editor-ui — Endpoint List, Search, and Editor UI
+- [x] endpoint-console-schema-preview-ui — Endpoint Schema Preview and Test Console Shell
+- [x] endpoint-protected-delete-audit — Endpoint Protected Delete and Audit Evidence
+- [x] root-reset-defaults — Root-Protected Reset to Defaults
+- [x] mcp-initialize-and-tools-list — MCP Initialize and Tools List No-Auth Runtime
+- [x] mcp-tools-call-and-errors — MCP Tools Call and Error Semantics
+- [x] basic-auth-users-domain-ui — Basic Auth Users Domain and Management UI
+- [x] basic-auth-mcp-runtime — Basic Auth MCP Runtime and Auth Precedence
+- [x] rest-tools-list-runtime — REST Tool List Runtime
+- [x] rest-tools-call-runtime — REST Tool Call Runtime and Console Wiring
+- [x] oauth-users-management-ui — OAuth Users Management UI and Built-In Protection
+- [x] oauth-clients-management-ui — OAuth Clients Management UI and Allowed Endpoints
+- [x] oauth-authorize-login-consent — OAuth Authorize, Login, and Consent UI
+- [x] oauth-code-token-jwt — Authorization Code Token Exchange and JWT Claims
+- [x] oauth-client-credentials-grant — OAuth Client Credentials Grant
+- [x] oauth-discovery-metadata — OAuth Discovery Metadata and JWKS
+- [x] oauth-mcp-rest-permission-enforcement — OAuth Bearer Enforcement for MCP and REST
+- [x] issued-token-ui-revocation — Issued Token UI and Revocation
+- [x] failure-delay-forced-error-runtime — Delay and Forced Error Simulation Runtime
+- [x] malformed-response-console-audit — Malformed Response Modes, Console Evidence, and Audit
+- [x] operator-config-health-logs — Operator Config, Health, Connection Guide, and Logs
+- [x] docker-nginx-final-hardening — Docker, Nginx, Final Docs, and Queue Completion Hardening
+- [x] inspector-compatibility-pack — Inspector Compatibility Pack
+- [x] inspector-popup-oauth-flow — Inspector Popup OAuth Flow
+- [x] mcp-resource-prompt-domain-schema — MCP Resource/Prompt Domain And Schema
+- [x] mcp-resource-management-ui — MCP Resource Management UI
+- [x] mcp-resource-template-management-ui — MCP Resource Template Management UI
+- [x] mcp-prompt-management-ui — MCP Prompt Management UI
+- [x] mcp-resources-runtime — MCP Resources Runtime
+- [x] mcp-resources-runtime-rca-npx-y-modelcontextprotocol-inspector-0-21-2-cli- — RCA: MCP Resources Runtime blocker
+- [x] mcp-prompts-completion-runtime — MCP Prompts And Completion Runtime
+- [x] oauth-resource-prompt-permissions — OAuth Resource And Prompt Permissions
+- [x] mcp-resource-subscription-notifications — MCP Resource Subscription Notifications
+- [x] inspector-full-server-features — Inspector Full Server Features
+- [x] inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b — RCA: Inspector Full Server Features blocker
+- [x] mcp-runtime-package-foundation — MCP Runtime Package Foundation
+- [ ] mcp-runtime-core-json-rpc — MCP Runtime Core JSON-RPC Foundation ← current
+- [ ] mcp-runtime-resources-json-rpc — MCP Runtime Resources JSON-RPC
+- [ ] mcp-runtime-tools-prompts-json-rpc — MCP Runtime Tools Prompts JSON-RPC
+- [ ] mcp-runtime-http-consumer-fixture — MCP Runtime HTTP And Consumer Fixture
+- [ ] mock-server-runtime-adapter-migration — Mock Server Runtime Adapter Migration
+- [ ] mcp-runtime-inspector-docs-hardening — MCP Runtime Inspector Docs Hardening
