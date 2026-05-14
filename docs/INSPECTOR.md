@@ -71,9 +71,9 @@ The page is served by `scripts/standalone-inspector-server.mjs`, independently f
 
 The generic page accepts:
 
-- MCP endpoint URL
+- Base URL plus Endpoint path, with a read-only Full URL preview that shows the exact MCP endpoint used for the run
 - MCP protocol version
-- Mock Server route presets for `/mcp/none`, `/mcp/basic`, and `/mcp/oauth`
+- Mock Server route presets for `/mcp/none`, `/mcp/basic`, and `/mcp/oauth`; selecting a preset locks Endpoint path because resources and prompts are method checks on the same MCP route, not separate routes
 - an Authorization helper for no-auth, Basic username/password, or Bearer token calls
 - a Mock OAuth token helper that issues a standard `client_credentials` token from the configured Mock Server base URL and fills the Bearer token field
 - extra headers as JSON for API keys or custom local server requirements
@@ -81,9 +81,9 @@ The generic page accepts:
 - optional tool name and JSON arguments for `tools/call`
 - method presets for `resources/list`, `resources/read`, `resources/templates/list`, `prompts/list`, `prompts/get`, prompt completion, and resource-template completion
 - copy/import target config JSON for redacted, portable connection presets
-- compact per-tab request history for recent generic inspections
+- collapsed per-tab Previous runs history, separated from the current result so older resources/prompts/tools checks are not mistaken for the active request
 
-The standalone page remembers recent target URLs, protocol version, self-signed TLS preference, and tool name in browser `localStorage` so repeated local checks are quicker. It does not persist extra headers, Basic passwords, Bearer tokens, OAuth client secrets, tool arguments, root passwords, access tokens, or reset choices.
+The standalone page remembers recent Base URL, Endpoint path, protocol version, self-signed TLS preference, and tool name in browser `localStorage` so repeated local checks are quicker. It does not persist extra headers, Basic passwords, Bearer tokens, OAuth client secrets, tool arguments, root passwords, access tokens, or reset choices.
 
 The standalone UI has three focused modes.
 

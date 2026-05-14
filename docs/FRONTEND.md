@@ -107,9 +107,10 @@ Describe the user-facing structure of MCP Mock Server so an agent can implement 
 - Scenario step cards and generic target inputs should include concise hover tooltips that explain the purpose of each MCP/OAuth/REST call or request option for users who are new to MCP
 - Generic target select controls should show the current preset/auth-mode meaning inline, not only in hidden hover text, so users can understand how the request will change before running it
 - The standalone inspector UI should provide a no-auth/Basic/Bearer authorization helper for generic MCP targets so users do not have to hand-build common Authorization headers
-- The standalone inspector UI should provide Mock route presets for `/mcp/none`, `/mcp/basic`, and `/mcp/oauth`, using the visible Mock Server base URL and filling common auth fields only when the user selects a preset
+- The standalone inspector UI should model targets as Base URL plus Endpoint path, show the combined Full URL preview, and lock Endpoint path when a Mock route preset for `/mcp/none`, `/mcp/basic`, or `/mcp/oauth` is selected
+- Resource and prompt checks should remain MCP method presets on the selected endpoint path; they should not appear as route presets because they run through the same MCP JSON-RPC transport route
 - The standalone inspector UI should provide a Mock OAuth `client_credentials` token helper for the `/mcp/oauth` preset while still using the standard Mock Server `/oauth/token` endpoint
-- The Generic MCP target page should include upstream Inspector-inspired helpers for copying the current server target JSON, importing a target JSON preset, and reviewing compact in-page request history
+- The Generic MCP target page should include upstream Inspector-inspired helpers for copying the current server target JSON, importing a target JSON preset, and reviewing collapsed Previous runs history separated from the current result
 - The standalone inspector UI may remember non-secret local target settings in browser storage, but must not persist headers, Basic passwords, Bearer tokens, OAuth client secrets, root passwords, reset choices, or tool argument payloads
 - OAuth consent should make selected tool/resource/resource-template/prompt permissions unambiguous
 - OAuth consent must show client, redirect URI, resource, login user, authorization-code TTL, and grouped Tools, Resources, Resource Templates, and Prompts checklists outside the public admin navigation

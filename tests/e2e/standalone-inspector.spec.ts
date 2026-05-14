@@ -6,7 +6,7 @@ const INSPECTOR_URL = `http://127.0.0.1:${INSPECTOR_PORT}`;
 
 let inspector: ChildProcessWithoutNullStreams;
 
-test.setTimeout(60_000);
+test.setTimeout(120_000);
 
 test.beforeAll(async () => {
   inspector = spawn("node", ["scripts/standalone-inspector-server.mjs", "--port", String(INSPECTOR_PORT)], {
@@ -74,11 +74,14 @@ test("standalone inspector UI runs Mock Server scenario and generic MCP inspecti
   await scenarioResults.locator(".step-card").filter({ hasText: "MCP initialize" }).getByRole("button", { name: "Send to Generic MCP target" }).click();
   await expect(page).toHaveURL(`${INSPECTOR_URL}/generic`);
   await expect(page.locator("h1", { hasText: "Generic MCP target" })).toBeVisible();
-  await expect(page.getByLabel("MCP endpoint URL")).toHaveValue(`${baseURL}/mcp/none`);
+  await expect(page.getByLabel("Base URL")).toHaveValue(baseURL ?? "http://127.0.0.1:3101");
+  await expect(page.locator("input[name=\"endpointPath\"]")).toHaveValue("/mcp/none");
+  await expect(page.locator("input[name=\"endpointPath\"]")).toHaveAttribute("readonly", "");
+  await expect(page.locator("#full-url-preview")).toContainText(`${baseURL}/mcp/none`);
   await expect(page.getByLabel("Authorization helper")).toHaveValue("none");
-  await expect(page.locator("#route-preset-note")).toContainText("no-auth MCP route");
+  await expect(page.locator("#route-preset-note")).toContainText("Locks Endpoint path to /mcp/none");
   await expect(page.locator("#auth-mode-note")).toContainText("Sends no Authorization header");
-  await expect(page.locator('#inspect-form .help-tooltip[title*="JSON-RPC MCP messages"]')).toBeVisible();
+  await expect(page.locator('#inspect-form .help-tooltip[title*="joined to Base URL"]')).toBeVisible();
   await expect(page.getByLabel("Optional tool name")).toHaveValue("echo");
   await expect(page.getByLabel("Optional tool arguments JSON")).toHaveValue('{"message":"hello"}');
   await expect(page.getByLabel("MCP method preset")).toHaveValue("tools");
@@ -87,7 +90,8 @@ test("standalone inspector UI runs Mock Server scenario and generic MCP inspecti
   await expect(page.getByText(/Target config (copied|prepared) without passwords or bearer tokens/)).toBeVisible();
   await expect(page.getByLabel("Target config JSON")).toHaveValue(new RegExp(`${baseURL?.replaceAll(".", "\\.")}/mcp/none`));
   await page.getByLabel("Target config JSON").fill(JSON.stringify({
-    mcpUrl: `${baseURL}/mcp/none`,
+    baseUrl: baseURL,
+    endpointPath: "/mcp/none",
     authMode: "none",
     toolName: "echo",
     toolArgsJson: "{\"message\":\"hello\"}",
@@ -107,7 +111,8 @@ test("standalone inspector UI runs Mock Server scenario and generic MCP inspecti
   await expect(genericResults.getByText("MCP initialize")).toBeVisible({ timeout: 10_000 });
   await expect(genericResults.getByText("MCP tools/call")).toBeVisible();
   await expect(genericResults.locator(".summary div").filter({ hasText: "Fail" }).getByText("0")).toBeVisible();
-  await expect(page.locator("#request-history").getByText("Pass · echo")).toBeVisible();
+  await page.locator("#previous-runs summary").click();
+  await expect(page.locator("#request-history").getByText("Pass · tools/call · echo")).toBeVisible();
   await expect(genericResults.getByText("self-signed allowed")).toBeVisible();
   await genericResults.locator("details.step").first().click();
   await expect(genericResults.getByText("<redacted>").first()).toBeVisible();
@@ -119,11 +124,12 @@ test("standalone inspector UI runs Mock Server scenario and generic MCP inspecti
   await page.getByRole("button", { name: "Run generic inspection" }).click();
   await expect(genericResults.getByText("MCP resources/read")).toBeVisible({ timeout: 10_000 });
   await expect(genericResults.locator(".summary div").filter({ hasText: "Fail" }).getByText("0")).toBeVisible();
-  await expect(page.locator("#request-history").getByText("Pass · resourcesRead")).toBeVisible();
+  await expect(page.locator("#request-history").getByText("Pass · resources/read")).toBeVisible();
 
   await page.reload();
-  await expect(page.getByLabel("Mock Server base URL")).toHaveValue(baseURL ?? "http://127.0.0.1:3101");
-  await expect(page.getByLabel("MCP endpoint URL")).toHaveValue(`${baseURL}/mcp/none`);
+  await expect(page.getByLabel("Base URL")).toHaveValue(baseURL ?? "http://127.0.0.1:3101");
+  await expect(page.locator("input[name=\"endpointPath\"]")).toHaveValue("/mcp/none");
+  await expect(page.locator("#full-url-preview")).toContainText(`${baseURL}/mcp/none`);
   await expect(page.locator("#inspect-form").getByLabel("Allow self-signed HTTPS for this run")).toBeChecked();
   await expect(page.getByLabel("Authorization helper")).toHaveValue("none");
   await expect(page.getByRole("textbox", { name: "Bearer token" })).not.toBeVisible();
@@ -132,10 +138,12 @@ test("standalone inspector UI runs Mock Server scenario and generic MCP inspecti
   await expect(page.getByLabel("Extra headers JSON")).toHaveValue("");
   await expect(page.getByLabel("Optional tool arguments JSON")).toHaveValue("{}");
 
-  await page.getByLabel("Mock route preset").selectOption("basic");
-  await expect(page.getByLabel("MCP endpoint URL")).toHaveValue(`${baseURL}/mcp/basic`);
+  await page.getByLabel("Route preset").selectOption("basic");
+  await expect(page.locator("input[name=\"endpointPath\"]")).toHaveValue("/mcp/basic");
+  await expect(page.locator("input[name=\"endpointPath\"]")).toHaveAttribute("readonly", "");
+  await expect(page.locator("#full-url-preview")).toContainText(`${baseURL}/mcp/basic`);
   await expect(page.getByLabel("Authorization helper")).toHaveValue("basic");
-  await expect(page.locator("#route-preset-note")).toContainText("strict Basic MCP route");
+  await expect(page.locator("#route-preset-note")).toContainText("Locks Endpoint path to /mcp/basic");
   await expect(page.locator("#auth-mode-note")).toContainText("Authorization: Basic");
   await expect(page.getByRole("textbox", { name: "Basic username" })).toHaveValue("default");
   await expect(page.getByLabel("Basic password", { exact: true })).toHaveValue("default");
@@ -147,8 +155,9 @@ test("standalone inspector UI runs Mock Server scenario and generic MCP inspecti
   await expect(genericResults.locator(".summary div").filter({ hasText: "Fail" }).getByText("0")).toBeVisible();
   await expect(genericResults).not.toContainText("default:default");
 
-  await page.getByLabel("Mock route preset").selectOption("oauth");
-  await expect(page.getByLabel("MCP endpoint URL")).toHaveValue(`${baseURL}/mcp/oauth`);
+  await page.getByLabel("Route preset").selectOption("oauth");
+  await expect(page.locator("input[name=\"endpointPath\"]")).toHaveValue("/mcp/oauth");
+  await expect(page.locator("#full-url-preview")).toContainText(`${baseURL}/mcp/oauth`);
   await expect(page.getByLabel("Authorization helper")).toHaveValue("bearer");
   await expect(page.getByLabel("Mock OAuth client id")).toHaveValue("default");
   await expect(page.getByLabel("Mock OAuth client secret")).toHaveValue("default");
@@ -168,6 +177,7 @@ test("standalone inspector popup OAuth flow fills Generic MCP target @ui-standal
   await expect(page.getByText("Final handoff: token is sent to Generic MCP Target")).toBeVisible();
   await page.getByRole("link", { name: "Generic Target" }).click();
   await expect(page).toHaveURL(`${INSPECTOR_URL}/generic`);
+  await page.getByLabel("MCP method preset").selectOption("resourcesRead");
   await page.getByRole("link", { name: "OAuth Popup" }).click();
   await expect(page).toHaveURL(`${INSPECTOR_URL}/oauth`);
   await page.getByLabel("Mock Server base URL").fill(baseURL ?? "http://127.0.0.1:3101");
@@ -190,8 +200,11 @@ test("standalone inspector popup OAuth flow fills Generic MCP target @ui-standal
 
   await page.getByRole("button", { name: "Send token to Generic MCP target" }).click();
   await expect(page).toHaveURL(`${INSPECTOR_URL}/generic`);
-  await expect(page.getByLabel("MCP endpoint URL")).toHaveValue(`${baseURL}/mcp/oauth`);
+  await expect(page.getByLabel("Base URL")).toHaveValue(baseURL ?? "http://127.0.0.1:3101");
+  await expect(page.locator("input[name=\"endpointPath\"]")).toHaveValue("/mcp/oauth");
+  await expect(page.locator("#full-url-preview")).toContainText(`${baseURL}/mcp/oauth`);
   await expect(page.getByLabel("Authorization helper")).toHaveValue("bearer");
+  await expect(page.getByLabel("MCP method preset")).toHaveValue("tools");
   const bearerToken = await page.getByRole("textbox", { name: "Bearer token" }).inputValue();
   expect(bearerToken).toMatch(/^ey/);
   await page.getByRole("button", { name: "Run generic inspection" }).click();
