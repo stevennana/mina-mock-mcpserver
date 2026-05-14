@@ -6,6 +6,12 @@ MCP Mock Server uses this package internally for reusable JSON-RPC method handli
 
 The package is publicly available on npm: [`@minasoft/mcp-runtime`](https://www.npmjs.com/package/@minasoft/mcp-runtime).
 
+Developer-focused package examples live in
+[`packages/mcp-runtime/EXAMPLES.md`](../packages/mcp-runtime/EXAMPLES.md).
+They cover resources-only integrations, host-owned auth, Inspector CORS,
+tools, prompts, completion, low-level JSON-RPC dispatch, custom protocol
+versions, pagination, expected errors, and upstream Inspector CLI checks.
+
 ## Package Boundary
 
 The package owns:
@@ -252,7 +258,7 @@ Current policy:
 
 ## Current Publish Status
 
-`@minasoft/mcp-runtime` is published publicly on npm. The latest documented package version is `0.1.2`.
+`@minasoft/mcp-runtime` is published publicly on npm. The latest documented package version is `0.1.3`.
 
 `packages/mcp-runtime` remains buildable, packable, and externally typechecked from this workspace with:
 

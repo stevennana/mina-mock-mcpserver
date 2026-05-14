@@ -34,6 +34,13 @@ npm pack
 
 Then install the generated `.tgz` in a separate TypeScript project.
 
+## Developer Examples
+
+For more integration patterns, see [Developer Examples](EXAMPLES.md). It covers
+resources-only apps, host-owned Bearer auth, Inspector-compatible CORS, tools,
+prompts, completion, low-level JSON-RPC dispatch, custom protocol versions,
+pagination, and upstream Inspector CLI smoke checks.
+
 ## Resources-Only Route
 
 ```ts
