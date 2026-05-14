@@ -1,1 +1,1 @@
-inspector-full-server-features
+NONE

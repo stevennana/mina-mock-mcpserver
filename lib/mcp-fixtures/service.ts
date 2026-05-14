@@ -8,7 +8,7 @@ import {
   validateMcpResourceInput,
   validateMcpResourceTemplateInput,
 } from "@/lib/mcp-fixtures/validation";
-import { McpFixtureNotFoundError, McpFixtureValidationError } from "@/lib/mcp-fixtures/types";
+import { McpFixtureNotFoundError, McpFixtureProtectedDefaultError, McpFixtureValidationError } from "@/lib/mcp-fixtures/types";
 import type {
   McpFixtureListResult,
   McpPromptDetail,
@@ -48,7 +48,7 @@ function escapeRegex(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-function matchResourceTemplateUri(
+export function matchResourceTemplateUri(
   uriTemplate: string,
   uri: string,
 ): Record<string, string> | null {
@@ -282,8 +282,10 @@ export async function updateMcpResource(id: string, input: McpResourceInput, cli
   const resource = await client.$transaction(async (tx) => {
     const previous = await tx.mcpResource.findUnique({
       where: { id },
-      select: { textContent: true, blobContentBase64: true },
+      select: { textContent: true, blobContentBase64: true, protectedDefault: true },
     });
+    if (!previous) throw new McpFixtureNotFoundError();
+    if (previous.protectedDefault) throw new McpFixtureProtectedDefaultError("resource", "update");
     const updated = await tx.mcpResource.update({
       where: { id },
       data: {
@@ -345,6 +347,9 @@ export async function deleteMcpResource(id: string, client: PrismaClient = creat
   const resource = await client.mcpResource.findUnique({ where: { id } });
   if (!resource) {
     throw new McpFixtureNotFoundError();
+  }
+  if (resource.protectedDefault) {
+    throw new McpFixtureProtectedDefaultError("resource", "delete");
   }
   await client.$transaction(async (tx) => {
     await tx.mcpResource.delete({ where: { id } });
@@ -439,6 +444,23 @@ export async function createMcpResourceTemplate(
     data: resourceTemplateCreateData(id, validInput),
     include: resourceTemplateInclude,
   });
+  await recordAuditEvent(
+    {
+      eventType: "mcp_resource_template.create",
+      subjectType: "mcp_resource_template",
+      subjectId: template.id,
+      subjectName: template.name,
+      outcome: "success",
+      metadata: {
+        uriTemplate: template.uriTemplate,
+        enabled: template.enabled,
+        mimeType: template.mimeType,
+        argumentCount: template.arguments.length,
+        completionCandidateCount: template.completionCandidates.length,
+      },
+    },
+    client,
+  );
   return toResourceTemplateDetail(template);
 }
 
@@ -449,9 +471,12 @@ export async function updateMcpResourceTemplate(
 ) {
   const validInput = validateMcpResourceTemplateInput(input);
   const template = await client.$transaction(async (tx) => {
+    const previous = await tx.mcpResourceTemplate.findUnique({ where: { id }, select: { protectedDefault: true } });
+    if (!previous) throw new McpFixtureNotFoundError();
+    if (previous.protectedDefault) throw new McpFixtureProtectedDefaultError("resource_template", "update");
     await tx.mcpCompletionCandidate.deleteMany({ where: { resourceTemplateId: id } });
     await tx.mcpResourceTemplateArgument.deleteMany({ where: { resourceTemplateId: id } });
-    return tx.mcpResourceTemplate.update({
+    const updated = await tx.mcpResourceTemplate.update({
       where: { id },
       data: {
         uriTemplate: validInput.uriTemplate,
@@ -468,6 +493,24 @@ export async function updateMcpResourceTemplate(
       },
       include: resourceTemplateInclude,
     });
+    await recordAuditEvent(
+      {
+        eventType: "mcp_resource_template.update",
+        subjectType: "mcp_resource_template",
+        subjectId: updated.id,
+        subjectName: updated.name,
+        outcome: "success",
+        metadata: {
+          uriTemplate: updated.uriTemplate,
+          enabled: updated.enabled,
+          mimeType: updated.mimeType,
+          argumentCount: updated.arguments.length,
+          completionCandidateCount: updated.completionCandidates.length,
+        },
+      },
+      tx,
+    );
+    return updated;
   });
   return toResourceTemplateDetail(template);
 }
@@ -477,7 +520,23 @@ export async function deleteMcpResourceTemplate(id: string, client: PrismaClient
   if (!template) {
     throw new McpFixtureNotFoundError();
   }
-  await client.mcpResourceTemplate.delete({ where: { id } });
+  if (template.protectedDefault) {
+    throw new McpFixtureProtectedDefaultError("resource_template", "delete");
+  }
+  await client.$transaction(async (tx) => {
+    await tx.mcpResourceTemplate.delete({ where: { id } });
+    await recordAuditEvent(
+      {
+        eventType: "mcp_resource_template.delete",
+        subjectType: "mcp_resource_template",
+        subjectId: template.id,
+        subjectName: template.name,
+        outcome: "success",
+        metadata: { uriTemplate: template.uriTemplate, enabled: template.enabled },
+      },
+      tx,
+    );
+  });
   return toResourceTemplateSummary(template);
 }
 
@@ -576,6 +635,22 @@ export async function createMcpPrompt(input: McpPromptInput, client: PrismaClien
   await assertPromptEmbeddedResourcesEnabled(validInput, client);
   const id = `mcp_prompt_${randomUUID()}`;
   const prompt = await client.mcpPrompt.create({ data: promptCreateData(id, validInput), include: promptInclude });
+  await recordAuditEvent(
+    {
+      eventType: "mcp_prompt.create",
+      subjectType: "mcp_prompt",
+      subjectId: prompt.id,
+      subjectName: prompt.name,
+      outcome: "success",
+      metadata: {
+        enabled: prompt.enabled,
+        argumentCount: prompt.arguments.length,
+        messageCount: prompt.messages.length,
+        completionCandidateCount: prompt.completionCandidates.length,
+      },
+    },
+    client,
+  );
   return toPromptDetail(prompt);
 }
 
@@ -583,10 +658,13 @@ export async function updateMcpPrompt(id: string, input: McpPromptInput, client:
   const validInput = validateMcpPromptInput(input);
   await assertPromptEmbeddedResourcesEnabled(validInput, client);
   const prompt = await client.$transaction(async (tx) => {
+    const previous = await tx.mcpPrompt.findUnique({ where: { id }, select: { protectedDefault: true } });
+    if (!previous) throw new McpFixtureNotFoundError();
+    if (previous.protectedDefault) throw new McpFixtureProtectedDefaultError("prompt", "update");
     await tx.mcpCompletionCandidate.deleteMany({ where: { promptId: id } });
     await tx.mcpPromptMessage.deleteMany({ where: { promptId: id } });
     await tx.mcpPromptArgument.deleteMany({ where: { promptId: id } });
-    return tx.mcpPrompt.update({
+    const updated = await tx.mcpPrompt.update({
       where: { id },
       data: {
         name: validInput.name,
@@ -599,6 +677,23 @@ export async function updateMcpPrompt(id: string, input: McpPromptInput, client:
       },
       include: promptInclude,
     });
+    await recordAuditEvent(
+      {
+        eventType: "mcp_prompt.update",
+        subjectType: "mcp_prompt",
+        subjectId: updated.id,
+        subjectName: updated.name,
+        outcome: "success",
+        metadata: {
+          enabled: updated.enabled,
+          argumentCount: updated.arguments.length,
+          messageCount: updated.messages.length,
+          completionCandidateCount: updated.completionCandidates.length,
+        },
+      },
+      tx,
+    );
+    return updated;
   });
   return toPromptDetail(prompt);
 }
@@ -608,6 +703,22 @@ export async function deleteMcpPrompt(id: string, client: PrismaClient = createP
   if (!prompt) {
     throw new McpFixtureNotFoundError();
   }
-  await client.mcpPrompt.delete({ where: { id } });
+  if (prompt.protectedDefault) {
+    throw new McpFixtureProtectedDefaultError("prompt", "delete");
+  }
+  await client.$transaction(async (tx) => {
+    await tx.mcpPrompt.delete({ where: { id } });
+    await recordAuditEvent(
+      {
+        eventType: "mcp_prompt.delete",
+        subjectType: "mcp_prompt",
+        subjectId: prompt.id,
+        subjectName: prompt.name,
+        outcome: "success",
+        metadata: { enabled: prompt.enabled },
+      },
+      tx,
+    );
+  });
   return toPromptSummary(prompt);
 }

@@ -27,6 +27,7 @@ async function submitOAuthConsent(formData: FormData) {
       loginTicket,
       selectedEndpointIds: formData.getAll("endpoint_id").map(String),
       selectedResourceIds: formData.getAll("resource_id").map(String),
+      selectedResourceTemplateIds: formData.getAll("resource_template_id").map(String),
       selectedPromptIds: formData.getAll("prompt_id").map(String),
     });
     const redirectUrl = new URL(code.redirectUri);
@@ -128,6 +129,23 @@ export default async function OAuthConsentPage({ searchParams }: { searchParams:
                 ))
               ) : (
                 <p className="section-note">This client has no allowed resources configured.</p>
+              )}
+            </fieldset>
+            <fieldset className="oauth-permissions">
+              <legend>Resource Templates</legend>
+              {context.client.allowedResourceTemplates.length ? (
+                context.client.allowedResourceTemplates.map((template) => (
+                  <label className="compact-check endpoint-check" key={template.id}>
+                    <input type="checkbox" name="resource_template_id" value={template.id} defaultChecked={template.enabled} />
+                    <span>
+                      <strong>{template.name}</strong>
+                      {template.title ? template.title : template.uriTemplate}
+                      {!template.enabled ? " (disabled)" : ""}
+                    </span>
+                  </label>
+                ))
+              ) : (
+                <p className="section-note">This client has no allowed resource templates configured.</p>
               )}
             </fieldset>
             <fieldset className="oauth-permissions">

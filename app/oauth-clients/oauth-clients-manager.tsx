@@ -16,6 +16,7 @@ type FormState = {
   clientCredentialsTtlSeconds: number;
   allowedEndpointIds: string[];
   allowedResourceIds: string[];
+  allowedResourceTemplateIds: string[];
   allowedPromptIds: string[];
 };
 
@@ -41,6 +42,7 @@ const blankClient: FormState = {
   clientCredentialsTtlSeconds: DEFAULT_TTL_SECONDS,
   allowedEndpointIds: [],
   allowedResourceIds: [],
+  allowedResourceTemplateIds: [],
   allowedPromptIds: [],
 };
 
@@ -57,6 +59,7 @@ function clientToForm(client: OAuthClientSummary): FormState {
     clientCredentialsTtlSeconds: client.clientCredentialsTtlSeconds,
     allowedEndpointIds: client.allowedEndpointIds,
     allowedResourceIds: client.allowedResourceIds,
+    allowedResourceTemplateIds: client.allowedResourceTemplateIds,
     allowedPromptIds: client.allowedPromptIds,
   };
 }
@@ -169,6 +172,15 @@ export function OAuthClientsManager({
     }));
   }
 
+  function toggleResourceTemplate(resourceTemplateId: string, checked: boolean) {
+    setForm((current) => ({
+      ...current,
+      allowedResourceTemplateIds: checked
+        ? Array.from(new Set([...current.allowedResourceTemplateIds, resourceTemplateId]))
+        : current.allowedResourceTemplateIds.filter((id) => id !== resourceTemplateId),
+    }));
+  }
+
   function togglePrompt(promptId: string, checked: boolean) {
     setForm((current) => ({
       ...current,
@@ -192,6 +204,7 @@ export function OAuthClientsManager({
           clientCredentialsTtlSeconds: form.clientCredentialsTtlSeconds,
           allowedEndpointIds: form.allowedEndpointIds,
           allowedResourceIds: form.allowedResourceIds,
+          allowedResourceTemplateIds: form.allowedResourceTemplateIds,
           allowedPromptIds: form.allowedPromptIds,
         }
       : {
@@ -202,6 +215,7 @@ export function OAuthClientsManager({
           clientCredentialsTtlSeconds: form.clientCredentialsTtlSeconds,
           allowedEndpointIds: form.allowedEndpointIds,
           allowedResourceIds: form.allowedResourceIds,
+          allowedResourceTemplateIds: form.allowedResourceTemplateIds,
           allowedPromptIds: form.allowedPromptIds,
         };
 
@@ -333,7 +347,7 @@ export function OAuthClientsManager({
                 <th>Client</th>
                 <th>Status</th>
                 <th>Lock</th>
-                <th>Allowed T/R/P</th>
+                <th>Allowed T/R/RT/P</th>
                 <th>TTL</th>
               </tr>
             </thead>
@@ -354,7 +368,10 @@ export function OAuthClientsManager({
                       {client.builtIn ? "Locked" : "Editable"}
                     </span>
                   </td>
-                  <td>{client.allowedEndpointIds.length}/{client.allowedResourceIds.length}/{client.allowedPromptIds.length}</td>
+                  <td>
+                    {client.allowedEndpointIds.length}/{client.allowedResourceIds.length}/
+                    {client.allowedResourceTemplateIds.length}/{client.allowedPromptIds.length}
+                  </td>
                   <td>{formatTtl(client.clientCredentialsTtlSeconds)}</td>
                 </tr>
               ))}
@@ -524,6 +541,29 @@ export function OAuthClientsManager({
             ))}
           </div>
           {errorFor(saveState.fieldErrors, "allowedPromptIds")}
+        </div>
+
+        <div className="editor-section">
+          <h3>Allowed resource templates</h3>
+          <p className="section-note">These dynamic MCP resource templates can appear in OAuth resources/templates/list, rendered reads, and completion results.</p>
+          <div className="checkbox-grid">
+            {listData.resourceTemplateOptions.map((template) => (
+              <label className="compact-check endpoint-check" key={template.id}>
+                <input
+                  type="checkbox"
+                  checked={form.allowedResourceTemplateIds.includes(template.id)}
+                  onChange={(event) => toggleResourceTemplate(template.id, event.target.checked)}
+                  disabled={locked}
+                />
+                <span>
+                  <strong>{template.name}</strong>
+                  {template.title ? ` ${template.title}` : ` ${template.uriTemplate}`}
+                  {!template.enabled ? " Disabled" : ""}
+                </span>
+              </label>
+            ))}
+          </div>
+          {errorFor(saveState.fieldErrors, "allowedResourceTemplateIds")}
         </div>
 
         <div className="editor-section">

@@ -707,6 +707,7 @@ async function run(options) {
       clientCredentialsTtlSeconds: 900,
       allowedEndpointIds: [endpoint.id],
       allowedResourceIds: [resource.id],
+      allowedResourceTemplateIds: ["mcp_resource_template_default_customer"],
       allowedPromptIds: [prompt.id],
     });
     assertStatus(oauthClientCreate, 201, "Create OAuth client");
@@ -727,13 +728,17 @@ async function run(options) {
     cleanup.revokedTokenJti = claims.jti;
     assert(claims.endpoint_permissions.includes(endpoint.id), "OAuth token must include endpoint permission.");
     assert(claims.resource_permissions.includes(resource.id), "OAuth token must include resource permission.");
+    assert(
+      claims.resource_template_permissions.includes("mcp_resource_template_default_customer"),
+      "OAuth token must include resource template permission.",
+    );
     assert(claims.prompt_permissions.includes(prompt.id), "OAuth token must include prompt permission.");
     assert(claims.aud === options.baseUrl, "OAuth token audience must match requested resource.");
     addDiagnostic(diagnostics, "jwt audience", claims.aud);
     addDiagnostic(
       diagnostics,
       "jwt permissions",
-      `${claims.endpoint_permissions.length} tools, ${claims.resource_permissions.length} resources, ${claims.prompt_permissions.length} prompts`,
+      `${claims.endpoint_permissions.length} tools, ${claims.resource_permissions.length} resources, ${claims.resource_template_permissions.length} templates, ${claims.prompt_permissions.length} prompts`,
     );
 
     const tokenList = await client.request("/api/oauth/tokens");
@@ -751,6 +756,36 @@ async function run(options) {
     const oauthResourceUris = oauthResourcesList.body.result.resources.map((item) => item.uri);
     assert(oauthResourceUris.includes(resource.uri), "OAuth resources/list must include permitted resource.");
     assert(!oauthResourceUris.includes("mock://resources/server-status"), "OAuth resources/list must filter non-permitted resources.");
+
+    const oauthTemplatesList = await mcp(
+      client,
+      "/mcp/oauth",
+      { jsonrpc: "2.0", id: "oauth-templates", method: "resources/templates/list" },
+      bearerHeader,
+    );
+    assertStatus(oauthTemplatesList, 200, "OAuth MCP resources/templates/list");
+    const oauthTemplateUris = oauthTemplatesList.body.result.resourceTemplates.map((item) => item.uriTemplate);
+    assert(
+      oauthTemplateUris.includes("mock://resources/customers/{customerId}"),
+      "OAuth resources/templates/list must include permitted resource template.",
+    );
+
+    const oauthTemplateRead = await mcp(
+      client,
+      "/mcp/oauth",
+      {
+        jsonrpc: "2.0",
+        id: "oauth-template-read",
+        method: "resources/read",
+        params: { uri: "mock://resources/customers/cust_123" },
+      },
+      bearerHeader,
+    );
+    assertStatus(oauthTemplateRead, 200, "OAuth MCP templated resources/read");
+    assert(
+      oauthTemplateRead.body.result.contents[0].text.includes('"customerId":"cust_123"'),
+      "OAuth templated resources/read must render permitted resource template.",
+    );
 
     const oauthPromptGet = await mcp(
       client,
@@ -783,7 +818,7 @@ async function run(options) {
       "Revoked token challenge must point to protected-resource metadata.",
     );
     addDiagnostic(diagnostics, "revoked token", "401 invalid_token");
-    pass("OAuth user/client/token, tool/resource/prompt permission filtering, denial, and revocation work");
+    pass("OAuth user/client/token, tool/resource/template/prompt permission filtering, denial, and revocation work");
 
     logStep("Audit and reset guard");
     const audit = await client.request("/api/audit");

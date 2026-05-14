@@ -5,7 +5,7 @@
   "id": "inspector-full-server-features",
   "title": "Inspector Full Server Features",
   "order": 35,
-  "status": "active",
+  "status": "completed",
   "next_task_on_success": null,
   "prompt_docs": [
     "AGENTS.md",
@@ -31,7 +31,8 @@
     "Required checks do not prove the claimed behavior.",
     "Implementation changes contradict the product spec or security/reliability docs."
   ],
-  "promotion_mode": "deterministic_only"
+  "promotion_mode": "deterministic_only",
+  "completed_at": "2026-05-13T10:34:22.854Z"
 }
 ```
 
@@ -96,3 +97,4 @@ Update the project Inspector, upstream Inspector docs, README guides, and final 
 - 2026-05-13T10:23:17Z: RCA task `inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b` isolated the blocker to loopback unavailability before health (`Inspector failed: fetch failed`) after the E2E server stopped, extended the existing loopback route-handler fallback to cover local `ECONNREFUSED`, and verified `npm run inspector:mock` passes with `Inspector completed successfully.` Queue return remains through the RCA task's `next_task_on_success`.
 - 2026-05-13T10:26:02.472Z: blocker RCA task inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b completed; restored as current task after resolving blocker deterministic_failure|npm-run-inspector-mock|no-path-details.
 - 2026-05-13T10:30:55Z: final handoff verification passed `npm run lint`, `npm run typecheck`, `npm run test:unit`, `npm run test:e2e`, and `npm run inspector:mock`. Also reran upstream Inspector CLI helpers for tools list/call, resources list/read/templates, prompts list/get, Basic list, and SSE tools/resources list/read; all supported helpers passed. Direct upstream CLI probe for `completion/complete` on Inspector `0.21.2` still exits with unsupported method, matching docs; completion proof remains covered by project Inspector Generic presets and Mock Server scenario diagnostics.
+- 2026-05-13T10:34:22.854Z: automatically promoted after deterministic checks and evaluator approval.

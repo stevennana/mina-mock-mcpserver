@@ -115,6 +115,15 @@ function normalizeAllowedResourceIds(value: string[] | undefined, fieldErrors: R
   return uniqueResourceIds;
 }
 
+function normalizeAllowedResourceTemplateIds(value: string[] | undefined, fieldErrors: Record<string, string>) {
+  const resourceTemplateIds = Array.isArray(value) ? value.map((id) => id.trim()).filter(Boolean) : [];
+  const uniqueResourceTemplateIds = Array.from(new Set(resourceTemplateIds));
+  if (uniqueResourceTemplateIds.some((id) => id.length > 128)) {
+    fieldErrors.allowedResourceTemplateIds = "Allowed resource template IDs are invalid.";
+  }
+  return uniqueResourceTemplateIds;
+}
+
 function normalizeAllowedPromptIds(value: string[] | undefined, fieldErrors: Record<string, string>) {
   const promptIds = Array.isArray(value) ? value.map((id) => id.trim()).filter(Boolean) : [];
   const uniquePromptIds = Array.from(new Set(promptIds));
@@ -131,6 +140,7 @@ export function validateOAuthClientCreateInput(input: OAuthClientCreateInput): O
   const redirectUris = normalizeRedirectUris(input.redirectUris, fieldErrors);
   const allowedEndpointIds = normalizeAllowedEndpointIds(input.allowedEndpointIds, fieldErrors);
   const allowedResourceIds = normalizeAllowedResourceIds(input.allowedResourceIds, fieldErrors);
+  const allowedResourceTemplateIds = normalizeAllowedResourceTemplateIds(input.allowedResourceTemplateIds, fieldErrors);
   const allowedPromptIds = normalizeAllowedPromptIds(input.allowedPromptIds, fieldErrors);
 
   if (!CLIENT_ID_PATTERN.test(clientId)) {
@@ -153,6 +163,7 @@ export function validateOAuthClientCreateInput(input: OAuthClientCreateInput): O
     clientCredentialsTtlSeconds: input.clientCredentialsTtlSeconds,
     allowedEndpointIds,
     allowedResourceIds,
+    allowedResourceTemplateIds,
     allowedPromptIds,
   };
 }
@@ -176,6 +187,9 @@ export function validateOAuthClientUpdateInput(input: OAuthClientUpdateInput): O
   }
   if (input.allowedResourceIds !== undefined) {
     output.allowedResourceIds = normalizeAllowedResourceIds(input.allowedResourceIds, fieldErrors);
+  }
+  if (input.allowedResourceTemplateIds !== undefined) {
+    output.allowedResourceTemplateIds = normalizeAllowedResourceTemplateIds(input.allowedResourceTemplateIds, fieldErrors);
   }
   if (input.allowedPromptIds !== undefined) {
     output.allowedPromptIds = normalizeAllowedPromptIds(input.allowedPromptIds, fieldErrors);

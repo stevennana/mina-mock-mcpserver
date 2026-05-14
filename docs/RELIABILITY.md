@@ -33,7 +33,7 @@ If the app depends on persistent runtime state, document how runtime preparation
 
 ## MCP Resources And Prompts Runtime
 - `resources/list`, `resources/templates/list`, `resources/read`, `prompts/list`, `prompts/get`, and `completion/complete` must be covered by protocol unit tests before capability advertisement is expanded.
-- OAuth permission filtering for resources and prompts must fail closed exactly like tool permissions.
+- OAuth permission filtering for resources, resource templates, embedded prompt resources, and prompts must fail closed exactly like tool permissions.
 - Legacy SSE resource subscriptions are best-effort in-memory test behavior and must not be documented as durable cross-process event replay.
 
 ## Operator Logging

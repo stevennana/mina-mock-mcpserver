@@ -35,7 +35,7 @@ Highlights:
 - product-grade Mock Server admin navigation with bundled SVG icons
 - standalone Inspector UI with focused Mock scenario, Generic target, and OAuth popup pages
 - Streamable HTTP and legacy SSE-compatible MCP routes
-- MCP Resources, Resource Templates, Prompts, Completion, OAuth resource/prompt permissions, and SSE resource notifications
+- MCP Resources, Resource Templates, Prompts, Completion, OAuth resource/resource-template/prompt permissions, and SSE resource notifications
 - upstream MCP Inspector browser and CLI verification paths
 - OAuth authorization-code with PKCE, client credentials, Bearer permission filtering, and token revocation
 

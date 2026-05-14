@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { NextResponse } from "next/server";
-import { McpFixtureNotFoundError, McpFixtureValidationError } from "@/lib/mcp-fixtures/types";
+import { McpFixtureNotFoundError, McpFixtureProtectedDefaultError, McpFixtureValidationError } from "@/lib/mcp-fixtures/types";
 import type {
   McpCompletionCandidateInput,
   McpPromptArgumentInput,
@@ -129,6 +129,16 @@ export function mcpFixtureErrorResponse(error: unknown) {
 
   if (error instanceof McpFixtureNotFoundError) {
     return NextResponse.json({ error: "not_found" }, { status: 404 });
+  }
+
+  if (error instanceof McpFixtureProtectedDefaultError) {
+    return NextResponse.json(
+      {
+        error: "protected_default",
+        message: `Protected default ${error.fixtureType.replace("_", " ")} cannot be ${error.action}d.`,
+      },
+      { status: 409 },
+    );
   }
 
   if (error instanceof Prisma.PrismaClientKnownRequestError) {

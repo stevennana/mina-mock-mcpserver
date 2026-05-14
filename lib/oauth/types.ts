@@ -119,6 +119,14 @@ export type OAuthClientResourceOption = {
   enabled: boolean;
 };
 
+export type OAuthClientResourceTemplateOption = {
+  id: string;
+  uriTemplate: string;
+  name: string;
+  title: string;
+  enabled: boolean;
+};
+
 export type OAuthClientPromptOption = {
   id: string;
   name: string;
@@ -138,6 +146,8 @@ export type OAuthClientSummary = {
   allowedEndpoints: OAuthClientEndpointOption[];
   allowedResourceIds: string[];
   allowedResources: OAuthClientResourceOption[];
+  allowedResourceTemplateIds: string[];
+  allowedResourceTemplates: OAuthClientResourceTemplateOption[];
   allowedPromptIds: string[];
   allowedPrompts: OAuthClientPromptOption[];
   createdAt: string;
@@ -151,6 +161,7 @@ export type OAuthClientListResult = {
   clients: OAuthClientSummary[];
   endpointOptions: OAuthClientEndpointOption[];
   resourceOptions: OAuthClientResourceOption[];
+  resourceTemplateOptions: OAuthClientResourceTemplateOption[];
   promptOptions: OAuthClientPromptOption[];
   ttlPresets: typeof OAUTH_CLIENT_CREDENTIALS_TTL_PRESETS;
 };
@@ -163,6 +174,7 @@ export type OAuthClientCreateInput = {
   clientCredentialsTtlSeconds: number;
   allowedEndpointIds: string[];
   allowedResourceIds?: string[];
+  allowedResourceTemplateIds?: string[];
   allowedPromptIds?: string[];
 };
 
@@ -173,6 +185,7 @@ export type OAuthClientUpdateInput = {
   clientCredentialsTtlSeconds?: number;
   allowedEndpointIds?: string[];
   allowedResourceIds?: string[];
+  allowedResourceTemplateIds?: string[];
   allowedPromptIds?: string[];
 };
 
@@ -232,6 +245,7 @@ export type OAuthAuthorizationCodeSummary = {
   codeChallengeMethod: string | null;
   selectedEndpointIds: string[];
   selectedResourceIds: string[];
+  selectedResourceTemplateIds: string[];
   selectedPromptIds: string[];
   expiresAt: string;
   usedAt: string | null;
@@ -276,6 +290,7 @@ export type OAuthAccessTokenClaims = {
   scope: string;
   endpoint_permissions: string[];
   resource_permissions: string[];
+  resource_template_permissions: string[];
   prompt_permissions: string[];
 };
 
@@ -298,6 +313,14 @@ export type OAuthIssuedTokenEndpointPermission = {
 export type OAuthIssuedTokenResourcePermission = {
   id: string;
   uri: string | null;
+  name: string | null;
+  title: string | null;
+  enabled: boolean | null;
+};
+
+export type OAuthIssuedTokenResourceTemplatePermission = {
+  id: string;
+  uriTemplate: string | null;
   name: string | null;
   title: string | null;
   enabled: boolean | null;
@@ -327,6 +350,7 @@ export type OAuthIssuedTokenSummary = {
   revokedAt: string | null;
   endpointPermissionCount: number;
   resourcePermissionCount: number;
+  resourceTemplatePermissionCount: number;
   promptPermissionCount: number;
 };
 
@@ -334,6 +358,7 @@ export type OAuthIssuedTokenDetail = OAuthIssuedTokenSummary & {
   claims: OAuthAccessTokenClaims;
   endpoint_permissions: OAuthIssuedTokenEndpointPermission[];
   resource_permissions: OAuthIssuedTokenResourcePermission[];
+  resource_template_permissions: OAuthIssuedTokenResourceTemplatePermission[];
   prompt_permissions: OAuthIssuedTokenPromptPermission[];
 };
 

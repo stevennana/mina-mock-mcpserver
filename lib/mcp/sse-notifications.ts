@@ -3,6 +3,7 @@ export type LegacySseMode = "none" | "basic" | "oauth" | "unified";
 export type LegacySseRuntime = {
   endpointIds?: string[];
   resourceIds?: string[];
+  resourceTemplateIds?: string[];
   promptIds?: string[];
 };
 

@@ -367,6 +367,21 @@ Indexes and constraints:
 - `@@id([oauthClientId, endpointId])`
 - `@@index([endpointId])`
 
+## OAuthClientAllowedResourceTemplate
+
+Stores resource template permissions available to an OAuth client.
+
+| Field | Type | Notes |
+|---|---|---|
+| `oauthClientId` | `String` | OAuth client relation, cascades on client delete. |
+| `resourceTemplateId` | `String` | Resource template relation, cascades on template delete. |
+| `createdAt` | `DateTime` | Permission creation timestamp. |
+
+Indexes and constraints:
+
+- `@@id([oauthClientId, resourceTemplateId])`
+- `@@index([resourceTemplateId])`
+
 ## OAuthUser
 
 Stores mock OAuth login identities for browser authorization-code flow tasks.
@@ -428,6 +443,21 @@ Indexes and constraints:
 - `@@id([authorizationCodeId, endpointId])`
 - `@@index([endpointId])`
 
+## OAuthAuthorizationCodeResourceTemplate
+
+Stores resource template permissions selected during browser consent.
+
+| Field | Type | Notes |
+|---|---|---|
+| `authorizationCodeId` | `String` | Authorization code relation, cascades on code delete. |
+| `resourceTemplateId` | `String` | Resource template relation, cascades on template delete. |
+| `createdAt` | `DateTime` | Permission creation timestamp. |
+
+Indexes and constraints:
+
+- `@@id([authorizationCodeId, resourceTemplateId])`
+- `@@index([resourceTemplateId])`
+
 ## OAuthIssuedToken
 
 Stores non-secret access-token metadata by JWT `jti`. Raw access token values are not persisted; token detail reconstructs claims from stored metadata for debugging.
@@ -443,6 +473,9 @@ Stores non-secret access-token metadata by JWT `jti`. Raw access token values ar
 | `issuer` | `String` | Issuer used in the JWT `iss` claim when the token was issued. |
 | `resource` | `String` | Audience/resource claim bound to the token. |
 | `endpointPermissionsJson` | `String` | JSON-encoded endpoint ID permissions. |
+| `resourcePermissionsJson` | `String` | JSON-encoded direct resource ID permissions. |
+| `resourceTemplatePermissionsJson` | `String` | JSON-encoded resource template ID permissions. |
+| `promptPermissionsJson` | `String` | JSON-encoded prompt ID permissions. |
 | `issuedAt` | `DateTime` | JWT issued-at timestamp. |
 | `expiresAt` | `DateTime` | JWT expiration timestamp. |
 | `revokedAt` | `DateTime?` | Set when revoked; retained for historical inspection. |

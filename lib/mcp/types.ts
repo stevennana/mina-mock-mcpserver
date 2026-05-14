@@ -116,11 +116,11 @@ export type McpJsonRpcResponse =
         | McpInitializeResult
         | { tools: McpTool[] }
         | McpToolCallResult
-        | { resources: McpResource[] }
-        | { resourceTemplates: McpResourceTemplate[] }
+        | { resources: McpResource[]; nextCursor?: string }
+        | { resourceTemplates: McpResourceTemplate[]; nextCursor?: string }
         | { contents: McpResourceContent[] }
         | Record<string, never>
-        | { prompts: McpPrompt[] }
+        | { prompts: McpPrompt[]; nextCursor?: string }
         | McpPromptGetResult
         | McpCompletionResult;
     }

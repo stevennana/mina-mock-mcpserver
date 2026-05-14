@@ -131,6 +131,7 @@ model OAuthClient {
   updatedAt                   DateTime                     @updatedAt
   allowedEndpoints            OAuthClientAllowedEndpoint[]
   allowedResources            OAuthClientAllowedResource[]
+  allowedResourceTemplates     OAuthClientAllowedResourceTemplate[]
   allowedPrompts              OAuthClientAllowedPrompt[]
   authorizationCodes          OAuthAuthorizationCode[]
   issuedTokens                OAuthIssuedToken[]
@@ -158,6 +159,17 @@ model OAuthClientAllowedResource {
 
   @@id([oauthClientId, resourceId])
   @@index([resourceId])
+}
+
+model OAuthClientAllowedResourceTemplate {
+  oauthClientId      String
+  resourceTemplateId String
+  createdAt          DateTime            @default(now())
+  oauthClient        OAuthClient         @relation(fields: [oauthClientId], references: [id], onDelete: Cascade)
+  resourceTemplate   McpResourceTemplate @relation(fields: [resourceTemplateId], references: [id], onDelete: Cascade)
+
+  @@id([oauthClientId, resourceTemplateId])
+  @@index([resourceTemplateId])
 }
 
 model OAuthClientAllowedPrompt {
@@ -188,6 +200,7 @@ model OAuthAuthorizationCode {
   oauthUser           OAuthUser                        @relation(fields: [oauthUserId], references: [id], onDelete: Cascade)
   selectedEndpoints   OAuthAuthorizationCodeEndpoint[]
   selectedResources   OAuthAuthorizationCodeResource[]
+  selectedResourceTemplates OAuthAuthorizationCodeResourceTemplate[]
   selectedPrompts     OAuthAuthorizationCodePrompt[]
 
   @@index([code])
@@ -217,6 +230,17 @@ model OAuthAuthorizationCodeResource {
   @@index([resourceId])
 }
 
+model OAuthAuthorizationCodeResourceTemplate {
+  authorizationCodeId String
+  resourceTemplateId  String
+  createdAt           DateTime               @default(now())
+  authorizationCode   OAuthAuthorizationCode @relation(fields: [authorizationCodeId], references: [id], onDelete: Cascade)
+  resourceTemplate    McpResourceTemplate    @relation(fields: [resourceTemplateId], references: [id], onDelete: Cascade)
+
+  @@id([authorizationCodeId, resourceTemplateId])
+  @@index([resourceTemplateId])
+}
+
 model OAuthAuthorizationCodePrompt {
   authorizationCodeId String
   promptId            String
@@ -239,6 +263,7 @@ model OAuthIssuedToken {
   resource                String
   endpointPermissionsJson String      @default("[]")
   resourcePermissionsJson String      @default("[]")
+  resourceTemplatePermissionsJson String @default("[]")
   promptPermissionsJson   String      @default("[]")
   issuedAt                DateTime
   expiresAt               DateTime
@@ -289,6 +314,8 @@ model McpResourceTemplate {
   updatedAt            DateTime                      @updatedAt
   arguments            McpResourceTemplateArgument[]
   completionCandidates McpCompletionCandidate[]
+  oauthClientAllowances OAuthClientAllowedResourceTemplate[]
+  oauthCodePermissions  OAuthAuthorizationCodeResourceTemplate[]
 
   @@index([enabled, name])
 }

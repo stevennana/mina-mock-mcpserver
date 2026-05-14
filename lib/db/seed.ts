@@ -20,6 +20,7 @@ type SeedClient = Pick<
   | "oAuthClient"
   | "oAuthClientAllowedEndpoint"
   | "oAuthClientAllowedResource"
+  | "oAuthClientAllowedResourceTemplate"
   | "oAuthClientAllowedPrompt"
   | "oAuthAuthorizationCode"
   | "oAuthAuthorizationCodeEndpoint"

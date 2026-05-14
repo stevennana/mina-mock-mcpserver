@@ -2,7 +2,7 @@
   "task_id": "inspector-full-server-features",
   "started_at": "2026-05-13T19:26:32+09:00",
   "artifact_dir": "state/artifacts/20260513T192632-inspector-full-server-features",
-  "phase": "commit",
-  "status": "running",
-  "updated_at": "2026-05-13T10:34:22.683Z"
+  "phase": "finished",
+  "status": "finished",
+  "updated_at": "2026-05-13T10:34:22.946Z"
 }

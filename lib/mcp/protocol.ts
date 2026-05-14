@@ -87,6 +87,22 @@ function isResourceReadParams(params: unknown): params is { uri: string } {
   return isRecord(params) && typeof params.uri === "string" && params.uri.trim().length > 0;
 }
 
+function listCursor(params: unknown) {
+  if (!isRecord(params) || typeof params.cursor !== "string") return 0;
+  const cursor = Number.parseInt(params.cursor, 10);
+  return Number.isInteger(cursor) && cursor >= 0 ? cursor : 0;
+}
+
+function paginated<T>(items: T[], cursor: number, pageSize = 100) {
+  const start = Math.min(cursor, items.length);
+  const page = items.slice(start, start + pageSize);
+  const next = start + page.length;
+  return {
+    page,
+    nextCursor: next < items.length ? String(next) : undefined,
+  };
+}
+
 function isPromptGetParams(params: unknown): params is { name: string; arguments?: Record<string, unknown> } {
   return isRecord(params) && typeof params.name === "string" && (params.arguments === undefined || isRecord(params.arguments));
 }
@@ -273,6 +289,8 @@ export async function handleMcpJsonRpcMessage(
   }
 
   if (message.method === "resources/list") {
+    const resources = resourcesRuntime.loadResources ? await resourcesRuntime.loadResources() : [];
+    const { page, nextCursor } = paginated(resources, listCursor(message.params));
     return {
       kind: "json",
       status: 200,
@@ -280,13 +298,16 @@ export async function handleMcpJsonRpcMessage(
         jsonrpc: "2.0",
         id: message.id,
         result: {
-          resources: resourcesRuntime.loadResources ? await resourcesRuntime.loadResources() : [],
+          resources: page,
+          ...(nextCursor ? { nextCursor } : {}),
         },
       },
     };
   }
 
   if (message.method === "resources/templates/list") {
+    const resourceTemplates = resourcesRuntime.loadResourceTemplates ? await resourcesRuntime.loadResourceTemplates() : [];
+    const { page, nextCursor } = paginated(resourceTemplates, listCursor(message.params));
     return {
       kind: "json",
       status: 200,
@@ -294,7 +315,8 @@ export async function handleMcpJsonRpcMessage(
         jsonrpc: "2.0",
         id: message.id,
         result: {
-          resourceTemplates: resourcesRuntime.loadResourceTemplates ? await resourcesRuntime.loadResourceTemplates() : [],
+          resourceTemplates: page,
+          ...(nextCursor ? { nextCursor } : {}),
         },
       },
     };
@@ -375,6 +397,8 @@ export async function handleMcpJsonRpcMessage(
   }
 
   if (message.method === "prompts/list") {
+    const prompts = promptsRuntime.loadPrompts ? await promptsRuntime.loadPrompts() : [];
+    const { page, nextCursor } = paginated(prompts, listCursor(message.params));
     return {
       kind: "json",
       status: 200,
@@ -382,7 +406,8 @@ export async function handleMcpJsonRpcMessage(
         jsonrpc: "2.0",
         id: message.id,
         result: {
-          prompts: promptsRuntime.loadPrompts ? await promptsRuntime.loadPrompts() : [],
+          prompts: page,
+          ...(nextCursor ? { nextCursor } : {}),
         },
       },
     };

@@ -14,8 +14,9 @@ Expand MCP Mock Server beyond tool calls so users can test the full server-side 
 - Prompts are user-invoked templates with named arguments and ordered messages. Prompt messages may include text content and embedded server resource content.
 - Completion supports prompt arguments and resource-template arguments through `completion/complete` with prefix matching, maximum 100 returned values, optional total, and `hasMore`.
 - No-auth and Basic routes expose all enabled tools/resources/prompts.
-- OAuth Bearer routes expose only the enabled tools/resources/prompts included in the token permissions.
+- OAuth Bearer routes expose only the enabled tools/resources/resource templates/prompts included in the token permissions.
 - Unknown, disabled, or unauthorized resources/prompts never leak content. Authentication failures remain `401`; valid Bearer tokens without permission return `403`.
+- Prompt messages that embed resources must use the same permission-aware resource reader as direct `resources/read`; a token with prompt permission but without embedded resource or resource-template permission receives `403` instead of embedded content.
 
 ## MCP Runtime Contract
 - `initialize` advertises:
@@ -24,7 +25,7 @@ Expand MCP Mock Server beyond tool calls so users can test the full server-side 
   - `prompts: { listChanged: true }`
   - `completions: {}`
 - `resources/list` returns enabled direct resources, supports cursor pagination, and includes URI, name, title, description, MIME type, size, and annotations when present.
-- `resources/templates/list` returns enabled templates with URI template, name, title, description, MIME type, and annotations when present.
+- `resources/templates/list` returns enabled templates, supports cursor pagination, and includes URI template, name, title, description, MIME type, and annotations when present.
 - `resources/read` returns text or blob contents for a direct URI or a rendered template URI.
 - `resources/subscribe` and `resources/unsubscribe` are supported only for live legacy SSE sessions and return empty success results for valid accessible resources. Subscription state is process-local and best-effort; it is not stored in SQLite and is not replayed after disconnects, restarts, or cross-process handoff.
 - `prompts/list` returns enabled prompts, supports cursor pagination, and includes name, title, description, and argument metadata.
@@ -40,10 +41,10 @@ Expand MCP Mock Server beyond tool calls so users can test the full server-side 
 - Beginner-facing tooltips explain resources as application-controlled context and prompts as user-controlled templates.
 
 ## OAuth Permission Contract
-- OAuth clients define allowed tools, resources, and prompts.
-- Authorization codes store selected tool/resource/prompt permissions.
+- OAuth clients define allowed tools, direct resources, resource templates, and prompts.
+- Authorization codes store selected tool/resource/resource-template/prompt permissions.
 - Issued token metadata exposes permission summaries without raw token persistence.
-- Consent UI groups permission checklists by Tools, Resources, and Prompts and makes selected scope unambiguous.
+- Consent UI groups permission checklists by Tools, Resources, Resource Templates, and Prompts and makes selected scope unambiguous.
 
 ## Validation
 - Unit tests cover validators, rendering, completion matching, JSON-RPC envelopes, permission filters, and error mapping.

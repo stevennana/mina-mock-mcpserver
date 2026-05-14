@@ -11,12 +11,18 @@ import {
   createMcpPrompt,
   createMcpResource,
   createMcpResourceTemplate,
+  deleteMcpPrompt,
+  deleteMcpResource,
+  deleteMcpResourceTemplate,
   listEnabledMcpPrompts,
   listEnabledMcpResources,
   listEnabledMcpResourceTemplates,
   listMcpPrompts,
+  updateMcpPrompt,
+  updateMcpResource,
+  updateMcpResourceTemplate,
 } from "@/lib/mcp-fixtures/service";
-import { McpFixtureValidationError } from "@/lib/mcp-fixtures/types";
+import { McpFixtureProtectedDefaultError, McpFixtureValidationError } from "@/lib/mcp-fixtures/types";
 import {
   validateMcpPromptInput,
   validateMcpResourceInput,
@@ -213,5 +219,67 @@ test("MCP fixture services create and map resources, templates, prompts, and ena
     assert.equal(prompts.items[0]?.argumentCount, 1);
     assert.equal(prompts.items[0]?.messageCount, 1);
     assert.equal(prompts.items[0]?.completionCandidateCount, 1);
+  });
+});
+
+test("protected default MCP fixtures cannot be edited or deleted through normal services", async () => {
+  await withIsolatedDb(async (client) => {
+    await seedAllDefaults(client);
+
+    await assert.rejects(
+      () =>
+        updateMcpResource(
+          "mcp_resource_default_status",
+          {
+            uri: "mock://resources/server-status",
+            name: "server_status",
+            mimeType: "application/json",
+            enabled: false,
+            textContent: "{\"status\":\"changed\"}",
+          },
+          client,
+        ),
+      McpFixtureProtectedDefaultError,
+    );
+    await assert.rejects(() => deleteMcpResource("mcp_resource_default_status", client), McpFixtureProtectedDefaultError);
+
+    await assert.rejects(
+      () =>
+        updateMcpResourceTemplate(
+          "mcp_resource_template_default_customer",
+          {
+            uriTemplate: "mock://resources/customers/{customerId}",
+            name: "customer_profile",
+            mimeType: "application/json",
+            enabled: false,
+            textTemplate: "{\"changed\":true}",
+            arguments: [{ name: "customerId", required: true }],
+            completionCandidates: [],
+          },
+          client,
+        ),
+      McpFixtureProtectedDefaultError,
+    );
+    await assert.rejects(
+      () => deleteMcpResourceTemplate("mcp_resource_template_default_customer", client),
+      McpFixtureProtectedDefaultError,
+    );
+
+    await assert.rejects(
+      () =>
+        updateMcpPrompt(
+          "mcp_prompt_default_support_reply",
+          {
+            name: "support_reply",
+            enabled: false,
+            arguments: [{ name: "customerId", required: true }],
+            messages: [{ role: "user", textTemplate: "changed" }],
+            completionCandidates: [],
+          },
+          client,
+        ),
+      McpFixtureProtectedDefaultError,
+    );
+    await assert.rejects(() => deleteMcpPrompt("mcp_prompt_default_support_reply", client), McpFixtureProtectedDefaultError);
   });
 });

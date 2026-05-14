@@ -42,6 +42,7 @@ import type {
   OAuthClientCreateInput,
   OAuthClientEndpointOption,
   OAuthClientPromptOption,
+  OAuthClientResourceTemplateOption,
   OAuthClientResourceOption,
   OAuthClientListResult,
   OAuthAuthorizationCodeSummary,
@@ -55,6 +56,7 @@ import type {
   OAuthIssuedTokenDetail,
   OAuthIssuedTokenEndpointPermission,
   OAuthIssuedTokenPromptPermission,
+  OAuthIssuedTokenResourceTemplatePermission,
   OAuthIssuedTokenResourcePermission,
   OAuthIssuedTokenListFilters,
   OAuthIssuedTokenListResult,
@@ -77,6 +79,10 @@ const oauthClientInclude = {
     include: { resource: true },
     orderBy: { resource: { uri: "asc" } },
   },
+  allowedResourceTemplates: {
+    include: { resourceTemplate: true },
+    orderBy: { resourceTemplate: { name: "asc" } },
+  },
   allowedPrompts: {
     include: { prompt: true },
     orderBy: { prompt: { name: "asc" } },
@@ -86,7 +92,7 @@ const oauthClientInclude = {
 type OAuthUserRecord = Prisma.OAuthUserGetPayload<object>;
 type OAuthClientRecord = Prisma.OAuthClientGetPayload<{ include: typeof oauthClientInclude }>;
 type OAuthAuthorizationCodeRecord = Prisma.OAuthAuthorizationCodeGetPayload<{
-  include: { selectedEndpoints: true; selectedResources: true; selectedPrompts: true };
+  include: { selectedEndpoints: true; selectedResources: true; selectedResourceTemplates: true; selectedPrompts: true };
 }>;
 type OAuthIssuedTokenRecord = Prisma.OAuthIssuedTokenGetPayload<{
   include: { oauthClient: true; oauthUser: true };
@@ -94,12 +100,12 @@ type OAuthIssuedTokenRecord = Prisma.OAuthIssuedTokenGetPayload<{
 type OAuthUserSeedClient = Pick<PrismaClient, "oAuthUser">;
 type OAuthClientSeedClient = Pick<
   PrismaClient,
-  "oAuthClient" | "oAuthClientAllowedEndpoint" | "oAuthClientAllowedResource" | "oAuthClientAllowedPrompt" | "endpoint" | "mcpResource" | "mcpPrompt"
+  "oAuthClient" | "oAuthClientAllowedEndpoint" | "oAuthClientAllowedResource" | "oAuthClientAllowedResourceTemplate" | "oAuthClientAllowedPrompt" | "endpoint" | "mcpResource" | "mcpResourceTemplate" | "mcpPrompt"
 >;
-type OAuthClientPermissionLookupClient = Pick<PrismaClient, "endpoint" | "mcpResource" | "mcpPrompt">;
+type OAuthClientPermissionLookupClient = Pick<PrismaClient, "endpoint" | "mcpResource" | "mcpResourceTemplate" | "mcpPrompt">;
 type OAuthClientAllowedPermissionWriteClient = Pick<
   PrismaClient,
-  "oAuthClientAllowedEndpoint" | "oAuthClientAllowedResource" | "oAuthClientAllowedPrompt"
+  "oAuthClientAllowedEndpoint" | "oAuthClientAllowedResource" | "oAuthClientAllowedResourceTemplate" | "oAuthClientAllowedPrompt"
 >;
 type OAuthTokenExchangeClient = Pick<
   PrismaClient,
@@ -163,6 +169,16 @@ function resourceToOption(resource: { id: string; uri: string; name: string; tit
   };
 }
 
+function resourceTemplateToOption(template: { id: string; uriTemplate: string; name: string; title: string; enabled: boolean }): OAuthClientResourceTemplateOption {
+  return {
+    id: template.id,
+    uriTemplate: template.uriTemplate,
+    name: template.name,
+    title: template.title,
+    enabled: template.enabled,
+  };
+}
+
 function promptToOption(prompt: { id: string; name: string; title: string; enabled: boolean }): OAuthClientPromptOption {
   return {
     id: prompt.id,
@@ -193,6 +209,9 @@ function parseStringPermissions(value: string) {
 function toClientSummary(client: OAuthClientRecord): OAuthClientSummary {
   const allowedEndpoints = client.allowedEndpoints.map((allowedEndpoint) => endpointToOption(allowedEndpoint.endpoint));
   const allowedResources = client.allowedResources.map((allowedResource) => resourceToOption(allowedResource.resource));
+  const allowedResourceTemplates = client.allowedResourceTemplates.map((allowedTemplate) =>
+    resourceTemplateToOption(allowedTemplate.resourceTemplate),
+  );
   const allowedPrompts = client.allowedPrompts.map((allowedPrompt) => promptToOption(allowedPrompt.prompt));
   return {
     id: client.id,
@@ -206,6 +225,8 @@ function toClientSummary(client: OAuthClientRecord): OAuthClientSummary {
     allowedEndpoints,
     allowedResourceIds: allowedResources.map((resource) => resource.id),
     allowedResources,
+    allowedResourceTemplateIds: allowedResourceTemplates.map((template) => template.id),
+    allowedResourceTemplates,
     allowedPromptIds: allowedPrompts.map((prompt) => prompt.id),
     allowedPrompts,
     createdAt: client.createdAt.toISOString(),
@@ -226,6 +247,7 @@ function toAuthorizationCodeSummary(code: OAuthAuthorizationCodeRecord): OAuthAu
     codeChallengeMethod: code.codeChallengeMethod,
     selectedEndpointIds: code.selectedEndpoints.map((endpoint) => endpoint.endpointId),
     selectedResourceIds: code.selectedResources.map((resource) => resource.resourceId),
+    selectedResourceTemplateIds: code.selectedResourceTemplates.map((template) => template.resourceTemplateId),
     selectedPromptIds: code.selectedPrompts.map((prompt) => prompt.promptId),
     expiresAt: code.expiresAt.toISOString(),
     usedAt: code.usedAt?.toISOString() ?? null,
@@ -251,10 +273,11 @@ function oauthIssuer(inputIssuer?: string) {
   return inputIssuer || process.env.APP_BASE_URL || DEFAULT_OAUTH_ISSUER;
 }
 
-function permissionScope(input: { endpointIds: string[]; resourceIds: string[]; promptIds: string[] }) {
+function permissionScope(input: { endpointIds: string[]; resourceIds: string[]; resourceTemplateIds: string[]; promptIds: string[] }) {
   return [
     ...input.endpointIds.map((endpointId) => `endpoint:${endpointId}`),
     ...input.resourceIds.map((resourceId) => `resource:${resourceId}`),
+    ...input.resourceTemplateIds.map((templateId) => `resource_template:${templateId}`),
     ...input.promptIds.map((promptId) => `prompt:${promptId}`),
   ].join(" ");
 }
@@ -272,6 +295,7 @@ function tokenSubject(token: OAuthIssuedTokenRecord) {
 function toIssuedTokenSummary(token: OAuthIssuedTokenRecord, now: Date): OAuthIssuedTokenSummary {
   const endpointPermissions = parseStringPermissions(token.endpointPermissionsJson);
   const resourcePermissions = parseStringPermissions(token.resourcePermissionsJson);
+  const resourceTemplatePermissions = parseStringPermissions(token.resourceTemplatePermissionsJson);
   const promptPermissions = parseStringPermissions(token.promptPermissionsJson);
   return {
     id: token.id,
@@ -290,6 +314,7 @@ function toIssuedTokenSummary(token: OAuthIssuedTokenRecord, now: Date): OAuthIs
     revokedAt: token.revokedAt?.toISOString() ?? null,
     endpointPermissionCount: endpointPermissions.length,
     resourcePermissionCount: resourcePermissions.length,
+    resourceTemplatePermissionCount: resourceTemplatePermissions.length,
     promptPermissionCount: promptPermissions.length,
   };
 }
@@ -308,24 +333,31 @@ function toIssuedTokenClaims(token: OAuthIssuedTokenRecord): OAuthAccessTokenCla
     scope: token.scope,
     endpoint_permissions: parseStringPermissions(token.endpointPermissionsJson),
     resource_permissions: parseStringPermissions(token.resourcePermissionsJson),
+    resource_template_permissions: parseStringPermissions(token.resourceTemplatePermissionsJson),
     prompt_permissions: parseStringPermissions(token.promptPermissionsJson),
   };
 }
 
-function permissionsFromRequestedScope(scope: string, allowed: { endpointIds: string[]; resourceIds: string[]; promptIds: string[] }) {
+function permissionsFromRequestedScope(
+  scope: string,
+  allowed: { endpointIds: string[]; resourceIds: string[]; resourceTemplateIds: string[]; promptIds: string[] },
+) {
   if (!scope.trim()) {
     return {
       endpointIds: [...allowed.endpointIds].sort(),
       resourceIds: [...allowed.resourceIds].sort(),
+      resourceTemplateIds: [...allowed.resourceTemplateIds].sort(),
       promptIds: [...allowed.promptIds].sort(),
     };
   }
 
   const allowedEndpoints = new Set(allowed.endpointIds);
   const allowedResources = new Set(allowed.resourceIds);
+  const allowedResourceTemplates = new Set(allowed.resourceTemplateIds);
   const allowedPrompts = new Set(allowed.promptIds);
   const endpointIds: string[] = [];
   const resourceIds: string[] = [];
+  const resourceTemplateIds: string[] = [];
   const promptIds: string[] = [];
   for (const rawValue of scope.split(/\s+/)) {
     const value = rawValue.trim();
@@ -337,6 +369,10 @@ function permissionsFromRequestedScope(scope: string, allowed: { endpointIds: st
       const resourceId = value.slice("resource:".length);
       if (resourceId && allowedResources.has(resourceId)) resourceIds.push(resourceId);
     }
+    if (value.startsWith("resource_template:")) {
+      const resourceTemplateId = value.slice("resource_template:".length);
+      if (resourceTemplateId && allowedResourceTemplates.has(resourceTemplateId)) resourceTemplateIds.push(resourceTemplateId);
+    }
     if (value.startsWith("prompt:")) {
       const promptId = value.slice("prompt:".length);
       if (promptId && allowedPrompts.has(promptId)) promptIds.push(promptId);
@@ -346,17 +382,19 @@ function permissionsFromRequestedScope(scope: string, allowed: { endpointIds: st
   return {
     endpointIds: Array.from(new Set(endpointIds)).sort(),
     resourceIds: Array.from(new Set(resourceIds)).sort(),
+    resourceTemplateIds: Array.from(new Set(resourceTemplateIds)).sort(),
     promptIds: Array.from(new Set(promptIds)).sort(),
   };
 }
 
 async function assertAllowedPermissionsExist(
-  input: { endpointIds: string[]; resourceIds: string[]; promptIds: string[] },
+  input: { endpointIds: string[]; resourceIds: string[]; resourceTemplateIds: string[]; promptIds: string[] },
   client: OAuthClientPermissionLookupClient,
 ) {
-  const [endpointCount, resourceCount, promptCount] = await Promise.all([
+  const [endpointCount, resourceCount, resourceTemplateCount, promptCount] = await Promise.all([
     input.endpointIds.length ? client.endpoint.count({ where: { id: { in: input.endpointIds } } }) : 0,
     input.resourceIds.length ? client.mcpResource.count({ where: { id: { in: input.resourceIds } } }) : 0,
+    input.resourceTemplateIds.length ? client.mcpResourceTemplate.count({ where: { id: { in: input.resourceTemplateIds } } }) : 0,
     input.promptIds.length ? client.mcpPrompt.count({ where: { id: { in: input.promptIds } } }) : 0,
   ]);
   if (endpointCount !== input.endpointIds.length) {
@@ -365,6 +403,9 @@ async function assertAllowedPermissionsExist(
   if (resourceCount !== input.resourceIds.length) {
     throw new OAuthClientValidationError({ allowedResourceIds: "Choose only existing resources." });
   }
+  if (resourceTemplateCount !== input.resourceTemplateIds.length) {
+    throw new OAuthClientValidationError({ allowedResourceTemplateIds: "Choose only existing resource templates." });
+  }
   if (promptCount !== input.promptIds.length) {
     throw new OAuthClientValidationError({ allowedPromptIds: "Choose only existing prompts." });
   }
@@ -372,11 +413,12 @@ async function assertAllowedPermissionsExist(
 
 async function replaceAllowedPermissions(
   oauthClientId: string,
-  input: { endpointIds: string[]; resourceIds: string[]; promptIds: string[] },
+  input: { endpointIds: string[]; resourceIds: string[]; resourceTemplateIds: string[]; promptIds: string[] },
   client: OAuthClientAllowedPermissionWriteClient,
 ) {
   await client.oAuthClientAllowedEndpoint.deleteMany({ where: { oauthClientId } });
   await client.oAuthClientAllowedResource.deleteMany({ where: { oauthClientId } });
+  await client.oAuthClientAllowedResourceTemplate.deleteMany({ where: { oauthClientId } });
   await client.oAuthClientAllowedPrompt.deleteMany({ where: { oauthClientId } });
   if (input.endpointIds.length > 0) {
     await client.oAuthClientAllowedEndpoint.createMany({
@@ -386,6 +428,11 @@ async function replaceAllowedPermissions(
   if (input.resourceIds.length > 0) {
     await client.oAuthClientAllowedResource.createMany({
       data: input.resourceIds.map((resourceId) => ({ oauthClientId, resourceId })),
+    });
+  }
+  if (input.resourceTemplateIds.length > 0) {
+    await client.oAuthClientAllowedResourceTemplate.createMany({
+      data: input.resourceTemplateIds.map((resourceTemplateId) => ({ oauthClientId, resourceTemplateId })),
     });
   }
   if (input.promptIds.length > 0) {
@@ -420,9 +467,10 @@ export async function seedOAuthClientDefaults(client: OAuthClientSeedClient = cr
     },
   });
 
-  const [defaultEndpoints, defaultResources, defaultPrompts] = await Promise.all([
+  const [defaultEndpoints, defaultResources, defaultResourceTemplates, defaultPrompts] = await Promise.all([
     client.endpoint.findMany({ where: { enabled: true }, select: { id: true } }),
     client.mcpResource.findMany({ where: { enabled: true }, select: { id: true } }),
+    client.mcpResourceTemplate.findMany({ where: { enabled: true }, select: { id: true } }),
     client.mcpPrompt.findMany({ where: { enabled: true }, select: { id: true } }),
   ]);
   for (const endpoint of defaultEndpoints) {
@@ -452,6 +500,21 @@ export async function seedOAuthClientDefaults(client: OAuthClientSeedClient = cr
       create: {
         oauthClientId: DEFAULT_OAUTH_CLIENT_ID,
         resourceId: resource.id,
+      },
+    });
+  }
+  for (const template of defaultResourceTemplates) {
+    await client.oAuthClientAllowedResourceTemplate.upsert({
+      where: {
+        oauthClientId_resourceTemplateId: {
+          oauthClientId: DEFAULT_OAUTH_CLIENT_ID,
+          resourceTemplateId: template.id,
+        },
+      },
+      update: {},
+      create: {
+        oauthClientId: DEFAULT_OAUTH_CLIENT_ID,
+        resourceTemplateId: template.id,
       },
     });
   }
@@ -488,7 +551,7 @@ export async function listOAuthUsers(client: PrismaClient = createPrismaClient()
 }
 
 export async function listOAuthClients(client: PrismaClient = createPrismaClient()): Promise<OAuthClientListResult> {
-  const [clients, endpoints, resources, prompts] = await Promise.all([
+  const [clients, endpoints, resources, resourceTemplates, prompts] = await Promise.all([
     client.oAuthClient.findMany({
       include: oauthClientInclude,
       orderBy: [{ builtIn: "desc" }, { clientId: "asc" }],
@@ -500,6 +563,10 @@ export async function listOAuthClients(client: PrismaClient = createPrismaClient
     client.mcpResource.findMany({
       orderBy: [{ enabled: "desc" }, { uri: "asc" }],
       select: { id: true, uri: true, name: true, title: true, enabled: true },
+    }),
+    client.mcpResourceTemplate.findMany({
+      orderBy: [{ enabled: "desc" }, { name: "asc" }],
+      select: { id: true, uriTemplate: true, name: true, title: true, enabled: true },
     }),
     client.mcpPrompt.findMany({
       orderBy: [{ enabled: "desc" }, { name: "asc" }],
@@ -515,6 +582,7 @@ export async function listOAuthClients(client: PrismaClient = createPrismaClient
     clients: summaries,
     endpointOptions: endpoints.map(endpointToOption),
     resourceOptions: resources.map(resourceToOption),
+    resourceTemplateOptions: resourceTemplates.map(resourceTemplateToOption),
     promptOptions: prompts.map(promptToOption),
     ttlPresets: OAUTH_CLIENT_CREDENTIALS_TTL_PRESETS,
   };
@@ -570,8 +638,9 @@ export async function getOAuthIssuedTokenDetail(
 
   const endpointIds = parseStringPermissions(token.endpointPermissionsJson);
   const resourceIds = parseStringPermissions(token.resourcePermissionsJson);
+  const resourceTemplateIds = parseStringPermissions(token.resourceTemplatePermissionsJson);
   const promptIds = parseStringPermissions(token.promptPermissionsJson);
-  const [endpointRecords, resourceRecords, promptRecords] = await Promise.all([
+  const [endpointRecords, resourceRecords, resourceTemplateRecords, promptRecords] = await Promise.all([
     endpointIds.length
       ? client.endpoint.findMany({
           where: { id: { in: endpointIds } },
@@ -584,6 +653,12 @@ export async function getOAuthIssuedTokenDetail(
           select: { id: true, uri: true, name: true, title: true, enabled: true },
         })
       : [],
+    resourceTemplateIds.length
+      ? client.mcpResourceTemplate.findMany({
+          where: { id: { in: resourceTemplateIds } },
+          select: { id: true, uriTemplate: true, name: true, title: true, enabled: true },
+        })
+      : [],
     promptIds.length
       ? client.mcpPrompt.findMany({
           where: { id: { in: promptIds } },
@@ -593,6 +668,7 @@ export async function getOAuthIssuedTokenDetail(
   ]);
   const endpointLookup = new Map(endpointRecords.map((endpoint) => [endpoint.id, endpoint]));
   const resourceLookup = new Map(resourceRecords.map((resource) => [resource.id, resource]));
+  const resourceTemplateLookup = new Map(resourceTemplateRecords.map((template) => [template.id, template]));
   const promptLookup = new Map(promptRecords.map((prompt) => [prompt.id, prompt]));
   const endpointPermissions: OAuthIssuedTokenEndpointPermission[] = endpointIds.map((endpointId) => {
     const endpoint = endpointLookup.get(endpointId);
@@ -613,6 +689,16 @@ export async function getOAuthIssuedTokenDetail(
       enabled: resource?.enabled ?? null,
     };
   });
+  const resourceTemplatePermissions: OAuthIssuedTokenResourceTemplatePermission[] = resourceTemplateIds.map((resourceTemplateId) => {
+    const template = resourceTemplateLookup.get(resourceTemplateId);
+    return {
+      id: resourceTemplateId,
+      uriTemplate: template?.uriTemplate ?? null,
+      name: template?.name ?? null,
+      title: template?.title ?? null,
+      enabled: template?.enabled ?? null,
+    };
+  });
   const promptPermissions: OAuthIssuedTokenPromptPermission[] = promptIds.map((promptId) => {
     const prompt = promptLookup.get(promptId);
     return {
@@ -628,6 +714,7 @@ export async function getOAuthIssuedTokenDetail(
     claims: toIssuedTokenClaims(token),
     endpoint_permissions: endpointPermissions,
     resource_permissions: resourcePermissions,
+    resource_template_permissions: resourceTemplatePermissions,
     prompt_permissions: promptPermissions,
   };
 }
@@ -724,6 +811,7 @@ export async function createOAuthClient(
     {
       endpointIds: validInput.allowedEndpointIds,
       resourceIds: validInput.allowedResourceIds ?? [],
+      resourceTemplateIds: validInput.allowedResourceTemplateIds ?? [],
       promptIds: validInput.allowedPromptIds ?? [],
     },
     client,
@@ -747,6 +835,7 @@ export async function createOAuthClient(
       {
         endpointIds: validInput.allowedEndpointIds,
         resourceIds: validInput.allowedResourceIds ?? [],
+        resourceTemplateIds: validInput.allowedResourceTemplateIds ?? [],
         promptIds: validInput.allowedPromptIds ?? [],
       },
       tx,
@@ -763,6 +852,7 @@ export async function createOAuthClient(
           redirectUriCount: validInput.redirectUris.length,
           allowedEndpointCount: validInput.allowedEndpointIds.length,
           allowedResourceCount: validInput.allowedResourceIds?.length ?? 0,
+          allowedResourceTemplateCount: validInput.allowedResourceTemplateIds?.length ?? 0,
           allowedPromptCount: validInput.allowedPromptIds?.length ?? 0,
           clientCredentialsTtlSeconds: created.clientCredentialsTtlSeconds,
         },
@@ -838,12 +928,14 @@ export async function updateOAuthClient(
   }
 
   const validInput = validateOAuthClientUpdateInput(input);
-  if (validInput.allowedEndpointIds || validInput.allowedResourceIds || validInput.allowedPromptIds) {
+  if (validInput.allowedEndpointIds || validInput.allowedResourceIds || validInput.allowedResourceTemplateIds || validInput.allowedPromptIds) {
     const current = await client.oAuthClient.findUniqueOrThrow({ where: { id }, include: oauthClientInclude });
     await assertAllowedPermissionsExist(
       {
         endpointIds: validInput.allowedEndpointIds ?? current.allowedEndpoints.map((endpoint) => endpoint.endpointId),
         resourceIds: validInput.allowedResourceIds ?? current.allowedResources.map((resource) => resource.resourceId),
+        resourceTemplateIds:
+          validInput.allowedResourceTemplateIds ?? current.allowedResourceTemplates.map((template) => template.resourceTemplateId),
         promptIds: validInput.allowedPromptIds ?? current.allowedPrompts.map((prompt) => prompt.promptId),
       },
       client,
@@ -860,13 +952,15 @@ export async function updateOAuthClient(
     }
 
     await tx.oAuthClient.update({ where: { id }, data });
-    if (validInput.allowedEndpointIds || validInput.allowedResourceIds || validInput.allowedPromptIds) {
+    if (validInput.allowedEndpointIds || validInput.allowedResourceIds || validInput.allowedResourceTemplateIds || validInput.allowedPromptIds) {
       const current = await tx.oAuthClient.findUniqueOrThrow({ where: { id }, include: oauthClientInclude });
       await replaceAllowedPermissions(
         id,
         {
           endpointIds: validInput.allowedEndpointIds ?? current.allowedEndpoints.map((endpoint) => endpoint.endpointId),
           resourceIds: validInput.allowedResourceIds ?? current.allowedResources.map((resource) => resource.resourceId),
+          resourceTemplateIds:
+            validInput.allowedResourceTemplateIds ?? current.allowedResourceTemplates.map((template) => template.resourceTemplateId),
           promptIds: validInput.allowedPromptIds ?? current.allowedPrompts.map((prompt) => prompt.promptId),
         },
         tx,
@@ -885,6 +979,7 @@ export async function updateOAuthClient(
           redirectUriCount: parseRedirectUris(updated.redirectUrisJson).length,
           allowedEndpointCount: updated.allowedEndpoints.length,
           allowedResourceCount: updated.allowedResources.length,
+          allowedResourceTemplateCount: updated.allowedResourceTemplates.length,
           allowedPromptCount: updated.allowedPrompts.length,
           clientCredentialsTtlSeconds: updated.clientCredentialsTtlSeconds,
         },
@@ -1170,6 +1265,7 @@ export async function createOAuthAuthorizationCode(input: {
   loginTicket: string;
   selectedEndpointIds: string[];
   selectedResourceIds?: string[];
+  selectedResourceTemplateIds?: string[];
   selectedPromptIds?: string[];
 }, client: PrismaClient = createPrismaClient()): Promise<OAuthAuthorizationCodeSummary> {
   const context = await validateOAuthConsentRequest(
@@ -1178,18 +1274,25 @@ export async function createOAuthAuthorizationCode(input: {
   );
   const selectedEndpointIds = Array.from(new Set(input.selectedEndpointIds.map((id) => id.trim()).filter(Boolean)));
   const selectedResourceIds = Array.from(new Set((input.selectedResourceIds ?? []).map((id) => id.trim()).filter(Boolean)));
+  const selectedResourceTemplateIds = Array.from(
+    new Set((input.selectedResourceTemplateIds ?? []).map((id) => id.trim()).filter(Boolean)),
+  );
   const selectedPromptIds = Array.from(new Set((input.selectedPromptIds ?? []).map((id) => id.trim()).filter(Boolean)));
-  if (selectedEndpointIds.length + selectedResourceIds.length + selectedPromptIds.length === 0) {
+  if (selectedEndpointIds.length + selectedResourceIds.length + selectedResourceTemplateIds.length + selectedPromptIds.length === 0) {
     throw new OAuthLoginError("invalid_selection", "Select at least one permission.");
   }
   const allowedEndpointIds = new Set(context.client.allowedEndpointIds);
   const allowedResourceIds = new Set(context.client.allowedResourceIds);
+  const allowedResourceTemplateIds = new Set(context.client.allowedResourceTemplateIds);
   const allowedPromptIds = new Set(context.client.allowedPromptIds);
   if (selectedEndpointIds.some((endpointId) => !allowedEndpointIds.has(endpointId))) {
     throw new OAuthLoginError("invalid_selection", "Endpoint selection is outside this client's allowed set.");
   }
   if (selectedResourceIds.some((resourceId) => !allowedResourceIds.has(resourceId))) {
     throw new OAuthLoginError("invalid_selection", "Resource selection is outside this client's allowed set.");
+  }
+  if (selectedResourceTemplateIds.some((templateId) => !allowedResourceTemplateIds.has(templateId))) {
+    throw new OAuthLoginError("invalid_selection", "Resource template selection is outside this client's allowed set.");
   }
   if (selectedPromptIds.some((promptId) => !allowedPromptIds.has(promptId))) {
     throw new OAuthLoginError("invalid_selection", "Prompt selection is outside this client's allowed set.");
@@ -1218,6 +1321,11 @@ export async function createOAuthAuthorizationCode(input: {
         data: selectedResourceIds.map((resourceId) => ({ authorizationCodeId: created.id, resourceId })),
       });
     }
+    if (selectedResourceTemplateIds.length) {
+      await tx.oAuthAuthorizationCodeResourceTemplate.createMany({
+        data: selectedResourceTemplateIds.map((resourceTemplateId) => ({ authorizationCodeId: created.id, resourceTemplateId })),
+      });
+    }
     if (selectedPromptIds.length) {
       await tx.oAuthAuthorizationCodePrompt.createMany({
         data: selectedPromptIds.map((promptId) => ({ authorizationCodeId: created.id, promptId })),
@@ -1238,6 +1346,7 @@ export async function createOAuthAuthorizationCode(input: {
           pkce: Boolean(context.request.codeChallenge),
           selectedEndpointCount: selectedEndpointIds.length,
           selectedResourceCount: selectedResourceIds.length,
+          selectedResourceTemplateCount: selectedResourceTemplateIds.length,
           selectedPromptCount: selectedPromptIds.length,
           expiresAt: created.expiresAt.toISOString(),
         },
@@ -1246,7 +1355,7 @@ export async function createOAuthAuthorizationCode(input: {
     );
     return tx.oAuthAuthorizationCode.findUniqueOrThrow({
       where: { id: created.id },
-      include: { selectedEndpoints: true, selectedResources: true, selectedPrompts: true },
+      include: { selectedEndpoints: true, selectedResources: true, selectedResourceTemplates: true, selectedPrompts: true },
     });
   });
 
@@ -1290,6 +1399,7 @@ export async function exchangeOAuthAuthorizationCode(
       include: {
         selectedEndpoints: true,
         selectedResources: true,
+        selectedResourceTemplates: true,
         selectedPrompts: true,
         oauthClient: true,
         oauthUser: true,
@@ -1320,6 +1430,7 @@ export async function exchangeOAuthAuthorizationCode(
 
     const endpointPermissions = code.selectedEndpoints.map((endpoint) => endpoint.endpointId).sort();
     const resourcePermissions = code.selectedResources.map((resource) => resource.resourceId).sort();
+    const resourceTemplatePermissions = code.selectedResourceTemplates.map((template) => template.resourceTemplateId).sort();
     const promptPermissions = code.selectedPrompts.map((prompt) => prompt.promptId).sort();
     const iat = Math.floor(now.getTime() / 1000);
     const expiresIn = code.oauthUser.accessTokenTtlSeconds;
@@ -1328,6 +1439,7 @@ export async function exchangeOAuthAuthorizationCode(
     const scope = permissionScope({
       endpointIds: endpointPermissions,
       resourceIds: resourcePermissions,
+      resourceTemplateIds: resourceTemplatePermissions,
       promptIds: promptPermissions,
     });
     const issuer = oauthIssuer(input.issuer);
@@ -1344,6 +1456,7 @@ export async function exchangeOAuthAuthorizationCode(
       scope,
       endpoint_permissions: endpointPermissions,
       resource_permissions: resourcePermissions,
+      resource_template_permissions: resourceTemplatePermissions,
       prompt_permissions: promptPermissions,
     };
 
@@ -1363,6 +1476,7 @@ export async function exchangeOAuthAuthorizationCode(
         resource: code.resource,
         endpointPermissionsJson: JSON.stringify(endpointPermissions),
         resourcePermissionsJson: JSON.stringify(resourcePermissions),
+        resourceTemplatePermissionsJson: JSON.stringify(resourceTemplatePermissions),
         promptPermissionsJson: JSON.stringify(promptPermissions),
         issuedAt: new Date(iat * 1000),
         expiresAt: new Date(exp * 1000),
@@ -1382,6 +1496,7 @@ export async function exchangeOAuthAuthorizationCode(
           resource: code.resource,
           endpointPermissionCount: endpointPermissions.length,
           resourcePermissionCount: resourcePermissions.length,
+          resourceTemplatePermissionCount: resourceTemplatePermissions.length,
           promptPermissionCount: promptPermissions.length,
           expiresAt: new Date(exp * 1000).toISOString(),
         },
@@ -1419,7 +1534,7 @@ export async function issueOAuthClientCredentialsToken(
   const result = await client.$transaction(async (tx) => {
     const oauthClient = await tx.oAuthClient.findUnique({
       where: { clientId: input.clientId },
-      include: { allowedEndpoints: true, allowedResources: true, allowedPrompts: true },
+      include: { allowedEndpoints: true, allowedResources: true, allowedResourceTemplates: true, allowedPrompts: true },
     });
     if (!oauthClient?.enabled) {
       throw new OAuthTokenError("invalid_client", "OAuth client is invalid.");
@@ -1431,10 +1546,12 @@ export async function issueOAuthClientCredentialsToken(
     const permissions = permissionsFromRequestedScope(input.scope ?? "", {
       endpointIds: oauthClient.allowedEndpoints.map((endpoint) => endpoint.endpointId),
       resourceIds: oauthClient.allowedResources.map((resource) => resource.resourceId),
+      resourceTemplateIds: oauthClient.allowedResourceTemplates.map((template) => template.resourceTemplateId),
       promptIds: oauthClient.allowedPrompts.map((prompt) => prompt.promptId),
     });
     const endpointPermissions = permissions.endpointIds;
     const resourcePermissions = permissions.resourceIds;
+    const resourceTemplatePermissions = permissions.resourceTemplateIds;
     const promptPermissions = permissions.promptIds;
     const iat = Math.floor(now.getTime() / 1000);
     const expiresIn = oauthClient.clientCredentialsTtlSeconds;
@@ -1456,6 +1573,7 @@ export async function issueOAuthClientCredentialsToken(
       scope,
       endpoint_permissions: endpointPermissions,
       resource_permissions: resourcePermissions,
+      resource_template_permissions: resourceTemplatePermissions,
       prompt_permissions: promptPermissions,
     };
 
@@ -1471,6 +1589,7 @@ export async function issueOAuthClientCredentialsToken(
         resource,
         endpointPermissionsJson: JSON.stringify(endpointPermissions),
         resourcePermissionsJson: JSON.stringify(resourcePermissions),
+        resourceTemplatePermissionsJson: JSON.stringify(resourceTemplatePermissions),
         promptPermissionsJson: JSON.stringify(promptPermissions),
         issuedAt: new Date(iat * 1000),
         expiresAt: new Date(exp * 1000),
@@ -1490,6 +1609,7 @@ export async function issueOAuthClientCredentialsToken(
           resource,
           endpointPermissionCount: endpointPermissions.length,
           resourcePermissionCount: resourcePermissions.length,
+          resourceTemplatePermissionCount: resourceTemplatePermissions.length,
           promptPermissionCount: promptPermissions.length,
           expiresAt: new Date(exp * 1000).toISOString(),
         },

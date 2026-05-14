@@ -8,6 +8,7 @@ import {
   listEnabledMcpPrompts,
   listEnabledMcpResourceTemplates,
   readEnabledMcpResource,
+  matchResourceTemplateUri,
 } from "@/lib/mcp-fixtures/service";
 import { renderTemplateWithValues } from "@/lib/mcp-fixtures/template-render";
 import type {
@@ -126,7 +127,17 @@ function stringArguments(args: Record<string, unknown>) {
   );
 }
 
-async function mcpPromptGetFromDetail(prompt: McpPromptDetail, args: Record<string, unknown>): Promise<McpPromptGetResult | null> {
+function isForbiddenResourceRead(
+  value: McpResourceContent | null | { kind: "forbidden"; message: string },
+): value is { kind: "forbidden"; message: string } {
+  return Boolean(value && "kind" in value && value.kind === "forbidden");
+}
+
+async function mcpPromptGetFromDetail(
+  prompt: McpPromptDetail,
+  args: Record<string, unknown>,
+  readResource: (uri: string) => Promise<McpResourceContent | null | { kind: "forbidden"; message: string }>,
+): Promise<McpPromptGetResult | null | { kind: "forbidden"; message: string }> {
   const values = stringArguments(args);
   const missingRequired = prompt.arguments.some((argument) => argument.required && !values[argument.name]);
   if (missingRequired) return null;
@@ -144,15 +155,15 @@ async function mcpPromptGetFromDetail(prompt: McpPromptDetail, args: Record<stri
     }
 
     if (message.resourceUri) {
-      const resource = await readEnabledMcpResource(message.resourceUri);
+      const resource = await readResource(message.resourceUri);
+      if (isForbiddenResourceRead(resource)) return resource;
       if (!resource) return null;
-      const content = mcpResourceContentFromRead(resource);
       messages.push({
         role: message.role,
         content: {
           type: "resource" as const,
           resource: {
-            ...content,
+            ...resource,
             ...(message.resourceMimeType ? { mimeType: message.resourceMimeType } : {}),
           },
         },
@@ -243,6 +254,7 @@ async function handleMcpJsonRpcPost(
   runtime: {
     endpointIds?: string[];
     resourceIds?: string[];
+    resourceTemplateIds?: string[];
     promptIds?: string[];
   } = {},
   sseSession?: {
@@ -276,22 +288,33 @@ async function handleMcpJsonRpcPost(
       return resources.filter((resource) => !allowed || allowed.has(resource.id)).map(mcpResourceFromDetail);
     },
     loadResourceTemplates: async () => {
-      if (runtime.resourceIds) return [];
-      return (await listEnabledMcpResourceTemplates()).map(mcpResourceTemplateFromDetail);
+      const templates = await listEnabledMcpResourceTemplates();
+      const allowed = runtime.resourceTemplateIds ? new Set(runtime.resourceTemplateIds) : null;
+      return templates.filter((template) => !allowed || allowed.has(template.id)).map(mcpResourceTemplateFromDetail);
     },
     readResource: async (uri: string) => {
-      if (runtime.resourceIds) {
-        const resources = await listEnabledMcpResources();
+      if (runtime.resourceIds || runtime.resourceTemplateIds) {
+        const [resources, templates] = await Promise.all([listEnabledMcpResources(), listEnabledMcpResourceTemplates()]);
         const directResource = resources.find((resource) => resource.uri === uri);
-        if (directResource && !runtime.resourceIds.includes(directResource.id)) {
-          return { kind: "forbidden" as const, message: "Bearer token does not grant permission for this resource." };
-        }
-        if (!directResource) {
-          const renderedTemplate = await readEnabledMcpResource(uri);
-          if (renderedTemplate) {
+        if (directResource) {
+          if (runtime.resourceIds && !runtime.resourceIds.includes(directResource.id)) {
             return { kind: "forbidden" as const, message: "Bearer token does not grant permission for this resource." };
           }
-          return null;
+        } else {
+          const renderedTemplate = templates.find((template) => matchResourceTemplateUri(template.uriTemplate, uri));
+          if (renderedTemplate && runtime.resourceTemplateIds && !runtime.resourceTemplateIds.includes(renderedTemplate.id)) {
+            return { kind: "forbidden" as const, message: "Bearer token does not grant permission for this resource template." };
+          }
+          if (!renderedTemplate) {
+            const renderedResource = await readEnabledMcpResource(uri);
+            if (renderedResource) {
+              return { kind: "forbidden" as const, message: "Bearer token does not grant permission for this resource." };
+            }
+            return null;
+          }
+        }
+        if (!directResource && runtime.resourceIds && !runtime.resourceTemplateIds) {
+          return { kind: "forbidden" as const, message: "Bearer token does not grant permission for this resource." };
         }
       }
       const resource = await readEnabledMcpResource(uri);
@@ -316,7 +339,7 @@ async function handleMcpJsonRpcPost(
       if (runtime.promptIds && !runtime.promptIds.includes(prompt.id)) {
         return { kind: "forbidden" as const, message: "Bearer token does not grant permission for this prompt." };
       }
-      return mcpPromptGetFromDetail(prompt, args);
+      return mcpPromptGetFromDetail(prompt, args, resourcesRuntime.readResource);
     },
     complete: async (
       ref: { type: "ref/prompt"; name: string } | { type: "ref/resource"; uri: string },
@@ -329,8 +352,8 @@ async function handleMcpJsonRpcPost(
         return completionFromCandidates(prompt.completionCandidates, argumentName, value);
       }
 
-      if (runtime.resourceIds) return null;
       const template = (await listEnabledMcpResourceTemplates()).find((item) => item.uriTemplate === ref.uri);
+      if (template && runtime.resourceTemplateIds && !runtime.resourceTemplateIds.includes(template.id)) return null;
       return template ? completionFromCandidates(template.completionCandidates, argumentName, value) : null;
     },
   };
@@ -375,6 +398,7 @@ export async function handleUnifiedMcpPost(request: Request) {
     return handleMcpJsonRpcPost(request, {
       endpointIds: resolution.principal.endpointIds,
       resourceIds: resolution.principal.resourceIds,
+      resourceTemplateIds: resolution.principal.resourceTemplateIds,
       promptIds: resolution.principal.promptIds,
     });
   }
@@ -400,6 +424,7 @@ export async function handleStrictOAuthMcpPost(request: Request) {
   return handleMcpJsonRpcPost(request, {
     endpointIds: resolution.principal.endpointIds,
     resourceIds: resolution.principal.resourceIds,
+    resourceTemplateIds: resolution.principal.resourceTemplateIds,
     promptIds: resolution.principal.promptIds,
   });
 }
@@ -497,6 +522,7 @@ async function legacyRuntimeForRequest(mode: LegacySseMode, request: Request): P
       runtime: {
         endpointIds: resolution.principal.endpointIds,
         resourceIds: resolution.principal.resourceIds,
+        resourceTemplateIds: resolution.principal.resourceTemplateIds,
         promptIds: resolution.principal.promptIds,
       },
     };
@@ -514,6 +540,7 @@ async function legacyRuntimeForRequest(mode: LegacySseMode, request: Request): P
         runtime: {
           endpointIds: resolution.principal.endpointIds,
           resourceIds: resolution.principal.resourceIds,
+          resourceTemplateIds: resolution.principal.resourceTemplateIds,
           promptIds: resolution.principal.promptIds,
         },
       };

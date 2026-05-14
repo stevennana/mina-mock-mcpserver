@@ -37,7 +37,7 @@ The repository is intended to work well with long-running agent loops. Strict bo
 | MCP protocol | JSON-RPC request handling, initialize, tools/list, tools/call, resources/list/read/templates/subscribe, prompts/list/get, completion/complete, MCP errors |
 | REST API | Tool list/call responses and REST error mapping |
 | Basic auth | Basic users, password hashing, built-in default protection, 401 behavior |
-| OAuth | Users, clients, codes, JWTs, tool/resource/prompt permissions, revocation, discovery metadata |
+| OAuth | Users, clients, codes, JWTs, tool/resource/resource-template/prompt permissions, revocation, discovery metadata |
 | Admin UI | Dashboards, editors, console, config, reset, audit screens |
 | Operations | SQLite prep, seed defaults, base URL, Docker/Nginx docs, logs, health |
 

@@ -66,7 +66,7 @@ MCP Mock Server gives MCP client developers a repeatable remote-like target for 
 
 OAuth tokens carry endpoint permission claims. A valid token that lacks permission returns `403` for that endpoint. Missing, invalid, expired, revoked, or wrong-audience tokens return `401`.
 
-OAuth tokens also carry resource and prompt permission claims. Bearer `resources/list`, `resources/read`, `prompts/list`, `prompts/get`, and `completion/complete` expose only the permitted resource or prompt set.
+OAuth tokens also carry direct resource, resource template, and prompt permission claims. Bearer `resources/list`, `resources/templates/list`, `resources/read`, `prompts/list`, `prompts/get`, and `completion/complete` expose only the permitted resource, resource template, or prompt set.
 
 ## Endpoint Behavior
 

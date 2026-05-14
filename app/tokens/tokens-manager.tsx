@@ -309,6 +309,7 @@ export function TokensManager({
                 <div><dt>Revoked</dt><dd>{formatDate(displayDetail.revokedAt)}</dd></div>
                 <div><dt>Endpoint count</dt><dd>{displayDetail.endpointPermissionCount}</dd></div>
                 <div><dt>Resource count</dt><dd>{displayDetail.resourcePermissionCount}</dd></div>
+                <div><dt>Resource template count</dt><dd>{displayDetail.resourceTemplatePermissionCount}</dd></div>
                 <div><dt>Prompt count</dt><dd>{displayDetail.promptPermissionCount}</dd></div>
               </dl>
             </div>
@@ -361,6 +362,32 @@ export function TokensManager({
                 </div>
               ) : (
                 <p className="section-note">Load claims to inspect resource permission metadata.</p>
+              )}
+            </div>
+
+            <div className="editor-section">
+              <h3>resource_template_permissions</h3>
+              {activeDetail ? (
+                <div className="permission-list">
+                  {activeDetail.resource_template_permissions.map((template) => (
+                    <div key={template.id}>
+                      <strong>{template.id}</strong>
+                      <span>
+                        {template.name ?? "Missing resource template"}
+                        {template.title ? ` ${template.title}` : ""}
+                        {template.uriTemplate ? ` ${template.uriTemplate}` : ""}
+                      </span>
+                      <span className={template.enabled === false ? "status-pill danger" : "status-pill enabled"}>
+                        {template.enabled === false ? "Disabled" : template.enabled === null ? "Historical" : "Enabled"}
+                      </span>
+                    </div>
+                  ))}
+                  {activeDetail.resource_template_permissions.length === 0 ? (
+                    <p className="section-note">No resource template permissions stored.</p>
+                  ) : null}
+                </div>
+              ) : (
+                <p className="section-note">Load claims to inspect resource template permission metadata.</p>
               )}
             </div>
 

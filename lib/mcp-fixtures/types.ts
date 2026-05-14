@@ -153,3 +153,9 @@ export class McpFixtureNotFoundError extends Error {
     super("MCP fixture not found");
   }
 }
+
+export class McpFixtureProtectedDefaultError extends Error {
+  constructor(public readonly fixtureType: "resource" | "resource_template" | "prompt", public readonly action: "update" | "delete") {
+    super("Protected default MCP fixture cannot be changed");
+  }
+}

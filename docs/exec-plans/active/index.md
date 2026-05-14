@@ -4,19 +4,13 @@ This directory contains only runnable feature and hardening tasks. Completed tas
 
 ## Current recommended sequence
 
-1. `027-mcp-resource-prompt-domain-schema.md` -> `mcp-resource-prompt-domain-schema` -> Add persistence, seed defaults, validators, and services for Resources, Resource Templates, Prompts, and Completion candidates.
-2. `028-mcp-resource-management-ui.md` -> `mcp-resource-management-ui` -> Add direct Resource admin UI/API workflows with focused catalog/detail pages.
-3. `029-mcp-resource-template-management-ui.md` -> `mcp-resource-template-management-ui` -> Add Resource Template admin UI/API workflows with arguments, rendered content, and completion candidates.
-4. `030-mcp-prompt-management-ui.md` -> `mcp-prompt-management-ui` -> Add Prompt admin UI/API workflows with arguments, messages, embedded resources, and completion candidates.
-5. `031-mcp-resources-runtime.md` -> `mcp-resources-runtime` -> Implement `resources/list`, `resources/templates/list`, and `resources/read` over existing MCP transports.
-6. `032-mcp-prompts-completion-runtime.md` -> `mcp-prompts-completion-runtime` -> Implement `prompts/list`, `prompts/get`, and `completion/complete`.
-7. `033-oauth-resource-prompt-permissions.md` -> `oauth-resource-prompt-permissions` -> Extend OAuth consent, tokens, and Bearer runtime filtering to resources and prompts.
-8. `034-mcp-resource-subscription-notifications.md` -> `mcp-resource-subscription-notifications` -> Add best-effort legacy SSE resource subscriptions and list/update notifications.
-9. `035-inspector-full-server-features.md` -> `inspector-full-server-features` -> Update Inspector/docs and prove full server-side MCP feature coverage end to end.
+The Resources/Prompts wave has been promoted. There are no active runnable tasks in this queue right now.
+
+Completed task history lives under `docs/exec-plans/completed/`. Start the next wave by updating the relevant product/design docs first, then add new focused active plans.
 
 ## Queue rationale
 
-The Resources/Prompts wave is intentionally split by risk boundary:
+The completed Resources/Prompts wave was intentionally split by risk boundary:
 
 - schema/domain first, before UI or runtime capability advertisement
 - each admin surface has a focused UI task with screenshot/responsive/accessibility gates
@@ -35,6 +29,6 @@ The Resources/Prompts wave is intentionally split by risk boundary:
 
 ## Maintenance notes
 
-- Keep `taskmeta.order` aligned with this sequence.
+- Keep `taskmeta.order` aligned with the next active sequence when one exists.
 - Do not collapse multiple MCP feature fronts into one broad task.
 - If a task needs behavior not described by `docs/product-specs/mcp-resources-prompts.md`, update the product spec before implementation.
