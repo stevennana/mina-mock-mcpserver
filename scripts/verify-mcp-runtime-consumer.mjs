@@ -72,6 +72,7 @@ try {
   await writeFile(
     path.join(tempDir, "src", "index.ts"),
     `import {
+  createMcpCorsHeaders,
   createMcpFetchHandler,
   handleMcpJsonRpcMessage,
   type McpRuntimeProvider,
@@ -104,6 +105,17 @@ const provider: McpRuntimeProvider = {
     },
   },
 };
+
+const corsHeaders = createMcpCorsHeaders(
+  { allowedOrigins: ["http://localhost:6274"] },
+  new Request("https://consumer.example.test/api/mcp", {
+    headers: { origin: "http://localhost:6274" },
+  }),
+);
+
+if (corsHeaders.get("access-control-allow-origin") !== "http://localhost:6274") {
+  throw new Error("Expected Inspector-compatible CORS helper headers.");
+}
 
 const direct = await handleMcpJsonRpcMessage(
   {

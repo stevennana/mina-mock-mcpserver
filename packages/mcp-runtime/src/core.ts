@@ -110,6 +110,10 @@ export function createMcpInvalidParamsError(
   return createMcpErrorResponse(id, -32602, message, data);
 }
 
+export function createMcpInternalError(id: McpJsonRpcId, message = "Internal error") {
+  return createMcpErrorResponse(id, -32603, message);
+}
+
 export function createMcpProtocolError(id: McpJsonRpcId, message: string, data?: Record<string, JsonValue>) {
   return createMcpErrorResponse(id, -32000, message, { error: "protocol_error", ...(data ?? {}) });
 }
@@ -383,196 +387,200 @@ export async function handleMcpJsonRpcMessage(
     return { kind: "accepted" };
   }
 
-  if (message.method === "initialize") {
-    if (!validateInitializeParams(message.params)) {
-      return createMcpJsonErrorResult(createMcpInvalidParamsError(message.id));
-    }
+  try {
+    if (message.method === "initialize") {
+      if (!validateInitializeParams(message.params)) {
+        return createMcpJsonErrorResult(createMcpInvalidParamsError(message.id));
+      }
 
-    return createMcpJsonResult(message.id, {
-      protocolVersion: requestedProtocolVersion(message.params, options),
-      capabilities: deriveMcpCapabilities(provider),
-      serverInfo: provider.serverInfo ?? options.serverInfo ?? DEFAULT_SERVER_INFO,
-    });
-  }
-
-  const context = options.context ?? {};
-
-  if (message.method === "tools/list") {
-    if (!provider.tools?.list) {
-      return createMcpJsonErrorResult(createMcpMethodNotFoundError(message.id, message.method));
-    }
-
-    const input = parseListParams(message.params, options, context);
-    if (!input) {
-      return createMcpJsonErrorResult(createMcpInvalidParamsError(message.id));
-    }
-
-    const result = await provider.tools.list(input);
-    return listResult(message.id, "tools", result.items, result.nextCursor);
-  }
-
-  if (message.method === "tools/call") {
-    if (!provider.tools?.call) {
-      return createMcpJsonErrorResult(createMcpMethodNotFoundError(message.id, message.method));
-    }
-
-    const input = parseToolCallParams(message.params, context);
-    if (!input) {
-      return createMcpJsonErrorResult(createMcpInvalidParamsError(message.id));
-    }
-
-    const result = await provider.tools.call(input);
-    if (result.kind === "success") {
       return createMcpJsonResult(message.id, {
-        content: result.content,
-        ...(result.structuredContent ? { structuredContent: result.structuredContent } : {}),
+        protocolVersion: requestedProtocolVersion(message.params, options),
+        capabilities: deriveMcpCapabilities(provider),
+        serverInfo: provider.serverInfo ?? options.serverInfo ?? DEFAULT_SERVER_INFO,
       });
     }
-    if (result.kind === "tool_error") {
+
+    const context = options.context ?? {};
+
+    if (message.method === "tools/list") {
+      if (!provider.tools?.list) {
+        return createMcpJsonErrorResult(createMcpMethodNotFoundError(message.id, message.method));
+      }
+
+      const input = parseListParams(message.params, options, context);
+      if (!input) {
+        return createMcpJsonErrorResult(createMcpInvalidParamsError(message.id));
+      }
+
+      const result = await provider.tools.list(input);
+      return listResult(message.id, "tools", result.items, result.nextCursor);
+    }
+
+    if (message.method === "tools/call") {
+      if (!provider.tools?.call) {
+        return createMcpJsonErrorResult(createMcpMethodNotFoundError(message.id, message.method));
+      }
+
+      const input = parseToolCallParams(message.params, context);
+      if (!input) {
+        return createMcpJsonErrorResult(createMcpInvalidParamsError(message.id));
+      }
+
+      const result = await provider.tools.call(input);
+      if (result.kind === "success") {
+        return createMcpJsonResult(message.id, {
+          content: result.content,
+          ...(result.structuredContent ? { structuredContent: result.structuredContent } : {}),
+        });
+      }
+      if (result.kind === "tool_error") {
+        return createMcpJsonResult(message.id, {
+          content: result.content,
+          ...(result.structuredContent ? { structuredContent: result.structuredContent } : {}),
+          isError: true,
+        });
+      }
+      if (result.kind === "raw") {
+        return {
+          kind: "raw",
+          status: result.status,
+          body: result.body,
+          ...(result.contentType !== undefined ? { contentType: result.contentType } : {}),
+          ...(result.headers ? { headers: result.headers } : {}),
+        };
+      }
+
+      return createMcpJsonErrorResult(createMcpErrorResponseFromProviderError(message.id, result));
+    }
+
+    if (message.method === "resources/list") {
+      if (!provider.resources?.list) {
+        return createMcpJsonErrorResult(createMcpMethodNotFoundError(message.id, message.method));
+      }
+
+      const input = parseListParams(message.params, options, context);
+      if (!input) {
+        return createMcpJsonErrorResult(createMcpInvalidParamsError(message.id));
+      }
+
+      const result = await provider.resources.list(input);
+      return listResult(message.id, "resources", result.items, result.nextCursor);
+    }
+
+    if (message.method === "resources/templates/list") {
+      if (!provider.resources?.templates?.list) {
+        return createMcpJsonErrorResult(createMcpMethodNotFoundError(message.id, message.method));
+      }
+
+      const input = parseListParams(message.params, options, context);
+      if (!input) {
+        return createMcpJsonErrorResult(createMcpInvalidParamsError(message.id));
+      }
+
+      const result = await provider.resources.templates.list(input);
+      return listResult(message.id, "resourceTemplates", result.items, result.nextCursor);
+    }
+
+    if (message.method === "resources/read") {
+      if (!provider.resources?.read) {
+        return createMcpJsonErrorResult(createMcpMethodNotFoundError(message.id, message.method));
+      }
+
+      const input = parseResourceReadParams(message.params, context);
+      if (!input) {
+        return createMcpJsonErrorResult(createMcpInvalidParamsError(message.id));
+      }
+
+      const result = await provider.resources.read(input);
+      if (result.kind !== "success") {
+        return createMcpJsonErrorResult(createMcpErrorResponseFromProviderError(message.id, result));
+      }
+
+      return createMcpJsonResult(message.id, { contents: result.contents });
+    }
+
+    if (message.method === "resources/subscribe" || message.method === "resources/unsubscribe") {
+      if (!provider.subscriptions) {
+        return createMcpJsonErrorResult(createMcpMethodNotFoundError(message.id, message.method));
+      }
+
+      const input = parseResourceReadParams(message.params, context);
+      if (!input) {
+        return createMcpJsonErrorResult(createMcpInvalidParamsError(message.id));
+      }
+
+      const handler =
+        message.method === "resources/subscribe" ? provider.subscriptions.subscribe : provider.subscriptions.unsubscribe;
+      const result = await handler(input);
+      if (isSubscribeProviderError(result)) {
+        return createMcpJsonErrorResult(createMcpErrorResponseFromProviderError(message.id, result));
+      }
+
+      return createMcpJsonResult(message.id, {});
+    }
+
+    if (message.method === "prompts/list") {
+      if (!provider.prompts?.list) {
+        return createMcpJsonErrorResult(createMcpMethodNotFoundError(message.id, message.method));
+      }
+
+      const input = parseListParams(message.params, options, context);
+      if (!input) {
+        return createMcpJsonErrorResult(createMcpInvalidParamsError(message.id));
+      }
+
+      const result = await provider.prompts.list(input);
+      return listResult(message.id, "prompts", result.items, result.nextCursor);
+    }
+
+    if (message.method === "prompts/get") {
+      if (!provider.prompts?.get) {
+        return createMcpJsonErrorResult(createMcpMethodNotFoundError(message.id, message.method));
+      }
+
+      const input = parsePromptGetParams(message.params, context);
+      if (!input) {
+        return createMcpJsonErrorResult(createMcpInvalidParamsError(message.id));
+      }
+
+      const result = await provider.prompts.get(input);
+      if (isProviderError(result)) {
+        return createMcpJsonErrorResult(createMcpErrorResponseFromProviderError(message.id, result));
+      }
+
       return createMcpJsonResult(message.id, {
-        content: result.content,
-        ...(result.structuredContent ? { structuredContent: result.structuredContent } : {}),
-        isError: true,
+        ...(result.description ? { description: result.description } : {}),
+        messages: result.messages,
       });
     }
-    if (result.kind === "raw") {
-      return {
-        kind: "raw",
-        status: result.status,
-        body: result.body,
-        ...(result.contentType !== undefined ? { contentType: result.contentType } : {}),
-        ...(result.headers ? { headers: result.headers } : {}),
-      };
+
+    if (message.method === "completion/complete") {
+      const handler = provider.completion?.complete ?? provider.prompts?.complete;
+      if (!handler) {
+        return createMcpJsonErrorResult(createMcpMethodNotFoundError(message.id, message.method));
+      }
+
+      const input = parseCompletionParams(message.params, context);
+      if (!input) {
+        return createMcpJsonErrorResult(createMcpInvalidParamsError(message.id));
+      }
+
+      const result = await handler(input);
+      if (isProviderError(result)) {
+        return createMcpJsonErrorResult(createMcpErrorResponseFromProviderError(message.id, result));
+      }
+
+      return createMcpJsonResult(message.id, {
+        completion: {
+          values: result.values,
+          ...(result.total !== undefined ? { total: result.total } : {}),
+          ...(result.hasMore !== undefined ? { hasMore: result.hasMore } : {}),
+        },
+      });
     }
 
-    return createMcpJsonErrorResult(createMcpErrorResponseFromProviderError(message.id, result));
+    return createMcpJsonErrorResult(createMcpMethodNotFoundError(message.id, message.method));
+  } catch {
+    return createMcpJsonErrorResult(createMcpInternalError(message.id));
   }
-
-  if (message.method === "resources/list") {
-    if (!provider.resources?.list) {
-      return createMcpJsonErrorResult(createMcpMethodNotFoundError(message.id, message.method));
-    }
-
-    const input = parseListParams(message.params, options, context);
-    if (!input) {
-      return createMcpJsonErrorResult(createMcpInvalidParamsError(message.id));
-    }
-
-    const result = await provider.resources.list(input);
-    return listResult(message.id, "resources", result.items, result.nextCursor);
-  }
-
-  if (message.method === "resources/templates/list") {
-    if (!provider.resources?.templates?.list) {
-      return createMcpJsonErrorResult(createMcpMethodNotFoundError(message.id, message.method));
-    }
-
-    const input = parseListParams(message.params, options, context);
-    if (!input) {
-      return createMcpJsonErrorResult(createMcpInvalidParamsError(message.id));
-    }
-
-    const result = await provider.resources.templates.list(input);
-    return listResult(message.id, "resourceTemplates", result.items, result.nextCursor);
-  }
-
-  if (message.method === "resources/read") {
-    if (!provider.resources?.read) {
-      return createMcpJsonErrorResult(createMcpMethodNotFoundError(message.id, message.method));
-    }
-
-    const input = parseResourceReadParams(message.params, context);
-    if (!input) {
-      return createMcpJsonErrorResult(createMcpInvalidParamsError(message.id));
-    }
-
-    const result = await provider.resources.read(input);
-    if (result.kind !== "success") {
-      return createMcpJsonErrorResult(createMcpErrorResponseFromProviderError(message.id, result));
-    }
-
-    return createMcpJsonResult(message.id, { contents: result.contents });
-  }
-
-  if (message.method === "resources/subscribe" || message.method === "resources/unsubscribe") {
-    if (!provider.subscriptions) {
-      return createMcpJsonErrorResult(createMcpMethodNotFoundError(message.id, message.method));
-    }
-
-    const input = parseResourceReadParams(message.params, context);
-    if (!input) {
-      return createMcpJsonErrorResult(createMcpInvalidParamsError(message.id));
-    }
-
-    const handler =
-      message.method === "resources/subscribe" ? provider.subscriptions.subscribe : provider.subscriptions.unsubscribe;
-    const result = await handler(input);
-    if (isSubscribeProviderError(result)) {
-      return createMcpJsonErrorResult(createMcpErrorResponseFromProviderError(message.id, result));
-    }
-
-    return createMcpJsonResult(message.id, {});
-  }
-
-  if (message.method === "prompts/list") {
-    if (!provider.prompts?.list) {
-      return createMcpJsonErrorResult(createMcpMethodNotFoundError(message.id, message.method));
-    }
-
-    const input = parseListParams(message.params, options, context);
-    if (!input) {
-      return createMcpJsonErrorResult(createMcpInvalidParamsError(message.id));
-    }
-
-    const result = await provider.prompts.list(input);
-    return listResult(message.id, "prompts", result.items, result.nextCursor);
-  }
-
-  if (message.method === "prompts/get") {
-    if (!provider.prompts?.get) {
-      return createMcpJsonErrorResult(createMcpMethodNotFoundError(message.id, message.method));
-    }
-
-    const input = parsePromptGetParams(message.params, context);
-    if (!input) {
-      return createMcpJsonErrorResult(createMcpInvalidParamsError(message.id));
-    }
-
-    const result = await provider.prompts.get(input);
-    if (isProviderError(result)) {
-      return createMcpJsonErrorResult(createMcpErrorResponseFromProviderError(message.id, result));
-    }
-
-    return createMcpJsonResult(message.id, {
-      ...(result.description ? { description: result.description } : {}),
-      messages: result.messages,
-    });
-  }
-
-  if (message.method === "completion/complete") {
-    const handler = provider.completion?.complete ?? provider.prompts?.complete;
-    if (!handler) {
-      return createMcpJsonErrorResult(createMcpMethodNotFoundError(message.id, message.method));
-    }
-
-    const input = parseCompletionParams(message.params, context);
-    if (!input) {
-      return createMcpJsonErrorResult(createMcpInvalidParamsError(message.id));
-    }
-
-    const result = await handler(input);
-    if (isProviderError(result)) {
-      return createMcpJsonErrorResult(createMcpErrorResponseFromProviderError(message.id, result));
-    }
-
-    return createMcpJsonResult(message.id, {
-      completion: {
-        values: result.values,
-        ...(result.total !== undefined ? { total: result.total } : {}),
-        ...(result.hasMore !== undefined ? { hasMore: result.hasMore } : {}),
-      },
-    });
-  }
-
-  return createMcpJsonErrorResult(createMcpMethodNotFoundError(message.id, message.method));
 }

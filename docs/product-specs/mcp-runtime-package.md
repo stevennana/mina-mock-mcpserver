@@ -15,8 +15,10 @@ The package is a protocol runtime boundary, not a Mock Server feature bundle.
 - A resources-only provider advertises resource capabilities without advertising tools or prompts.
 - Optional tools, prompts, subscriptions, and completion are advertised only when the provider implements the matching methods.
 - Expected domain failures such as not found, forbidden, and invalid params are returned as MCP JSON-RPC error envelopes.
-- Unexpected thrown errors are treated as internal failures.
+- Unexpected provider-thrown errors are sanitized as JSON-RPC `-32603` internal failures without leaking thrown messages, stacks, tokens, request bodies, or private content.
 - The optional Fetch helper accepts a standard `Request` and returns a standard `Response`.
+- Optional CORS/OPTIONS helpers can be enabled by the host app for browser clients such as upstream MCP Inspector without opening CORS by default.
+- Custom `supportedProtocolVersions` and `defaultProtocolVersion` are honored consistently by the Fetch adapter.
 - The lower-level JSON-RPC handler remains available for apps that already own HTTP parsing and auth.
 
 ## Consumer-Owned Responsibilities
@@ -24,7 +26,7 @@ The package must not own:
 
 - database records or indexes
 - user, tenant, auth, or scope models
-- CORS policy
+- CORS policy decisions, unless the host app opts into runtime-provided header helpers
 - OAuth challenges or token parsing
 - SSE session storage
 - audit logging
@@ -45,6 +47,7 @@ The package is published publicly on npm. Before publishing a new version, maint
 npm run mcp-runtime:test
 npm run mcp-runtime:pack
 npm run mcp-runtime:consumer:test
+npm run mcp-runtime:inspector:smoke
 ```
 
 The external consumer smoke must prove that a temporary TypeScript project can install the packed tarball, import public runtime APIs, and typecheck without app-local aliases.
@@ -52,6 +55,6 @@ The external consumer smoke must prove that a temporary TypeScript project can i
 ## Satisfaction Goals
 - MCP Mock Server consumes the package for its own JSON-RPC protocol handling.
 - Downstream docs show a minimal provider and a Next.js Fetch route.
-- Inspector CLI resources/list and resources/read checks pass against a package-backed route.
+- Inspector CLI resources/list, resources/templates/list, and resources/read checks pass against a package-backed route.
 - Package metadata includes license, repository, exports, types, Node engine support, and public publish config.
 - Public npm installation works with `npm install @minasoft/mcp-runtime`.

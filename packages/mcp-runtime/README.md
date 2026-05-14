@@ -34,33 +34,134 @@ npm pack
 
 Then install the generated `.tgz` in a separate TypeScript project.
 
-## Minimal Next.js Route
+## Minakeep-Style Resources-Only Route
 
 ```ts
 // app/api/mcp/route.ts
-import { createMcpFetchHandler, type McpRuntimeProvider } from "@minasoft/mcp-runtime";
+import {
+  createMcpFetchHandler,
+  createMcpOptionsResponse,
+  type McpRuntimeProvider,
+} from "@minasoft/mcp-runtime";
+
+const cors = {
+  allowedOrigins: ["http://localhost:6274"],
+};
+
+async function verifyBearerToken(request: Request): Promise<{ userId: string } | null> {
+  const authorization = request.headers.get("authorization");
+  if (!authorization?.startsWith("Bearer ")) return null;
+
+  // Host app responsibility: validate the token, load the user, and check permissions.
+  return { userId: "user-from-host-app" };
+}
+
+function createProvider(): McpRuntimeProvider {
+  return {
+    serverInfo: {
+      name: "minakeep-content",
+      version: "0.1.0",
+    },
+    resources: {
+      async list({ context }) {
+        const user = context.principal as { userId: string } | null;
+
+        return {
+          items: [
+            {
+              uri: "minakeep://articles/note/welcome",
+              name: "welcome",
+              title: "Welcome note",
+              mimeType: "text/markdown",
+              annotations: { audience: ["assistant"] },
+            },
+          ].filter(() => user),
+        };
+      },
+      async read({ uri, context }) {
+        const user = context.principal as { userId: string } | null;
+        if (!user) return { kind: "forbidden", message: "Authentication required." };
+
+        const prefix = "minakeep://articles/note/";
+        if (!uri.startsWith(prefix)) {
+          return { kind: "not_found", message: "Unknown article note." };
+        }
+
+        const slug = uri.slice(prefix.length);
+        return {
+          kind: "success",
+          contents: [
+            {
+              uri,
+              mimeType: "text/markdown",
+              text: `# ${slug}\n\nPublished Minakeep content.`,
+            },
+          ],
+        };
+      },
+      templates: {
+        async list() {
+          return {
+            items: [
+              {
+                uriTemplate: "minakeep://articles/note/{slug}",
+                name: "article-note-by-slug",
+                title: "Article note by slug",
+                mimeType: "text/markdown",
+              },
+            ],
+          };
+        },
+      },
+    },
+  };
+}
+
+const handleMcp = createMcpFetchHandler(createProvider(), {
+  cors,
+  async context(request) {
+    return {
+      requestId: request.headers.get("x-request-id") ?? undefined,
+      principal: await verifyBearerToken(request),
+    };
+  },
+});
+
+export async function OPTIONS(request: Request) {
+  return createMcpOptionsResponse(cors, request);
+}
+
+export async function POST(request: Request) {
+  return handleMcp(request);
+}
+```
+
+The Fetch helper handles JSON parsing, JSON-RPC response envelopes, `MCP-Protocol-Version` validation, response content types, per-request provider context, and opt-in CORS headers. Keep app concerns such as Bearer validation, token storage, rate limiting, tenant checks, and app-specific permission rules in the hosting route or middleware.
+
+Provider-thrown errors are sanitized as JSON-RPC `-32603` internal errors with the generic message `Internal error`. Expected domain failures should still be returned as typed provider errors such as `not_found`, `forbidden`, or `invalid_params`.
+
+## Minimal Provider
+
+```ts
+import type { McpRuntimeProvider } from "@minasoft/mcp-runtime";
 
 const provider: McpRuntimeProvider = {
-  serverInfo: {
-    name: "published-content",
-    version: "0.1.0",
-  },
+  serverInfo: { name: "content-app", version: "0.1.0" },
   resources: {
-    async list({ context }) {
-      const userId = context.principal as string | undefined;
+    async list() {
       return {
         items: [
           {
-            uri: `published://content/readme-${userId ?? "public"}`,
-            name: "readme",
-            title: "Readme",
+            uri: "minakeep://articles/note/welcome",
+            name: "welcome",
+            title: "Welcome note",
             mimeType: "text/markdown",
           },
         ],
       };
     },
     async read({ uri }) {
-      if (!uri.startsWith("published://content/")) {
+      if (!uri.startsWith("minakeep://articles/note/")) {
         return { kind: "not_found", message: "Unknown resource" };
       }
 
@@ -70,7 +171,7 @@ const provider: McpRuntimeProvider = {
           {
             uri,
             mimeType: "text/markdown",
-            text: "# Published content",
+            text: "# Published Minakeep content",
           },
         ],
       };
@@ -78,21 +179,7 @@ const provider: McpRuntimeProvider = {
   },
 };
 
-const handleMcp = createMcpFetchHandler(provider, {
-  context(request) {
-    return {
-      requestId: request.headers.get("x-request-id") ?? undefined,
-      principal: request.headers.get("x-user-id") ?? undefined,
-    };
-  },
-});
-
-export async function POST(request: Request) {
-  return handleMcp(request);
-}
 ```
-
-The Fetch helper handles JSON parsing, JSON-RPC response envelopes, `MCP-Protocol-Version` validation, response content types, and per-request provider context. Keep app concerns such as CORS, Basic or Bearer parsing, OAuth challenges, rate limits, and SSE session state in the hosting route or middleware.
 
 ## Provider Boundary
 
@@ -121,7 +208,7 @@ Provider rules:
 - resources are first-class; tools and prompts are optional
 - capabilities are advertised only when the matching provider methods exist
 - provider errors should be returned as typed results such as `not_found`, `forbidden`, or `invalid_params`
-- thrown errors are treated as unexpected failures
+- thrown errors are treated as unexpected failures and returned as sanitized internal JSON-RPC errors
 - auth principals, tenant IDs, trace IDs, and request IDs should flow through `McpRuntimeContext`
 - cursors are provider-owned strings; the package does not force an offset database model
 
@@ -154,11 +241,12 @@ Inside this repository:
 npm run mcp-runtime:test
 npm run mcp-runtime:pack
 npm run mcp-runtime:consumer:test
+npm run mcp-runtime:inspector:smoke
 ```
 
 `mcp-runtime:consumer:test` builds the package, packs it, installs the tarball into a temporary external TypeScript project, imports only `@minasoft/mcp-runtime`, and runs `tsc --noEmit`.
 
-For upstream Inspector compatibility, run the host MCP server and then:
+For upstream Inspector compatibility against the Mock Server app, run the host MCP server and then:
 
 ```bash
 npm run inspector:cli:resources:list

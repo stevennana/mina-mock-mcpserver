@@ -13,6 +13,7 @@
     "mcp-runtime:test": "npm --prefix packages/mcp-runtime run test",
     "mcp-runtime:pack": "cd packages/mcp-runtime && npm pack --dry-run",
     "mcp-runtime:consumer:test": "node scripts/verify-mcp-runtime-consumer.mjs",
+    "mcp-runtime:inspector:smoke": "node scripts/verify-mcp-runtime-inspector-smoke.mjs",
     "db:prepare": "node scripts/db-prepare.mjs",
     "test:unit": "node --import tsx --test --test-concurrency=1 \"tests/unit/**/*.test.ts\"",
     "test:e2e": "playwright test",

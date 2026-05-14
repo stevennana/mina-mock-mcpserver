@@ -389,6 +389,84 @@ test("resources/read maps not-found and forbidden provider outcomes", async () =
   });
 });
 
+test("provider thrown errors are sanitized as internal JSON-RPC errors", async () => {
+  const sensitiveMessage = "database password leaked token=secret request_body=private";
+  const provider: McpRuntimeProvider = {
+    resources: {
+      async list() {
+        throw new Error(sensitiveMessage);
+      },
+      async read() {
+        throw new Error(sensitiveMessage);
+      },
+    },
+    tools: {
+      async list() {
+        return { items: [] };
+      },
+      async call() {
+        throw new Error(sensitiveMessage);
+      },
+    },
+    prompts: {
+      async list() {
+        return { items: [] };
+      },
+      async get() {
+        throw new Error(sensitiveMessage);
+      },
+    },
+  };
+
+  const cases = [
+    {
+      id: "resources-list-throws",
+      method: "resources/list",
+    },
+    {
+      id: "resources-read-throws",
+      method: "resources/read",
+      params: { uri: "minakeep://articles/note/private" },
+    },
+    {
+      id: "tools-call-throws",
+      method: "tools/call",
+      params: { name: "publish", arguments: { body: "private" } },
+    },
+    {
+      id: "prompts-get-throws",
+      method: "prompts/get",
+      params: { name: "private_prompt", arguments: { token: "secret" } },
+    },
+  ];
+
+  for (const testCase of cases) {
+    const result = await handleMcpJsonRpcMessage(
+      {
+        jsonrpc: "2.0",
+        id: testCase.id,
+        method: testCase.method,
+        ...(testCase.params ? { params: testCase.params } : {}),
+      },
+      provider,
+    );
+
+    assert.deepEqual(result, {
+      kind: "json",
+      status: 200,
+      body: {
+        jsonrpc: "2.0",
+        id: testCase.id,
+        error: {
+          code: -32603,
+          message: "Internal error",
+        },
+      },
+    });
+    assert.equal(JSON.stringify(result).includes(sensitiveMessage), false);
+  }
+});
+
 test("resource subscriptions return empty success or provider-owned invalid params errors", async () => {
   const provider: McpRuntimeProvider = {
     resources: {
