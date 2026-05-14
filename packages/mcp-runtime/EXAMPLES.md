@@ -1,108 +1,106 @@
 # @minasoft/mcp-runtime Developer Examples
 
-This file collects integration patterns for developers who want to expose
-application data, product actions, and reusable workflows through MCP without
-copying MCP Mock Server protocol code.
+This file is a developer cookbook for using `@minasoft/mcp-runtime` in an
+existing TypeScript application.
 
-The examples assume the host app owns HTTP routing, authentication, storage,
-rate limits, audit logs, tenant checks, and product-specific permission rules.
-The runtime owns MCP JSON-RPC envelopes, capability derivation, method dispatch,
-pagination shapes, protocol-version headers, and sanitized internal errors.
+The runtime is not resources-only. It supports three provider families:
 
-This is the main design idea:
+| Family | Use it when | MCP methods |
+|---|---|---|
+| Resources | Clients should read app data, documents, records, files, or rendered templates | `resources/list`, `resources/read`, `resources/templates/list`, optional subscribe/unsubscribe |
+| Tools | Clients should invoke app actions, searches, validators, calculations, or side effects | `tools/list`, `tools/call` |
+| Prompts | Clients should use app-owned model workflows, prompt templates, or argument completion | `prompts/list`, `prompts/get`, `completion/complete` |
+
+You can implement one family, two families, or all three in the same
+`McpRuntimeProvider`. Capability advertisement follows the provider shape.
+
+## Runtime Boundary
+
+The host app owns routing, auth, storage, rate limits, audit, tenants, and
+permissions. The runtime owns JSON-RPC envelopes, method dispatch, capabilities,
+protocol headers, pagination shapes, and sanitized internal errors.
 
 ```text
 HTTP route / middleware
   -> authenticate and authorize with host-app rules
   -> build McpRuntimeContext
   -> call @minasoft/mcp-runtime
-  -> provider maps host records to MCP DTOs
+  -> provider maps host records/actions/workflows to MCP DTOs
   -> runtime returns JSON-RPC response envelope
 ```
 
-Use the official MCP TypeScript SDK when you want the canonical full SDK or
-client/server framework. Use this runtime when your app already has routes,
-auth, storage, and product permissions, and MCP should be a thin protocol layer
-over those existing systems.
+MCP Mock Server uses the same split:
 
-## Provider Families At A Glance
-
-The runtime is not resources-only. A provider can expose any combination of
-resources, tools, and prompts.
-
-| Family | App-side source | MCP methods |
+| Host-app concern | Mock Server reference | Runtime role |
 |---|---|---|
-| Resources | Readable app records, documents, articles, files, templates, or generated content | `resources/list`, `resources/read`, `resources/templates/list`, optional subscribe/unsubscribe |
-| Tools | App commands, business operations, searches, validators, or calculations | `tools/list`, `tools/call` |
-| Prompts | Reusable model workflows, prompt templates, and guided argument completion | `prompts/list`, `prompts/get`, `completion/complete` |
+| Next.js route entrypoints | `app/mcp/route.ts`, `app/mcp/none/route.ts`, `app/mcp/basic/route.ts`, `app/mcp/oauth/route.ts` | Receives JSON-RPC after the route chooses auth mode |
+| Route/auth orchestration | `lib/mcp/http.ts` | Dispatches MCP methods through `handleMcpJsonRpcMessage` |
+| Product mapping | `lib/mcp/runtime-provider.ts` | Calls provider methods and converts results to JSON-RPC |
+| Tools | endpoint fixtures | `tools/list`, `tools/call` |
+| Resources | resource and resource-template fixtures | `resources/list`, `resources/read`, `resources/templates/list` |
+| Prompts | prompt fixtures and completion candidates | `prompts/list`, `prompts/get`, `completion/complete` |
+
+Use the official MCP TypeScript SDK when you want the canonical full SDK or a
+broader client/server framework. Use this runtime when your app already has
+routes, auth, storage, and product rules, and MCP should be a thin protocol
+layer over those systems.
+
+## Shared Helpers Used By The Examples
+
+The examples below use the same small host-owned auth helper. Replace it with
+your real session, JWT, API key, OAuth, tenant, or permission logic.
 
 ```ts
-import type { McpRuntimeProvider } from "@minasoft/mcp-runtime";
-
-export const productProvider: McpRuntimeProvider = {
-  serverInfo: { name: "product-mcp", version: "0.1.0" },
-  resources: {
-    async list() {
-      return { items: [{ uri: "content://articles/welcome", name: "welcome" }] };
-    },
-    async read({ uri }) {
-      return { kind: "success", contents: [{ uri, mimeType: "text/markdown", text: "# Welcome" }] };
-    },
-  },
-  tools: {
-    async list() {
-      return { items: [{ name: "search_content", description: "Search visible content." }] };
-    },
-    async call({ name }) {
-      if (name !== "search_content") return { kind: "not_found", message: "Unknown tool." };
-      return { kind: "success", content: [{ type: "text", text: "Search results" }] };
-    },
-  },
-  prompts: {
-    async list() {
-      return { items: [{ name: "review_content", description: "Review a content item." }] };
-    },
-    async get({ name }) {
-      if (name !== "review_content") return { kind: "not_found", message: "Unknown prompt." };
-      return {
-        kind: "success",
-        messages: [{ role: "user", content: { type: "text", text: "Review content://articles/welcome" } }],
-      };
-    },
-  },
+// lib/auth/mcp-auth.ts
+export type Principal = {
+  userId: string;
+  tenantId: string;
+  scopes: string[];
 };
+
+export async function authenticateMcpRequest(request: Request): Promise<Principal | null> {
+  const authorization = request.headers.get("authorization");
+  if (!authorization?.startsWith("Bearer ")) return null;
+
+  const token = authorization.slice("Bearer ".length);
+  if (!token) return null;
+
+  // Host app responsibility:
+  // - verify signature or session
+  // - check expiry and revocation
+  // - load tenant and permission scopes
+  // - never return token details to provider errors
+  return {
+    userId: "user_123",
+    tenantId: "tenant_abc",
+    scopes: ["content:read", "content:search", "workflow:read"],
+  };
+}
+
+export function hasScope(principal: Principal | null, scope: string) {
+  return Boolean(principal?.scopes.includes(scope));
+}
 ```
 
-## 0. Host-App Reference: MCP Mock Server
+## Example 1: Resources
 
-MCP Mock Server is the reference integration for this package. It is useful to
-read it as a real host app rather than as package internals.
+Use resources when MCP clients should read product data. Good fits include
+published articles, knowledge-base pages, notes, files, database records, and
+rendered templates.
 
-| Host-app concern | Mock Server reference | What the runtime handles |
-|---|---|---|
-| Next.js route entrypoints | `app/mcp/route.ts`, `app/mcp/none/route.ts`, `app/mcp/basic/route.ts`, `app/mcp/oauth/route.ts` | Receives a JSON-RPC message after the route chooses the auth mode |
-| Route and auth orchestration | `lib/mcp/http.ts` | Dispatches `initialize`, `tools/list`, `resources/read`, `prompts/get`, and related MCP methods |
-| Basic and OAuth Bearer checks | `resolveBasicAuthorizationHeader`, `resolveOAuthBearerAuthorizationHeader` | Does not inspect credentials or tokens |
-| Permission narrowing | endpoint, resource, template, and prompt IDs passed into `createMockServerRuntimeProvider` | Calls the provider that the host app already scoped |
-| Product data mapping | `lib/mcp/runtime-provider.ts` | Converts provider results into JSON-RPC success/error envelopes |
-| Legacy SSE sessions | `lib/mcp/http.ts`, `lib/mcp/sse-notifications.ts` | Handles reusable resource subscription methods, not app-owned session storage |
-| Mock-server CORS policy | `lib/http/cors.ts` | Provides optional CORS helpers for downstream apps |
+This example exposes article records as:
 
-The same split works for another product app:
+- `resources/list`
+- `resources/read`
+- `resources/templates/list`
 
-1. Put MCP behind a normal app route, such as `app/api/mcp/route.ts`.
-2. Resolve session, Bearer token, tenant, scopes, and feature flags before calling the runtime.
-3. Pass only safe request state into `McpRuntimeContext`.
-4. Implement a provider that returns MCP resources, templates, tools, prompts, or completion from app data.
-5. Keep logs, audits, rate limits, and deployment policy in the host app.
-
-## 1. Resources Provider
-
-Use this shape when your app wants MCP clients to read published content,
-documents, articles, notes, or other stable records.
+### Resource Provider
 
 ```ts
+// lib/mcp/article-resources-provider.ts
 import type { McpRuntimeProvider } from "@minasoft/mcp-runtime";
+import type { Principal } from "@/lib/auth/mcp-auth";
+import { hasScope } from "@/lib/auth/mcp-auth";
 
 type Article = {
   slug: string;
@@ -111,30 +109,45 @@ type Article = {
   updatedAt: Date;
 };
 
-async function listVisibleArticles(userId: string | undefined): Promise<Article[]> {
-  // Replace this with your app's database query and visibility rules.
-  if (!userId) return [];
+async function listVisibleArticles(principal: Principal): Promise<Article[]> {
+  // Host app helper: query your database with tenant and visibility rules.
+  if (!hasScope(principal, "content:read")) return [];
 
   return [
     {
       slug: "welcome",
       title: "Welcome",
-      markdown: "# Welcome\n\nThis content is visible through MCP.",
+      markdown: "# Welcome\n\nThis article is visible through MCP.",
       updatedAt: new Date("2026-05-14T00:00:00.000Z"),
+    },
+    {
+      slug: "release-notes",
+      title: "Release notes",
+      markdown: "# Release Notes\n\nRuntime examples were expanded.",
+      updatedAt: new Date("2026-05-14T01:00:00.000Z"),
     },
   ];
 }
 
-export function createContentProvider(): McpRuntimeProvider {
+function principalFromContext(contextPrincipal: unknown): Principal | null {
+  return contextPrincipal && typeof contextPrincipal === "object" ? (contextPrincipal as Principal) : null;
+}
+
+export function createArticleResourcesProvider(): McpRuntimeProvider {
   return {
-    serverInfo: { name: "content-mcp", version: "0.1.0" },
+    serverInfo: { name: "article-resources", version: "0.1.0" },
     resources: {
-      async list({ context }) {
-        const userId = context.principal as string | undefined;
-        const articles = await listVisibleArticles(userId);
+      async list({ context, cursor, limit = 50 }) {
+        const principal = principalFromContext(context.principal);
+        if (!principal) return { items: [] };
+
+        const articles = await listVisibleArticles(principal);
+        const offset = cursor ? Number.parseInt(cursor, 10) : 0;
+        const page = articles.slice(offset, offset + limit);
+        const nextOffset = offset + page.length;
 
         return {
-          items: articles.map((article) => ({
+          items: page.map((article) => ({
             uri: `content://articles/note/${article.slug}`,
             name: article.slug,
             title: article.title,
@@ -144,19 +157,25 @@ export function createContentProvider(): McpRuntimeProvider {
               lastModified: article.updatedAt.toISOString(),
             },
           })),
+          ...(nextOffset < articles.length ? { nextCursor: String(nextOffset) } : {}),
         };
       },
+
       async read({ uri, context }) {
-        const prefix = "content://articles/note/";
-        if (!uri.startsWith(prefix)) {
-          return { kind: "not_found", message: "Unknown resource URI." };
+        const principal = principalFromContext(context.principal);
+        if (!principal) {
+          return { kind: "forbidden", message: "Authentication required." };
         }
 
-        const userId = context.principal as string | undefined;
+        const prefix = "content://articles/note/";
+        if (!uri.startsWith(prefix)) {
+          return { kind: "not_found", message: "Unknown article resource URI." };
+        }
+
         const slug = uri.slice(prefix.length);
-        const article = (await listVisibleArticles(userId)).find((item) => item.slug === slug);
+        const article = (await listVisibleArticles(principal)).find((item) => item.slug === slug);
         if (!article) {
-          return { kind: "not_found", message: "Resource was not found or is not visible." };
+          return { kind: "not_found", message: "Article was not found or is not visible." };
         }
 
         return {
@@ -164,6 +183,7 @@ export function createContentProvider(): McpRuntimeProvider {
           contents: [{ uri, mimeType: "text/markdown", text: article.markdown }],
         };
       },
+
       templates: {
         async list() {
           return {
@@ -183,84 +203,24 @@ export function createContentProvider(): McpRuntimeProvider {
 }
 ```
 
-## 2. Next.js Route With Host-Owned Bearer Auth
-
-Keep authentication in your application route or middleware. Pass only the
-resolved principal into the runtime context.
-
-This mirrors MCP Mock Server's strict OAuth path: the route verifies the Bearer
-token first, then calls the runtime with a provider that sees only the permitted
-principal or resource scope.
+### Resource Route
 
 ```ts
-// app/api/mcp/route.ts
-import { createMcpFetchHandler } from "@minasoft/mcp-runtime";
-import { createContentProvider } from "@/lib/mcp/content-provider";
-
-type Principal = {
-  userId: string;
-  scopes: string[];
-};
-
-async function authenticate(request: Request): Promise<Principal | null> {
-  const authorization = request.headers.get("authorization");
-  if (!authorization?.startsWith("Bearer ")) return null;
-
-  const token = authorization.slice("Bearer ".length);
-
-  // Host app responsibility:
-  // - verify signature or session
-  // - check expiry/revocation
-  // - load user and tenant scopes
-  // - avoid leaking token details to provider errors
-  return token ? { userId: "user_123", scopes: ["content:read"] } : null;
-}
-
-const handleMcp = createMcpFetchHandler(createContentProvider(), {
-  async context(request) {
-    return {
-      requestId: request.headers.get("x-request-id") ?? undefined,
-      principal: await authenticate(request),
-    };
-  },
-});
-
-export async function POST(request: Request) {
-  return handleMcp(request);
-}
-```
-
-Inside provider methods, treat `context.principal` as already authenticated
-application state. The runtime does not validate tokens or decide permissions.
-
-If your app uses cookies or server sessions instead of Bearer tokens, keep the
-same boundary: resolve the session in the route, pass a safe principal into
-`context`, and let the provider use that context for visibility checks.
-
-## 3. Inspector-Compatible CORS, Opt In
-
-CORS is closed by default. Enable it only where your host app wants browser MCP
-clients, such as upstream MCP Inspector at `http://localhost:6274`.
-
-MCP Mock Server intentionally owns its own public CORS behavior because it is a
-test server. Product apps should usually be narrower and opt in only to the
-origins they want to support.
-
-```ts
-// app/api/mcp/route.ts
+// app/api/mcp/resources/route.ts
 import { createMcpFetchHandler, createMcpOptionsResponse } from "@minasoft/mcp-runtime";
-import { createContentProvider } from "@/lib/mcp/content-provider";
+import { authenticateMcpRequest } from "@/lib/auth/mcp-auth";
+import { createArticleResourcesProvider } from "@/lib/mcp/article-resources-provider";
 
 const cors = {
   allowedOrigins: ["http://localhost:6274"],
 };
 
-const handleMcp = createMcpFetchHandler(createContentProvider(), {
+const handleMcp = createMcpFetchHandler(createArticleResourcesProvider(), {
   cors,
   async context(request) {
     return {
       requestId: request.headers.get("x-request-id") ?? undefined,
-      principal: await authenticate(request),
+      principal: await authenticateMcpRequest(request),
     };
   },
 });
@@ -274,65 +234,133 @@ export async function POST(request: Request) {
 }
 ```
 
-The helper includes common MCP browser-client headers such as `Authorization`,
-`Content-Type`, `MCP-Protocol-Version`, `MCP-Session-Id`, and `Last-Event-ID`.
+### Resource Inspector Checks
 
-## 4. Tools Provider
+```bash
+npx -y @modelcontextprotocol/inspector@0.21.2 \
+  --cli http://127.0.0.1:3000/api/mcp/resources \
+  --transport http \
+  --method resources/list \
+  --header "Authorization: Bearer $TOKEN"
 
-Add tools only when the app has command-like behavior that should be invoked by
-MCP clients. Expected user or input failures should return typed provider
-errors. Unexpected thrown errors are sanitized to JSON-RPC `-32603`.
+npx -y @modelcontextprotocol/inspector@0.21.2 \
+  --cli http://127.0.0.1:3000/api/mcp/resources \
+  --transport http \
+  --method resources/templates/list \
+  --header "Authorization: Bearer $TOKEN"
 
-Tools are the right family for "do something" operations. In MCP Mock Server,
-admin-configured endpoints become MCP tools: `lib/mcp/runtime-provider.ts` maps
-enabled endpoint fixtures to `tools/list`, then delegates `tools/call` to the
-endpoint runtime.
+npx -y @modelcontextprotocol/inspector@0.21.2 \
+  --cli http://127.0.0.1:3000/api/mcp/resources \
+  --transport http \
+  --method resources/read \
+  --uri content://articles/note/welcome \
+  --header "Authorization: Bearer $TOKEN"
+```
+
+## Example 2: Tools
+
+Use tools when MCP clients should invoke product actions. Good fits include
+search, validation, ticket creation, calculations, sync jobs, and controlled
+side effects.
+
+This example exposes a search action as:
+
+- `tools/list`
+- `tools/call`
+
+### Tools Provider
 
 ```ts
+// lib/mcp/content-tools-provider.ts
 import type { McpRuntimeProvider } from "@minasoft/mcp-runtime";
+import type { Principal } from "@/lib/auth/mcp-auth";
+import { hasScope } from "@/lib/auth/mcp-auth";
 
-export function createToolProvider(): McpRuntimeProvider {
+type SearchResult = {
+  uri: string;
+  title: string;
+  snippet: string;
+};
+
+async function searchVisibleContent(query: string, principal: Principal): Promise<SearchResult[]> {
+  // Host app helper: query your database, search index, or service.
+  if (!hasScope(principal, "content:search")) return [];
+
+  return [
+    {
+      uri: "content://articles/note/welcome",
+      title: "Welcome",
+      snippet: `Matched "${query}" for ${principal.tenantId}`,
+    },
+  ];
+}
+
+function principalFromContext(contextPrincipal: unknown): Principal | null {
+  return contextPrincipal && typeof contextPrincipal === "object" ? (contextPrincipal as Principal) : null;
+}
+
+export function createContentToolsProvider(): McpRuntimeProvider {
   return {
     serverInfo: { name: "content-tools", version: "0.1.0" },
     tools: {
-      async list() {
+      async list({ context }) {
+        const principal = principalFromContext(context.principal);
+        if (!hasScope(principal, "content:search")) return { items: [] };
+
         return {
           items: [
             {
-              name: "summarize_article",
-              title: "Summarize article",
-              description: "Return a short summary for a published article.",
+              name: "search_content",
+              title: "Search content",
+              description: "Search content visible to the current user.",
               inputSchema: {
                 type: "object",
                 properties: {
-                  slug: { type: "string", description: "Article slug" },
+                  query: { type: "string", description: "Search query" },
+                  limit: { type: "number", description: "Maximum result count" },
                 },
-                required: ["slug"],
+                required: ["query"],
                 additionalProperties: false,
+              },
+              outputSchema: {
+                type: "object",
+                properties: {
+                  results: { type: "array" },
+                },
               },
             },
           ],
         };
       },
+
       async call({ name, arguments: args, context }) {
-        if (name !== "summarize_article") {
+        if (name !== "search_content") {
           return { kind: "not_found", message: "Unknown tool." };
         }
 
-        const slug = typeof args?.slug === "string" ? args.slug : null;
-        if (!slug) {
-          return { kind: "invalid_params", message: "slug is required." };
+        const principal = principalFromContext(context.principal);
+        if (!principal || !hasScope(principal, "content:search")) {
+          return { kind: "forbidden", message: "Missing content:search scope." };
         }
 
-        const principal = context.principal as { scopes?: string[] } | null;
-        if (!principal?.scopes?.includes("content:read")) {
-          return { kind: "forbidden", message: "Missing content:read scope." };
+        const query = typeof args?.query === "string" ? args.query.trim() : "";
+        if (!query) {
+          return { kind: "invalid_params", message: "query is required." };
         }
+
+        const requestedLimit = typeof args?.limit === "number" ? args.limit : 10;
+        const limit = Math.max(1, Math.min(requestedLimit, 25));
+        const results = (await searchVisibleContent(query, principal)).slice(0, limit);
 
         return {
           kind: "success",
-          content: [{ type: "text", text: `Summary for ${slug}` }],
-          structuredContent: { slug },
+          content: [
+            {
+              type: "text",
+              text: results.map((item) => `${item.title}: ${item.uri}`).join("\n") || "No results",
+            },
+          ],
+          structuredContent: { results },
         };
       },
     },
@@ -340,188 +368,341 @@ export function createToolProvider(): McpRuntimeProvider {
 }
 ```
 
-## 5. Prompts and Completion
-
-Prompts are useful when the app can provide reusable instructions or templates
-for MCP clients. Completion can suggest prompt argument values or resource URI
-parts.
-
-Prompts are the right family for guided model workflows. In MCP Mock Server,
-prompt fixtures become `prompts/list` and `prompts/get`, and completion
-candidates on prompts or resource templates power `completion/complete`.
+### Tools Route
 
 ```ts
-import type { McpRuntimeProvider } from "@minasoft/mcp-runtime";
+// app/api/mcp/tools/route.ts
+import { createMcpFetchHandler, createMcpOptionsResponse } from "@minasoft/mcp-runtime";
+import { authenticateMcpRequest } from "@/lib/auth/mcp-auth";
+import { createContentToolsProvider } from "@/lib/mcp/content-tools-provider";
 
-export function createPromptProvider(): McpRuntimeProvider {
-  return {
-    serverInfo: { name: "content-prompts", version: "0.1.0" },
-    prompts: {
-      async list() {
-        return {
-          items: [
-            {
-              name: "review_article",
-              title: "Review article",
-              description: "Ask the model to review a published article.",
-              arguments: [{ name: "slug", required: true, description: "Article slug" }],
-            },
-          ],
-        };
-      },
-      async get({ name, arguments: args }) {
-        if (name !== "review_article") {
-          return { kind: "not_found", message: "Unknown prompt." };
-        }
+const cors = {
+  allowedOrigins: ["http://localhost:6274"],
+};
 
-        const slug = typeof args?.slug === "string" ? args.slug : null;
-        if (!slug) {
-          return { kind: "invalid_params", message: "slug is required." };
-        }
-
-        return {
-          kind: "success",
-          description: "Review a published article for clarity and correctness.",
-          messages: [
-            {
-              role: "user",
-              content: {
-                type: "text",
-                text: `Review content://articles/note/${slug} for clarity, accuracy, and missing context.`,
-              },
-            },
-          ],
-        };
-      },
-      async complete({ argument }) {
-        if (argument.name !== "slug") {
-          return { kind: "not_found", message: "No completions for this argument." };
-        }
-
-        const slugs = ["welcome", "release-notes", "faq"];
-        const value = argument.value ?? "";
-        const values = slugs.filter((slug) => slug.startsWith(value));
-
-        return { kind: "success", values, total: values.length, hasMore: false };
-      },
-    },
-  };
-}
-```
-
-## 6. Low-Level JSON-RPC Handler
-
-Use `handleMcpJsonRpcMessage` when the host framework has already parsed the
-request body or does not use the Fetch `Request` / `Response` API.
-
-MCP Mock Server uses this lower-level shape in `lib/mcp/http.ts` because its
-routes need custom Basic/OAuth challenge responses, legacy SSE message routing,
-and mock-specific response headers around the reusable MCP dispatch.
-
-```ts
-import { handleMcpJsonRpcMessage, type McpRuntimeProvider } from "@minasoft/mcp-runtime";
-
-export async function dispatchMcpMessage(provider: McpRuntimeProvider, body: unknown, userId: string) {
-  return handleMcpJsonRpcMessage(body, provider, {
-    context: {
-      requestId: crypto.randomUUID(),
-      principal: userId,
-    },
-  });
-}
-```
-
-The low-level handler returns JSON-RPC success or error objects, plus raw tool
-responses when a tool intentionally returns `kind: "raw"`.
-
-## 7. Custom Protocol Version Policy
-
-The Fetch adapter accepts custom protocol-version options. This is useful when a
-host app wants to pin or stage protocol support.
-
-```ts
-import { createMcpFetchHandler } from "@minasoft/mcp-runtime";
-import { createContentProvider } from "@/lib/mcp/content-provider";
-
-const handleMcp = createMcpFetchHandler(createContentProvider(), {
-  supportedProtocolVersions: ["2025-06-18"],
-  defaultProtocolVersion: "2025-06-18",
+const handleMcp = createMcpFetchHandler(createContentToolsProvider(), {
+  cors,
+  async context(request) {
+    return {
+      requestId: request.headers.get("x-request-id") ?? undefined,
+      principal: await authenticateMcpRequest(request),
+    };
+  },
 });
+
+export async function OPTIONS(request: Request) {
+  return createMcpOptionsResponse(cors, request);
+}
 
 export async function POST(request: Request) {
   return handleMcp(request);
 }
 ```
 
-Requests with an unsupported `MCP-Protocol-Version` header receive HTTP 400.
-When the request omits the header, the response uses `defaultProtocolVersion`.
+### Tools Inspector Checks
 
-## 8. Pagination With Opaque Cursors
+```bash
+npx -y @modelcontextprotocol/inspector@0.21.2 \
+  --cli http://127.0.0.1:3000/api/mcp/tools \
+  --transport http \
+  --method tools/list \
+  --header "Authorization: Bearer $TOKEN"
 
-Provider cursors are app-owned strings. The package also exports offset helpers
-for simple static or SQL-backed lists.
-
-```ts
-import { paginateMcpItemsByOffset, type McpRuntimeProvider } from "@minasoft/mcp-runtime";
-
-const allResources = Array.from({ length: 50 }, (_, index) => ({
-  uri: `content://articles/note/article-${index + 1}`,
-  name: `article-${index + 1}`,
-  title: `Article ${index + 1}`,
-  mimeType: "text/markdown",
-}));
-
-export const provider: McpRuntimeProvider = {
-  resources: {
-    async list({ cursor, limit }) {
-      const page = paginateMcpItemsByOffset({
-        items: allResources,
-        cursor,
-        limit,
-      });
-
-      return {
-        items: page.items,
-        nextCursor: page.nextCursor,
-      };
-    },
-    async read({ uri }) {
-      return {
-        kind: "success",
-        contents: [{ uri, mimeType: "text/markdown", text: "# Article" }],
-      };
-    },
-  },
-};
+npx -y @modelcontextprotocol/inspector@0.21.2 \
+  --cli http://127.0.0.1:3000/api/mcp/tools \
+  --transport http \
+  --method tools/call \
+  --tool-name search_content \
+  --tool-arg query=welcome \
+  --tool-arg limit=5 \
+  --header "Authorization: Bearer $TOKEN"
 ```
 
-For database-backed pagination, you can ignore the helper and return your own
-opaque cursor, such as an encrypted record ID or signed page token.
+## Example 3: Prompts and Completion
 
-## 9. Expected Errors vs Unexpected Throws
+Use prompts when MCP clients should discover app-owned model workflows. Good
+fits include review templates, support reply templates, summarization flows,
+triage workflows, and prompts that embed or reference app resources.
 
-Return typed provider errors for expected domain outcomes. Throw only for truly
-unexpected failures.
+This example exposes a review workflow as:
+
+- `prompts/list`
+- `prompts/get`
+- `completion/complete`
+
+### Prompts Provider
 
 ```ts
-async function readArticle(uri: string) {
-  if (!uri.startsWith("content://articles/note/")) {
-    return { kind: "not_found" as const, message: "Unknown resource URI." };
-  }
+// lib/mcp/workflow-prompts-provider.ts
+import type { McpRuntimeProvider } from "@minasoft/mcp-runtime";
+import type { Principal } from "@/lib/auth/mcp-auth";
+import { hasScope } from "@/lib/auth/mcp-auth";
 
-  const article = await loadArticle(uri);
-  if (!article) {
-    return { kind: "not_found" as const, message: "Article is not visible." };
-  }
+type PromptArgumentSuggestion = {
+  value: string;
+  title: string;
+};
 
+async function suggestVisibleArticleUris(prefix: string, principal: Principal): Promise<PromptArgumentSuggestion[]> {
+  // Host app helper: return completions from records visible to this user.
+  if (!hasScope(principal, "workflow:read")) return [];
+
+  return [
+    { value: "content://articles/note/welcome", title: "Welcome" },
+    { value: "content://articles/note/release-notes", title: "Release notes" },
+  ].filter((item) => item.value.startsWith(prefix));
+}
+
+function principalFromContext(contextPrincipal: unknown): Principal | null {
+  return contextPrincipal && typeof contextPrincipal === "object" ? (contextPrincipal as Principal) : null;
+}
+
+export function createWorkflowPromptsProvider(): McpRuntimeProvider {
   return {
-    kind: "success" as const,
-    contents: [{ uri, mimeType: "text/markdown", text: article.markdown }],
+    serverInfo: { name: "workflow-prompts", version: "0.1.0" },
+    prompts: {
+      async list({ context }) {
+        const principal = principalFromContext(context.principal);
+        if (!hasScope(principal, "workflow:read")) return { items: [] };
+
+        return {
+          items: [
+            {
+              name: "review_content",
+              title: "Review content",
+              description: "Review a visible content item for clarity and missing context.",
+              arguments: [
+                { name: "uri", required: true, description: "MCP resource URI to review" },
+                { name: "tone", required: false, description: "Review tone, such as friendly or strict" },
+              ],
+            },
+          ],
+        };
+      },
+
+      async get({ name, arguments: args, context }) {
+        if (name !== "review_content") {
+          return { kind: "not_found", message: "Unknown prompt." };
+        }
+
+        const principal = principalFromContext(context.principal);
+        if (!principal || !hasScope(principal, "workflow:read")) {
+          return { kind: "forbidden", message: "Missing workflow:read scope." };
+        }
+
+        const uri = typeof args?.uri === "string" ? args.uri : "";
+        if (!uri) {
+          return { kind: "invalid_params", message: "uri is required." };
+        }
+
+        const tone = typeof args?.tone === "string" ? args.tone : "clear";
+        return {
+          kind: "success",
+          description: "Review a content item for clarity, correctness, and missing context.",
+          messages: [
+            {
+              role: "user",
+              content: {
+                type: "text",
+                text: [
+                  `Review ${uri}.`,
+                  `Use a ${tone} tone.`,
+                  "Check clarity, correctness, missing context, and actionability.",
+                ].join("\n"),
+              },
+            },
+          ],
+        };
+      },
+
+      async complete({ argument, context }) {
+        const principal = principalFromContext(context.principal);
+        if (!principal || !hasScope(principal, "workflow:read")) {
+          return { kind: "forbidden", message: "Missing workflow:read scope." };
+        }
+
+        if (argument.name === "uri") {
+          const suggestions = await suggestVisibleArticleUris(argument.value ?? "", principal);
+          return {
+            kind: "success",
+            values: suggestions.map((item) => item.value),
+            total: suggestions.length,
+            hasMore: false,
+          };
+        }
+
+        if (argument.name === "tone") {
+          const tones = ["friendly", "strict", "executive", "technical"];
+          const value = argument.value ?? "";
+          const values = tones.filter((tone) => tone.startsWith(value));
+          return { kind: "success", values, total: values.length, hasMore: false };
+        }
+
+        return { kind: "not_found", message: "No completions for this argument." };
+      },
+    },
   };
 }
 ```
 
-If `loadArticle` throws, the client receives a sanitized JSON-RPC internal error:
+### Prompts Route
+
+```ts
+// app/api/mcp/prompts/route.ts
+import { createMcpFetchHandler, createMcpOptionsResponse } from "@minasoft/mcp-runtime";
+import { authenticateMcpRequest } from "@/lib/auth/mcp-auth";
+import { createWorkflowPromptsProvider } from "@/lib/mcp/workflow-prompts-provider";
+
+const cors = {
+  allowedOrigins: ["http://localhost:6274"],
+};
+
+const handleMcp = createMcpFetchHandler(createWorkflowPromptsProvider(), {
+  cors,
+  async context(request) {
+    return {
+      requestId: request.headers.get("x-request-id") ?? undefined,
+      principal: await authenticateMcpRequest(request),
+    };
+  },
+});
+
+export async function OPTIONS(request: Request) {
+  return createMcpOptionsResponse(cors, request);
+}
+
+export async function POST(request: Request) {
+  return handleMcp(request);
+}
+```
+
+### Prompts Inspector Checks
+
+```bash
+npx -y @modelcontextprotocol/inspector@0.21.2 \
+  --cli http://127.0.0.1:3000/api/mcp/prompts \
+  --transport http \
+  --method prompts/list \
+  --header "Authorization: Bearer $TOKEN"
+
+npx -y @modelcontextprotocol/inspector@0.21.2 \
+  --cli http://127.0.0.1:3000/api/mcp/prompts \
+  --transport http \
+  --method prompts/get \
+  --prompt-name review_content \
+  --prompt-args uri=content://articles/note/welcome \
+  --prompt-args tone=friendly \
+  --header "Authorization: Bearer $TOKEN"
+```
+
+Inspector CLI `0.21.2` does not expose a `completion/complete` CLI command. Use
+the browser Inspector when it shows completion controls, your own JSON-RPC curl,
+or your app's E2E test harness to verify completion.
+
+```bash
+curl -s http://127.0.0.1:3000/api/mcp/prompts \
+  -H "content-type: application/json" \
+  -H "authorization: Bearer $TOKEN" \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": "complete-uri",
+    "method": "completion/complete",
+    "params": {
+      "ref": { "type": "ref/prompt", "name": "review_content" },
+      "argument": { "name": "uri", "value": "content://articles/note/" }
+    }
+  }'
+```
+
+## Example 4: All Families In One Route
+
+Many apps should expose one MCP endpoint with all supported families instead of
+three separate endpoints. Compose the same provider families in a single
+`McpRuntimeProvider`.
+
+```ts
+// lib/mcp/product-provider.ts
+import type { McpRuntimeProvider } from "@minasoft/mcp-runtime";
+import { createArticleResourcesProvider } from "@/lib/mcp/article-resources-provider";
+import { createContentToolsProvider } from "@/lib/mcp/content-tools-provider";
+import { createWorkflowPromptsProvider } from "@/lib/mcp/workflow-prompts-provider";
+
+export function createProductProvider(): McpRuntimeProvider {
+  const resourcesProvider = createArticleResourcesProvider();
+  const toolsProvider = createContentToolsProvider();
+  const promptsProvider = createWorkflowPromptsProvider();
+
+  return {
+    serverInfo: { name: "product-mcp", version: "0.1.0" },
+    resources: resourcesProvider.resources,
+    tools: toolsProvider.tools,
+    prompts: promptsProvider.prompts,
+  };
+}
+```
+
+```ts
+// app/api/mcp/route.ts
+import { createMcpFetchHandler, createMcpOptionsResponse } from "@minasoft/mcp-runtime";
+import { authenticateMcpRequest } from "@/lib/auth/mcp-auth";
+import { createProductProvider } from "@/lib/mcp/product-provider";
+
+const cors = {
+  allowedOrigins: ["http://localhost:6274"],
+};
+
+const handleMcp = createMcpFetchHandler(createProductProvider(), {
+  cors,
+  async context(request) {
+    return {
+      requestId: request.headers.get("x-request-id") ?? undefined,
+      principal: await authenticateMcpRequest(request),
+    };
+  },
+});
+
+export async function OPTIONS(request: Request) {
+  return createMcpOptionsResponse(cors, request);
+}
+
+export async function POST(request: Request) {
+  return handleMcp(request);
+}
+```
+
+## Example 5: Low-Level JSON-RPC Dispatch
+
+Use `handleMcpJsonRpcMessage` when your framework already parsed the HTTP body,
+or when you need custom HTTP behavior around MCP dispatch. MCP Mock Server uses
+this style in `lib/mcp/http.ts` because it owns Basic/OAuth challenges, legacy
+SSE message routes, and mock-specific headers.
+
+```ts
+import { handleMcpJsonRpcMessage, type McpRuntimeProvider } from "@minasoft/mcp-runtime";
+import type { Principal } from "@/lib/auth/mcp-auth";
+
+export async function dispatchMcpMessage(provider: McpRuntimeProvider, body: unknown, principal: Principal | null) {
+  return handleMcpJsonRpcMessage(body, provider, {
+    context: {
+      requestId: crypto.randomUUID(),
+      principal,
+    },
+    pageSize: 100,
+  });
+}
+```
+
+## Error Handling Rules
+
+Return typed provider errors for expected app outcomes:
+
+- `not_found` for unknown resources, tools, or prompts
+- `forbidden` for valid users without permission
+- `invalid_params` for malformed arguments
+- `protocol_error` for app-specific protocol failures
+
+Throw only for unexpected failures. The runtime catches provider throws and
+returns a sanitized JSON-RPC internal error:
 
 ```json
 {
@@ -537,79 +718,13 @@ If `loadArticle` throws, the client receives a sanitized JSON-RPC internal error
 Thrown messages, stack traces, database details, tokens, request bodies, and
 private content are not returned to clients.
 
-## 10. Upstream Inspector CLI Smoke
-
-After exposing a route, use upstream MCP Inspector CLI to verify the integration.
-Run the methods that match the provider families your app exposes.
-
-Resources:
-
-```bash
-npx -y @modelcontextprotocol/inspector@0.21.2 \
-  --cli http://127.0.0.1:3000/api/mcp \
-  --transport http \
-  --method resources/list
-
-npx -y @modelcontextprotocol/inspector@0.21.2 \
-  --cli http://127.0.0.1:3000/api/mcp \
-  --transport http \
-  --method resources/templates/list
-
-npx -y @modelcontextprotocol/inspector@0.21.2 \
-  --cli http://127.0.0.1:3000/api/mcp \
-  --transport http \
-  --method resources/read \
-  --uri content://articles/note/welcome
-```
-
-Tools:
-
-```bash
-npx -y @modelcontextprotocol/inspector@0.21.2 \
-  --cli http://127.0.0.1:3000/api/mcp \
-  --transport http \
-  --method tools/list
-
-npx -y @modelcontextprotocol/inspector@0.21.2 \
-  --cli http://127.0.0.1:3000/api/mcp \
-  --transport http \
-  --method tools/call \
-  --tool-name search_content \
-  --tool-arg query=welcome
-```
-
-Prompts:
-
-```bash
-npx -y @modelcontextprotocol/inspector@0.21.2 \
-  --cli http://127.0.0.1:3000/api/mcp \
-  --transport http \
-  --method prompts/list
-
-npx -y @modelcontextprotocol/inspector@0.21.2 \
-  --cli http://127.0.0.1:3000/api/mcp \
-  --transport http \
-  --method prompts/get \
-  --prompt-name review_content \
-  --prompt-args uri=content://articles/note/welcome
-```
-
-When your host route requires auth, add the same auth header your app expects:
-
-```bash
-npx -y @modelcontextprotocol/inspector@0.21.2 \
-  --cli http://127.0.0.1:3000/api/mcp \
-  --transport http \
-  --method resources/list \
-  --header "Authorization: Bearer $TOKEN"
-```
-
 ## Developer Checklist
 
-- Keep stable resource URIs; clients may bookmark or reuse them.
-- Keep auth, token storage, rate limiting, tenant checks, and audit logs in the host app.
-- Pass resolved request state through `McpRuntimeContext`.
-- Use typed provider errors for expected outcomes.
-- Let unexpected provider throws be sanitized by the runtime.
+- Decide which provider families your app should expose: resources, tools, prompts, or all three.
+- Keep auth, token storage, tenant rules, rate limits, and audit logs in the host app.
+- Pass only safe request state through `McpRuntimeContext`.
+- Keep resource URIs stable; clients may bookmark or reuse them.
+- Treat tool calls as product actions: validate input, permissions, idempotency, and side effects.
+- Treat prompts as app-owned workflows, not random strings embedded in route handlers.
 - Enable CORS only for browser clients you intentionally support.
-- Verify with upstream Inspector CLI before exposing the endpoint to users.
+- Verify every exposed family with Inspector CLI, browser Inspector, curl, or your E2E harness.

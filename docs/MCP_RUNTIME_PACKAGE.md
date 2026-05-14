@@ -477,7 +477,7 @@ Current policy:
 
 ## Current Publish Status
 
-`@minasoft/mcp-runtime` is published publicly on npm. The latest documented package version is `0.1.5`.
+`@minasoft/mcp-runtime` is published publicly on npm. The latest documented package version is `0.1.6`.
 
 `packages/mcp-runtime` remains buildable, packable, and externally typechecked from this workspace with:
 
