@@ -1,9 +1,12 @@
-Implemented `mcp-runtime-resources-json-rpc`.
+Implemented `mcp-runtime-tools-prompts-json-rpc`.
 
-Changed the reusable runtime package to handle `resources/list`, `resources/read`, `resources/templates/list`, `resources/subscribe`, and `resources/unsubscribe`; added optional offset pagination helpers; tightened capability advertisement around optional resources/subscriptions; and added focused package tests. Updated the active task progress log and wrote the operator handoff to `state/last-result.txt`.
+Changed:
+- Added package-owned dispatch for `tools/list`, `tools/call`, `prompts/list`, `prompts/get`, and `completion/complete`.
+- Preserved raw tool-call outcomes via an explicit raw message result type.
+- Added focused runtime package tests for success, tool error, raw outcomes, delegated prompt validation, completion, provider errors, and unsupported optional methods.
+- Updated the active task progress log and wrote `state/last-result.txt`.
 
-Required checks passed:
-
+Required checks all passed:
 - `npm run lint`
 - `npm run typecheck`
 - `npm run mcp-runtime:build`

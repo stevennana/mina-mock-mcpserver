@@ -24,7 +24,7 @@ export {
   SUPPORTED_MCP_PROTOCOL_VERSIONS,
 } from "./types.js";
 
-export type { McpJsonRpcAcceptedResult, McpJsonRpcMessageResult } from "./core.js";
+export type { McpJsonRpcAcceptedResult, McpJsonRpcMessageResult, McpRawToolCallMessageResult } from "./core.js";
 
 export type {
   JsonPrimitive,

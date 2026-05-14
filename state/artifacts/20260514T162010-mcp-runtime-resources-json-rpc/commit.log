@@ -1,0 +1,10 @@
+[codex/mcp-runtime-library-docs 7f1dd64] ralph: mcp-runtime-resources-json-rpc 2026-05-14T16:24:44+09:00
+ 24 files changed, 720 insertions(+), 41 deletions(-)
+ rename docs/exec-plans/{active => completed}/037-mcp-runtime-core-json-rpc.md (94%)
+ create mode 100644 state/artifacts/20260514T161405-mcp-runtime-core-json-rpc/backlog.log
+ create mode 100644 state/artifacts/20260514T161405-mcp-runtime-core-json-rpc/promote.log
+ create mode 100644 state/artifacts/20260514T162010-mcp-runtime-resources-json-rpc/commit.log
+ create mode 100644 state/artifacts/20260514T162010-mcp-runtime-resources-json-rpc/evaluator.log
+ create mode 100644 state/artifacts/20260514T162010-mcp-runtime-resources-json-rpc/task-prompt.log
+ create mode 100644 state/artifacts/20260514T162010-mcp-runtime-resources-json-rpc/worker.jsonl
+commit: created

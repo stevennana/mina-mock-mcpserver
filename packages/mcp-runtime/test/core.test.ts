@@ -481,6 +481,413 @@ test("subscription methods are gated when the provider does not advertise suppor
   });
 });
 
+test("tools/list and tools/call return provider-owned tool results", async () => {
+  let observedName: string | undefined;
+  let observedArguments: Record<string, unknown> | undefined;
+  let observedPrincipal: unknown;
+
+  const provider: McpRuntimeProvider = {
+    tools: {
+      async list() {
+        return {
+          items: [
+            {
+              name: "echo",
+              description: "Echo input",
+              inputSchema: {
+                type: "object",
+                properties: { value: { type: "string" } },
+              },
+            },
+          ],
+        };
+      },
+      async call(input) {
+        observedName = input.name;
+        observedArguments = input.arguments;
+        observedPrincipal = input.context.principal;
+        return {
+          kind: "success",
+          content: [{ type: "text", text: String(input.arguments?.value ?? "") }],
+          structuredContent: { echoed: input.arguments?.value ?? null },
+        };
+      },
+    },
+  };
+
+  const listed = await handleMcpJsonRpcMessage(
+    { jsonrpc: "2.0", id: "tools-list", method: "tools/list" },
+    provider,
+  );
+  const called = await handleMcpJsonRpcMessage(
+    {
+      jsonrpc: "2.0",
+      id: "tools-call",
+      method: "tools/call",
+      params: { name: "echo", arguments: { value: "hello" } },
+    },
+    provider,
+    { context: { principal: { subject: "unit-user" } } },
+  );
+
+  assert.equal(observedName, "echo");
+  assert.deepEqual(observedArguments, { value: "hello" });
+  assert.deepEqual(observedPrincipal, { subject: "unit-user" });
+  assert.deepEqual(listed, {
+    kind: "json",
+    status: 200,
+    body: {
+      jsonrpc: "2.0",
+      id: "tools-list",
+      result: {
+        tools: [
+          {
+            name: "echo",
+            description: "Echo input",
+            inputSchema: {
+              type: "object",
+              properties: { value: { type: "string" } },
+            },
+          },
+        ],
+      },
+    },
+  });
+  assert.deepEqual(called, {
+    kind: "json",
+    status: 200,
+    body: {
+      jsonrpc: "2.0",
+      id: "tools-call",
+      result: {
+        content: [{ type: "text", text: "hello" }],
+        structuredContent: { echoed: "hello" },
+      },
+    },
+  });
+});
+
+test("tools/call preserves tool error and raw provider outcomes", async () => {
+  const provider: McpRuntimeProvider = {
+    tools: {
+      async list() {
+        return { items: [] };
+      },
+      async call(input) {
+        if (input.name === "raw") {
+          return {
+            kind: "raw",
+            status: 200,
+            body: "{malformed",
+            contentType: "application/json",
+            headers: { "x-fixture": "raw" },
+          };
+        }
+
+        return {
+          kind: "tool_error",
+          content: [{ type: "text", text: "Tool failed by fixture" }],
+          structuredContent: { failed: true },
+        };
+      },
+    },
+  };
+
+  const toolError = await handleMcpJsonRpcMessage(
+    { jsonrpc: "2.0", id: "tool-error", method: "tools/call", params: { name: "fails" } },
+    provider,
+  );
+  const raw = await handleMcpJsonRpcMessage(
+    { jsonrpc: "2.0", id: "raw", method: "tools/call", params: { name: "raw" } },
+    provider,
+  );
+
+  assert.deepEqual(toolError, {
+    kind: "json",
+    status: 200,
+    body: {
+      jsonrpc: "2.0",
+      id: "tool-error",
+      result: {
+        content: [{ type: "text", text: "Tool failed by fixture" }],
+        structuredContent: { failed: true },
+        isError: true,
+      },
+    },
+  });
+  assert.deepEqual(raw, {
+    kind: "raw",
+    status: 200,
+    body: "{malformed",
+    contentType: "application/json",
+    headers: { "x-fixture": "raw" },
+  });
+});
+
+test("tools/call maps invalid params, not found, forbidden, and protocol provider errors", async () => {
+  const provider: McpRuntimeProvider = {
+    tools: {
+      async list() {
+        return { items: [] };
+      },
+      async call(input) {
+        if (input.name === "denied") return { kind: "forbidden", message: "Token lacks tool permission" };
+        if (input.name === "bad") return { kind: "invalid_params", message: "Bad tool arguments" };
+        if (input.name === "boom") return { kind: "protocol_error", message: "Provider failed" };
+        return { kind: "not_found", message: "Tool not found" };
+      },
+    },
+  };
+
+  const malformed = await handleMcpJsonRpcMessage(
+    { jsonrpc: "2.0", id: "malformed", method: "tools/call", params: { name: "bad", arguments: [] } },
+    provider,
+  );
+  const missing = await handleMcpJsonRpcMessage(
+    { jsonrpc: "2.0", id: "missing", method: "tools/call", params: { name: "missing" } },
+    provider,
+  );
+  const denied = await handleMcpJsonRpcMessage(
+    { jsonrpc: "2.0", id: "denied", method: "tools/call", params: { name: "denied" } },
+    provider,
+  );
+  const bad = await handleMcpJsonRpcMessage(
+    { jsonrpc: "2.0", id: "bad", method: "tools/call", params: { name: "bad" } },
+    provider,
+  );
+  const protocol = await handleMcpJsonRpcMessage(
+    { jsonrpc: "2.0", id: "boom", method: "tools/call", params: { name: "boom" } },
+    provider,
+  );
+
+  assert.deepEqual(malformed, {
+    kind: "json",
+    status: 200,
+    body: { jsonrpc: "2.0", id: "malformed", error: { code: -32602, message: "Invalid params" } },
+  });
+  assert.deepEqual(missing, {
+    kind: "json",
+    status: 200,
+    body: {
+      jsonrpc: "2.0",
+      id: "missing",
+      error: { code: -32002, message: "Tool not found", data: { error: "not_found" } },
+    },
+  });
+  assert.deepEqual(denied, {
+    kind: "json",
+    status: 200,
+    body: {
+      jsonrpc: "2.0",
+      id: "denied",
+      error: {
+        code: -32003,
+        message: "Token lacks tool permission",
+        data: { error: "forbidden", message: "Token lacks tool permission" },
+      },
+    },
+  });
+  assert.deepEqual(bad, {
+    kind: "json",
+    status: 200,
+    body: { jsonrpc: "2.0", id: "bad", error: { code: -32602, message: "Bad tool arguments" } },
+  });
+  assert.deepEqual(protocol, {
+    kind: "json",
+    status: 200,
+    body: {
+      jsonrpc: "2.0",
+      id: "boom",
+      error: { code: -32000, message: "Provider failed", data: { error: "protocol_error" } },
+    },
+  });
+});
+
+test("prompts/list and prompts/get delegate argument validation to the provider", async () => {
+  const provider: McpRuntimeProvider = {
+    prompts: {
+      async list() {
+        return {
+          items: [
+            {
+              name: "summarize",
+              title: "Summarize",
+              arguments: [{ name: "topic", required: true }],
+            },
+          ],
+          nextCursor: "next",
+        };
+      },
+      async get(input) {
+        if (typeof input.arguments?.topic !== "string") {
+          return { kind: "invalid_params", message: "Missing required prompt argument: topic" };
+        }
+
+        return {
+          kind: "success",
+          description: "Prompt fixture",
+          messages: [{ role: "user", content: { type: "text", text: `Summarize ${input.arguments.topic}` } }],
+        };
+      },
+    },
+  };
+
+  const listed = await handleMcpJsonRpcMessage(
+    { jsonrpc: "2.0", id: "prompts-list", method: "prompts/list", params: { limit: 1 } },
+    provider,
+  );
+  const missingArgument = await handleMcpJsonRpcMessage(
+    { jsonrpc: "2.0", id: "prompt-bad", method: "prompts/get", params: { name: "summarize", arguments: {} } },
+    provider,
+  );
+  const got = await handleMcpJsonRpcMessage(
+    {
+      jsonrpc: "2.0",
+      id: "prompt-get",
+      method: "prompts/get",
+      params: { name: "summarize", arguments: { topic: "runtime boundaries" } },
+    },
+    provider,
+  );
+
+  assert.deepEqual(listed, {
+    kind: "json",
+    status: 200,
+    body: {
+      jsonrpc: "2.0",
+      id: "prompts-list",
+      result: {
+        prompts: [
+          {
+            name: "summarize",
+            title: "Summarize",
+            arguments: [{ name: "topic", required: true }],
+          },
+        ],
+        nextCursor: "next",
+      },
+    },
+  });
+  assert.deepEqual(missingArgument, {
+    kind: "json",
+    status: 200,
+    body: {
+      jsonrpc: "2.0",
+      id: "prompt-bad",
+      error: { code: -32602, message: "Missing required prompt argument: topic" },
+    },
+  });
+  assert.deepEqual(got, {
+    kind: "json",
+    status: 200,
+    body: {
+      jsonrpc: "2.0",
+      id: "prompt-get",
+      result: {
+        description: "Prompt fixture",
+        messages: [{ role: "user", content: { type: "text", text: "Summarize runtime boundaries" } }],
+      },
+    },
+  });
+});
+
+test("completion/complete returns provider completions", async () => {
+  let observedRef: unknown;
+
+  const provider: McpRuntimeProvider = {
+    completion: {
+      async complete(input) {
+        observedRef = input.ref;
+        return {
+          kind: "success",
+          values: [`${input.argument.value ?? ""}alpha`, `${input.argument.value ?? ""}beta`],
+          total: 3,
+          hasMore: true,
+        };
+      },
+    },
+  };
+
+  const completed = await handleMcpJsonRpcMessage(
+    {
+      jsonrpc: "2.0",
+      id: "complete",
+      method: "completion/complete",
+      params: {
+        ref: { type: "ref/prompt", name: "summarize" },
+        argument: { name: "topic", value: "a" },
+      },
+    },
+    provider,
+  );
+
+  assert.deepEqual(observedRef, { type: "ref/prompt", name: "summarize" });
+  assert.deepEqual(completed, {
+    kind: "json",
+    status: 200,
+    body: {
+      jsonrpc: "2.0",
+      id: "complete",
+      result: {
+        completion: {
+          values: ["aalpha", "abeta"],
+          total: 3,
+          hasMore: true,
+        },
+      },
+    },
+  });
+});
+
+test("optional tools, prompts, and completion methods are method-not-found when absent", async () => {
+  const provider = resourcesOnlyProvider();
+  const toolList = await handleMcpJsonRpcMessage(
+    { jsonrpc: "2.0", id: "tools", method: "tools/list" },
+    provider,
+  );
+  const promptGet = await handleMcpJsonRpcMessage(
+    { jsonrpc: "2.0", id: "prompt", method: "prompts/get", params: { name: "missing" } },
+    provider,
+  );
+  const complete = await handleMcpJsonRpcMessage(
+    {
+      jsonrpc: "2.0",
+      id: "complete",
+      method: "completion/complete",
+      params: { ref: { type: "ref/prompt", name: "x" }, argument: { name: "topic" } },
+    },
+    provider,
+  );
+
+  assert.deepEqual(toolList, {
+    kind: "json",
+    status: 200,
+    body: {
+      jsonrpc: "2.0",
+      id: "tools",
+      error: { code: -32601, message: "Method not found", data: { method: "tools/list" } },
+    },
+  });
+  assert.deepEqual(promptGet, {
+    kind: "json",
+    status: 200,
+    body: {
+      jsonrpc: "2.0",
+      id: "prompt",
+      error: { code: -32601, message: "Method not found", data: { method: "prompts/get" } },
+    },
+  });
+  assert.deepEqual(complete, {
+    kind: "json",
+    status: 200,
+    body: {
+      jsonrpc: "2.0",
+      id: "complete",
+      error: { code: -32601, message: "Method not found", data: { method: "completion/complete" } },
+    },
+  });
+});
+
 test("offset pagination helpers are opt-in and keep provider-owned cursors out of core dispatch", () => {
   assert.deepEqual(paginateMcpItemsByOffset({ items: ["a", "b", "c"], limit: 2 }), {
     items: ["a", "b"],

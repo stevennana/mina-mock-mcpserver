@@ -8,8 +8,10 @@ import {
   type McpJsonRpcResponse,
   type McpJsonRpcSuccessResponse,
   type McpListInput,
+  type McpCompletionInput,
   type McpOffsetPaginationInput,
   type McpOffsetPaginationResult,
+  type McpPromptGetInput,
   type McpProviderError,
   type McpResourceReadInput,
   type McpSubscribeResult,
@@ -18,6 +20,7 @@ import {
   type McpRuntimeProvider,
   type McpServerCapabilities,
   type McpServerInfo,
+  type McpToolCallInput,
 } from "./types.js";
 
 const DEFAULT_SERVER_INFO: McpServerInfo = {
@@ -29,13 +32,22 @@ export type McpJsonRpcAcceptedResult = {
   kind: "accepted";
 };
 
+export type McpRawToolCallMessageResult = {
+  kind: "raw";
+  status: number;
+  body: string;
+  contentType?: string | null;
+  headers?: Record<string, string>;
+};
+
 export type McpJsonRpcMessageResult<TResult = unknown> =
   | {
       kind: "json";
       status: number;
       body: McpJsonRpcResponse<TResult>;
     }
-  | McpJsonRpcAcceptedResult;
+  | McpJsonRpcAcceptedResult
+  | McpRawToolCallMessageResult;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -162,7 +174,7 @@ export function createMcpJsonErrorResult(
 
 export function deriveMcpCapabilities(provider: McpRuntimeProvider): McpServerCapabilities {
   return {
-    ...(provider.tools ? { tools: { listChanged: false } } : {}),
+    ...(provider.tools?.list ? { tools: { listChanged: false } } : {}),
     ...(provider.resources
       ? {
           resources: {
@@ -171,7 +183,7 @@ export function deriveMcpCapabilities(provider: McpRuntimeProvider): McpServerCa
           },
         }
       : {}),
-    ...(provider.prompts ? { prompts: { listChanged: true } } : {}),
+    ...(provider.prompts?.list ? { prompts: { listChanged: true } } : {}),
     ...(provider.completion?.complete || provider.prompts?.complete ? { completions: {} } : {}),
   };
 }
@@ -229,7 +241,73 @@ function parseResourceReadParams(params: unknown, context: McpRuntimeContext): M
   return { uri: params.uri, context };
 }
 
-function isProviderError(result: McpSubscribeResult): result is McpProviderError {
+function parseArguments(value: unknown): Record<string, JsonValue> | null {
+  if (value === undefined) return {};
+  if (!isRecord(value)) return null;
+  return value as Record<string, JsonValue>;
+}
+
+function parseToolCallParams(params: unknown, context: McpRuntimeContext): McpToolCallInput | null {
+  if (!isRecord(params) || typeof params.name !== "string" || params.name.length === 0) return null;
+
+  const parsedArguments = parseArguments(params.arguments);
+  if (!parsedArguments) return null;
+
+  return {
+    name: params.name,
+    ...(params.arguments !== undefined ? { arguments: parsedArguments } : {}),
+    context,
+  };
+}
+
+function parsePromptGetParams(params: unknown, context: McpRuntimeContext): McpPromptGetInput | null {
+  if (!isRecord(params) || typeof params.name !== "string" || params.name.length === 0) return null;
+
+  const parsedArguments = parseArguments(params.arguments);
+  if (!parsedArguments) return null;
+
+  return {
+    name: params.name,
+    ...(params.arguments !== undefined ? { arguments: parsedArguments } : {}),
+    context,
+  };
+}
+
+function parseCompletionParams(params: unknown, context: McpRuntimeContext): McpCompletionInput | null {
+  if (!isRecord(params) || !isRecord(params.ref) || !isRecord(params.argument)) return null;
+  if (typeof params.argument.name !== "string" || params.argument.name.length === 0) return null;
+  if ("value" in params.argument && typeof params.argument.value !== "string") return null;
+
+  const value = typeof params.argument.value === "string" ? params.argument.value : undefined;
+  const argument: McpCompletionInput["argument"] = {
+    name: params.argument.name,
+    ...(value !== undefined ? { value } : {}),
+  };
+
+  if (params.ref.type === "ref/prompt" && typeof params.ref.name === "string" && params.ref.name.length > 0) {
+    return {
+      ref: { type: "ref/prompt", name: params.ref.name },
+      argument,
+      context,
+    };
+  }
+
+  if (params.ref.type === "ref/resource" && typeof params.ref.uri === "string" && params.ref.uri.length > 0) {
+    return {
+      ref: { type: "ref/resource", uri: params.ref.uri },
+      argument,
+      context,
+    };
+  }
+
+  return null;
+}
+
+function isProviderError(result: { kind: string }): result is McpProviderError {
+  return result.kind !== "success";
+}
+
+function isSubscribeProviderError(result: McpSubscribeResult): result is McpProviderError {
   return result.kind !== "success";
 }
 
@@ -313,6 +391,57 @@ export async function handleMcpJsonRpcMessage(
 
   const context = options.context ?? {};
 
+  if (message.method === "tools/list") {
+    if (!provider.tools?.list) {
+      return createMcpJsonErrorResult(createMcpMethodNotFoundError(message.id, message.method));
+    }
+
+    const input = parseListParams(message.params, options, context);
+    if (!input) {
+      return createMcpJsonErrorResult(createMcpInvalidParamsError(message.id));
+    }
+
+    const result = await provider.tools.list(input);
+    return listResult(message.id, "tools", result.items, result.nextCursor);
+  }
+
+  if (message.method === "tools/call") {
+    if (!provider.tools?.call) {
+      return createMcpJsonErrorResult(createMcpMethodNotFoundError(message.id, message.method));
+    }
+
+    const input = parseToolCallParams(message.params, context);
+    if (!input) {
+      return createMcpJsonErrorResult(createMcpInvalidParamsError(message.id));
+    }
+
+    const result = await provider.tools.call(input);
+    if (result.kind === "success") {
+      return createMcpJsonResult(message.id, {
+        content: result.content,
+        ...(result.structuredContent ? { structuredContent: result.structuredContent } : {}),
+      });
+    }
+    if (result.kind === "tool_error") {
+      return createMcpJsonResult(message.id, {
+        content: result.content,
+        ...(result.structuredContent ? { structuredContent: result.structuredContent } : {}),
+        isError: true,
+      });
+    }
+    if (result.kind === "raw") {
+      return {
+        kind: "raw",
+        status: result.status,
+        body: result.body,
+        ...(result.contentType !== undefined ? { contentType: result.contentType } : {}),
+        ...(result.headers ? { headers: result.headers } : {}),
+      };
+    }
+
+    return createMcpJsonErrorResult(createMcpErrorResponseFromProviderError(message.id, result));
+  }
+
   if (message.method === "resources/list") {
     if (!provider.resources?.list) {
       return createMcpJsonErrorResult(createMcpMethodNotFoundError(message.id, message.method));
@@ -372,11 +501,71 @@ export async function handleMcpJsonRpcMessage(
     const handler =
       message.method === "resources/subscribe" ? provider.subscriptions.subscribe : provider.subscriptions.unsubscribe;
     const result = await handler(input);
-    if (isProviderError(result)) {
+    if (isSubscribeProviderError(result)) {
       return createMcpJsonErrorResult(createMcpErrorResponseFromProviderError(message.id, result));
     }
 
     return createMcpJsonResult(message.id, {});
+  }
+
+  if (message.method === "prompts/list") {
+    if (!provider.prompts?.list) {
+      return createMcpJsonErrorResult(createMcpMethodNotFoundError(message.id, message.method));
+    }
+
+    const input = parseListParams(message.params, options, context);
+    if (!input) {
+      return createMcpJsonErrorResult(createMcpInvalidParamsError(message.id));
+    }
+
+    const result = await provider.prompts.list(input);
+    return listResult(message.id, "prompts", result.items, result.nextCursor);
+  }
+
+  if (message.method === "prompts/get") {
+    if (!provider.prompts?.get) {
+      return createMcpJsonErrorResult(createMcpMethodNotFoundError(message.id, message.method));
+    }
+
+    const input = parsePromptGetParams(message.params, context);
+    if (!input) {
+      return createMcpJsonErrorResult(createMcpInvalidParamsError(message.id));
+    }
+
+    const result = await provider.prompts.get(input);
+    if (isProviderError(result)) {
+      return createMcpJsonErrorResult(createMcpErrorResponseFromProviderError(message.id, result));
+    }
+
+    return createMcpJsonResult(message.id, {
+      ...(result.description ? { description: result.description } : {}),
+      messages: result.messages,
+    });
+  }
+
+  if (message.method === "completion/complete") {
+    const handler = provider.completion?.complete ?? provider.prompts?.complete;
+    if (!handler) {
+      return createMcpJsonErrorResult(createMcpMethodNotFoundError(message.id, message.method));
+    }
+
+    const input = parseCompletionParams(message.params, context);
+    if (!input) {
+      return createMcpJsonErrorResult(createMcpInvalidParamsError(message.id));
+    }
+
+    const result = await handler(input);
+    if (isProviderError(result)) {
+      return createMcpJsonErrorResult(createMcpErrorResponseFromProviderError(message.id, result));
+    }
+
+    return createMcpJsonResult(message.id, {
+      completion: {
+        values: result.values,
+        ...(result.total !== undefined ? { total: result.total } : {}),
+        ...(result.hasMore !== undefined ? { hasMore: result.hasMore } : {}),
+      },
+    });
   }
 
   return createMcpJsonErrorResult(createMcpMethodNotFoundError(message.id, message.method));

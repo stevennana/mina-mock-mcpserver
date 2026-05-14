@@ -5,7 +5,7 @@
   "id": "mcp-runtime-resources-json-rpc",
   "title": "MCP Runtime Resources JSON-RPC",
   "order": 38,
-  "status": "active",
+  "status": "completed",
   "next_task_on_success": "mcp-runtime-tools-prompts-json-rpc",
   "prompt_docs": [
     "AGENTS.md",
@@ -31,7 +31,8 @@
     "Pagination behavior is hard-coded to Mock Server storage details.",
     "Resource provider errors are thrown instead of mapped through typed outcomes."
   ],
-  "promotion_mode": "deterministic_only"
+  "promotion_mode": "deterministic_only",
+  "completed_at": "2026-05-14T07:24:44.980Z"
 }
 ```
 
@@ -72,3 +73,4 @@ Add provider-driven MCP resource, resource template, and resource subscription J
 
 - 2026-05-14T07:19:40.332Z: restored as current task after mcp-runtime-core-json-rpc promotion.
 - 2026-05-14T07:23:38Z: added provider-driven resource list/read/template/subscription JSON-RPC handling, optional offset pagination helpers, and package unit coverage for success, pagination, provider errors, unsupported subscriptions, and subscription gating.
+- 2026-05-14T07:24:44.980Z: automatically promoted after deterministic checks and evaluator approval.

@@ -67,4 +67,5 @@ Add optional MCP tools, prompts, and completion JSON-RPC handling to the reusabl
 
 ## Progress Log
 - 2026-05-14T00:00:00Z: split out from the broad reusable JSON-RPC core task.
-
+- 2026-05-14T07:24:44.980Z: restored as current task after mcp-runtime-resources-json-rpc promotion.
+- 2026-05-14T07:28:48Z: implemented package-owned tools/list, tools/call, prompts/list, prompts/get, and completion/complete dispatch with raw tool outcomes and focused runtime tests.
