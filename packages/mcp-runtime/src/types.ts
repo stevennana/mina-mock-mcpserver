@@ -239,8 +239,8 @@ export type McpCompletionInput = {
 };
 
 export type McpProviderError =
-  | { kind: "not_found"; message?: string }
-  | { kind: "forbidden"; message: string }
+  | { kind: "not_found"; message?: string; data?: Record<string, JsonValue> }
+  | { kind: "forbidden"; message: string; data?: Record<string, JsonValue> }
   | { kind: "invalid_params"; message: string; data?: Record<string, JsonValue> }
   | { kind: "protocol_error"; message: string; data?: Record<string, JsonValue> };
 

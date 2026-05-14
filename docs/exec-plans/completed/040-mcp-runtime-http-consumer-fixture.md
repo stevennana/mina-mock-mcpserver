@@ -5,7 +5,7 @@
   "id": "mcp-runtime-http-consumer-fixture",
   "title": "MCP Runtime HTTP And Consumer Fixture",
   "order": 40,
-  "status": "active",
+  "status": "completed",
   "next_task_on_success": "mock-server-runtime-adapter-migration",
   "prompt_docs": [
     "AGENTS.md",
@@ -29,7 +29,8 @@
     "The consumer fixture imports from Mock Server app paths.",
     "The task starts migrating Mock Server routes before the HTTP helper is independently tested."
   ],
-  "promotion_mode": "deterministic_only"
+  "promotion_mode": "deterministic_only",
+  "completed_at": "2026-05-14T07:35:29.412Z"
 }
 ```
 
@@ -70,3 +71,4 @@ Add the optional Fetch-compatible HTTP adapter and prove the package can be cons
 
 - 2026-05-14T07:30:19.999Z: restored as current task after mcp-runtime-tools-prompts-json-rpc promotion.
 - 2026-05-14T07:34:35Z: added `createMcpFetchHandler` and public HTTP exports, covered JSON parse failures, protocol-version headers, response content types, raw responses, and request-derived provider context injection; added a published-content consumer fixture through the public package export plus README draft Next.js route docs. Verified `npm run lint`, `npm run typecheck`, `npm run mcp-runtime:build`, and `npm run mcp-runtime:test` pass.
+- 2026-05-14T07:35:29.412Z: automatically promoted after deterministic checks and evaluator approval.

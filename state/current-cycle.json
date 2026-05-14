@@ -1,8 +1,8 @@
 {
-  "task_id": "mcp-runtime-http-consumer-fixture",
-  "started_at": "2026-05-14T16:30:50+09:00",
-  "artifact_dir": "state/artifacts/20260514T163050-mcp-runtime-http-consumer-fixture",
+  "task_id": "mock-server-runtime-adapter-migration",
+  "started_at": "2026-05-14T16:35:59+09:00",
+  "artifact_dir": "state/artifacts/20260514T163559-mock-server-runtime-adapter-migration",
   "phase": "commit",
   "status": "running",
-  "updated_at": "2026-05-14T07:35:29.244Z"
+  "updated_at": "2026-05-14T07:48:02.033Z"
 }

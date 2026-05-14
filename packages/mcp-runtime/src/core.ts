@@ -135,11 +135,17 @@ export function createMcpErrorResponseFromProviderError(
   providerError: McpProviderError,
 ): McpJsonRpcErrorResponse {
   if (providerError.kind === "not_found") {
-    return createMcpNotFoundError(id, providerError.message ?? "Not found", { error: "not_found" });
+    return createMcpNotFoundError(id, providerError.message ?? "Not found", {
+      error: "not_found",
+      ...(providerError.data ?? {}),
+    });
   }
 
   if (providerError.kind === "forbidden") {
-    return createMcpForbiddenError(id, providerError.message, { message: providerError.message });
+    return createMcpForbiddenError(id, providerError.message, {
+      message: providerError.message,
+      ...(providerError.data ?? {}),
+    });
   }
 
   if (providerError.kind === "invalid_params") {

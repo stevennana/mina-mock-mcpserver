@@ -13,8 +13,8 @@ import {
   listEnabledMcpResourceTemplates,
   readEnabledMcpResource,
 } from "@/lib/mcp-fixtures/service";
-import { handleMcpJsonRpcMessage } from "@/lib/mcp/protocol";
-import type { McpResourceContent } from "@/lib/mcp/types";
+import { handleMcpJsonRpcMessage } from "@minasoft/mcp-runtime";
+import type { McpResourceContent, McpRuntimeProvider } from "@minasoft/mcp-runtime";
 
 const execFileAsync = promisify(execFile);
 
@@ -49,6 +49,20 @@ function resourceContent(resource: Awaited<ReturnType<typeof readEnabledMcpResou
   };
 }
 
+function resourceProvider(overrides: Partial<NonNullable<McpRuntimeProvider["resources"]>>): McpRuntimeProvider {
+  return {
+    resources: {
+      async list() {
+        return { items: [] };
+      },
+      async read() {
+        return { kind: "not_found", message: "Resource not found", data: { error: "resource_not_found" } };
+      },
+      ...overrides,
+    },
+  };
+}
+
 test("MCP resources runtime lists seeded resources and templates", async () => {
   await withIsolatedDb(async (client) => {
     await seedAllDefaults(client);
@@ -65,20 +79,19 @@ test("MCP resources runtime lists seeded resources and templates", async () => {
 
     const listResources = await handleMcpJsonRpcMessage(
       { jsonrpc: "2.0", id: "resources", method: "resources/list" },
-      async () => [],
-      undefined,
-      {
-        loadResources: async () =>
-          (await listEnabledMcpResources(client)).map((resource) => ({
-            uri: resource.uri,
-            name: resource.name,
-            title: resource.title,
-            description: resource.description,
-            mimeType: resource.mimeType,
-          })),
-        loadResourceTemplates: async () => [],
-        readResource: async () => null,
-      },
+      resourceProvider({
+        async list() {
+          return {
+            items: (await listEnabledMcpResources(client)).map((resource) => ({
+              uri: resource.uri,
+              name: resource.name,
+              title: resource.title,
+              description: resource.description,
+              mimeType: resource.mimeType,
+            })),
+          };
+        },
+      }),
     );
     assert.equal(listResources.kind, "json");
     if (listResources.kind !== "json") return;
@@ -90,20 +103,21 @@ test("MCP resources runtime lists seeded resources and templates", async () => {
 
     const listTemplates = await handleMcpJsonRpcMessage(
       { jsonrpc: "2.0", id: "templates", method: "resources/templates/list" },
-      async () => [],
-      undefined,
-      {
-        loadResources: async () => [],
-        loadResourceTemplates: async () =>
-          (await listEnabledMcpResourceTemplates(client)).map((template) => ({
-            uriTemplate: template.uriTemplate,
-            name: template.name,
-            title: template.title,
-            description: template.description,
-            mimeType: template.mimeType,
-          })),
-        readResource: async () => null,
-      },
+      resourceProvider({
+        templates: {
+          async list() {
+            return {
+              items: (await listEnabledMcpResourceTemplates(client)).map((template) => ({
+                uriTemplate: template.uriTemplate,
+                name: template.name,
+                title: template.title,
+                description: template.description,
+                mimeType: template.mimeType,
+              })),
+            };
+          },
+        },
+      }),
     );
     assert.equal(listTemplates.kind, "json");
     if (listTemplates.kind !== "json") return;
@@ -131,9 +145,12 @@ test("MCP resources/read returns direct and rendered-template content with JSON-
 
     const directRead = await handleMcpJsonRpcMessage(
       { jsonrpc: "2.0", id: "direct", method: "resources/read", params: { uri: "mock://resources/server-status" } },
-      async () => [],
-      undefined,
-      { readResource: async (uri) => resourceContent(await readEnabledMcpResource(uri, client)) },
+      resourceProvider({
+        async read(input) {
+          const content = resourceContent(await readEnabledMcpResource(input.uri, client));
+          return content ? { kind: "success", contents: [content] } : { kind: "not_found", message: "Resource not found", data: { error: "resource_not_found", uri: input.uri } };
+        },
+      }),
     );
     assert.equal(directRead.kind, "json");
     if (directRead.kind !== "json") return;
@@ -143,9 +160,12 @@ test("MCP resources/read returns direct and rendered-template content with JSON-
 
     const templateRead = await handleMcpJsonRpcMessage(
       { jsonrpc: "2.0", id: "template", method: "resources/read", params: { uri: "mock://resources/customers/cust_999" } },
-      async () => [],
-      undefined,
-      { readResource: async (uri) => resourceContent(await readEnabledMcpResource(uri, client)) },
+      resourceProvider({
+        async read(input) {
+          const content = resourceContent(await readEnabledMcpResource(input.uri, client));
+          return content ? { kind: "success", contents: [content] } : { kind: "not_found", message: "Resource not found", data: { error: "resource_not_found", uri: input.uri } };
+        },
+      }),
     );
     assert.equal(templateRead.kind, "json");
     if (templateRead.kind !== "json") return;
@@ -165,9 +185,12 @@ test("MCP resources/read returns direct and rendered-template content with JSON-
 
     const missing = await handleMcpJsonRpcMessage(
       { jsonrpc: "2.0", id: "missing", method: "resources/read", params: { uri: "mock://resources/missing" } },
-      async () => [],
-      undefined,
-      { readResource: async (uri) => resourceContent(await readEnabledMcpResource(uri, client)) },
+      resourceProvider({
+        async read(input) {
+          const content = resourceContent(await readEnabledMcpResource(input.uri, client));
+          return content ? { kind: "success", contents: [content] } : { kind: "not_found", message: "Resource not found", data: { error: "resource_not_found", uri: input.uri } };
+        },
+      }),
     );
     assert.equal(missing.kind, "json");
     if (missing.kind !== "json") return;
@@ -183,9 +206,12 @@ test("MCP resources/read returns direct and rendered-template content with JSON-
 
     const invalid = await handleMcpJsonRpcMessage(
       { jsonrpc: "2.0", id: "invalid", method: "resources/read", params: { uri: "" } },
-      async () => [],
-      undefined,
-      { readResource: async (uri) => resourceContent(await readEnabledMcpResource(uri, client)) },
+      resourceProvider({
+        async read(input) {
+          const content = resourceContent(await readEnabledMcpResource(input.uri, client));
+          return content ? { kind: "success", contents: [content] } : { kind: "not_found", message: "Resource not found", data: { error: "resource_not_found", uri: input.uri } };
+        },
+      }),
     );
     assert.equal(invalid.kind, "json");
     if (invalid.kind !== "json") return;

@@ -1,10 +1,10 @@
-Implemented `mcp-runtime-http-consumer-fixture` and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+Implemented the runtime adapter migration and wrote the handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
 
 Changed:
-- Added Fetch adapter in [http.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/packages/mcp-runtime/src/http.ts:1).
-- Exported HTTP helper/types from [index.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/packages/mcp-runtime/src/index.ts:27).
-- Added adapter tests plus a public-export-only published-content fixture.
-- Added package README draft with a minimal Next.js route.
+- Added [lib/mcp/runtime-provider.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/lib/mcp/runtime-provider.ts) for app-owned endpoint/resource/prompt/permission mapping.
+- Rewired [lib/mcp/http.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/lib/mcp/http.ts) to dispatch JSON-RPC through `@minasoft/mcp-runtime` while keeping auth, CORS, SSE, and HTTP status behavior in app code.
+- Removed old `lib/mcp/protocol.ts` and `lib/mcp/types.ts`.
+- Migrated MCP unit tests to package imports and added [tests/unit/mcp-runtime-import-guard.test.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/tests/unit/mcp-runtime-import-guard.test.ts).
 - Updated the active task progress log.
 
 All required checks passed:
@@ -12,5 +12,6 @@ All required checks passed:
 - `npm run typecheck`
 - `npm run mcp-runtime:build`
 - `npm run mcp-runtime:test`
+- `npm run test:unit -- tests/unit/mcp-protocol.test.ts tests/unit/mcp-resources-runtime.test.ts tests/unit/mcp-prompts-runtime.test.ts tests/unit/mcp-permissions.test.ts`
 
 Exit criteria appear satisfied. Nothing known remains for this task.

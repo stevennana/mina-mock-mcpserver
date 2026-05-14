@@ -42,3 +42,4 @@
 - 2026-05-14T07:19:40.332Z: promoted mcp-runtime-core-json-rpc -> mcp-runtime-resources-json-rpc
 - 2026-05-14T07:24:44.980Z: promoted mcp-runtime-resources-json-rpc -> mcp-runtime-tools-prompts-json-rpc
 - 2026-05-14T07:30:19.999Z: promoted mcp-runtime-tools-prompts-json-rpc -> mcp-runtime-http-consumer-fixture
+- 2026-05-14T07:35:29.412Z: promoted mcp-runtime-http-consumer-fixture -> mock-server-runtime-adapter-migration

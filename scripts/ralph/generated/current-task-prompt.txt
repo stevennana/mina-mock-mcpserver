@@ -4,13 +4,15 @@ Read the following repository documents before making changes:
 - docs/design-docs/mcp-runtime-library-architecture.md
 - docs/product-specs/mcp-json-rpc-runtime.md
 - docs/product-specs/mcp-resources-prompts.md
-- docs/exec-plans/active/040-mcp-runtime-http-consumer-fixture.md
+- docs/RELIABILITY.md
+- docs/SECURITY.md
+- docs/exec-plans/active/041-mock-server-runtime-adapter-migration.md
 
-Current task id: mcp-runtime-http-consumer-fixture
-Current task title: MCP Runtime HTTP And Consumer Fixture
+Current task id: mock-server-runtime-adapter-migration
+Current task title: Mock Server Runtime Adapter Migration
 
 Objective:
-Add the optional Fetch-compatible HTTP adapter and prove the package can be consumed by a small external-app-style fixture.
+Migrate MCP Mock Server to consume `@minasoft/mcp-runtime` for reusable JSON-RPC protocol handling while keeping app-owned auth, persistence, SSE, and audit behavior unchanged.
 
 Clarity notes:
 - none
@@ -22,11 +24,12 @@ Objections / risks to avoid:
 - none
 
 Scope:
-- Implement `createMcpFetchHandler` or equivalent Fetch `Request`/`Response` helper on top of the core handler.
-- Handle JSON parse failures, MCP protocol-version headers, response content types, and provider context injection in the HTTP adapter.
-- Keep CORS, OAuth challenges, Basic/Bearer parsing, and SSE transport state outside the package.
-- Add a tiny consumer fixture test that defines a published-content resources provider and exercises `initialize`, `resources/list`, and `resources/read` through the public package export only.
-- Add package docs or README draft text showing a minimal Next.js route using the Fetch helper.
+- Add app-owned adapter code that maps endpoints, resources, resource templates, prompts, completion candidates, permissions, and endpoint call results into package provider outcomes.
+- Put that adapter in `lib/mcp/runtime-provider.ts` so app-specific provider mapping is reviewable separately from transport/auth handling in `lib/mcp/http.ts`.
+- Update `lib/mcp/http.ts` and MCP unit tests to import package types/core instead of `@/lib/mcp/protocol` and `@/lib/mcp/types`.
+- Preserve no-auth, Basic, OAuth Bearer, strict route, malformed-response, protocol-error, tool-error, prompt, completion, resource, and subscription behavior.
+- Remove old internal protocol/type modules or reduce them to non-active migration shims only if a same-task removal would be unsafe.
+- Add `tests/unit/mcp-runtime-import-guard.test.ts` or an equivalent static unit guard so app/test code cannot keep using old app-local MCP protocol modules.
 
 Out of scope:
 
@@ -41,14 +44,16 @@ Evaluator notes:
 
 
 Required repository artifacts for this task:
-- packages/mcp-runtime/src/http.ts
-- packages/mcp-runtime/src/index.ts
+- lib/mcp/http.ts
+- lib/mcp/runtime-provider.ts
+- tests/unit/mcp-runtime-import-guard.test.ts
 
 Required commands for this task:
 - npm run lint
 - npm run typecheck
 - npm run mcp-runtime:build
 - npm run mcp-runtime:test
+- npm run test:unit -- tests/unit/mcp-protocol.test.ts tests/unit/mcp-resources-runtime.test.ts tests/unit/mcp-prompts-runtime.test.ts tests/unit/mcp-permissions.test.ts
 
 Previous known gaps from the last evaluation:
 - none

@@ -75,3 +75,8 @@ Migrate MCP Mock Server to consume `@minasoft/mcp-runtime` for reusable JSON-RPC
 
 ## Progress Log
 - 2026-05-14T00:00:00Z: seeded as the first production app consumption task.
+
+## Progress log
+
+- 2026-05-14T07:35:29.412Z: restored as current task after mcp-runtime-http-consumer-fixture promotion.
+- 2026-05-14T08:18:00Z: migrated `lib/mcp/http.ts` to dispatch through `@minasoft/mcp-runtime`, added `lib/mcp/runtime-provider.ts` for app-owned endpoint/resource/prompt/permission mapping, removed old app-local MCP protocol/type modules, and added a static import guard. Required lint, typecheck, package build/test, and targeted MCP unit checks passed.
