@@ -1,6 +1,12 @@
 # @minasoft/mcp-runtime
 
-Framework-light MCP JSON-RPC runtime helpers for TypeScript providers.
+Framework-light MCP JSON-RPC runtime helpers for TypeScript applications that
+already own their HTTP routes, auth, storage, and permissions.
+
+This package is not a replacement for the official MCP TypeScript SDK. It is a
+small runtime boundary for product backends that want to expose existing app
+data as MCP resources, tools, prompts, or completion without adopting a full MCP
+server framework or moving auth and routing out of the host app.
 
 Use this package when an app already owns its HTTP route, auth, storage, and product model, but wants a reusable MCP server runtime for:
 
@@ -15,6 +21,23 @@ Use this package when an app already owns its HTTP route, auth, storage, and pro
 - an optional Fetch `Request` / `Response` adapter
 
 This package intentionally does not include MCP Mock Server admin screens, endpoint catalogs, OAuth UI, Prisma models, seed data, audit logs, SSE session storage, or fixture CRUD.
+
+## Why Use This Runtime?
+
+Use `@minasoft/mcp-runtime` when you want:
+
+- a provider interface that maps existing app records to MCP objects
+- host-owned Bearer, Basic, session, tenant, or custom auth
+- Next.js App Router or Fetch-compatible route integration
+- MCP JSON-RPC envelopes, `initialize`, capabilities, resources, tools, prompts, completion, pagination, and standard errors handled for you
+- opt-in browser Inspector CORS helpers without opening CORS by default
+- sanitized provider exceptions so private app errors do not leak to MCP clients
+- a package that stays independent from React, Next.js, Prisma, SQLite, and Mock Server admin UI modules
+
+Prefer the official MCP SDK when you need a broad SDK with client APIs, richer
+transport abstractions, or the canonical first-stop implementation for new MCP
+servers. Prefer this runtime when the server is already an application route and
+MCP should be a thin protocol layer over that app.
 
 ## Install
 

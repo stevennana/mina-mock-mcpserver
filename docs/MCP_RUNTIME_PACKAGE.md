@@ -12,6 +12,27 @@ They cover resources-only integrations, host-owned auth, Inspector CORS,
 tools, prompts, completion, low-level JSON-RPC dispatch, custom protocol
 versions, pagination, expected errors, and upstream Inspector CLI checks.
 
+## Positioning
+
+`@minasoft/mcp-runtime` is intentionally smaller than a full MCP server SDK. It
+does not try to own the host application's server lifecycle, routing,
+authentication, database, audit, OAuth, or UI. Instead, it provides the MCP
+JSON-RPC runtime boundary that a product backend can call after it has already
+resolved those concerns.
+
+Use this package when:
+
+- the host app already has HTTP routes, middleware, auth, storage, and domain models
+- MCP should expose existing product data as resources, templates, prompts, tools, or completion
+- auth must stay in the host app, such as Bearer tokens, sessions, tenants, feature flags, or custom permission checks
+- the host wants MCP protocol handling without importing Next.js, Prisma, React, SQLite, or Mock Server admin modules into the reusable runtime
+- browser-based tools such as upstream MCP Inspector need opt-in CORS without forcing open CORS by default
+
+The official MCP TypeScript SDK remains the best default when a developer wants
+the canonical MCP SDK, client-side APIs, or a full server abstraction. This
+runtime is optimized for "I already have a product API route; make this route
+speak MCP safely."
+
 ## Package Boundary
 
 The package owns:
@@ -37,6 +58,34 @@ Consumers own:
 - tool, resource, and prompt business logic
 
 The package exports MCP DTOs and provider contracts. Providers should return MCP-domain objects, not Prisma records or Mock Server app entities.
+
+## How MCP Mock Server Uses The Runtime
+
+MCP Mock Server is the concrete host-app reference implementation for this
+package. It demonstrates how another app can keep auth, route policy,
+persistence, and product rules outside the runtime while still using the package
+for reusable MCP JSON-RPC dispatch.
+
+| Concern | Mock Server example | Runtime package role |
+|---|---|---|
+| Next.js route wiring | `app/mcp/route.ts`, `app/mcp/none/route.ts`, `app/mcp/basic/route.ts`, `app/mcp/oauth/route.ts` export route handlers from `lib/mcp/http.ts` | The package receives already-parsed JSON-RPC messages through `handleMcpJsonRpcMessage` |
+| Auth mode selection | `handleUnifiedMcpPost`, `handleStrictBasicMcpPost`, and `handleStrictOAuthMcpPost` in `lib/mcp/http.ts` resolve no-auth, Basic, and Bearer rules before dispatch | The runtime does not inspect credentials; it receives provider options or context chosen by the host |
+| OAuth permission filtering | `resolveOAuthBearerAuthorizationHeader` returns permitted endpoint, resource, template, and prompt IDs | `createMockServerRuntimeProvider` maps those IDs to MCP provider behavior |
+| Product data mapping | `lib/mcp/runtime-provider.ts` converts endpoint fixtures, resources, templates, prompts, and completion candidates into MCP DTOs | The package dispatches `tools/list`, `resources/read`, `prompts/get`, and related methods against the provider |
+| Error handling | The provider returns typed outcomes such as `not_found`, `forbidden`, `invalid_params`, `tool_error`, or `raw` | The runtime converts provider outcomes into JSON-RPC envelopes and sanitizes unexpected throws |
+| SSE hosting | `lib/mcp/http.ts` and `lib/mcp/sse-notifications.ts` own legacy SSE sessions and message routes | The package provides reusable method handling; SSE session storage stays app-owned |
+| CORS policy | `lib/http/cors.ts` owns Mock Server's public mock-server CORS stance | The package offers opt-in CORS helpers for downstream apps that want browser Inspector compatibility |
+
+For a downstream product app, the same pattern usually becomes:
+
+1. The route authenticates the request with the app's own middleware or token logic.
+2. The route builds a small `McpRuntimeContext`, for example `{ principal, requestId, tenantId }`.
+3. The provider maps app records to MCP resources, templates, prompts, or tools.
+4. The runtime handles JSON-RPC method dispatch and response envelopes.
+5. The route logs, audits, rate-limits, and deploys exactly like the rest of the app.
+
+This split is the main value of the package: MCP protocol code becomes reusable,
+while product policy remains local and explicit.
 
 ## Install
 
@@ -258,7 +307,7 @@ Current policy:
 
 ## Current Publish Status
 
-`@minasoft/mcp-runtime` is published publicly on npm. The latest documented package version is `0.1.3`.
+`@minasoft/mcp-runtime` is published publicly on npm. The latest documented package version is `0.1.4`.
 
 `packages/mcp-runtime` remains buildable, packable, and externally typechecked from this workspace with:
 

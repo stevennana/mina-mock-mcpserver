@@ -103,7 +103,7 @@ Start here:
 - [Getting started guide](docs/GETTING_STARTED.md)
 - [MCP transports, SSE, REST, and OAuth calls](docs/TRANSPORTS.md)
 - [Inspector integration](docs/INSPECTOR.md)
-- [Reusable MCP runtime package guide](docs/MCP_RUNTIME_PACKAGE.md)
+- [Reusable MCP runtime package guide](docs/MCP_RUNTIME_PACKAGE.md), including positioning, auth/router integration, and Mock Server host-app examples
 - [Runtime package README](packages/mcp-runtime/README.md)
 
 Inspector-specific guides:

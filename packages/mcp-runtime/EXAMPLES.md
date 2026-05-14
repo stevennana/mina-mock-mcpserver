@@ -8,6 +8,45 @@ rate limits, audit logs, tenant checks, and product-specific permission rules.
 The runtime owns MCP JSON-RPC envelopes, capability derivation, method dispatch,
 pagination shapes, protocol-version headers, and sanitized internal errors.
 
+This is the main design idea:
+
+```text
+HTTP route / middleware
+  -> authenticate and authorize with host-app rules
+  -> build McpRuntimeContext
+  -> call @minasoft/mcp-runtime
+  -> provider maps host records to MCP DTOs
+  -> runtime returns JSON-RPC response envelope
+```
+
+Use the official MCP TypeScript SDK when you want the canonical full SDK or
+client/server framework. Use this runtime when your app already has routes,
+auth, storage, and product permissions, and MCP should be a thin protocol layer
+over those existing systems.
+
+## 0. Host-App Reference: MCP Mock Server
+
+MCP Mock Server is the reference integration for this package. It is useful to
+read it as a real host app rather than as package internals.
+
+| Host-app concern | Mock Server reference | What the runtime handles |
+|---|---|---|
+| Next.js route entrypoints | `app/mcp/route.ts`, `app/mcp/none/route.ts`, `app/mcp/basic/route.ts`, `app/mcp/oauth/route.ts` | Receives a JSON-RPC message after the route chooses the auth mode |
+| Route and auth orchestration | `lib/mcp/http.ts` | Dispatches `initialize`, `tools/list`, `resources/read`, `prompts/get`, and related MCP methods |
+| Basic and OAuth Bearer checks | `resolveBasicAuthorizationHeader`, `resolveOAuthBearerAuthorizationHeader` | Does not inspect credentials or tokens |
+| Permission narrowing | endpoint, resource, template, and prompt IDs passed into `createMockServerRuntimeProvider` | Calls the provider that the host app already scoped |
+| Product data mapping | `lib/mcp/runtime-provider.ts` | Converts provider results into JSON-RPC success/error envelopes |
+| Legacy SSE sessions | `lib/mcp/http.ts`, `lib/mcp/sse-notifications.ts` | Handles reusable resource subscription methods, not app-owned session storage |
+| Mock-server CORS policy | `lib/http/cors.ts` | Provides optional CORS helpers for downstream apps |
+
+The same split works for another product app:
+
+1. Put MCP behind a normal app route, such as `app/api/mcp/route.ts`.
+2. Resolve session, Bearer token, tenant, scopes, and feature flags before calling the runtime.
+3. Pass only safe request state into `McpRuntimeContext`.
+4. Implement a provider that returns MCP resources, templates, tools, prompts, or completion from app data.
+5. Keep logs, audits, rate limits, and deployment policy in the host app.
+
 ## 1. Resources-Only Content Provider
 
 Use this shape when your app wants MCP clients to read published content,
@@ -100,6 +139,10 @@ export function createContentProvider(): McpRuntimeProvider {
 Keep authentication in your application route or middleware. Pass only the
 resolved principal into the runtime context.
 
+This mirrors MCP Mock Server's strict OAuth path: the route verifies the Bearer
+token first, then calls the runtime with a provider that sees only the permitted
+principal or resource scope.
+
 ```ts
 // app/api/mcp/route.ts
 import { createMcpFetchHandler } from "@minasoft/mcp-runtime";
@@ -141,10 +184,18 @@ export async function POST(request: Request) {
 Inside provider methods, treat `context.principal` as already authenticated
 application state. The runtime does not validate tokens or decide permissions.
 
+If your app uses cookies or server sessions instead of Bearer tokens, keep the
+same boundary: resolve the session in the route, pass a safe principal into
+`context`, and let the provider use that context for visibility checks.
+
 ## 3. Inspector-Compatible CORS, Opt In
 
 CORS is closed by default. Enable it only where your host app wants browser MCP
 clients, such as upstream MCP Inspector at `http://localhost:6274`.
+
+MCP Mock Server intentionally owns its own public CORS behavior because it is a
+test server. Product apps should usually be narrower and opt in only to the
+origins they want to support.
 
 ```ts
 // app/api/mcp/route.ts
@@ -304,6 +355,10 @@ export function createPromptProvider(): McpRuntimeProvider {
 
 Use `handleMcpJsonRpcMessage` when the host framework has already parsed the
 request body or does not use the Fetch `Request` / `Response` API.
+
+MCP Mock Server uses this lower-level shape in `lib/mcp/http.ts` because its
+routes need custom Basic/OAuth challenge responses, legacy SSE message routing,
+and mock-specific response headers around the reusable MCP dispatch.
 
 ```ts
 import { handleMcpJsonRpcMessage, type McpRuntimeProvider } from "@minasoft/mcp-runtime";
