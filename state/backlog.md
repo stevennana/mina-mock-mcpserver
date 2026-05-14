@@ -38,4 +38,11 @@
 - [x] mcp-resource-subscription-notifications — MCP Resource Subscription Notifications
 - [x] inspector-full-server-features — Inspector Full Server Features
 - [x] inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b — RCA: Inspector Full Server Features blocker
+- [ ] mcp-runtime-package-foundation — MCP Runtime Package Foundation ← current
+- [ ] mcp-runtime-core-json-rpc — MCP Runtime Core JSON-RPC Foundation
+- [ ] mcp-runtime-resources-json-rpc — MCP Runtime Resources JSON-RPC
+- [ ] mcp-runtime-tools-prompts-json-rpc — MCP Runtime Tools Prompts JSON-RPC
+- [ ] mcp-runtime-http-consumer-fixture — MCP Runtime HTTP And Consumer Fixture
+- [ ] mock-server-runtime-adapter-migration — Mock Server Runtime Adapter Migration
+- [ ] mcp-runtime-inspector-docs-hardening — MCP Runtime Inspector Docs Hardening
 
