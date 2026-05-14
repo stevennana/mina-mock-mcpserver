@@ -1,12 +1,9 @@
-Implemented `mcp-runtime-core-json-rpc`.
+Implemented `mcp-runtime-resources-json-rpc`.
 
-Changed:
-- Added package core JSON-RPC handling in [core.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/packages/mcp-runtime/src/core.ts)
-- Exported core helpers from [index.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/packages/mcp-runtime/src/index.ts)
-- Added focused package tests in [core.test.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/packages/mcp-runtime/test/core.test.ts)
-- Updated the active task progress log and wrote the handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt)
+Changed the reusable runtime package to handle `resources/list`, `resources/read`, `resources/templates/list`, `resources/subscribe`, and `resources/unsubscribe`; added optional offset pagination helpers; tightened capability advertisement around optional resources/subscriptions; and added focused package tests. Updated the active task progress log and wrote the operator handoff to `state/last-result.txt`.
 
 Required checks passed:
+
 - `npm run lint`
 - `npm run typecheck`
 - `npm run mcp-runtime:build`

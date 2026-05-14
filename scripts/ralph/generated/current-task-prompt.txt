@@ -5,13 +5,13 @@ Read the following repository documents before making changes:
 - docs/product-specs/mcp-json-rpc-runtime.md
 - docs/product-specs/mcp-resources-prompts.md
 - docs/RELIABILITY.md
-- docs/exec-plans/active/037-mcp-runtime-core-json-rpc.md
+- docs/exec-plans/active/038-mcp-runtime-resources-json-rpc.md
 
-Current task id: mcp-runtime-core-json-rpc
-Current task title: MCP Runtime Core JSON-RPC Foundation
+Current task id: mcp-runtime-resources-json-rpc
+Current task title: MCP Runtime Resources JSON-RPC
 
 Objective:
-Implement the reusable JSON-RPC envelope, initialization, capability derivation, and error-mapping foundation in `@minasoft/mcp-runtime` before adding individual MCP feature families.
+Add provider-driven MCP resource, resource template, and resource subscription JSON-RPC handling to the reusable runtime package.
 
 Clarity notes:
 - none
@@ -23,10 +23,10 @@ Objections / risks to avoid:
 - none
 
 Scope:
-- Implement core message handling for JSON-RPC request envelopes, explicit batch non-support, notifications, `initialize`, invalid params, provider protocol errors, forbidden/not-found helpers, and unsupported methods.
-- Derive advertised capabilities from the provider shape without dispatching feature-specific methods yet.
-- Define reusable internal helpers for provider result mapping so resources, tools, prompts, and completion tasks do not each invent their own JSON-RPC error shape.
-- Add package unit tests for `initialize`, initialized notifications, invalid JSON-RPC envelopes, unsupported methods, provider error mapping, and capability advertisement with no optional providers.
+- Implement `resources/list`, `resources/read`, `resources/templates/list`, `resources/subscribe`, and `resources/unsubscribe` dispatch on top of the core handler.
+- Preserve provider-owned cursor pagination and expose optional offset pagination helpers without forcing storage policy on consumers.
+- Map not-found, forbidden, invalid params, unsupported subscription, and provider protocol errors through package-owned MCP error responses.
+- Add package unit tests for resource list/read success, template listing, cursor pagination, not-found reads, forbidden reads, unsupported subscriptions, and subscription method gating when the provider does not advertise support.
 
 Out of scope:
 

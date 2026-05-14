@@ -5,7 +5,7 @@
   "id": "mcp-runtime-core-json-rpc",
   "title": "MCP Runtime Core JSON-RPC Foundation",
   "order": 37,
-  "status": "active",
+  "status": "completed",
   "next_task_on_success": "mcp-runtime-resources-json-rpc",
   "prompt_docs": [
     "AGENTS.md",
@@ -31,7 +31,8 @@
     "Capability advertisement claims optional methods without provider support.",
     "Provider errors are thrown instead of mapped through typed outcomes."
   ],
-  "promotion_mode": "deterministic_only"
+  "promotion_mode": "deterministic_only",
+  "completed_at": "2026-05-14T07:19:40.332Z"
 }
 ```
 
@@ -73,3 +74,4 @@ Implement the reusable JSON-RPC envelope, initialization, capability derivation,
 
 - 2026-05-14T07:13:35.309Z: restored as current task after mcp-runtime-package-foundation promotion.
 - 2026-05-14T07:17:51Z: implemented package core JSON-RPC message handling, provider-derived initialize capabilities, reusable JSON-RPC/provider error helpers, batch non-support, notification acceptance, and focused package unit coverage. Required checks passed: `npm run lint`, `npm run typecheck`, `npm run mcp-runtime:build`, and `npm run mcp-runtime:test`.
+- 2026-05-14T07:19:40.332Z: automatically promoted after deterministic checks and evaluator approval.

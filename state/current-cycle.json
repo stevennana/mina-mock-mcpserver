@@ -1,8 +1,8 @@
 {
-  "task_id": "mcp-runtime-core-json-rpc",
-  "started_at": "2026-05-14T16:14:05+09:00",
-  "artifact_dir": "state/artifacts/20260514T161405-mcp-runtime-core-json-rpc",
+  "task_id": "mcp-runtime-resources-json-rpc",
+  "started_at": "2026-05-14T16:20:10+09:00",
+  "artifact_dir": "state/artifacts/20260514T162010-mcp-runtime-resources-json-rpc",
   "phase": "commit",
   "status": "running",
-  "updated_at": "2026-05-14T07:19:40.162Z"
+  "updated_at": "2026-05-14T07:24:44.810Z"
 }

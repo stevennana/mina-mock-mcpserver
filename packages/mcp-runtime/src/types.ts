@@ -51,7 +51,7 @@ export type McpJsonRpcErrorResponse = {
 
 export type McpJsonRpcResponse<TResult = unknown> = McpJsonRpcSuccessResponse<TResult> | McpJsonRpcErrorResponse;
 
-export type McpErrorCode = -32700 | -32600 | -32601 | -32602 | -32603 | -32000 | -32002;
+export type McpErrorCode = -32700 | -32600 | -32601 | -32602 | -32603 | -32000 | -32002 | -32003;
 
 export type McpServerInfo = {
   name: string;
@@ -197,6 +197,19 @@ export type McpListResult<TItem> = {
   nextCursor?: string;
 };
 
+export type McpOffsetPaginationInput<TItem> = {
+  items: readonly TItem[];
+  cursor?: string;
+  limit?: number;
+};
+
+export type McpOffsetPaginationResult<TItem> = {
+  items: TItem[];
+  nextCursor?: string;
+  offset: number;
+  limit: number;
+};
+
 export type McpResourceReadInput = {
   uri: string;
   context: McpRuntimeContext;
@@ -260,7 +273,7 @@ export type McpSubscribeResult = { kind: "success" } | McpProviderError;
 
 export type McpRuntimeProvider = {
   serverInfo?: McpServerInfo;
-  resources: {
+  resources?: {
     list(input: McpListInput): Promise<McpListResult<McpResource>>;
     read(input: McpResourceReadInput): Promise<McpResourceReadResult>;
     templates?: {

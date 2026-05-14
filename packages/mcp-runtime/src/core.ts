@@ -7,7 +7,12 @@ import {
   type McpJsonRpcMessage,
   type McpJsonRpcResponse,
   type McpJsonRpcSuccessResponse,
+  type McpListInput,
+  type McpOffsetPaginationInput,
+  type McpOffsetPaginationResult,
   type McpProviderError,
+  type McpResourceReadInput,
+  type McpSubscribeResult,
   type McpRuntimeContext,
   type McpRuntimeOptions,
   type McpRuntimeProvider,
@@ -158,10 +163,14 @@ export function createMcpJsonErrorResult(
 export function deriveMcpCapabilities(provider: McpRuntimeProvider): McpServerCapabilities {
   return {
     ...(provider.tools ? { tools: { listChanged: false } } : {}),
-    resources: {
-      subscribe: Boolean(provider.subscriptions),
-      listChanged: true,
-    },
+    ...(provider.resources
+      ? {
+          resources: {
+            subscribe: Boolean(provider.subscriptions),
+            listChanged: true,
+          },
+        }
+      : {}),
     ...(provider.prompts ? { prompts: { listChanged: true } } : {}),
     ...(provider.completion?.complete || provider.prompts?.complete ? { completions: {} } : {}),
   };
@@ -188,6 +197,85 @@ function requestedProtocolVersion(params: unknown, options: McpRuntimeOptions) {
 
 function validateInitializeParams(params: unknown) {
   return params === undefined || isRecord(params);
+}
+
+function parseListParams(params: unknown, options: McpRuntimeOptions, context: McpRuntimeContext): McpListInput | null {
+  if (params === undefined) {
+    return {
+      ...(options.pageSize !== undefined ? { limit: options.pageSize } : {}),
+      context,
+    };
+  }
+
+  if (!isRecord(params)) return null;
+
+  const input: McpListInput = { context };
+  if ("cursor" in params) {
+    if (typeof params.cursor !== "string") return null;
+    input.cursor = params.cursor;
+  }
+  if ("limit" in params) {
+    if (!Number.isInteger(params.limit) || (params.limit as number) < 1) return null;
+    input.limit = params.limit as number;
+  } else if (options.pageSize !== undefined) {
+    input.limit = options.pageSize;
+  }
+
+  return input;
+}
+
+function parseResourceReadParams(params: unknown, context: McpRuntimeContext): McpResourceReadInput | null {
+  if (!isRecord(params) || typeof params.uri !== "string" || params.uri.length === 0) return null;
+  return { uri: params.uri, context };
+}
+
+function isProviderError(result: McpSubscribeResult): result is McpProviderError {
+  return result.kind !== "success";
+}
+
+function listResult<TItem>(id: McpJsonRpcId, key: string, items: TItem[], nextCursor?: string) {
+  return createMcpJsonResult(id, {
+    [key]: items,
+    ...(nextCursor ? { nextCursor } : {}),
+  });
+}
+
+export function createMcpOffsetCursor(offset: number): string {
+  if (!Number.isInteger(offset) || offset < 0) {
+    throw new Error("Offset cursor must be a non-negative integer.");
+  }
+
+  return String(offset);
+}
+
+export function parseMcpOffsetCursor(cursor: string | undefined): number {
+  if (cursor === undefined) return 0;
+  if (!/^(0|[1-9]\d*)$/.test(cursor)) {
+    throw new Error("Offset cursor must be a non-negative integer string.");
+  }
+
+  return Number.parseInt(cursor, 10);
+}
+
+export function paginateMcpItemsByOffset<TItem>({
+  items,
+  cursor,
+  limit = 50,
+}: McpOffsetPaginationInput<TItem>): McpOffsetPaginationResult<TItem> {
+  if (!Number.isInteger(limit) || limit < 1) {
+    throw new Error("Offset pagination limit must be a positive integer.");
+  }
+
+  const offset = parseMcpOffsetCursor(cursor);
+  const page = items.slice(offset, offset + limit);
+  const nextOffset = offset + page.length;
+
+  return {
+    items: page,
+    ...(nextOffset < items.length ? { nextCursor: createMcpOffsetCursor(nextOffset) } : {}),
+    offset,
+    limit,
+  };
 }
 
 export async function handleMcpJsonRpcMessage(
@@ -221,6 +309,74 @@ export async function handleMcpJsonRpcMessage(
       capabilities: deriveMcpCapabilities(provider),
       serverInfo: provider.serverInfo ?? options.serverInfo ?? DEFAULT_SERVER_INFO,
     });
+  }
+
+  const context = options.context ?? {};
+
+  if (message.method === "resources/list") {
+    if (!provider.resources?.list) {
+      return createMcpJsonErrorResult(createMcpMethodNotFoundError(message.id, message.method));
+    }
+
+    const input = parseListParams(message.params, options, context);
+    if (!input) {
+      return createMcpJsonErrorResult(createMcpInvalidParamsError(message.id));
+    }
+
+    const result = await provider.resources.list(input);
+    return listResult(message.id, "resources", result.items, result.nextCursor);
+  }
+
+  if (message.method === "resources/templates/list") {
+    if (!provider.resources?.templates?.list) {
+      return createMcpJsonErrorResult(createMcpMethodNotFoundError(message.id, message.method));
+    }
+
+    const input = parseListParams(message.params, options, context);
+    if (!input) {
+      return createMcpJsonErrorResult(createMcpInvalidParamsError(message.id));
+    }
+
+    const result = await provider.resources.templates.list(input);
+    return listResult(message.id, "resourceTemplates", result.items, result.nextCursor);
+  }
+
+  if (message.method === "resources/read") {
+    if (!provider.resources?.read) {
+      return createMcpJsonErrorResult(createMcpMethodNotFoundError(message.id, message.method));
+    }
+
+    const input = parseResourceReadParams(message.params, context);
+    if (!input) {
+      return createMcpJsonErrorResult(createMcpInvalidParamsError(message.id));
+    }
+
+    const result = await provider.resources.read(input);
+    if (result.kind !== "success") {
+      return createMcpJsonErrorResult(createMcpErrorResponseFromProviderError(message.id, result));
+    }
+
+    return createMcpJsonResult(message.id, { contents: result.contents });
+  }
+
+  if (message.method === "resources/subscribe" || message.method === "resources/unsubscribe") {
+    if (!provider.subscriptions) {
+      return createMcpJsonErrorResult(createMcpMethodNotFoundError(message.id, message.method));
+    }
+
+    const input = parseResourceReadParams(message.params, context);
+    if (!input) {
+      return createMcpJsonErrorResult(createMcpInvalidParamsError(message.id));
+    }
+
+    const handler =
+      message.method === "resources/subscribe" ? provider.subscriptions.subscribe : provider.subscriptions.unsubscribe;
+    const result = await handler(input);
+    if (isProviderError(result)) {
+      return createMcpJsonErrorResult(createMcpErrorResponseFromProviderError(message.id, result));
+    }
+
+    return createMcpJsonResult(message.id, {});
   }
 
   return createMcpJsonErrorResult(createMcpMethodNotFoundError(message.id, message.method));

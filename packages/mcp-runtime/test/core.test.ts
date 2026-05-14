@@ -5,6 +5,7 @@ import {
   createMcpErrorResponseFromProviderError,
   deriveMcpCapabilities,
   handleMcpJsonRpcMessage,
+  paginateMcpItemsByOffset,
   type McpRuntimeProvider,
 } from "@minasoft/mcp-runtime";
 
@@ -158,12 +159,309 @@ test("initialize rejects malformed params", async () => {
   });
 });
 
-test("unsupported feature methods intentionally return method not found", async () => {
+test("resources/list returns provider resources with cursor pagination input", async () => {
+  let observedCursor: string | undefined;
+  let observedLimit: number | undefined;
+  let observedRequestId: string | undefined;
+
   const result = await handleMcpJsonRpcMessage(
     {
       jsonrpc: "2.0",
       id: 10,
       method: "resources/list",
+      params: { cursor: "cursor-1", limit: 1 },
+    },
+    {
+      resources: {
+        async list(input) {
+          observedCursor = input.cursor;
+          observedLimit = input.limit;
+          observedRequestId = input.context.requestId;
+          return {
+            items: [
+              {
+                uri: "mock://content/alpha",
+                name: "alpha",
+                title: "Alpha",
+                description: "Provider-owned resource",
+                mimeType: "text/plain",
+                size: 5,
+                annotations: { audience: ["assistant"] },
+              },
+            ],
+            nextCursor: "cursor-2",
+          };
+        },
+        async read() {
+          return { kind: "not_found" };
+        },
+      },
+    },
+    { context: { requestId: "request-1" } },
+  );
+
+  assert.equal(observedCursor, "cursor-1");
+  assert.equal(observedLimit, 1);
+  assert.equal(observedRequestId, "request-1");
+  assert.deepEqual(result, {
+    kind: "json",
+    status: 200,
+    body: {
+      jsonrpc: "2.0",
+      id: 10,
+      result: {
+        resources: [
+          {
+            uri: "mock://content/alpha",
+            name: "alpha",
+            title: "Alpha",
+            description: "Provider-owned resource",
+            mimeType: "text/plain",
+            size: 5,
+            annotations: { audience: ["assistant"] },
+          },
+        ],
+        nextCursor: "cursor-2",
+      },
+    },
+  });
+});
+
+test("resources/templates/list returns provider templates", async () => {
+  const result = await handleMcpJsonRpcMessage(
+    {
+      jsonrpc: "2.0",
+      id: "templates",
+      method: "resources/templates/list",
+    },
+    {
+      resources: {
+        async list() {
+          return { items: [] };
+        },
+        async read() {
+          return { kind: "not_found" };
+        },
+        templates: {
+          async list() {
+            return {
+              items: [
+                {
+                  uriTemplate: "mock://content/{slug}",
+                  name: "content-by-slug",
+                  mimeType: "text/markdown",
+                },
+              ],
+            };
+          },
+        },
+      },
+    },
+  );
+
+  assert.deepEqual(result, {
+    kind: "json",
+    status: 200,
+    body: {
+      jsonrpc: "2.0",
+      id: "templates",
+      result: {
+        resourceTemplates: [
+          {
+            uriTemplate: "mock://content/{slug}",
+            name: "content-by-slug",
+            mimeType: "text/markdown",
+          },
+        ],
+      },
+    },
+  });
+});
+
+test("resources/read returns provider contents", async () => {
+  const result = await handleMcpJsonRpcMessage(
+    {
+      jsonrpc: "2.0",
+      id: "read",
+      method: "resources/read",
+      params: { uri: "mock://content/alpha" },
+    },
+    {
+      resources: {
+        async list() {
+          return { items: [] };
+        },
+        async read(input) {
+          return {
+            kind: "success",
+            contents: [
+              {
+                uri: input.uri,
+                mimeType: "text/plain",
+                text: "alpha",
+              },
+            ],
+          };
+        },
+      },
+    },
+  );
+
+  assert.deepEqual(result, {
+    kind: "json",
+    status: 200,
+    body: {
+      jsonrpc: "2.0",
+      id: "read",
+      result: {
+        contents: [
+          {
+            uri: "mock://content/alpha",
+            mimeType: "text/plain",
+            text: "alpha",
+          },
+        ],
+      },
+    },
+  });
+});
+
+test("resources/read maps not-found and forbidden provider outcomes", async () => {
+  const provider: McpRuntimeProvider = {
+    resources: {
+      async list() {
+        return { items: [] };
+      },
+      async read(input) {
+        if (input.uri === "mock://content/denied") {
+          return { kind: "forbidden", message: "Token lacks resource permission" };
+        }
+
+        return { kind: "not_found", message: "Resource not found" };
+      },
+    },
+  };
+
+  const missing = await handleMcpJsonRpcMessage(
+    {
+      jsonrpc: "2.0",
+      id: "missing",
+      method: "resources/read",
+      params: { uri: "mock://content/missing" },
+    },
+    provider,
+  );
+  const denied = await handleMcpJsonRpcMessage(
+    {
+      jsonrpc: "2.0",
+      id: "denied",
+      method: "resources/read",
+      params: { uri: "mock://content/denied" },
+    },
+    provider,
+  );
+
+  assert.deepEqual(missing, {
+    kind: "json",
+    status: 200,
+    body: {
+      jsonrpc: "2.0",
+      id: "missing",
+      error: {
+        code: -32002,
+        message: "Resource not found",
+        data: { error: "not_found" },
+      },
+    },
+  });
+  assert.deepEqual(denied, {
+    kind: "json",
+    status: 200,
+    body: {
+      jsonrpc: "2.0",
+      id: "denied",
+      error: {
+        code: -32003,
+        message: "Token lacks resource permission",
+        data: { error: "forbidden", message: "Token lacks resource permission" },
+      },
+    },
+  });
+});
+
+test("resource subscriptions return empty success or provider-owned invalid params errors", async () => {
+  const provider: McpRuntimeProvider = {
+    resources: {
+      async list() {
+        return { items: [] };
+      },
+      async read() {
+        return { kind: "not_found" };
+      },
+    },
+    subscriptions: {
+      async subscribe(input) {
+        if (input.uri === "mock://content/no-session") {
+          return { kind: "invalid_params", message: "Resource subscriptions require a live session" };
+        }
+
+        return { kind: "success" };
+      },
+      async unsubscribe() {
+        return { kind: "success" };
+      },
+    },
+  };
+
+  const subscribed = await handleMcpJsonRpcMessage(
+    {
+      jsonrpc: "2.0",
+      id: "subscribe",
+      method: "resources/subscribe",
+      params: { uri: "mock://content/alpha" },
+    },
+    provider,
+  );
+  const unsupported = await handleMcpJsonRpcMessage(
+    {
+      jsonrpc: "2.0",
+      id: "unsupported",
+      method: "resources/subscribe",
+      params: { uri: "mock://content/no-session" },
+    },
+    provider,
+  );
+
+  assert.deepEqual(subscribed, {
+    kind: "json",
+    status: 200,
+    body: {
+      jsonrpc: "2.0",
+      id: "subscribe",
+      result: {},
+    },
+  });
+  assert.deepEqual(unsupported, {
+    kind: "json",
+    status: 200,
+    body: {
+      jsonrpc: "2.0",
+      id: "unsupported",
+      error: {
+        code: -32602,
+        message: "Resource subscriptions require a live session",
+      },
+    },
+  });
+});
+
+test("subscription methods are gated when the provider does not advertise support", async () => {
+  const result = await handleMcpJsonRpcMessage(
+    {
+      jsonrpc: "2.0",
+      id: "subscribe",
+      method: "resources/subscribe",
+      params: { uri: "mock://content/alpha" },
     },
     resourcesOnlyProvider(),
   );
@@ -173,13 +471,27 @@ test("unsupported feature methods intentionally return method not found", async 
     status: 200,
     body: {
       jsonrpc: "2.0",
-      id: 10,
+      id: "subscribe",
       error: {
         code: -32601,
         message: "Method not found",
-        data: { method: "resources/list" },
+        data: { method: "resources/subscribe" },
       },
     },
+  });
+});
+
+test("offset pagination helpers are opt-in and keep provider-owned cursors out of core dispatch", () => {
+  assert.deepEqual(paginateMcpItemsByOffset({ items: ["a", "b", "c"], limit: 2 }), {
+    items: ["a", "b"],
+    nextCursor: "2",
+    offset: 0,
+    limit: 2,
+  });
+  assert.deepEqual(paginateMcpItemsByOffset({ items: ["a", "b", "c"], cursor: "2", limit: 2 }), {
+    items: ["c"],
+    offset: 2,
+    limit: 2,
   });
 });
 

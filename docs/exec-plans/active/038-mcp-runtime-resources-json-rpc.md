@@ -68,3 +68,7 @@ Add provider-driven MCP resource, resource template, and resource subscription J
 ## Progress Log
 - 2026-05-14T00:00:00Z: split out from the broad reusable JSON-RPC core task.
 
+## Progress log
+
+- 2026-05-14T07:19:40.332Z: restored as current task after mcp-runtime-core-json-rpc promotion.
+- 2026-05-14T07:23:38Z: added provider-driven resource list/read/template/subscription JSON-RPC handling, optional offset pagination helpers, and package unit coverage for success, pagination, provider errors, unsupported subscriptions, and subscription gating.

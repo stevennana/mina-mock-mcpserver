@@ -46,6 +46,7 @@ test("public API supports a minimal resources-only provider", async () => {
     },
   };
 
+  assert.ok(provider.resources);
   const listed = await provider.resources.list({ context: { requestId: "test-request" } });
   const read = await provider.resources.read({ uri: listed.items[0].uri, context: {} });
   const response: McpJsonRpcResponse<typeof read> = {
