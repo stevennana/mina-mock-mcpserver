@@ -42,10 +42,10 @@ const MOCK_SCENARIO_STEP_HELP = {
   "Cleanup temporary records": "Removes scenario-created records so repeated local runs stay predictable.",
 };
 const GENERIC_ROUTE_PRESET_HELP = {
-  custom: "Use any MCP HTTP endpoint URL. No Mock Server path or auth helper fields are changed automatically.",
-  none: "Targets the Mock Server no-auth MCP route. Good for learning initialize, tools/list, and tools/call without credentials.",
-  basic: "Targets the strict Basic MCP route and fills the seeded default/default test credentials.",
-  oauth: "Targets the strict OAuth MCP route. Use Issue Mock OAuth token to fill a Bearer token before running.",
+  custom: "Use any MCP HTTP endpoint path with the Base URL above. The path stays editable and auth helper fields are left alone.",
+  none: "Locks Endpoint path to /mcp/none and sends no Authorization header. Good for learning initialize, tools/list, resources, and prompts without credentials.",
+  basic: "Locks Endpoint path to /mcp/basic and fills the seeded default/default Basic credentials.",
+  oauth: "Locks Endpoint path to /mcp/oauth. Use Issue Mock OAuth token or the OAuth Popup flow to fill a Bearer token before running.",
 };
 const GENERIC_AUTH_HELP = {
   none: "Sends no Authorization header. Use this for public/no-auth MCP routes.",
@@ -192,6 +192,22 @@ function normalizeBaseUrl(value) {
     throw new Error("Mock Server base URL must be http or https.");
   }
   return baseUrl.replace(/\/+$/, "");
+}
+
+function normalizeEndpointPath(value) {
+  const endpointPath = String(value ?? "").trim() || "/mcp/none";
+  if (!endpointPath.startsWith("/")) {
+    throw new Error("Endpoint path must start with /.");
+  }
+  return endpointPath;
+}
+
+function resolveMcpTargetUrl(input) {
+  const explicitUrl = String(input.mcpUrl ?? "").trim();
+  if (explicitUrl) return explicitUrl;
+  const baseUrl = normalizeBaseUrl(input.baseUrl);
+  const endpointPath = normalizeEndpointPath(input.endpointPath);
+  return new URL(endpointPath, `${baseUrl}/`).toString();
 }
 
 async function fetchJson(url, payload, headers, options = {}) {
@@ -456,11 +472,13 @@ function genericMcpTarget(baseUrl, preset, insecureTls) {
   const targets = {
     none: {
       mockRoutePreset: "none",
+      endpointPath: "/mcp/none",
       mcpUrl: `${baseUrl}/mcp/none`,
       authMode: "none",
     },
     basic: {
       mockRoutePreset: "basic",
+      endpointPath: "/mcp/basic",
       mcpUrl: `${baseUrl}/mcp/basic`,
       authMode: "basic",
       basicUsername: "default",
@@ -468,6 +486,7 @@ function genericMcpTarget(baseUrl, preset, insecureTls) {
     },
     oauth: {
       mockRoutePreset: "oauth",
+      endpointPath: "/mcp/oauth",
       mcpUrl: `${baseUrl}/mcp/oauth`,
       authMode: "bearer",
       oauthClientId: "default",
@@ -478,6 +497,8 @@ function genericMcpTarget(baseUrl, preset, insecureTls) {
   return {
     baseUrl,
     ...targets[preset],
+    methodPreset: "tools",
+    methodParamsJson: "{}",
     toolName: "echo",
     toolArgsJson: JSON.stringify({ message: "hello" }),
     protocolVersion: DEFAULT_PROTOCOL_VERSION,
@@ -945,11 +966,11 @@ async function inspectMockServerScenario(input) {
 }
 
 async function inspectMcpTarget(input) {
-  const targetUrl = String(input.mcpUrl ?? "").trim();
-  if (!targetUrl) throw new Error("MCP endpoint URL is required.");
+  const targetUrl = resolveMcpTargetUrl(input);
+  if (!targetUrl) throw new Error("Full MCP URL is required.");
   const url = new URL(targetUrl);
   if (!["http:", "https:"].includes(url.protocol)) {
-    throw new Error("MCP endpoint URL must be http or https.");
+    throw new Error("Full MCP URL must be http or https.");
   }
 
   const protocolVersion = String(input.protocolVersion || DEFAULT_PROTOCOL_VERSION);
@@ -1260,10 +1281,13 @@ async function exchangeOAuthPopupCode(input) {
     genericTarget: {
       baseUrl,
       mockRoutePreset: "oauth",
+      endpointPath: "/mcp/oauth",
       mcpUrl: `${baseUrl}/mcp/oauth`,
       protocolVersion: DEFAULT_PROTOCOL_VERSION,
       authMode: "bearer",
       bearerToken: token.body.access_token,
+      methodPreset: "tools",
+      methodParamsJson: "{}",
       toolName: "echo",
       toolArgsJson: JSON.stringify({ message: "hello" }),
       insecureTls,
@@ -1732,6 +1756,28 @@ function renderHtml(page = "home") {
       font-size: .82rem;
       line-height: 1.45;
     }
+    .url-preview {
+      display: grid;
+      gap: 6px;
+      border: 1px solid rgba(47, 111, 100, .26);
+      border-radius: 8px;
+      margin: -2px 0 12px;
+      padding: 10px 12px;
+      background: var(--accent-soft);
+      color: var(--accent-dark);
+    }
+    .url-preview span {
+      font-size: .72rem;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+    .url-preview code {
+      max-width: 100%;
+      overflow-wrap: anywhere;
+      color: var(--fg);
+      font-size: .88rem;
+      font-weight: 800;
+    }
     input, select, textarea {
       width: 100%;
       min-height: 44px;
@@ -1744,6 +1790,11 @@ function renderHtml(page = "home") {
     input:focus, select:focus, textarea:focus {
       outline: 3px solid rgba(47, 111, 100, .16);
       border-color: rgba(47, 111, 100, .62);
+    }
+    input[readonly] {
+      background: var(--panel-low);
+      color: var(--muted);
+      cursor: not-allowed;
     }
     input[type="checkbox"] {
       width: 18px;
@@ -1933,6 +1984,46 @@ function renderHtml(page = "home") {
       font-size: .84rem;
     }
     .history-list strong { color: var(--fg); }
+    .previous-runs-panel { grid-column: 1 / -1; }
+    .previous-runs {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      box-shadow: var(--shadow-subtle);
+      overflow: hidden;
+    }
+    .previous-runs summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 52px;
+      padding: 0 16px;
+      cursor: pointer;
+      font-weight: 900;
+      list-style: none;
+    }
+    .previous-runs summary::-webkit-details-marker { display: none; }
+    .previous-runs-body {
+      display: grid;
+      gap: 10px;
+      border-top: 1px solid var(--line);
+      padding: 14px;
+      background: var(--panel-raised);
+    }
+    .history-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+    }
+    .history-head span,
+    .history-meta {
+      color: var(--muted);
+      font-size: .78rem;
+      font-weight: 800;
+    }
+    .history-meta { overflow-wrap: anywhere; }
     @media (max-width: 840px) {
       main.inspector-shell { width: min(100% - 24px, 620px); padding-top: 0; }
       .product-topbar-inner { display: grid; min-height: auto; gap: 10px; padding: 16px 0; }
@@ -2047,7 +2138,7 @@ function renderHtml(page = "home") {
             <input name="rootPassword" type="password" placeholder="Only needed when reset is enabled" />
           </label>
           <p class="hint">Default run covers health, config, discovery, endpoint admin, REST, MCP tools/resources/prompts/completion, SSE notifications, Basic, OAuth Bearer permissions, token revocation, audit, reset denial, and cleanup. Root reset stays off unless you opt in. Use self-signed HTTPS only for local certificates you control.</p>
-          <p class="hint">This page remembers recent target URLs and protocol/tool names in this browser only. Headers, tool arguments, root passwords, and other secret-like fields are not stored.</p>
+          <p class="hint">This page remembers recent Base URL, Endpoint path, and protocol/tool names in this browser only. Headers, tool arguments, root passwords, and other secret-like fields are not stored.</p>
           <div class="actions">
             <button id="run-mock-button" type="submit">Run Mock Server scenario</button>
           </div>
@@ -2068,24 +2159,28 @@ function renderHtml(page = "home") {
             <span class="pill pass">portable</span>
           </div>
           <label>
-            <span class="label-text">Mock Server base URL ${helpTooltip("Used by Mock route presets and the Mock OAuth token helper. Custom MCP endpoints can still use a different MCP endpoint URL.")}</span>
+            <span class="label-text">Base URL ${helpTooltip("The server root, such as https://mcp.minasoftai.com or http://127.0.0.1:3100. The endpoint path below is joined to this root.")}</span>
             <input name="baseUrl" value="${DEFAULT_MOCK_BASE_URL}" placeholder="http://127.0.0.1:3100" />
           </label>
           <label>
-            <span class="label-text">Mock route preset ${helpTooltip("Optional shortcut for this Mock Server's common MCP routes. It fills the endpoint URL and matching auth helper fields.")}</span>
+            <span class="label-text">Route preset ${helpTooltip("Optional shortcut for this Mock Server's common MCP routes. Presets lock the endpoint path and fill matching auth helper fields.")}</span>
             <select name="mockRoutePreset">
-              <option value="custom">Custom endpoint URL</option>
+              <option value="custom">Custom endpoint path</option>
               <option value="none">Mock no-auth /mcp/none</option>
-              <option value="basic">Mock Basic /mcp/basic with default/default</option>
-              <option value="oauth">Mock OAuth /mcp/oauth with Bearer token</option>
+              <option value="basic">Mock Basic /mcp/basic</option>
+              <option value="oauth">Mock OAuth /mcp/oauth</option>
             </select>
           </label>
           <div id="route-preset-note" class="select-note" aria-live="polite"></div>
-          <p class="hint">Presets use the Mock Server base URL from the scenario form above, then fill the endpoint and common auth helper fields for you.</p>
           <label>
-            <span class="label-text">MCP endpoint URL ${helpTooltip("The HTTP endpoint that receives JSON-RPC MCP messages such as initialize, tools/list, and tools/call.")}</span>
-            <input name="mcpUrl" value="http://127.0.0.1:3100/mcp/none" placeholder="http://127.0.0.1:3100/mcp/none" />
+            <span class="label-text">Endpoint path ${helpTooltip("The MCP route path joined to Base URL. Resource and prompt checks are method presets and usually use the same endpoint path.")}</span>
+            <input name="endpointPath" value="/mcp/none" placeholder="/mcp/none" />
           </label>
+          <div id="full-url-preview" class="url-preview" aria-live="polite">
+            <span>Full URL used for this run</span>
+            <code>http://127.0.0.1:3100/mcp/none</code>
+          </div>
+          <input name="mcpUrl" type="hidden" value="http://127.0.0.1:3100/mcp/none" />
           <label>
             <span class="label-text">Protocol version ${helpTooltip("Sent as the MCP-Protocol-Version header after initialize. Use the version your MCP client or server expects.")}</span>
             <input name="protocolVersion" value="${DEFAULT_PROTOCOL_VERSION}" />
@@ -2145,7 +2240,7 @@ function renderHtml(page = "home") {
           </div>
           <label>
             <span class="label-text">Target config JSON ${helpTooltip("Portable, redacted target settings inspired by MCP Inspector connection presets. Paste exported JSON here to fill the form.")}</span>
-            <textarea name="targetConfigJson" placeholder='{"mcpUrl":"http://127.0.0.1:3100/mcp/none","authMode":"none"}'></textarea>
+            <textarea name="targetConfigJson" placeholder='{"baseUrl":"http://127.0.0.1:3100","endpointPath":"/mcp/none","authMode":"none"}'></textarea>
           </label>
           <div id="config-helper-status" class="hint" aria-live="polite"></div>
           <label class="check-row">
@@ -2184,8 +2279,17 @@ function renderHtml(page = "home") {
         <section>
           <h2>Generic results</h2>
           <div id="results" class="empty">No generic inspection has run yet.</div>
-          <h2>Request history</h2>
-          <div id="request-history" class="empty">No generic requests in this tab yet.</div>
+        </section>
+        <section class="previous-runs-panel">
+          <details id="previous-runs" class="previous-runs">
+            <summary>
+              <span>Previous runs</span>
+              <span id="history-count" class="pill skip">0 saved</span>
+            </summary>
+            <div class="previous-runs-body">
+              <div id="request-history" class="empty">No previous generic runs in this tab yet.</div>
+            </div>
+          </details>
         </section>
       </div>` : ""}
 
@@ -2240,6 +2344,8 @@ function renderHtml(page = "home") {
     const importConfigButton = document.querySelector("#import-config-button");
     const configHelperStatus = document.querySelector("#config-helper-status");
     const requestHistory = document.querySelector("#request-history");
+    const historyCount = document.querySelector("#history-count");
+    const fullUrlPreview = document.querySelector("#full-url-preview code");
     const oauthPopupForm = document.querySelector("#oauth-popup-form");
     const oauthPopupButton = document.querySelector("#start-oauth-popup-button");
     const oauthPopupResults = document.querySelector("#oauth-popup-results");
@@ -2271,7 +2377,8 @@ function renderHtml(page = "home") {
       if (mockForm && settings.mockBaseUrl) mockForm.elements.baseUrl.value = settings.mockBaseUrl;
       if (mockForm && settings.mockInsecureTls === true) mockForm.elements.insecureTls.checked = true;
       if (form && settings.mockBaseUrl) form.elements.baseUrl.value = settings.mockBaseUrl;
-      if (form && settings.mcpUrl) form.elements.mcpUrl.value = settings.mcpUrl;
+      if (form && settings.endpointPath) form.elements.endpointPath.value = settings.endpointPath;
+      if (form && settings.mcpUrl && !settings.endpointPath) applyTargetUrl(settings.mcpUrl);
       if (form && settings.protocolVersion) form.elements.protocolVersion.value = settings.protocolVersion;
       if (form && settings.genericInsecureTls === true) form.elements.insecureTls.checked = true;
       if (form && settings.methodPreset) {
@@ -2293,7 +2400,8 @@ function renderHtml(page = "home") {
       if (!draft) return;
       if (draft.baseUrl) form.elements.baseUrl.value = draft.baseUrl;
       if (draft.mockRoutePreset) form.elements.mockRoutePreset.value = draft.mockRoutePreset;
-      if (draft.mcpUrl) form.elements.mcpUrl.value = draft.mcpUrl;
+      if (draft.endpointPath) form.elements.endpointPath.value = draft.endpointPath;
+      if (draft.mcpUrl && !draft.endpointPath) applyTargetUrl(draft.mcpUrl);
       if (draft.protocolVersion) form.elements.protocolVersion.value = draft.protocolVersion;
       if (draft.authMode) form.elements.authMode.value = draft.authMode;
       if (draft.basicUsername) form.elements.basicUsername.value = draft.basicUsername;
@@ -2308,6 +2416,8 @@ function renderHtml(page = "home") {
       if (draft.toolArgsJson) form.elements.toolArgsJson.value = draft.toolArgsJson;
       if (draft.headersJson) form.elements.headersJson.value = draft.headersJson;
       form.elements.insecureTls.checked = draft.insecureTls === true;
+      applyMockRoutePreset({ preserveCustomPath: true });
+      updateFullUrlPreview();
       updateAuthFields();
       updateMethodPresetNote();
       window.localStorage.removeItem(genericDraftKey);
@@ -2357,25 +2467,79 @@ function renderHtml(page = "home") {
       return String(value).trim().replace(/\\/+$/, "");
     }
 
-    function applyMockRoutePreset() {
+    function splitTargetUrl(value) {
+      try {
+        const parsed = new URL(String(value || "").trim());
+        return {
+          baseUrl: parsed.origin,
+          endpointPath: parsed.pathname + parsed.search,
+        };
+      } catch {
+        return null;
+      }
+    }
+
+    function applyTargetUrl(value) {
+      if (!form) return;
+      const split = splitTargetUrl(value);
+      if (!split) return;
+      form.elements.baseUrl.value = split.baseUrl;
+      form.elements.endpointPath.value = split.endpointPath || "/mcp/none";
+    }
+
+    function normalizedEndpointPath() {
+      if (!form) return "/mcp/none";
+      const rawPath = String(form.elements.endpointPath.value || "").trim() || "/mcp/none";
+      return rawPath.startsWith("/") ? rawPath : "/" + rawPath;
+    }
+
+    function resolvedTargetUrl() {
+      if (!form) return "";
+      try {
+        const baseUrl = currentMockBaseUrl();
+        const endpointPath = normalizedEndpointPath();
+        return new URL(endpointPath, baseUrl + "/").toString();
+      } catch {
+        return "";
+      }
+    }
+
+    function updateFullUrlPreview() {
+      if (!form) return;
+      const endpointPath = normalizedEndpointPath();
+      form.elements.endpointPath.value = endpointPath;
+      const fullUrl = resolvedTargetUrl();
+      form.elements.mcpUrl.value = fullUrl;
+      if (fullUrlPreview) {
+        fullUrlPreview.textContent = fullUrl || "Enter a valid Base URL and endpoint path.";
+      }
+    }
+
+    function applyMockRoutePreset(options = {}) {
       if (!form) return;
       const preset = form.elements.mockRoutePreset.value;
-      if (preset === "custom") return;
+      const endpointPath = form.elements.endpointPath;
+      endpointPath.readOnly = preset !== "custom";
+      if (preset === "custom") {
+        if (!options.preserveCustomPath) updateFullUrlPreview();
+        return;
+      }
       const baseUrl = currentMockBaseUrl();
       if (preset === "none") {
-        form.elements.mcpUrl.value = baseUrl + "/mcp/none";
+        endpointPath.value = "/mcp/none";
         form.elements.authMode.value = "none";
       } else if (preset === "basic") {
-        form.elements.mcpUrl.value = baseUrl + "/mcp/basic";
+        endpointPath.value = "/mcp/basic";
         form.elements.authMode.value = "basic";
         form.elements.basicUsername.value = "default";
         form.elements.basicPassword.value = "default";
       } else if (preset === "oauth") {
-        form.elements.mcpUrl.value = baseUrl + "/mcp/oauth";
+        endpointPath.value = "/mcp/oauth";
         form.elements.authMode.value = "bearer";
         form.elements.oauthClientId.value = form.elements.oauthClientId.value || "default";
         form.elements.oauthClientSecret.value = form.elements.oauthClientSecret.value || "default";
       }
+      updateFullUrlPreview();
       updateAuthFields();
     }
 
@@ -2413,6 +2577,8 @@ function renderHtml(page = "home") {
       delete payload.basicPassword;
       delete payload.bearerToken;
       delete payload.mockRoutePreset;
+      delete payload.baseUrl;
+      delete payload.endpointPath;
       delete payload.oauthClientId;
       delete payload.oauthClientSecret;
       delete payload.oauthScope;
@@ -2424,7 +2590,8 @@ function renderHtml(page = "home") {
       return {
         baseUrl: String(form.elements.baseUrl.value || ""),
         mockRoutePreset: String(form.elements.mockRoutePreset.value || "custom"),
-        mcpUrl: String(form.elements.mcpUrl.value || ""),
+        endpointPath: normalizedEndpointPath(),
+        mcpUrl: resolvedTargetUrl(),
         protocolVersion: String(form.elements.protocolVersion.value || ""),
         authMode: String(form.elements.authMode.value || "none"),
         basicUsername: String(form.elements.basicUsername.value || ""),
@@ -2443,7 +2610,8 @@ function renderHtml(page = "home") {
       if (!form || !config || typeof config !== "object") return;
       if (config.baseUrl) form.elements.baseUrl.value = config.baseUrl;
       if (config.mockRoutePreset) form.elements.mockRoutePreset.value = config.mockRoutePreset;
-      if (config.mcpUrl) form.elements.mcpUrl.value = config.mcpUrl;
+      if (config.endpointPath) form.elements.endpointPath.value = config.endpointPath;
+      if (config.mcpUrl && !config.endpointPath) applyTargetUrl(config.mcpUrl);
       if (config.protocolVersion) form.elements.protocolVersion.value = config.protocolVersion;
       if (config.authMode) form.elements.authMode.value = config.authMode;
       if (config.basicUsername) form.elements.basicUsername.value = config.basicUsername;
@@ -2458,6 +2626,8 @@ function renderHtml(page = "home") {
       if (config.toolName) form.elements.toolName.value = config.toolName;
       if (config.toolArgsJson) form.elements.toolArgsJson.value = config.toolArgsJson;
       form.elements.insecureTls.checked = config.insecureTls === true;
+      applyMockRoutePreset({ preserveCustomPath: true });
+      updateFullUrlPreview();
       updateAuthFields();
       updateRoutePresetNote();
       updateMethodPresetNote();
@@ -2481,17 +2651,36 @@ function renderHtml(page = "home") {
       renderHistory();
     }
 
+    function methodLabelForConfig(config) {
+      const preset = String(config.methodPreset || "tools");
+      if (preset === "tools") {
+        const toolName = String(config.toolName || "").trim();
+        return toolName ? "tools/call · " + toolName : "tools/list";
+      }
+      const labels = {
+        resourcesList: "resources/list",
+        resourcesRead: "resources/read",
+        resourceTemplatesList: "resources/templates/list",
+        promptsList: "prompts/list",
+        promptsGet: "prompts/get",
+        completionPrompt: "completion/complete · prompt",
+        completionResource: "completion/complete · resource template",
+      };
+      return labels[preset] || preset;
+    }
+
     function renderHistory() {
       if (!requestHistory) return;
       const entries = readHistory();
+      if (historyCount) historyCount.textContent = entries.length + " saved";
       if (!entries.length) {
         requestHistory.className = "empty";
-        requestHistory.textContent = "No generic requests in this tab yet.";
+        requestHistory.textContent = "No previous generic runs in this tab yet.";
         return;
       }
       requestHistory.className = "";
       requestHistory.innerHTML = '<ul class="history-list">' + entries.map((entry) =>
-        '<li><strong>' + escapeHtml(entry.ok ? "Pass" : "Fail") + ' · ' + escapeHtml(entry.toolName || "tools/list only") + '</strong><span>' + escapeHtml(entry.at) + ' · ' + escapeHtml(entry.authMode || "none") + ' · ' + escapeHtml(entry.mcpUrl || "") + '</span></li>'
+        '<li><div class="history-head"><strong>' + escapeHtml(entry.ok ? "Pass" : "Fail") + ' · ' + escapeHtml(entry.methodLabel || entry.toolName || "tools/list") + '</strong><span>' + escapeHtml(entry.at || "") + '</span></div><div class="history-meta">' + escapeHtml(entry.authMode || "none") + ' · POST ' + escapeHtml(entry.mcpUrl || "") + '</div></li>'
       ).join("") + '</ul>';
     }
 
@@ -2559,17 +2748,19 @@ function renderHtml(page = "home") {
       results.className = "empty";
       results.textContent = "Running inspection.";
       try {
+        updateFullUrlPreview();
         const targetConfig = currentTargetConfig();
         const payload = Object.fromEntries(new FormData(form).entries());
         payload.insecureTls = form.elements.insecureTls.checked;
         mergeAuthorizationHeader(payload);
         writeRecentSettings({
-          mockBaseUrl: String(payload.baseUrl || ""),
-          mcpUrl: String(payload.mcpUrl || ""),
-          protocolVersion: String(payload.protocolVersion || ""),
+          mockBaseUrl: targetConfig.baseUrl,
+          endpointPath: targetConfig.endpointPath,
+          mcpUrl: targetConfig.mcpUrl,
+          protocolVersion: targetConfig.protocolVersion,
           genericInsecureTls: payload.insecureTls,
-          methodPreset: String(payload.methodPreset || "tools"),
-          toolName: String(payload.toolName || ""),
+          methodPreset: targetConfig.methodPreset,
+          toolName: targetConfig.toolName,
         });
         const response = await fetch("/api/inspect", {
           method: "POST",
@@ -2583,16 +2774,16 @@ function renderHtml(page = "home") {
           ok: data.ok !== false,
           mcpUrl: targetConfig.mcpUrl,
           authMode: targetConfig.authMode,
-          toolName: targetConfig.methodPreset === "tools" ? targetConfig.toolName : targetConfig.methodPreset,
+          methodLabel: methodLabelForConfig(targetConfig),
         });
       } catch (error) {
         results.className = "empty";
         results.innerHTML = '<span class="pill fail">fail</span><pre>' + escapeHtml(error.message || String(error)) + '</pre>';
         addHistoryEntry({
           ok: false,
-          mcpUrl: form.elements.mcpUrl.value,
+          mcpUrl: resolvedTargetUrl(),
           authMode: form.elements.authMode.value,
-          toolName: form.elements.methodPreset.value === "tools" ? form.elements.toolName.value : form.elements.methodPreset.value,
+          methodLabel: methodLabelForConfig(currentTargetConfig()),
         });
       } finally {
         button.disabled = false;
@@ -2666,6 +2857,7 @@ function renderHtml(page = "home") {
 
     if (copyConfigButton) copyConfigButton.addEventListener("click", async () => {
       try {
+        updateFullUrlPreview();
         const config = currentTargetConfig();
         const json = JSON.stringify(config, null, 2);
         form.elements.targetConfigJson.value = json;
@@ -2816,11 +3008,20 @@ function renderHtml(page = "home") {
       applyMockRoutePreset();
       updateRoutePresetNote();
     });
+    if (form) form.elements.baseUrl.addEventListener("input", () => {
+      applyMockRoutePreset({ preserveCustomPath: true });
+      updateFullUrlPreview();
+    });
+    if (form) form.elements.endpointPath.addEventListener("input", updateFullUrlPreview);
     if (form) form.elements.methodPreset.addEventListener("change", applyMethodPreset);
+    applyMockRoutePreset({ preserveCustomPath: true });
+    updateFullUrlPreview();
     updateAuthFields();
     updateRoutePresetNote();
     updateMethodPresetNote();
     hydrateRecentSettings();
+    applyMockRoutePreset({ preserveCustomPath: true });
+    updateFullUrlPreview();
     updateAuthFields();
     updateRoutePresetNote();
     updateMethodPresetNote();
@@ -2901,7 +3102,7 @@ try {
   server.listen(options.port, options.host, () => {
     const url = `http://${options.host}:${options.port}`;
     console.log(`Standalone MCP Inspector UI running at ${url}`);
-    console.log("Open the URL in your browser, enter any MCP endpoint URL, then run inspection.");
+    console.log("Open the URL in your browser, enter a Base URL and Endpoint path, then run inspection.");
   });
 } catch (error) {
   console.error(`Inspector UI failed: ${error instanceof Error ? error.message : String(error)}`);
