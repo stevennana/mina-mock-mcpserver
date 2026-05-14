@@ -109,7 +109,7 @@ globalThis.fetch = async (input, init) => {
   if (isLoopbackSseMessage(url) && method === "POST") {
     const sessionId = url.searchParams.get("sessionId");
     const controller = sessionId ? sseSessions.get(sessionId) : null;
-    if (!controller) return new Response("Unknown SSE session.", { status: 404 });
+    if (!controller) return originalFetch(input, init);
 
     const body = await bodyFrom(input, init);
     const mcpResponse = routeMcpPostThroughHandler(new URL("/mcp/none", url), input, init, method, body);

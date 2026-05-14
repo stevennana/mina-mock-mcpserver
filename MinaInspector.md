@@ -84,6 +84,69 @@ Run additional **MCP method preset** checks from the same Generic page:
 - `completion/complete prompt`
 - `completion/complete resource template`
 
+## 2.5. Verify Resources, Prompts, And Completion In Generic Target
+
+The Generic MCP target can verify server-side MCP features beyond tools. For the hosted server, use `https://mcp.minasoftai.com/mcp/none`; the screenshots below were captured against the equivalent local target so the docs can be regenerated without touching the public instance.
+
+```text
+MCP endpoint URL: http://127.0.0.1:3100/mcp/none
+Authorization helper: No Authorization header
+Optional tool name: empty
+```
+
+Select **MCP method preset** `resources/list`, keep **Method params JSON** as `{}`, then click **Run generic inspection**.
+
+Expected result:
+
+- `MCP initialize`: pass
+- `MCP resources/list`: pass
+- `Unsupported protocol-version probe`: pass
+- Summary: `Pass 3`, `Fail 0`
+
+![Generic resources list pass](docs/screenshots/mina-inspector/12-generic-resources-list.png)
+
+Select **MCP method preset** `resources/read` and set:
+
+```json
+{"uri":"mock://resources/server-status"}
+```
+
+Expected result:
+
+- `MCP resources/read`: pass
+- the seeded `mock://resources/server-status` resource is readable
+- Summary: `Pass 3`, `Fail 0`
+
+![Generic resources read pass](docs/screenshots/mina-inspector/13-generic-resources-read.png)
+
+Select **MCP method preset** `prompts/get` and set:
+
+```json
+{"name":"support_reply","arguments":{"tone":"friendly"}}
+```
+
+Expected result:
+
+- `MCP prompts/get`: pass
+- the seeded `support_reply` prompt renders with the provided argument
+- Summary: `Pass 3`, `Fail 0`
+
+![Generic prompts get pass](docs/screenshots/mina-inspector/14-generic-prompts-get.png)
+
+Select **MCP method preset** `completion/complete prompt` and set:
+
+```json
+{"ref":{"type":"ref/prompt","name":"support_reply"},"argument":{"name":"tone","value":"fri"}}
+```
+
+Expected result:
+
+- `MCP completion/complete`: pass
+- completion returns the seeded `friendly` candidate
+- Summary: `Pass 3`, `Fail 0`
+
+![Generic completion prompt pass](docs/screenshots/mina-inspector/15-generic-completion-prompt.png)
+
 ## 3. Run Full Mock Server Scenario
 
 Open **Mock Server scenario**.
