@@ -5,7 +5,7 @@
   "id": "mcp-runtime-tools-prompts-json-rpc",
   "title": "MCP Runtime Tools Prompts JSON-RPC",
   "order": 39,
-  "status": "active",
+  "status": "completed",
   "next_task_on_success": "mcp-runtime-http-consumer-fixture",
   "prompt_docs": [
     "AGENTS.md",
@@ -31,7 +31,8 @@
     "Raw tool-call outcomes lose the malformed-response escape hatch needed by Mock Server.",
     "Prompt or completion behavior is hard-coded to seeded Mock Server fixtures."
   ],
-  "promotion_mode": "deterministic_only"
+  "promotion_mode": "deterministic_only",
+  "completed_at": "2026-05-14T07:30:19.999Z"
 }
 ```
 
@@ -69,3 +70,7 @@ Add optional MCP tools, prompts, and completion JSON-RPC handling to the reusabl
 - 2026-05-14T00:00:00Z: split out from the broad reusable JSON-RPC core task.
 - 2026-05-14T07:24:44.980Z: restored as current task after mcp-runtime-resources-json-rpc promotion.
 - 2026-05-14T07:28:48Z: implemented package-owned tools/list, tools/call, prompts/list, prompts/get, and completion/complete dispatch with raw tool outcomes and focused runtime tests.
+
+## Progress log
+
+- 2026-05-14T07:30:19.999Z: automatically promoted after deterministic checks and evaluator approval.

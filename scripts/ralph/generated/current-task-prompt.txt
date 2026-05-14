@@ -4,14 +4,13 @@ Read the following repository documents before making changes:
 - docs/design-docs/mcp-runtime-library-architecture.md
 - docs/product-specs/mcp-json-rpc-runtime.md
 - docs/product-specs/mcp-resources-prompts.md
-- docs/RELIABILITY.md
-- docs/exec-plans/active/039-mcp-runtime-tools-prompts-json-rpc.md
+- docs/exec-plans/active/040-mcp-runtime-http-consumer-fixture.md
 
-Current task id: mcp-runtime-tools-prompts-json-rpc
-Current task title: MCP Runtime Tools Prompts JSON-RPC
+Current task id: mcp-runtime-http-consumer-fixture
+Current task title: MCP Runtime HTTP And Consumer Fixture
 
 Objective:
-Add optional MCP tools, prompts, and completion JSON-RPC handling to the reusable runtime package without coupling it to Mock Server endpoint or prompt catalogs.
+Add the optional Fetch-compatible HTTP adapter and prove the package can be consumed by a small external-app-style fixture.
 
 Clarity notes:
 - none
@@ -23,10 +22,11 @@ Objections / risks to avoid:
 - none
 
 Scope:
-- Implement `tools/list`, `tools/call`, `prompts/list`, `prompts/get`, and `completion/complete` dispatch on top of the core handler.
-- Preserve raw tool-call outcomes so Mock Server can keep malformed-response simulation during the later app migration.
-- Map invalid params, not-found, forbidden, tool error, provider protocol error, and unsupported optional methods through package-owned MCP error responses.
-- Add package unit tests for tool list/call success, tool error, raw tool outcome, prompt list/get, prompt argument validation delegation, completion success, and unsupported optional methods.
+- Implement `createMcpFetchHandler` or equivalent Fetch `Request`/`Response` helper on top of the core handler.
+- Handle JSON parse failures, MCP protocol-version headers, response content types, and provider context injection in the HTTP adapter.
+- Keep CORS, OAuth challenges, Basic/Bearer parsing, and SSE transport state outside the package.
+- Add a tiny consumer fixture test that defines a published-content resources provider and exercises `initialize`, `resources/list`, and `resources/read` through the public package export only.
+- Add package docs or README draft text showing a minimal Next.js route using the Fetch helper.
 
 Out of scope:
 
@@ -41,8 +41,7 @@ Evaluator notes:
 
 
 Required repository artifacts for this task:
-- packages/mcp-runtime/src/core.ts
-- packages/mcp-runtime/src/types.ts
+- packages/mcp-runtime/src/http.ts
 - packages/mcp-runtime/src/index.ts
 
 Required commands for this task:

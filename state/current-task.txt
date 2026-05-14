@@ -1,1 +1,1 @@
-mcp-runtime-tools-prompts-json-rpc
+mcp-runtime-http-consumer-fixture

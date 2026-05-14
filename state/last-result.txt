@@ -1,15 +1,16 @@
-Implemented `mcp-runtime-tools-prompts-json-rpc`.
+Implemented `mcp-runtime-http-consumer-fixture` and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
 
 Changed:
-- Added package-owned dispatch for `tools/list`, `tools/call`, `prompts/list`, `prompts/get`, and `completion/complete`.
-- Preserved raw tool-call outcomes via an explicit raw message result type.
-- Added focused runtime package tests for success, tool error, raw outcomes, delegated prompt validation, completion, provider errors, and unsupported optional methods.
-- Updated the active task progress log and wrote `state/last-result.txt`.
+- Added Fetch adapter in [http.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/packages/mcp-runtime/src/http.ts:1).
+- Exported HTTP helper/types from [index.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/packages/mcp-runtime/src/index.ts:27).
+- Added adapter tests plus a public-export-only published-content fixture.
+- Added package README draft with a minimal Next.js route.
+- Updated the active task progress log.
 
-Required checks all passed:
+All required checks passed:
 - `npm run lint`
 - `npm run typecheck`
 - `npm run mcp-runtime:build`
 - `npm run mcp-runtime:test`
 
-Exit criteria appear satisfied. Nothing remains for this task.
+Exit criteria appear satisfied. Nothing known remains for this task.

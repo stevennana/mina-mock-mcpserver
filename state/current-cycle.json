@@ -1,8 +1,8 @@
 {
-  "task_id": "mcp-runtime-tools-prompts-json-rpc",
-  "started_at": "2026-05-14T16:25:15+09:00",
-  "artifact_dir": "state/artifacts/20260514T162515-mcp-runtime-tools-prompts-json-rpc",
+  "task_id": "mcp-runtime-http-consumer-fixture",
+  "started_at": "2026-05-14T16:30:50+09:00",
+  "artifact_dir": "state/artifacts/20260514T163050-mcp-runtime-http-consumer-fixture",
   "phase": "commit",
   "status": "running",
-  "updated_at": "2026-05-14T07:30:19.818Z"
+  "updated_at": "2026-05-14T07:35:29.244Z"
 }
