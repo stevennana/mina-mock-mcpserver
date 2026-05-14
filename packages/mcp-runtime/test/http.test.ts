@@ -2,7 +2,9 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 
 import {
+  createMcpCorsHeaders,
   createMcpFetchHandler,
+  createMcpOptionsResponse,
   MCP_PROTOCOL_VERSION_HEADER,
   type McpRuntimeProvider,
 } from "@minasoft/mcp-runtime";
@@ -100,6 +102,86 @@ test("Fetch handler rejects unsupported protocol headers before provider dispatc
   });
 });
 
+test("Fetch handler honors custom protocol-version options", async () => {
+  const handler = createMcpFetchHandler(
+    {
+      serverInfo: {
+        name: "custom-protocol-fixture",
+        version: "0.0.1",
+      },
+      resources: {
+        async list() {
+          return { items: [] };
+        },
+        async read() {
+          return { kind: "not_found" };
+        },
+      },
+    },
+    {
+      supportedProtocolVersions: ["2030-01-01"],
+      defaultProtocolVersion: "2030-01-01",
+    },
+  );
+
+  const accepted = await handler(
+    jsonRequest(
+      {
+        jsonrpc: "2.0",
+        id: "custom-init",
+        method: "initialize",
+        params: { protocolVersion: "2030-01-01" },
+      },
+      { [MCP_PROTOCOL_VERSION_HEADER]: "2030-01-01" },
+    ),
+  );
+  const rejected = await handler(
+    jsonRequest(
+      {
+        jsonrpc: "2.0",
+        id: "unsupported",
+        method: "resources/list",
+      },
+      { [MCP_PROTOCOL_VERSION_HEADER]: "2025-06-18" },
+    ),
+  );
+  const defaulted = await handler(
+    jsonRequest({
+      jsonrpc: "2.0",
+      id: "defaulted",
+      method: "resources/list",
+    }),
+  );
+
+  assert.equal(accepted.status, 200);
+  assert.equal(accepted.headers.get(MCP_PROTOCOL_VERSION_HEADER), "2030-01-01");
+  assert.deepEqual(await readJson(accepted), {
+    jsonrpc: "2.0",
+    id: "custom-init",
+    result: {
+      protocolVersion: "2030-01-01",
+      capabilities: {
+        resources: { subscribe: false, listChanged: true },
+      },
+      serverInfo: {
+        name: "custom-protocol-fixture",
+        version: "0.0.1",
+      },
+    },
+  });
+
+  assert.equal(rejected.status, 400);
+  assert.equal(rejected.headers.get(MCP_PROTOCOL_VERSION_HEADER), "2030-01-01");
+  assert.deepEqual(await readJson(rejected), {
+    jsonrpc: "2.0",
+    id: null,
+    error: { code: -32600, message: "Unsupported MCP protocol version." },
+  });
+
+  assert.equal(defaulted.status, 200);
+  assert.equal(defaulted.headers.get(MCP_PROTOCOL_VERSION_HEADER), "2030-01-01");
+});
+
 test("Fetch handler maps JSON parse failures to JSON-RPC parse errors", async () => {
   const handler = createMcpFetchHandler({});
 
@@ -112,6 +194,88 @@ test("Fetch handler maps JSON parse failures to JSON-RPC parse errors", async ()
     id: null,
     error: { code: -32700, message: "Parse error" },
   });
+});
+
+test("CORS helpers create opt-in Inspector-compatible preflight headers", () => {
+  const request = new Request("https://consumer.example/mcp", {
+    method: "OPTIONS",
+    headers: {
+      origin: "http://localhost:6274",
+      "access-control-request-method": "POST",
+    },
+  });
+  const options = {
+    allowedOrigins: ["http://localhost:6274"],
+    maxAgeSeconds: 86400,
+  };
+
+  const headers = createMcpCorsHeaders(options, request);
+  const response = createMcpOptionsResponse(options, request);
+
+  assert.equal(headers.get("access-control-allow-origin"), "http://localhost:6274");
+  assert.equal(headers.get("access-control-allow-methods"), "POST, OPTIONS");
+  assert.equal(
+    headers.get("access-control-allow-headers"),
+    "Authorization, Content-Type, MCP-Protocol-Version, MCP-Session-Id, Last-Event-ID",
+  );
+  assert.equal(headers.get("access-control-expose-headers"), "MCP-Protocol-Version");
+  assert.equal(headers.get("access-control-max-age"), "86400");
+  assert.equal(response.status, 204);
+  assert.equal(response.headers.get("access-control-allow-origin"), "http://localhost:6274");
+});
+
+test("Fetch handler applies CORS to OPTIONS and POST only when enabled", async () => {
+  const provider: McpRuntimeProvider = {
+    resources: {
+      async list() {
+        return { items: [] };
+      },
+      async read() {
+        return { kind: "not_found" };
+      },
+    },
+  };
+  const handler = createMcpFetchHandler(provider, {
+    cors: {
+      allowedOrigins: ["http://localhost:6274"],
+      exposedHeaders: ["MCP-Protocol-Version", "MCP-Session-Id"],
+    },
+  });
+  const defaultHandler = createMcpFetchHandler(provider);
+
+  const preflight = await handler(
+    new Request("https://consumer.example/mcp", {
+      method: "OPTIONS",
+      headers: { origin: "http://localhost:6274" },
+    }),
+  );
+  const post = await handler(
+    jsonRequest(
+      {
+        jsonrpc: "2.0",
+        id: "list",
+        method: "resources/list",
+      },
+      { origin: "http://localhost:6274" },
+    ),
+  );
+  const defaultPost = await defaultHandler(
+    jsonRequest(
+      {
+        jsonrpc: "2.0",
+        id: "list",
+        method: "resources/list",
+      },
+      { origin: "http://localhost:6274" },
+    ),
+  );
+
+  assert.equal(preflight.status, 204);
+  assert.equal(preflight.headers.get("access-control-allow-origin"), "http://localhost:6274");
+  assert.equal(post.status, 200);
+  assert.equal(post.headers.get("access-control-allow-origin"), "http://localhost:6274");
+  assert.equal(post.headers.get("access-control-expose-headers"), "MCP-Protocol-Version, MCP-Session-Id");
+  assert.equal(defaultPost.headers.get("access-control-allow-origin"), null);
 });
 
 test("Fetch handler injects provider context from the Request", async () => {

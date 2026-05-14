@@ -4,6 +4,7 @@ export {
   createMcpForbiddenError,
   createMcpInvalidParamsError,
   createMcpInvalidRequestError,
+  createMcpInternalError,
   createMcpJsonErrorResult,
   createMcpJsonResult,
   createMcpMethodNotFoundError,
@@ -24,11 +25,16 @@ export {
   SUPPORTED_MCP_PROTOCOL_VERSIONS,
 } from "./types.js";
 
-export { createMcpFetchHandler, MCP_PROTOCOL_VERSION_HEADER } from "./http.js";
+export {
+  createMcpCorsHeaders,
+  createMcpFetchHandler,
+  createMcpOptionsResponse,
+  MCP_PROTOCOL_VERSION_HEADER,
+} from "./http.js";
 
 export type { McpJsonRpcAcceptedResult, McpJsonRpcMessageResult, McpRawToolCallMessageResult } from "./core.js";
 
-export type { McpFetchContextFactory, McpFetchHandler, McpFetchHandlerOptions } from "./http.js";
+export type { McpCorsOptions, McpFetchContextFactory, McpFetchHandler, McpFetchHandlerOptions } from "./http.js";
 
 export type {
   JsonPrimitive,

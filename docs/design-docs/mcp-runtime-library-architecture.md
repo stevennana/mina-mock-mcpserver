@@ -133,6 +133,7 @@ The package should own the reusable MCP protocol behavior currently embedded in 
 - unsupported method errors
 - invalid params and not-found errors
 - MCP protocol version negotiation helpers
+- optional Inspector-compatible CORS/OPTIONS header helpers that host apps explicitly enable
 - JSON-RPC request and batch-safe response formatting where supported by the current app behavior
 - standard capability advertisement based on the provided provider features
 
@@ -144,7 +145,7 @@ Capability advertisement must be derived from the provider:
 - advertise `prompts` only when `prompts.list` and `prompts.get` exist
 - advertise `completions` only when `completion.complete` or `prompts.complete` exists
 
-Unsupported optional methods should return standard method-not-found responses instead of pretending the capability exists.
+Unsupported optional methods should return standard method-not-found responses instead of pretending the capability exists. Unexpected provider exceptions must be wrapped as sanitized JSON-RPC `-32603` internal errors while preserving request IDs and avoiding thrown message, stack, database, token, request body, or private-content leakage.
 
 ## Mock Server Integration Rule
 MCP Mock Server must become the first real integration test for the package.
