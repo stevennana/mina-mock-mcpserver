@@ -211,7 +211,18 @@ npm run inspector:cli:sse:resources:read
 
 For `completion/complete`, use the project Generic target preset or upstream browser Inspector if your installed Inspector version exposes Completion controls.
 
-## 8. Inspect Tokens And Audit Events
+## 8. Inspect The Runtime Package Boundary
+
+MCP Mock Server consumes the workspace-private `@minasoft/mcp-runtime` package for reusable JSON-RPC method handling. Build and test the package directly with:
+
+```bash
+npm run mcp-runtime:build
+npm run mcp-runtime:test
+```
+
+Downstream consumption guidance and a Next.js Fetch route example are in [MCP runtime package](MCP_RUNTIME_PACKAGE.md).
+
+## 9. Inspect Tokens And Audit Events
 
 Open:
 
@@ -224,7 +235,7 @@ Use Tokens to inspect claims, endpoint permissions, expiry, grant type, status, 
 
 Use Audit to filter mutation and security-relevant evidence. Audit loading is incremental; it does not force-load the entire event history.
 
-## 9. Reset Local State
+## 10. Reset Local State
 
 Set a root password:
 
@@ -242,7 +253,7 @@ Enter the exact confirmation text and root password.
 
 Reset deletes mutable runtime state and recreates seeded defaults.
 
-## 10. Production-Style Local Start
+## 11. Production-Style Local Start
 
 ```bash
 npm run build
@@ -256,7 +267,7 @@ Then open:
 http://127.0.0.1:3000
 ```
 
-## 11. Local HTTPS Test Start
+## 12. Local HTTPS Test Start
 
 Create a localhost certificate:
 

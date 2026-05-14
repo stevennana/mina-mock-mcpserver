@@ -1,17 +1,11 @@
-Implemented the runtime adapter migration and wrote the handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+Implemented the MCP Runtime Inspector Docs Hardening task and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
 
 Changed:
-- Added [lib/mcp/runtime-provider.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/lib/mcp/runtime-provider.ts) for app-owned endpoint/resource/prompt/permission mapping.
-- Rewired [lib/mcp/http.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/lib/mcp/http.ts) to dispatch JSON-RPC through `@minasoft/mcp-runtime` while keeping auth, CORS, SSE, and HTTP status behavior in app code.
-- Removed old `lib/mcp/protocol.ts` and `lib/mcp/types.ts`.
-- Migrated MCP unit tests to package imports and added [tests/unit/mcp-runtime-import-guard.test.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/tests/unit/mcp-runtime-import-guard.test.ts).
-- Updated the active task progress log.
+- Added [docs/MCP_RUNTIME_PACKAGE.md](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/docs/MCP_RUNTIME_PACKAGE.md) with package boundaries, Minakeep-style provider examples, Fetch route usage, and Inspector CLI checks.
+- Updated README and protocol/Inspector docs to state Mock Server uses the workspace-private `@minasoft/mcp-runtime` internally without claiming npm publication.
+- Added a minimal Next resolver fix for package source imports and preserved expected permission/error evidence in E2E/runtime paths.
 
 All required checks passed:
-- `npm run lint`
-- `npm run typecheck`
-- `npm run mcp-runtime:build`
-- `npm run mcp-runtime:test`
-- `npm run test:unit -- tests/unit/mcp-protocol.test.ts tests/unit/mcp-resources-runtime.test.ts tests/unit/mcp-prompts-runtime.test.ts tests/unit/mcp-permissions.test.ts`
+`lint`, `typecheck`, `mcp-runtime:build`, `mcp-runtime:test`, `test:unit`, `test:e2e`, `inspector:mock`, `inspector:cli:resources:list`, and `inspector:cli:resources:read`.
 
-Exit criteria appear satisfied. Nothing known remains for this task.
+Exit criteria appear satisfied. Remaining publish/API-stability work is tracked in the tech-debt tracker.

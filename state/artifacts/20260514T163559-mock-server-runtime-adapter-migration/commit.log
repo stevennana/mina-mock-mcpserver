@@ -1,0 +1,22 @@
+Auto packing the repository in background for optimum performance.
+See "git help gc" for manual housekeeping.
+warning: The last gc run reported the following. Please correct the root cause
+and remove .git/gc.log
+Automatic cleanup will not be performed until the file is removed.
+
+warning: There are too many unreachable loose objects; run 'git prune' to remove them.
+
+[codex/mcp-runtime-library-docs dca931e] ralph: mock-server-runtime-adapter-migration 2026-05-14T16:48:02+09:00
+ 30 files changed, 1048 insertions(+), 1049 deletions(-)
+ rename docs/exec-plans/{active => completed}/040-mcp-runtime-http-consumer-fixture.md (93%)
+ delete mode 100644 lib/mcp/protocol.ts
+ create mode 100644 lib/mcp/runtime-provider.ts
+ delete mode 100644 lib/mcp/types.ts
+ create mode 100644 state/artifacts/20260514T163050-mcp-runtime-http-consumer-fixture/backlog.log
+ create mode 100644 state/artifacts/20260514T163050-mcp-runtime-http-consumer-fixture/promote.log
+ create mode 100644 state/artifacts/20260514T163559-mock-server-runtime-adapter-migration/commit.log
+ create mode 100644 state/artifacts/20260514T163559-mock-server-runtime-adapter-migration/evaluator.log
+ create mode 100644 state/artifacts/20260514T163559-mock-server-runtime-adapter-migration/task-prompt.log
+ create mode 100644 state/artifacts/20260514T163559-mock-server-runtime-adapter-migration/worker.jsonl
+ create mode 100644 tests/unit/mcp-runtime-import-guard.test.ts
+commit: created

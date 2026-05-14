@@ -1,18 +1,21 @@
 Read the following repository documents before making changes:
 - AGENTS.md
 - ARCHITECTURE.md
+- README.md
+- docs/FEATURES.md
+- docs/GETTING_STARTED.md
+- docs/INSPECTOR.md
+- docs/TRANSPORTS.md
 - docs/design-docs/mcp-runtime-library-architecture.md
 - docs/product-specs/mcp-json-rpc-runtime.md
 - docs/product-specs/mcp-resources-prompts.md
-- docs/RELIABILITY.md
-- docs/SECURITY.md
-- docs/exec-plans/active/041-mock-server-runtime-adapter-migration.md
+- docs/exec-plans/active/042-mcp-runtime-inspector-docs-hardening.md
 
-Current task id: mock-server-runtime-adapter-migration
-Current task title: Mock Server Runtime Adapter Migration
+Current task id: mcp-runtime-inspector-docs-hardening
+Current task title: MCP Runtime Inspector Docs Hardening
 
 Objective:
-Migrate MCP Mock Server to consume `@minasoft/mcp-runtime` for reusable JSON-RPC protocol handling while keeping app-owned auth, persistence, SSE, and audit behavior unchanged.
+Complete documentation and integration proof for the reusable MCP runtime package after Mock Server has migrated to it.
 
 Clarity notes:
 - none
@@ -24,12 +27,11 @@ Objections / risks to avoid:
 - none
 
 Scope:
-- Add app-owned adapter code that maps endpoints, resources, resource templates, prompts, completion candidates, permissions, and endpoint call results into package provider outcomes.
-- Put that adapter in `lib/mcp/runtime-provider.ts` so app-specific provider mapping is reviewable separately from transport/auth handling in `lib/mcp/http.ts`.
-- Update `lib/mcp/http.ts` and MCP unit tests to import package types/core instead of `@/lib/mcp/protocol` and `@/lib/mcp/types`.
-- Preserve no-auth, Basic, OAuth Bearer, strict route, malformed-response, protocol-error, tool-error, prompt, completion, resource, and subscription behavior.
-- Remove old internal protocol/type modules or reduce them to non-active migration shims only if a same-task removal would be unsafe.
-- Add `tests/unit/mcp-runtime-import-guard.test.ts` or an equivalent static unit guard so app/test code cannot keep using old app-local MCP protocol modules.
+- Add `docs/MCP_RUNTIME_PACKAGE.md` with Minakeep-style consumption guidance, provider examples, Fetch route example, package boundaries, and Inspector CLI verification steps.
+- Update README and existing protocol/Inspector docs to explain that the Mock Server uses the reusable runtime internally.
+- Run full unit, E2E, project Inspector, and upstream Inspector CLI checks for resources/list and resources/read.
+- Confirm existing Tools, Resources, Prompts, Completion, Basic, OAuth, and SSE flows still work after package extraction.
+- Record any residual publish or API-stability follow-up in the tech-debt tracker instead of broadening this task.
 
 Out of scope:
 
@@ -44,16 +46,19 @@ Evaluator notes:
 
 
 Required repository artifacts for this task:
-- lib/mcp/http.ts
-- lib/mcp/runtime-provider.ts
-- tests/unit/mcp-runtime-import-guard.test.ts
+- docs/MCP_RUNTIME_PACKAGE.md
+- README.md
 
 Required commands for this task:
 - npm run lint
 - npm run typecheck
 - npm run mcp-runtime:build
 - npm run mcp-runtime:test
-- npm run test:unit -- tests/unit/mcp-protocol.test.ts tests/unit/mcp-resources-runtime.test.ts tests/unit/mcp-prompts-runtime.test.ts tests/unit/mcp-permissions.test.ts
+- npm run test:unit
+- npm run test:e2e
+- npm run inspector:mock
+- npm run inspector:cli:resources:list
+- npm run inspector:cli:resources:read
 
 Previous known gaps from the last evaluation:
 - none

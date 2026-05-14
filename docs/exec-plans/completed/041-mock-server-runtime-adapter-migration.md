@@ -5,7 +5,7 @@
   "id": "mock-server-runtime-adapter-migration",
   "title": "Mock Server Runtime Adapter Migration",
   "order": 41,
-  "status": "active",
+  "status": "completed",
   "next_task_on_success": "mcp-runtime-inspector-docs-hardening",
   "prompt_docs": [
     "AGENTS.md",
@@ -33,7 +33,8 @@
     "Auth, CORS, SSE, or audit behavior is moved into the package.",
     "Existing MCP runtime behavior changes without matching product spec updates."
   ],
-  "promotion_mode": "deterministic_only"
+  "promotion_mode": "deterministic_only",
+  "completed_at": "2026-05-14T07:48:02.208Z"
 }
 ```
 
@@ -80,3 +81,4 @@ Migrate MCP Mock Server to consume `@minasoft/mcp-runtime` for reusable JSON-RPC
 
 - 2026-05-14T07:35:29.412Z: restored as current task after mcp-runtime-http-consumer-fixture promotion.
 - 2026-05-14T08:18:00Z: migrated `lib/mcp/http.ts` to dispatch through `@minasoft/mcp-runtime`, added `lib/mcp/runtime-provider.ts` for app-owned endpoint/resource/prompt/permission mapping, removed old app-local MCP protocol/type modules, and added a static import guard. Required lint, typecheck, package build/test, and targeted MCP unit checks passed.
+- 2026-05-14T07:48:02.208Z: automatically promoted after deterministic checks and evaluator approval.

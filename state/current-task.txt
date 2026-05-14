@@ -1,1 +1,1 @@
-mock-server-runtime-adapter-migration
+mcp-runtime-inspector-docs-hardening

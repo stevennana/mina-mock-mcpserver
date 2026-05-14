@@ -23,6 +23,7 @@ This is a good fit if you want:
 - endpoint response cases, generated MCP `inputSchema`, and failure simulation
 - token inspection, audit logs, reset, health, Docker, Nginx, and local TLS guidance
 - a standalone project Inspector UI plus upstream `npx @modelcontextprotocol/inspector` examples
+- reusable MCP JSON-RPC runtime package guidance for TypeScript apps that want to expose their own resources, tools, or prompts
 
 This is not a good fit if you need production identity management, multi-tenant isolation, enterprise RBAC, external OAuth provider integration, or MCP client-side Sampling, Roots, Elicitation, or task-augmented execution.
 
@@ -38,6 +39,7 @@ Highlights:
 - MCP Resources, Resource Templates, Prompts, Completion, OAuth resource/resource-template/prompt permissions, and SSE resource notifications
 - upstream MCP Inspector browser and CLI verification paths
 - OAuth authorization-code with PKCE, client credentials, Bearer permission filtering, and token revocation
+- Mock Server routes consume the workspace-private `@minasoft/mcp-runtime` package for reusable JSON-RPC protocol handling
 
 ## Quick Start
 
@@ -101,6 +103,7 @@ Start here:
 - [Getting started guide](docs/GETTING_STARTED.md)
 - [MCP transports, SSE, REST, and OAuth calls](docs/TRANSPORTS.md)
 - [Inspector integration](docs/INSPECTOR.md)
+- [Reusable MCP runtime package guide](docs/MCP_RUNTIME_PACKAGE.md)
 
 Inspector-specific guides:
 
@@ -119,6 +122,8 @@ Operator and architecture docs:
 ```bash
 npm run lint
 npm run typecheck
+npm run mcp-runtime:build
+npm run mcp-runtime:test
 npm run test:unit
 npm run test:e2e
 npm run verify

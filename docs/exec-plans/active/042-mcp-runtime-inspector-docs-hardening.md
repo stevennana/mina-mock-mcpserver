@@ -81,3 +81,6 @@ Complete documentation and integration proof for the reusable MCP runtime packag
 
 ## Progress Log
 - 2026-05-14T00:00:00Z: seeded as the final hardening task for the runtime library wave.
+- 2026-05-14T07:48:02.208Z: restored as current task after mock-server-runtime-adapter-migration promotion.
+- 2026-05-14T07:49:46Z: added downstream-facing runtime package documentation, updated README/protocol/Inspector docs to describe Mock Server's package-backed runtime integration, and recorded npm publish/API-stability follow-up in the tech-debt tracker.
+- 2026-05-14T08:01:40Z: fixed Next dev resolution for the workspace-private runtime package, preserved prompt-name evidence for embedded-resource permission denials, aligned E2E unsupported-method expectations with package error data, and verified every required command passes.

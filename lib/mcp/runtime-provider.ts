@@ -288,7 +288,17 @@ async function promptGetFromDetail(
 
     if (message.resourceUri) {
       const resource = await readResource(message.resourceUri);
-      if (resource.kind !== "success") return resource.kind === "not_found" ? { kind: "invalid_params", message: "Invalid prompt" } : resource;
+      if (resource.kind === "not_found") return { kind: "invalid_params", message: "Invalid prompt" };
+      if (resource.kind === "forbidden") {
+        return {
+          ...resource,
+          data: {
+            ...(resource.data ?? {}),
+            prompt: prompt.name,
+          },
+        };
+      }
+      if (resource.kind !== "success") return resource;
       const content = resource.contents[0];
       if (!content) return { kind: "invalid_params", message: "Invalid prompt" };
       messages.push({
