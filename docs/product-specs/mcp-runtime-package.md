@@ -11,7 +11,7 @@ The package is a protocol runtime boundary, not a Mock Server feature bundle.
 - MCP Mock Server maintainers who need one reusable protocol implementation
 
 ## User-Visible Behavior
-- A downstream app can install or locally pack the package and import only `@minasoft/mcp-runtime`.
+- A downstream app can install the public npm package or locally pack the package and import only `@minasoft/mcp-runtime`.
 - A resources-only provider advertises resource capabilities without advertising tools or prompts.
 - Optional tools, prompts, subscriptions, and completion are advertised only when the provider implements the matching methods.
 - Expected domain failures such as not found, forbidden, and invalid params are returned as MCP JSON-RPC error envelopes.
@@ -39,7 +39,7 @@ The package must not own:
 - Public exports must stay framework-light and must not import Next.js, React, Prisma, SQLite, or app-local modules.
 
 ## Release Readiness
-Before npm availability is documented, maintainers must run:
+The package is published publicly on npm. Before publishing a new version, maintainers must run:
 
 ```bash
 npm run mcp-runtime:test
@@ -54,3 +54,4 @@ The external consumer smoke must prove that a temporary TypeScript project can i
 - Downstream docs show a minimal provider and a Next.js Fetch route.
 - Inspector CLI resources/list and resources/read checks pass against a package-backed route.
 - Package metadata includes license, repository, exports, types, Node engine support, and public publish config.
+- Public npm installation works with `npm install @minasoft/mcp-runtime`.

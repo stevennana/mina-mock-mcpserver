@@ -12,7 +12,7 @@ The first required consumer is this project itself. MCP Mock Server must run thr
 - Runtime dependency policy: no Next.js, React, Prisma, SQLite, OAuth UI, or Mock Server admin dependencies
 - Framework contract: standard Web `Request` / `Response` helpers may be provided, but the core JSON-RPC handler must be usable without a web framework
 - Versioning: package version starts independently from the app version; breaking public interface changes require a package major version bump once published
-- Publish readiness: package metadata must include license, repository, exports, types, Node engine support, public publish config, and pack/consumer verification before npm availability is announced
+- Publish readiness: package metadata must include license, repository, exports, types, Node engine support, public publish config, and pack/consumer verification before a new npm version is announced
 
 ## Internal Package Layers
 The package should stay small, but it still needs clear internal layers so external users do not inherit Mock Server coupling:
@@ -216,4 +216,4 @@ Publication docs must keep these states separate:
 - package is packable and externally typechecked
 - package is actually published to npm
 
-Only the last state allows docs to claim that `npm install @minasoft/mcp-runtime` works from the public registry.
+The package is now in the last state. Future docs should update the published version and release notes whenever a new package version is published.

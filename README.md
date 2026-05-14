@@ -29,7 +29,7 @@ This is not a good fit if you need production identity management, multi-tenant 
 
 ## Current Version
 
-Latest documented release: `v1.0.10`
+Latest documented release: `v1.0.11`
 
 Highlights:
 
@@ -39,7 +39,7 @@ Highlights:
 - MCP Resources, Resource Templates, Prompts, Completion, OAuth resource/resource-template/prompt permissions, and SSE resource notifications
 - upstream MCP Inspector browser and CLI verification paths
 - OAuth authorization-code with PKCE, client credentials, Bearer permission filtering, and token revocation
-- Mock Server routes consume the `@minasoft/mcp-runtime` package boundary for reusable JSON-RPC protocol handling
+- Mock Server routes consume the public npm package `@minasoft/mcp-runtime` for reusable JSON-RPC protocol handling
 
 ## Quick Start
 
@@ -159,11 +159,17 @@ Destructive reset and protected delete flows use root-password or delete-code ch
 
 ## Reusable Runtime Package
 
-The reusable JSON-RPC runtime lives at `packages/mcp-runtime` as `@minasoft/mcp-runtime`.
+The reusable JSON-RPC runtime is published on npm as [`@minasoft/mcp-runtime`](https://www.npmjs.com/package/@minasoft/mcp-runtime). The source lives at `packages/mcp-runtime`.
+
+Install it in another TypeScript project:
+
+```bash
+npm install @minasoft/mcp-runtime
+```
 
 It is intended for TypeScript apps that want to expose their own MCP resources, resource templates, optional tools, optional prompts, and completion without copying the Mock Server's protocol code. The package does not include the Mock Server admin UI, endpoint catalogs, OAuth screens, Prisma schema, audit log, or fixture CRUD.
 
-Before publishing or consuming a local tarball, verify the package boundary:
+Before publishing a new package version, verify the package boundary:
 
 ```bash
 npm run mcp-runtime:test

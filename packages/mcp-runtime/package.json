@@ -1,6 +1,6 @@
 {
   "name": "@minasoft/mcp-runtime",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Framework-light TypeScript MCP JSON-RPC runtime contracts.",
   "type": "module",
   "license": "Apache-2.0",
@@ -14,13 +14,13 @@
     "nextjs",
     "typescript"
   ],
-  "homepage": "https://github.com/minasoftai/mina-mock-mcpserver/tree/main/packages/mcp-runtime#readme",
+  "homepage": "https://github.com/stevennana/mina-mock-mcpserver/tree/main/packages/mcp-runtime#readme",
   "bugs": {
-    "url": "https://github.com/minasoftai/mina-mock-mcpserver/issues"
+    "url": "https://github.com/stevennana/mina-mock-mcpserver/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/minasoftai/mina-mock-mcpserver.git",
+    "url": "git+https://github.com/stevennana/mina-mock-mcpserver.git",
     "directory": "packages/mcp-runtime"
   },
   "engines": {

@@ -6,7 +6,7 @@ This directory contains only runnable feature and hardening tasks. Completed tas
 
 There are no active runnable Ralph tasks right now.
 
-The MCP runtime extraction wave (`036` through `042`) has been completed and moved to `docs/exec-plans/completed/`. The direct follow-up hardening for public package readiness was handled outside the Ralph queue by adding package metadata, pack verification, an external tarball consumer smoke, and updated package docs.
+The MCP runtime extraction wave (`036` through `042`) has been completed and moved to `docs/exec-plans/completed/`. The direct follow-up hardening for public package readiness was handled outside the Ralph queue by adding package metadata, pack verification, an external tarball consumer smoke, package docs, and the public npm release for `@minasoft/mcp-runtime`.
 
 ## Queue rationale
 

@@ -18,13 +18,13 @@ This package intentionally does not include MCP Mock Server admin screens, endpo
 
 ## Install
 
-After publication:
+Install from the public npm registry:
 
 ```bash
 npm install @minasoft/mcp-runtime
 ```
 
-Before publication, consume a local tarball from this repository:
+For local package-development verification, you can still consume a tarball from this repository:
 
 ```bash
 npm run mcp-runtime:build

@@ -4,7 +4,7 @@
 
 MCP Mock Server uses this package internally for reusable JSON-RPC method handling. The app still owns auth, CORS, SSE session hosting, persistence, endpoint matching, OAuth, audit, and the admin UI.
 
-The package now has publish-ready metadata and an external tarball consumer smoke test. Actual npm publication is still a release action; do not tell users that `npm install @minasoft/mcp-runtime` works until the package has been published.
+The package is publicly available on npm: [`@minasoft/mcp-runtime`](https://www.npmjs.com/package/@minasoft/mcp-runtime).
 
 ## Package Boundary
 
@@ -31,15 +31,15 @@ Consumers own:
 
 The package exports MCP DTOs and provider contracts. Providers should return MCP-domain objects, not Prisma records or Mock Server app entities.
 
-## Install Status
+## Install
 
-After publication:
+Install from the public npm registry:
 
 ```bash
 npm install @minasoft/mcp-runtime
 ```
 
-Before publication, consume a local tarball:
+For local package-development verification, consume a local tarball:
 
 ```bash
 npm run mcp-runtime:build
@@ -207,7 +207,7 @@ Add `--header "Authorization: Bearer ..."` or another auth header when the host 
 
 ## Package Release Checks
 
-Before publishing or announcing public npm availability, run:
+Before publishing a new version, run:
 
 ```bash
 npm run mcp-runtime:test
@@ -231,7 +231,9 @@ Current policy:
 
 ## Current Publish Status
 
-`packages/mcp-runtime` is buildable, packable, and externally typechecked from this workspace with:
+`@minasoft/mcp-runtime` is published publicly on npm. The latest documented package version is `0.1.1`.
+
+`packages/mcp-runtime` remains buildable, packable, and externally typechecked from this workspace with:
 
 ```bash
 npm run mcp-runtime:build
@@ -240,4 +242,4 @@ npm run mcp-runtime:pack
 npm run mcp-runtime:consumer:test
 ```
 
-The package metadata includes `license`, `repository`, `exports`, `types`, `engines`, and public publish config. Publishing to npm remains a separate release step.
+The package metadata includes `license`, `repository`, `exports`, `types`, `engines`, and public publish config.

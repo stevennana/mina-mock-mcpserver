@@ -59,7 +59,7 @@ Remote MCP adoption is moving auth, transport, and permission bugs into client i
 - OAuth client credentials can issue a JWT without browser login, using the client's TTL and only the endpoint-scope intersection allowed for that client
 - token and audit screens show enough evidence to debug a client test, including token status, claims, endpoint permissions, revocation, and endpoint delete success/failure without stored secrets
 - SQLite state survives restart and root reset restores currently implemented built-in endpoint and Basic user defaults
-- `@minasoft/mcp-runtime` can be built, packed, installed into a temporary external TypeScript consumer, and typechecked through public exports only
+- `@minasoft/mcp-runtime` can be installed from npm, built from this repository, packed, installed into a temporary external TypeScript consumer, and typechecked through public exports only
 - npm run verify and npm run start:smoke pass before task promotion
 
 ## Product Risks
