@@ -8,6 +8,8 @@
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
+    "mcp-runtime:build": "npm --prefix packages/mcp-runtime run build",
+    "mcp-runtime:test": "npm --prefix packages/mcp-runtime run test",
     "db:prepare": "node scripts/db-prepare.mjs",
     "test:unit": "node --import tsx --test --test-concurrency=1 \"tests/unit/**/*.test.ts\"",
     "test:e2e": "playwright test",

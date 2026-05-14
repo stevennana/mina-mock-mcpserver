@@ -69,3 +69,4 @@ Create the `@minasoft/mcp-runtime` package boundary and public TypeScript API co
 
 ## Progress Log
 - 2026-05-14T00:00:00Z: seeded as the first reusable MCP runtime package task.
+- 2026-05-14T07:18:00Z: added `packages/mcp-runtime` package boundary with TypeScript ESM build config, public type exports, root package scripts, and a consumer-style public import test.

@@ -1,8 +1,8 @@
 {
-  "task_id": "inspector-full-server-features",
-  "started_at": "2026-05-13T19:26:32+09:00",
-  "artifact_dir": "state/artifacts/20260513T192632-inspector-full-server-features",
-  "phase": "finished",
-  "status": "finished",
-  "updated_at": "2026-05-13T10:34:22.946Z"
+  "task_id": "mcp-runtime-package-foundation",
+  "started_at": "2026-05-14T16:09:31+09:00",
+  "artifact_dir": "state/artifacts/20260514T160931-mcp-runtime-package-foundation",
+  "phase": "commit",
+  "status": "running",
+  "updated_at": "2026-05-14T07:13:35.136Z"
 }

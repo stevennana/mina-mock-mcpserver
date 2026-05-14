@@ -1,14 +1,12 @@
-Completed the handoff for `inspector-full-server-features`.
+Completed `mcp-runtime-package-foundation`.
 
-I verified the existing implementation and docs against the task scope, updated the active task progress log, and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt:1).
+Added `packages/mcp-runtime` with a buildable TypeScript ESM package, public MCP runtime type contract, stable `@minasoft/mcp-runtime` exports, root build/test scripts, and a consumer-style public API test. Also updated the active task progress log and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt:1).
 
-Verification passed:
+Required checks passed:
 
 - `npm run lint`
 - `npm run typecheck`
-- `npm run test:unit`
-- `npm run test:e2e`
-- `npm run inspector:mock`
-- Supported upstream Inspector CLI helpers for tools, resources, prompts, Basic, and SSE list/read flows
+- `npm run mcp-runtime:build`
+- `npm run mcp-runtime:test`
 
-Exit criteria appear satisfied. The remaining documented gap is upstream Inspector CLI `0.21.2` not supporting `completion/complete`; completion is covered through the project Inspector Generic presets and Mock Server scenario.
+Exit criteria appear satisfied. No remaining work for this task.
