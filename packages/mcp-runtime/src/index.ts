@@ -1,9 +1,27 @@
 export {
+  createMcpErrorResponse,
+  createMcpErrorResponseFromProviderError,
+  createMcpForbiddenError,
+  createMcpInvalidParamsError,
+  createMcpInvalidRequestError,
+  createMcpJsonErrorResult,
+  createMcpJsonResult,
+  createMcpMethodNotFoundError,
+  createMcpNotFoundError,
+  createMcpProtocolError,
+  createMcpSuccessResponse,
+  deriveMcpCapabilities,
+  handleMcpJsonRpcMessage,
+} from "./core.js";
+
+export {
   DEFAULT_MCP_PROTOCOL_VERSION,
   MCP_PROTOCOL_VERSION_2025_03_26,
   MCP_PROTOCOL_VERSION_2025_06_18,
   SUPPORTED_MCP_PROTOCOL_VERSIONS,
 } from "./types.js";
+
+export type { McpJsonRpcAcceptedResult, McpJsonRpcMessageResult } from "./core.js";
 
 export type {
   JsonPrimitive,

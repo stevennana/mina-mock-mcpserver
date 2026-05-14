@@ -1,8 +1,8 @@
 {
-  "task_id": "mcp-runtime-package-foundation",
-  "started_at": "2026-05-14T16:09:31+09:00",
-  "artifact_dir": "state/artifacts/20260514T160931-mcp-runtime-package-foundation",
+  "task_id": "mcp-runtime-core-json-rpc",
+  "started_at": "2026-05-14T16:14:05+09:00",
+  "artifact_dir": "state/artifacts/20260514T161405-mcp-runtime-core-json-rpc",
   "phase": "commit",
   "status": "running",
-  "updated_at": "2026-05-14T07:13:35.136Z"
+  "updated_at": "2026-05-14T07:19:40.162Z"
 }

@@ -1,17 +1,17 @@
 Read the following repository documents before making changes:
 - AGENTS.md
 - ARCHITECTURE.md
-- docs/PRODUCT_SENSE.md
 - docs/design-docs/mcp-runtime-library-architecture.md
 - docs/product-specs/mcp-json-rpc-runtime.md
 - docs/product-specs/mcp-resources-prompts.md
-- docs/exec-plans/active/036-mcp-runtime-package-foundation.md
+- docs/RELIABILITY.md
+- docs/exec-plans/active/037-mcp-runtime-core-json-rpc.md
 
-Current task id: mcp-runtime-package-foundation
-Current task title: MCP Runtime Package Foundation
+Current task id: mcp-runtime-core-json-rpc
+Current task title: MCP Runtime Core JSON-RPC Foundation
 
 Objective:
-Create the `@minasoft/mcp-runtime` package boundary and public TypeScript API contract without changing Mock Server runtime behavior yet.
+Implement the reusable JSON-RPC envelope, initialization, capability derivation, and error-mapping foundation in `@minasoft/mcp-runtime` before adding individual MCP feature families.
 
 Clarity notes:
 - none
@@ -23,11 +23,10 @@ Objections / risks to avoid:
 - none
 
 Scope:
-- Add `packages/mcp-runtime` as a buildable TypeScript ESM package.
-- Define public MCP DTOs, JSON-RPC response types, provider inputs, provider results, provider error unions, and runtime options in package-owned `types`.
-- Export only stable package entrypoints from `@minasoft/mcp-runtime`.
-- Add root npm scripts for package build and package unit tests.
-- Add focused package tests that compile/import the public API without using `@/` aliases, Next.js, Prisma, or app domain modules.
+- Implement core message handling for JSON-RPC request envelopes, explicit batch non-support, notifications, `initialize`, invalid params, provider protocol errors, forbidden/not-found helpers, and unsupported methods.
+- Derive advertised capabilities from the provider shape without dispatching feature-specific methods yet.
+- Define reusable internal helpers for provider result mapping so resources, tools, prompts, and completion tasks do not each invent their own JSON-RPC error shape.
+- Add package unit tests for `initialize`, initialized notifications, invalid JSON-RPC envelopes, unsupported methods, provider error mapping, and capability advertisement with no optional providers.
 
 Out of scope:
 
@@ -42,10 +41,9 @@ Evaluator notes:
 
 
 Required repository artifacts for this task:
-- packages/mcp-runtime/package.json
-- packages/mcp-runtime/src/index.ts
+- packages/mcp-runtime/src/core.ts
 - packages/mcp-runtime/src/types.ts
-- packages/mcp-runtime/tsconfig.json
+- packages/mcp-runtime/src/index.ts
 
 Required commands for this task:
 - npm run lint

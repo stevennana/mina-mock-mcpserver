@@ -5,7 +5,7 @@
   "id": "mcp-runtime-package-foundation",
   "title": "MCP Runtime Package Foundation",
   "order": 36,
-  "status": "active",
+  "status": "completed",
   "next_task_on_success": "mcp-runtime-core-json-rpc",
   "prompt_docs": [
     "AGENTS.md",
@@ -32,7 +32,8 @@
     "The public provider interface drifts from the architecture document without updating it.",
     "The task tries to migrate the app runtime before the package API is stable."
   ],
-  "promotion_mode": "deterministic_only"
+  "promotion_mode": "deterministic_only",
+  "completed_at": "2026-05-14T07:13:35.309Z"
 }
 ```
 
@@ -70,3 +71,7 @@ Create the `@minasoft/mcp-runtime` package boundary and public TypeScript API co
 ## Progress Log
 - 2026-05-14T00:00:00Z: seeded as the first reusable MCP runtime package task.
 - 2026-05-14T07:18:00Z: added `packages/mcp-runtime` package boundary with TypeScript ESM build config, public type exports, root package scripts, and a consumer-style public import test.
+
+## Progress log
+
+- 2026-05-14T07:13:35.309Z: automatically promoted after deterministic checks and evaluator approval.

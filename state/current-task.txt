@@ -1,1 +1,1 @@
-mcp-runtime-package-foundation
+mcp-runtime-core-json-rpc

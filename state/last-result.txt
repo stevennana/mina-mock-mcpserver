@@ -1,12 +1,15 @@
-Completed `mcp-runtime-package-foundation`.
+Implemented `mcp-runtime-core-json-rpc`.
 
-Added `packages/mcp-runtime` with a buildable TypeScript ESM package, public MCP runtime type contract, stable `@minasoft/mcp-runtime` exports, root build/test scripts, and a consumer-style public API test. Also updated the active task progress log and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt:1).
+Changed:
+- Added package core JSON-RPC handling in [core.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/packages/mcp-runtime/src/core.ts)
+- Exported core helpers from [index.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/packages/mcp-runtime/src/index.ts)
+- Added focused package tests in [core.test.ts](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/packages/mcp-runtime/test/core.test.ts)
+- Updated the active task progress log and wrote the handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt)
 
 Required checks passed:
-
 - `npm run lint`
 - `npm run typecheck`
 - `npm run mcp-runtime:build`
 - `npm run mcp-runtime:test`
 
-Exit criteria appear satisfied. No remaining work for this task.
+Exit criteria appear satisfied. Nothing remains for this task.

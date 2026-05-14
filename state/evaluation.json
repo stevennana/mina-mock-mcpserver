@@ -1,11 +1,11 @@
 {
-  "checked_at": "2026-05-14T07:13:35.067Z",
-  "task_id": "mcp-runtime-package-foundation",
+  "checked_at": "2026-05-14T07:19:40.092Z",
+  "task_id": "mcp-runtime-core-json-rpc",
   "status": "done",
   "promotion_eligible": true,
   "deterministic": {
-    "checked_at": "2026-05-14T07:13:35.067Z",
-    "task_id": "mcp-runtime-package-foundation",
+    "checked_at": "2026-05-14T07:19:40.091Z",
+    "task_id": "mcp-runtime-core-json-rpc",
     "commands": [
       {
         "command": "npm run lint",
@@ -25,7 +25,7 @@
       {
         "command": "npm run mcp-runtime:test",
         "ok": true,
-        "output": "\n> mina-mock-mcpserver@1.0.10 mcp-runtime:test\n> npm --prefix packages/mcp-runtime run test\n\n\n> @minasoft/mcp-runtime@0.1.0 test\n> npm run build && node --import tsx --test --test-concurrency=1 \"test/**/*.test.ts\"\n\n\n> @minasoft/mcp-runtime@0.1.0 build\n> tsc -p tsconfig.json\n\n✔ public API supports a minimal resources-only provider (0.6345ms)\nℹ tests 1\nℹ suites 0\nℹ pass 1\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 97.55125\n"
+        "output": "\n> mina-mock-mcpserver@1.0.10 mcp-runtime:test\n> npm --prefix packages/mcp-runtime run test\n\n\n> @minasoft/mcp-runtime@0.1.0 test\n> npm run build && node --import tsx --test --test-concurrency=1 \"test/**/*.test.ts\"\n\n\n> @minasoft/mcp-runtime@0.1.0 build\n> tsc -p tsconfig.json\n\n✔ initialize returns negotiated protocol version, provider capabilities, and server info (0.700834ms)\n✔ initialized notification is accepted without a JSON-RPC body (0.062ms)\n✔ invalid JSON-RPC envelopes and batches return invalid request errors (0.115167ms)\n✔ initialize rejects malformed params (0.055958ms)\n✔ unsupported feature methods intentionally return method not found (0.059375ms)\n✔ provider errors map through reusable JSON-RPC error helpers (0.1095ms)\n✔ capabilities are derived from provider shape with no optional providers (0.059084ms)\n✔ public API supports a minimal resources-only provider (0.5545ms)\nℹ tests 8\nℹ suites 0\nℹ pass 8\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 193.553333\n"
       }
     ],
     "missing_files": [],

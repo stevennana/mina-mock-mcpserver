@@ -68,3 +68,8 @@ Implement the reusable JSON-RPC envelope, initialization, capability derivation,
 
 ## Progress Log
 - 2026-05-14T00:00:00Z: seeded as the reusable JSON-RPC core task.
+
+## Progress log
+
+- 2026-05-14T07:13:35.309Z: restored as current task after mcp-runtime-package-foundation promotion.
+- 2026-05-14T07:17:51Z: implemented package core JSON-RPC message handling, provider-derived initialize capabilities, reusable JSON-RPC/provider error helpers, batch non-support, notification acceptance, and focused package unit coverage. Required checks passed: `npm run lint`, `npm run typecheck`, `npm run mcp-runtime:build`, and `npm run mcp-runtime:test`.
