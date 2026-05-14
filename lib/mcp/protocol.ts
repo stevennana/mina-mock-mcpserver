@@ -9,6 +9,13 @@ import type {
   McpJsonRpcId,
   McpJsonRpcRequest,
   McpJsonRpcResponse,
+  McpInitializeResult,
+  McpCompletionResult,
+  McpPrompt,
+  McpPromptGetResult,
+  McpResource,
+  McpResourceContent,
+  McpResourceTemplate,
   McpTool,
   McpToolCallResult,
 } from "@/lib/mcp/types";
@@ -76,12 +83,63 @@ function isToolCallParams(params: unknown): params is { name: string; arguments?
   return isRecord(params) && typeof params.name === "string" && (params.arguments === undefined || isRecord(params.arguments));
 }
 
+function isResourceReadParams(params: unknown): params is { uri: string } {
+  return isRecord(params) && typeof params.uri === "string" && params.uri.trim().length > 0;
+}
+
+function listCursor(params: unknown) {
+  if (!isRecord(params) || typeof params.cursor !== "string") return 0;
+  const cursor = Number.parseInt(params.cursor, 10);
+  return Number.isInteger(cursor) && cursor >= 0 ? cursor : 0;
+}
+
+function paginated<T>(items: T[], cursor: number, pageSize = 100) {
+  const start = Math.min(cursor, items.length);
+  const page = items.slice(start, start + pageSize);
+  const next = start + page.length;
+  return {
+    page,
+    nextCursor: next < items.length ? String(next) : undefined,
+  };
+}
+
+function isPromptGetParams(params: unknown): params is { name: string; arguments?: Record<string, unknown> } {
+  return isRecord(params) && typeof params.name === "string" && (params.arguments === undefined || isRecord(params.arguments));
+}
+
+type McpCompletionRef = { type: "ref/prompt"; name: string } | { type: "ref/resource"; uri: string };
+
+function isCompletionRef(ref: unknown): ref is McpCompletionRef {
+  if (!isRecord(ref) || typeof ref.type !== "string") return false;
+  if (ref.type === "ref/prompt") return typeof ref.name === "string" && ref.name.trim().length > 0;
+  if (ref.type === "ref/resource") return typeof ref.uri === "string" && ref.uri.trim().length > 0;
+  return false;
+}
+
+function isCompletionParams(params: unknown): params is {
+  ref: McpCompletionRef;
+  argument: { name: string; value?: string };
+} {
+  return (
+    isRecord(params) &&
+    isCompletionRef(params.ref) &&
+    isRecord(params.argument) &&
+    typeof params.argument.name === "string" &&
+    params.argument.name.trim().length > 0 &&
+    (params.argument.value === undefined || typeof params.argument.value === "string")
+  );
+}
+
 function textForJson(value: JsonValue) {
   return typeof value === "string" ? value : JSON.stringify(value);
 }
 
 function structuredContentFor(value: JsonValue): Record<string, JsonValue> | undefined {
   return isRecord(value) ? (value as Record<string, JsonValue>) : undefined;
+}
+
+function isForbiddenResult(value: unknown): value is { kind: "forbidden"; message: string } {
+  return isRecord(value) && value.kind === "forbidden" && typeof value.message === "string";
 }
 
 export function mcpToolResultFromEndpointCall(callResult: EndpointCallResult): McpToolCallResult {
@@ -117,6 +175,18 @@ export async function handleMcpJsonRpcMessage(
   message: unknown,
   loadTools: () => Promise<McpTool[]>,
   callTool?: (name: string, rawArguments: unknown) => Promise<EndpointCallResult>,
+  resourcesRuntime: {
+    loadResources?: () => Promise<McpResource[]>;
+    loadResourceTemplates?: () => Promise<McpResourceTemplate[]>;
+    readResource?: (uri: string) => Promise<McpResourceContent | null | { kind: "forbidden"; message: string }>;
+    subscribeResource?: (uri: string) => Promise<boolean>;
+    unsubscribeResource?: (uri: string) => Promise<boolean>;
+  } = {},
+  promptsRuntime: {
+    loadPrompts?: () => Promise<McpPrompt[]>;
+    getPrompt?: (name: string, args: Record<string, unknown>) => Promise<McpPromptGetResult | null | { kind: "forbidden"; message: string }>;
+    complete?: (ref: McpCompletionRef, argumentName: string, value: string) => Promise<McpCompletionResult | null>;
+  } = {},
 ): Promise<McpProtocolResult> {
   if (!isJsonRpcRequest(message)) {
     return errorResponse(idFromMessage(message), -32600, "Invalid Request", 400);
@@ -130,6 +200,17 @@ export async function handleMcpJsonRpcMessage(
   }
 
   if (message.method === "initialize") {
+    const capabilities: McpInitializeResult["capabilities"] = {
+      tools: {
+        listChanged: false,
+      },
+      ...(resourcesRuntime.loadResources && resourcesRuntime.loadResourceTemplates && resourcesRuntime.readResource
+        ? { resources: { subscribe: true, listChanged: true } }
+        : {}),
+      ...(promptsRuntime.loadPrompts && promptsRuntime.getPrompt && promptsRuntime.complete
+        ? { prompts: { listChanged: true }, completions: {} }
+        : {}),
+    };
     return {
       kind: "json",
       status: 200,
@@ -138,11 +219,7 @@ export async function handleMcpJsonRpcMessage(
         id: message.id,
         result: {
           protocolVersion: requestedProtocolVersion(message.params),
-          capabilities: {
-            tools: {
-              listChanged: false,
-            },
-          },
+          capabilities,
           serverInfo: MCP_SERVER_INFO,
         },
       },
@@ -207,6 +284,184 @@ export async function handleMcpJsonRpcMessage(
         jsonrpc: "2.0",
         id: message.id,
         result: mcpToolResultFromEndpointCall(callResult),
+      },
+    };
+  }
+
+  if (message.method === "resources/list") {
+    const resources = resourcesRuntime.loadResources ? await resourcesRuntime.loadResources() : [];
+    const { page, nextCursor } = paginated(resources, listCursor(message.params));
+    return {
+      kind: "json",
+      status: 200,
+      body: {
+        jsonrpc: "2.0",
+        id: message.id,
+        result: {
+          resources: page,
+          ...(nextCursor ? { nextCursor } : {}),
+        },
+      },
+    };
+  }
+
+  if (message.method === "resources/templates/list") {
+    const resourceTemplates = resourcesRuntime.loadResourceTemplates ? await resourcesRuntime.loadResourceTemplates() : [];
+    const { page, nextCursor } = paginated(resourceTemplates, listCursor(message.params));
+    return {
+      kind: "json",
+      status: 200,
+      body: {
+        jsonrpc: "2.0",
+        id: message.id,
+        result: {
+          resourceTemplates: page,
+          ...(nextCursor ? { nextCursor } : {}),
+        },
+      },
+    };
+  }
+
+  if (message.method === "resources/read") {
+    if (!resourcesRuntime.readResource || !isResourceReadParams(message.params)) {
+      return errorResponse(message.id, -32602, "Invalid params");
+    }
+
+    const resource = await resourcesRuntime.readResource(message.params.uri);
+    if (isForbiddenResult(resource)) {
+      return errorResponse(message.id, -32003, "Forbidden", 403, {
+        error: "forbidden",
+        message: resource.message,
+        uri: message.params.uri,
+      });
+    }
+    if (!resource) {
+      return errorResponse(message.id, -32002, "Resource not found", 200, {
+        error: "resource_not_found",
+        uri: message.params.uri,
+      });
+    }
+
+    return {
+      kind: "json",
+      status: 200,
+      body: {
+        jsonrpc: "2.0",
+        id: message.id,
+        result: {
+          contents: [resource],
+        },
+      },
+    };
+  }
+
+  if (message.method === "resources/subscribe" || message.method === "resources/unsubscribe") {
+    if (!isResourceReadParams(message.params)) {
+      return errorResponse(message.id, -32602, "Invalid params");
+    }
+
+    if (!resourcesRuntime.readResource) {
+      return errorResponse(message.id, -32601, "Method not found");
+    }
+
+    const resource = await resourcesRuntime.readResource(message.params.uri);
+    if (isForbiddenResult(resource)) {
+      return errorResponse(message.id, -32003, "Forbidden", 403, {
+        error: "forbidden",
+        message: resource.message,
+        uri: message.params.uri,
+      });
+    }
+    if (!resource) {
+      return errorResponse(message.id, -32002, "Resource not found", 200, {
+        error: "resource_not_found",
+        uri: message.params.uri,
+      });
+    }
+
+    const handler =
+      message.method === "resources/subscribe" ? resourcesRuntime.subscribeResource : resourcesRuntime.unsubscribeResource;
+    if (!handler || !(await handler(message.params.uri))) {
+      return errorResponse(message.id, -32602, "Resource subscriptions require a live legacy SSE session");
+    }
+
+    return {
+      kind: "json",
+      status: 200,
+      body: {
+        jsonrpc: "2.0",
+        id: message.id,
+        result: {},
+      },
+    };
+  }
+
+  if (message.method === "prompts/list") {
+    const prompts = promptsRuntime.loadPrompts ? await promptsRuntime.loadPrompts() : [];
+    const { page, nextCursor } = paginated(prompts, listCursor(message.params));
+    return {
+      kind: "json",
+      status: 200,
+      body: {
+        jsonrpc: "2.0",
+        id: message.id,
+        result: {
+          prompts: page,
+          ...(nextCursor ? { nextCursor } : {}),
+        },
+      },
+    };
+  }
+
+  if (message.method === "prompts/get") {
+    if (!promptsRuntime.getPrompt || !isPromptGetParams(message.params)) {
+      return errorResponse(message.id, -32602, "Invalid params");
+    }
+
+    const prompt = await promptsRuntime.getPrompt(message.params.name, message.params.arguments ?? {});
+    if (isForbiddenResult(prompt)) {
+      return errorResponse(message.id, -32003, "Forbidden", 403, {
+        error: "forbidden",
+        message: prompt.message,
+        prompt: message.params.name,
+      });
+    }
+    if (!prompt) {
+      return errorResponse(message.id, -32602, "Invalid prompt");
+    }
+
+    return {
+      kind: "json",
+      status: 200,
+      body: {
+        jsonrpc: "2.0",
+        id: message.id,
+        result: prompt,
+      },
+    };
+  }
+
+  if (message.method === "completion/complete") {
+    if (!promptsRuntime.complete || !isCompletionParams(message.params)) {
+      return errorResponse(message.id, -32602, "Invalid params");
+    }
+
+    const completion = await promptsRuntime.complete(
+      message.params.ref,
+      message.params.argument.name,
+      message.params.argument.value ?? "",
+    );
+    if (!completion) {
+      return errorResponse(message.id, -32602, "Invalid completion ref");
+    }
+
+    return {
+      kind: "json",
+      status: 200,
+      body: {
+        jsonrpc: "2.0",
+        id: message.id,
+        result: completion,
       },
     };
   }

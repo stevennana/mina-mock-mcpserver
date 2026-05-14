@@ -10,6 +10,7 @@ Define the reliability expectations and failure-handling rules for MCP Mock Serv
 - current reset invariants cover endpoint data and current endpoint seed defaults; later Basic/OAuth slices must add their own reset extensions when those built-ins land
 - long delays and malformed responses are intentional per endpoint/case and must not corrupt other requests
 - malformed `invalid_json`, `wrong_content_type`, and `empty_body` modes apply only after a specific endpoint call matches and must not affect auth failures, unknown tools, or other endpoints
+- resource and prompt runtime responses must use the same JSON-RPC adapter and auth precedence as tools so full MCP feature coverage does not create a second protocol path
 - artificial delays are bounded to 30000 ms, apply only to the configured endpoint call, and must not stall unrelated requests globally
 - worker stalls in Ralph are detected through worker.jsonl heartbeat evidence
 
@@ -29,6 +30,11 @@ If the app depends on persistent runtime state, document how runtime preparation
 - The first runtime slice is stateless: `initialize` does not create an MCP session, `notifications/initialized` returns `202` with no body, and unsupported SSE/session methods return `405` with `Allow: POST`.
 - `tools/list` must read enabled endpoints from the endpoint domain service and use the shared generated MCP input schema helper; disabled endpoints must remain hidden.
 - `tools/call` in no-auth mode must call the shared endpoint matcher by endpoint name. Unknown or disabled tools and argument validation failures return JSON-RPC `-32602`; unsupported JSON-RPC methods return `-32601`; no exact response-case match falls back to the configured default case.
+
+## MCP Resources And Prompts Runtime
+- `resources/list`, `resources/templates/list`, `resources/read`, `prompts/list`, `prompts/get`, and `completion/complete` must be covered by protocol unit tests before capability advertisement is expanded.
+- OAuth permission filtering for resources, resource templates, embedded prompt resources, and prompts must fail closed exactly like tool permissions.
+- Legacy SSE resource subscriptions are best-effort in-memory test behavior and must not be documented as durable cross-process event replay.
 
 ## Operator Logging
 `npm run start:logged` starts Next.js and writes operator-visible server output into timestamped files under `logs/`.

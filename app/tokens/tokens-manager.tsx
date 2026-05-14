@@ -308,6 +308,9 @@ export function TokensManager({
                 <div><dt>Expires</dt><dd>{formatDate(displayDetail.expiresAt)}</dd></div>
                 <div><dt>Revoked</dt><dd>{formatDate(displayDetail.revokedAt)}</dd></div>
                 <div><dt>Endpoint count</dt><dd>{displayDetail.endpointPermissionCount}</dd></div>
+                <div><dt>Resource count</dt><dd>{displayDetail.resourcePermissionCount}</dd></div>
+                <div><dt>Resource template count</dt><dd>{displayDetail.resourceTemplatePermissionCount}</dd></div>
+                <div><dt>Prompt count</dt><dd>{displayDetail.promptPermissionCount}</dd></div>
               </dl>
             </div>
 
@@ -323,7 +326,7 @@ export function TokensManager({
             </div>
 
             <div className="editor-section">
-              <h3>endpoint_permissions</h3>
+              <h3>tool permissions</h3>
               {activeDetail ? (
                 <div className="permission-list">
                   {activeDetail.endpoint_permissions.map((endpoint) => (
@@ -339,6 +342,72 @@ export function TokensManager({
                 </div>
               ) : (
                 <p className="section-note">Load claims to inspect endpoint permission metadata.</p>
+              )}
+            </div>
+
+            <div className="editor-section">
+              <h3>resource_permissions</h3>
+              {activeDetail ? (
+                <div className="permission-list">
+                  {activeDetail.resource_permissions.map((resource) => (
+                    <div key={resource.id}>
+                      <strong>{resource.id}</strong>
+                      <span>{resource.name ?? "Missing resource"}{resource.title ? ` ${resource.title}` : ""}{resource.uri ? ` ${resource.uri}` : ""}</span>
+                      <span className={resource.enabled === false ? "status-pill danger" : "status-pill enabled"}>
+                        {resource.enabled === false ? "Disabled" : resource.enabled === null ? "Historical" : "Enabled"}
+                      </span>
+                    </div>
+                  ))}
+                  {activeDetail.resource_permissions.length === 0 ? <p className="section-note">No resource permissions stored.</p> : null}
+                </div>
+              ) : (
+                <p className="section-note">Load claims to inspect resource permission metadata.</p>
+              )}
+            </div>
+
+            <div className="editor-section">
+              <h3>resource_template_permissions</h3>
+              {activeDetail ? (
+                <div className="permission-list">
+                  {activeDetail.resource_template_permissions.map((template) => (
+                    <div key={template.id}>
+                      <strong>{template.id}</strong>
+                      <span>
+                        {template.name ?? "Missing resource template"}
+                        {template.title ? ` ${template.title}` : ""}
+                        {template.uriTemplate ? ` ${template.uriTemplate}` : ""}
+                      </span>
+                      <span className={template.enabled === false ? "status-pill danger" : "status-pill enabled"}>
+                        {template.enabled === false ? "Disabled" : template.enabled === null ? "Historical" : "Enabled"}
+                      </span>
+                    </div>
+                  ))}
+                  {activeDetail.resource_template_permissions.length === 0 ? (
+                    <p className="section-note">No resource template permissions stored.</p>
+                  ) : null}
+                </div>
+              ) : (
+                <p className="section-note">Load claims to inspect resource template permission metadata.</p>
+              )}
+            </div>
+
+            <div className="editor-section">
+              <h3>prompt_permissions</h3>
+              {activeDetail ? (
+                <div className="permission-list">
+                  {activeDetail.prompt_permissions.map((prompt) => (
+                    <div key={prompt.id}>
+                      <strong>{prompt.id}</strong>
+                      <span>{prompt.name ?? "Missing prompt"}{prompt.title ? ` ${prompt.title}` : ""}</span>
+                      <span className={prompt.enabled === false ? "status-pill danger" : "status-pill enabled"}>
+                        {prompt.enabled === false ? "Disabled" : prompt.enabled === null ? "Historical" : "Enabled"}
+                      </span>
+                    </div>
+                  ))}
+                  {activeDetail.prompt_permissions.length === 0 ? <p className="section-note">No prompt permissions stored.</p> : null}
+                </div>
+              ) : (
+                <p className="section-note">Load claims to inspect prompt permission metadata.</p>
               )}
             </div>
 

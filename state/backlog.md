@@ -25,4 +25,17 @@
 - [x] malformed-response-console-audit — Malformed Response Modes, Console Evidence, and Audit
 - [x] operator-config-health-logs — Operator Config, Health, Connection Guide, and Logs
 - [x] docker-nginx-final-hardening — Docker, Nginx, Final Docs, and Queue Completion Hardening
+- [x] inspector-compatibility-pack — Inspector Compatibility Pack
+- [x] inspector-popup-oauth-flow — Inspector Popup OAuth Flow
+- [x] mcp-resource-prompt-domain-schema — MCP Resource/Prompt Domain And Schema
+- [x] mcp-resource-management-ui — MCP Resource Management UI
+- [x] mcp-resource-template-management-ui — MCP Resource Template Management UI
+- [x] mcp-prompt-management-ui — MCP Prompt Management UI
+- [x] mcp-resources-runtime — MCP Resources Runtime
+- [x] mcp-resources-runtime-rca-npx-y-modelcontextprotocol-inspector-0-21-2-cli- — RCA: MCP Resources Runtime blocker
+- [x] mcp-prompts-completion-runtime — MCP Prompts And Completion Runtime
+- [x] oauth-resource-prompt-permissions — OAuth Resource And Prompt Permissions
+- [x] mcp-resource-subscription-notifications — MCP Resource Subscription Notifications
+- [x] inspector-full-server-features — Inspector Full Server Features
+- [x] inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b — RCA: Inspector Full Server Features blocker
 

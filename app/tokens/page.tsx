@@ -15,7 +15,7 @@ export default async function TokensPage() {
           <p className="eyebrow">OAuth bearer evidence</p>
           <h1>Issued tokens</h1>
           <p className="lede compact">
-            Inspect stored token claims, endpoint permissions, expiry, and revocation state without redisplaying raw access tokens.
+            Inspect stored token claims, tool/resource/prompt permissions, expiry, and revocation state without redisplaying raw access tokens.
           </p>
         </div>
         <div className="summary-strip" aria-label="Issued token counts">

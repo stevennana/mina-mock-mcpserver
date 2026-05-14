@@ -1,0 +1,13 @@
+[codex/mcp-resources-prompts-plans e4f310d] ralph: oauth-resource-prompt-permissions 2026-05-13T17:52:05+09:00
+ 45 files changed, 1617 insertions(+), 207 deletions(-)
+ rename docs/exec-plans/{active => completed}/032-mcp-prompts-completion-runtime.md (94%)
+ create mode 100644 prisma/migrations/202605130002_oauth_resource_prompt_permissions/migration.sql
+ create mode 100644 state/artifacts/20260513T165346-mcp-prompts-completion-runtime/backlog.log
+ create mode 100644 state/artifacts/20260513T165346-mcp-prompts-completion-runtime/promote.log
+ create mode 100644 state/artifacts/20260513T170551-oauth-resource-prompt-permissions/commit.log
+ create mode 100644 state/artifacts/20260513T170551-oauth-resource-prompt-permissions/evaluator.log
+ create mode 100644 state/artifacts/20260513T170551-oauth-resource-prompt-permissions/task-prompt.log
+ create mode 100644 state/artifacts/20260513T170551-oauth-resource-prompt-permissions/worker.jsonl
+ create mode 100644 tests/e2e/oauth-resource-prompt-permissions.spec.ts
+ create mode 100644 tests/unit/mcp-permissions.test.ts
+commit: created

@@ -17,7 +17,7 @@ export async function OAuthClientWorkflowPage({ id, create = false }: { id?: str
           <p className="eyebrow">OAuth relying parties</p>
           <h1>{create ? "Create OAuth client" : "OAuth client detail"}</h1>
           <p className="lede compact">
-            {create ? "Create one mock OAuth client and copy its one-time secret." : "Edit one client, redirect URI set, TTL, secret, and endpoint permissions."}
+            {create ? "Create one mock OAuth client and copy its one-time secret." : "Edit one client, redirect URI set, TTL, secret, and tool/resource/prompt permissions."}
           </p>
         </div>
         <div className="summary-strip" aria-label="OAuth client counts">

@@ -105,6 +105,9 @@ export function oauthClientCreateInputFromBody(body: unknown): OAuthClientCreate
       DEFAULT_OAUTH_CLIENT_CREDENTIALS_TTL_SECONDS,
     ),
     allowedEndpointIds: asStringArray(record.allowedEndpointIds),
+    allowedResourceIds: asStringArray(record.allowedResourceIds),
+    allowedResourceTemplateIds: asStringArray(record.allowedResourceTemplateIds),
+    allowedPromptIds: asStringArray(record.allowedPromptIds),
   };
 }
 
@@ -117,6 +120,11 @@ export function oauthClientUpdateInputFromBody(body: unknown): OAuthClientUpdate
     clientCredentialsTtlSeconds:
       typeof record.clientCredentialsTtlSeconds === "number" ? record.clientCredentialsTtlSeconds : undefined,
     allowedEndpointIds: Array.isArray(record.allowedEndpointIds) ? asStringArray(record.allowedEndpointIds) : undefined,
+    allowedResourceIds: Array.isArray(record.allowedResourceIds) ? asStringArray(record.allowedResourceIds) : undefined,
+    allowedResourceTemplateIds: Array.isArray(record.allowedResourceTemplateIds)
+      ? asStringArray(record.allowedResourceTemplateIds)
+      : undefined,
+    allowedPromptIds: Array.isArray(record.allowedPromptIds) ? asStringArray(record.allowedPromptIds) : undefined,
   };
 }
 

@@ -25,6 +25,14 @@ export type McpInitializeResult = {
     tools: {
       listChanged: false;
     };
+    resources?: {
+      subscribe: true;
+      listChanged: true;
+    };
+    prompts?: {
+      listChanged: true;
+    };
+    completions?: Record<string, never>;
   };
   serverInfo: typeof MCP_SERVER_INFO;
 };
@@ -38,11 +46,83 @@ export type McpToolCallResult = {
   isError?: true;
 };
 
+export type McpResource = {
+  uri: string;
+  name: string;
+  title?: string;
+  description?: string;
+  mimeType?: string;
+  size?: number;
+  annotations?: JsonValue;
+};
+
+export type McpResourceTemplate = {
+  uriTemplate: string;
+  name: string;
+  title?: string;
+  description?: string;
+  mimeType?: string;
+  annotations?: JsonValue;
+};
+
+export type McpResourceContent = {
+  uri: string;
+  mimeType?: string;
+} & ({ text: string } | { blob: string });
+
+export type McpPrompt = {
+  name: string;
+  title?: string;
+  description?: string;
+  arguments?: Array<{
+    name: string;
+    title?: string;
+    description?: string;
+    required?: boolean;
+  }>;
+};
+
+export type McpPromptMessage = {
+  role: "user" | "assistant";
+  content:
+    | {
+        type: "text";
+        text: string;
+      }
+    | {
+        type: "resource";
+        resource: McpResourceContent;
+      };
+};
+
+export type McpPromptGetResult = {
+  description?: string;
+  messages: McpPromptMessage[];
+};
+
+export type McpCompletionResult = {
+  completion: {
+    values: string[];
+    total: number;
+    hasMore: boolean;
+  };
+};
+
 export type McpJsonRpcResponse =
   | {
       jsonrpc: "2.0";
       id: McpJsonRpcId;
-      result: McpInitializeResult | { tools: McpTool[] } | McpToolCallResult;
+      result:
+        | McpInitializeResult
+        | { tools: McpTool[] }
+        | McpToolCallResult
+        | { resources: McpResource[]; nextCursor?: string }
+        | { resourceTemplates: McpResourceTemplate[]; nextCursor?: string }
+        | { contents: McpResourceContent[] }
+        | Record<string, never>
+        | { prompts: McpPrompt[]; nextCursor?: string }
+        | McpPromptGetResult
+        | McpCompletionResult;
     }
   | {
       jsonrpc: "2.0";

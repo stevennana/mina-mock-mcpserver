@@ -25,3 +25,16 @@
 - 2026-05-05T13:40:45.211Z: promoted malformed-response-console-audit -> operator-config-health-logs
 - 2026-05-05T14:10:35.380Z: promoted operator-config-health-logs -> docker-nginx-final-hardening
 - 2026-05-05T14:34:27.875Z: promoted docker-nginx-final-hardening -> NONE
+- 2026-05-13T06:06:31.838Z: promoted mcp-resource-prompt-domain-schema -> mcp-resource-management-ui
+- 2026-05-13T06:17:52.502Z: promoted mcp-resource-management-ui -> mcp-resource-template-management-ui
+- 2026-05-13T06:30:10.819Z: promoted mcp-resource-template-management-ui -> mcp-prompt-management-ui
+- 2026-05-13T06:42:30.312Z: promoted mcp-prompt-management-ui -> mcp-resources-runtime
+- 2026-05-13T07:09:40.813Z: branched mcp-resources-runtime -> mcp-resources-runtime-rca-npx-y-modelcontextprotocol-inspector-0-21-2-cli- | blocker=deterministic_failure|npx-y-modelcontextprotocol-inspector-0-21-2-cli-|no-path-details
+- 2026-05-13T07:47:12.431Z: promoted mcp-resources-runtime-rca-npx-y-modelcontextprotocol-inspector-0-21-2-cli- -> mcp-resources-runtime
+- 2026-05-13T07:53:16.034Z: promoted mcp-resources-runtime -> mcp-prompts-completion-runtime
+- 2026-05-13T08:05:20.793Z: promoted mcp-prompts-completion-runtime -> oauth-resource-prompt-permissions
+- 2026-05-13T08:52:05.662Z: promoted oauth-resource-prompt-permissions -> mcp-resource-subscription-notifications
+- 2026-05-13T09:09:12.718Z: promoted mcp-resource-subscription-notifications -> inspector-full-server-features
+- 2026-05-13T10:21:00.429Z: branched inspector-full-server-features -> inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b | blocker=deterministic_failure|npm-run-inspector-mock|no-path-details
+- 2026-05-13T10:26:02.472Z: promoted inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b -> inspector-full-server-features
+- 2026-05-13T10:34:22.854Z: promoted inspector-full-server-features -> NONE

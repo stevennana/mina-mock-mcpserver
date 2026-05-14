@@ -1,72 +1,64 @@
 Read the following repository documents before making changes:
 - AGENTS.md
 - ARCHITECTURE.md
-- docs/PRODUCT_SENSE.md
-- docs/QUALITY_SCORE.md
-- docs/RELIABILITY.md
-- docs/SECURITY.md
-- docs/references/prd-analysis.md
-- docs/product-specs/operator-configuration.md
-- docs/exec-plans/active/024-docker-nginx-final-hardening.md
+- docs/FEATURES.md
+- docs/GETTING_STARTED.md
+- docs/TRANSPORTS.md
+- docs/INSPECTOR.md
+- MCPBrowserInspector.md
+- MinaInspector.md
+- docs/product-specs/mcp-resources-prompts.md
+- docs/exec-plans/active/035-inspector-full-server-features.md
 
-Current task id: docker-nginx-final-hardening
-Current task title: Docker, Nginx, Final Docs, and Queue Completion Hardening
+Current task id: inspector-full-server-features
+Current task title: Inspector Full Server Features
 
 Objective:
-Package and reconcile the MVP for operator handoff with Docker/Nginx examples, final docs, debt tracking, and full deterministic proof.
+Update the project Inspector, upstream Inspector docs, README guides, and final E2E proof so users can verify Tools, Resources, Prompts, Completion, OAuth permissions, and SSE notifications end to end.
 
 Clarity notes:
-- This is final hardening and packaging for the current queue, not a feature-expansion task.
-- Docs, scripts, Docker/Nginx files, and package commands must describe the same system.
-- Remaining gaps should be recorded explicitly rather than hidden in prose.
-- The next feature wave must be planned through docs after this queue completes.
+- This is a final integration/hardening slice for the Resources/Prompts wave.
+- It should not introduce new protocol behavior; it proves and documents behavior delivered by tasks 027-034.
 
 Expected result:
-- Dockerfile, docker-compose, and Nginx example config exist and match the deployment target.
-- Quality, reliability, security, generated schema, and tech-debt docs reflect the implemented MVP.
-- Full deterministic verification passes, including production-style startup smoke.
-- Operator guidance explains one Ralph cycle, unattended loop, status inspection, logs, artifacts, and next-queue creation.
+- A first-time user can follow docs to verify the full server-side MCP feature set locally and against the hosted mock server.
+- The project Inspector gives sequential evidence instead of one crowded page.
+- Upstream Inspector examples cover tools, resources, prompts, completion, Basic, OAuth, and SSE where supported.
 
 Objections / risks to avoid:
-- Do not add post-MVP features such as SSE, resources/prompts, external providers, or RBAC.
-- Do not claim deployment readiness if verify/startup smoke fails.
-- Do not leave docs with stale ports, commands, or log paths.
-- Do not silently drop known debt; record it.
+- Do not claim client-side Sampling, Roots, or Elicitation support.
+- Do not include screenshots with raw Bearer tokens or secrets.
+- Do not leave docs saying Resources/Prompts are out of scope.
 
 Scope:
-- Add Dockerfile, docker-compose, and Nginx example config.
-- Reconcile docs with implemented behavior.
-- Update `docs/exec-plans/tech-debt-tracker.md` with remaining debt.
-- Run and fix the full deterministic command set.
-- Confirm Ralph state and queue exhaustion behavior are documented.
+- Add Resources, Resource Templates, Prompts, Completion, OAuth permission, and SSE subscription checks to the project Inspector scenario.
+- Add Generic target presets for `resources/list`, `resources/read`, `resources/templates/list`, `prompts/list`, `prompts/get`, and `completion/complete`.
+- Update README, `docs/FEATURES.md`, `docs/GETTING_STARTED.md`, `docs/TRANSPORTS.md`, `docs/INSPECTOR.md`, `MCPBrowserInspector.md`, and `MinaInspector.md`.
+- Add screenshots or browser-based evidence for the standalone Inspector and Mock Server UI.
+- Run full verification and record any residual gaps in the tech-debt tracker.
 
 Out of scope:
-- New user-visible product features.
-- Production SSO/RBAC.
-- External OAuth providers.
-- SSE/session support unless already implemented earlier.
+- New database schema or runtime methods.
+- Changing public Docker/release tagging policy.
+- Vendor or fork upstream MCP Inspector.
 
 Exit criteria:
-1. Docker/Nginx artifacts align with port 3000 exposure and SQLite volume expectations.
-2. Docs match actual commands, routes, auth modes, and logging behavior.
-3. Debt tracker is explicit and current.
-4. Full verify and startup smoke pass.
-5. All required checks pass.
+- A first-time user can follow docs to verify the full server-side MCP feature set locally and against the hosted mock server.
+- The project Inspector gives sequential evidence instead of one crowded page.
+- Upstream Inspector examples cover tools, resources, prompts, completion, Basic, OAuth, and SSE where supported.
 
 Required checks:
-- npm run lint
-- npm run typecheck
-- npm run build
-- npm run test:unit
-- npm run test:e2e
-- npm run start:smoke
-- npm run verify
+- `npm run lint`
+- `npm run typecheck`
+- `npm run test:unit`
+- `npm run test:e2e`
+- `npm run inspector:mock`
+- `npm run inspector:ui` manual browser E2E through Mock Server scenario and Generic target
+- Upstream Inspector CLI checks for tools, resources, prompts, completion, and SSE list/read flows.
 
 Evaluator notes:
-Required commands are mandatory promotion gates, not suggestions.
-Do not promote if any required check fails.
-Do not accept broad feature work outside this task.
-Confirm that this task maps to the primary product spec `operator-configuration.md` or is explicitly final hardening.
+- Confirm the task stays inside its declared slice.
+- Confirm required commands are treated as promotion-blocking gates.
 
 Required repository artifacts for this task:
 - none
@@ -74,15 +66,12 @@ Required repository artifacts for this task:
 Required commands for this task:
 - npm run lint
 - npm run typecheck
-- npm run build
 - npm run test:unit
 - npm run test:e2e
-- npm run start:smoke
-- npm run verify
+- npm run inspector:mock
 
 Previous known gaps from the last evaluation:
-- Docs do not fully match actual routes/auth modes: docs/SECURITY.md public surfaces omit /mcp/oauth.
-- Docs do not fully match actual routes: docs/FRONTEND.md route map omits /mcp/oauth and references /oauth/revoke despite the implemented revocation route being /api/oauth/tokens/[jti]/revoke.
+- none
 
 
 

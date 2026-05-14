@@ -30,9 +30,12 @@ export default async function InspectorPage() {
   const inspectorUrl = (transport: "streamable-http" | "sse", serverUrl: string) =>
     `${inspectorUiBase}?transport=${transport}&serverUrl=${encodeURIComponent(serverUrl)}`;
   const inspectorCliNone = `npx -y @modelcontextprotocol/inspector --cli ${config.routes.mcp.noAuth} --transport http --method tools/list`;
+  const inspectorCliResources = `npx -y @modelcontextprotocol/inspector --cli ${config.routes.mcp.noAuth} --transport http --method resources/read --uri mock://resources/server-status`;
+  const inspectorCliPrompts = `npx -y @modelcontextprotocol/inspector --cli ${config.routes.mcp.noAuth} --transport http --method prompts/get --prompt-name support_reply --prompt-args tone=friendly`;
   const inspectorCliBasic = `npx -y @modelcontextprotocol/inspector --cli ${config.routes.mcp.basic} --transport http --method tools/list --header "${basicAuthorizationHeader}"`;
   const inspectorCliOauth = `npx -y @modelcontextprotocol/inspector --cli ${config.routes.mcp.oauth} --transport http --method tools/list --header "Authorization: Bearer PASTE_ACCESS_TOKEN"`;
   const inspectorCliSse = `npx -y @modelcontextprotocol/inspector --cli ${config.routes.mcp.sseNoAuth} --transport sse --method tools/list`;
+  const inspectorCliSseResource = `npx -y @modelcontextprotocol/inspector --cli ${config.routes.mcp.sseNoAuth} --transport sse --method resources/read --uri mock://resources/server-status`;
   const tokenExchangeCurl = oauthClient && redirectUri
     ? [
       `curl -X POST ${config.routes.oauth.tokenEndpoint}`,
@@ -67,7 +70,7 @@ export default async function InspectorPage() {
         <div className="page-header-actions inspector-quick-stats" aria-label="Inspector workflow summary">
           <span><strong>3</strong> verification modes</span>
           <span><strong>7</strong> MCP targets</span>
-          <span><strong>OAuth</strong> ready</span>
+          <span><strong>Full</strong> server features</span>
         </div>
       </header>
 
@@ -76,7 +79,7 @@ export default async function InspectorPage() {
           <MonitorCog className="inspector-card-icon" aria-hidden="true" />
           <h2 id="local-inspector-title">Standalone Inspector UI</h2>
           <p className="section-note">
-            Launch a separate local browser page. Use its Mock Server scenario to verify REST, MCP, Basic, OAuth bearer, token revocation, audit evidence, and reset guards through UI, or use generic mode for any MCP endpoint.
+            Launch a separate local browser page. Use its Mock Server scenario to verify REST, MCP tools/resources/prompts/completion, SSE notifications, Basic, OAuth bearer permissions, token revocation, audit evidence, and reset guards through UI, or use generic mode for any MCP endpoint.
           </p>
           <div className="command-strip">
             <code>npm run inspector:ui</code>
@@ -88,7 +91,7 @@ export default async function InspectorPage() {
           <BadgeCheck className="inspector-card-icon" aria-hidden="true" />
           <h2 id="mock-inspector-title">Mock Server full smoke inspector</h2>
           <p className="section-note">
-            This project-specific command verifies admin APIs, REST, MCP no-auth, Basic, OAuth bearer, token revocation, audit evidence, and reset guards.
+            This project-specific command verifies admin APIs, REST, MCP no-auth tools/resources/prompts/completion, SSE notifications, Basic, OAuth bearer permissions, token revocation, audit evidence, and reset guards.
           </p>
           <div className="command-strip">
             <code>npm run inspector:mock</code>
@@ -126,7 +129,7 @@ export default async function InspectorPage() {
         <section className="panel guide-panel inspector-span" aria-labelledby="upstream-title">
           <h2 id="upstream-title">Upstream MCP Inspector targets</h2>
           <p className="section-note">
-            Start upstream Inspector with <code>npx @modelcontextprotocol/inspector</code>, then use these prefilled URLs or CLI commands. Basic and OAuth targets still need their Authorization header in Inspector.
+            Start upstream Inspector with <code>npx @modelcontextprotocol/inspector</code>, then use these prefilled URLs or CLI commands. Basic and OAuth targets still need their Authorization header in Inspector. Upstream CLI supports tools/resources/prompts; use the project Generic target for completion presets when your Inspector CLI lacks `completion/complete`.
           </p>
           <div className="guide-list">
             <div>
@@ -172,6 +175,20 @@ export default async function InspectorPage() {
               </div>
             </div>
             <div>
+              <span>Resource read Inspector CLI</span>
+              <div className="copy-row">
+                <code>{inspectorCliResources}</code>
+                <CopyButton value={inspectorCliResources} />
+              </div>
+            </div>
+            <div>
+              <span>Prompt get Inspector CLI</span>
+              <div className="copy-row">
+                <code>{inspectorCliPrompts}</code>
+                <CopyButton value={inspectorCliPrompts} />
+              </div>
+            </div>
+            <div>
               <span>Basic Inspector CLI</span>
               <div className="copy-row">
                 <code>{inspectorCliBasic}</code>
@@ -192,6 +209,13 @@ export default async function InspectorPage() {
                 <CopyButton value={inspectorCliSse} />
               </div>
             </div>
+            <div>
+              <span>SSE resource read CLI</span>
+              <div className="copy-row">
+                <code>{inspectorCliSseResource}</code>
+                <CopyButton value={inspectorCliSseResource} />
+              </div>
+            </div>
           </div>
         </section>
 
@@ -207,6 +231,9 @@ export default async function InspectorPage() {
               ["SSE Basic", config.routes.mcp.sseBasic],
               ["SSE OAuth bearer", config.routes.mcp.sseOAuth],
               ["REST tools", config.routes.rest.tools],
+              ["Seed resource URI", "mock://resources/server-status"],
+              ["Seed resource template", "mock://resources/customers/{customerId}"],
+              ["Seed prompt", "support_reply"],
               ["OAuth authorization metadata", config.routes.oauth.authorizationServerMetadata],
               ["OAuth protected resource metadata", config.routes.oauth.protectedResourceMetadata],
               ["JWKS", config.routes.oauth.jwksUri],
@@ -225,7 +252,7 @@ export default async function InspectorPage() {
         <section className="panel guide-panel" aria-labelledby="oauth-title">
           <h2 id="oauth-title">OAuth bearer preparation</h2>
           <ol className="step-list">
-            <li>Create or open an OAuth client and allow the endpoints that should be callable.</li>
+            <li>Create or open an OAuth client and allow the tools, resources, and prompts that should be callable.</li>
             <li>Use authorization code or client credentials to issue a token from <code>/oauth/token</code>.</li>
             <li>Pass the token to MCP Inspector as an Authorization bearer header for the OAuth target.</li>
             <li>Use Tokens to inspect claims and revoke the token, then rerun the same call to confirm 401 behavior.</li>

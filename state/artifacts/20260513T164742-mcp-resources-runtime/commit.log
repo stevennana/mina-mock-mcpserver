@@ -1,0 +1,10 @@
+[codex/mcp-resources-prompts-plans 348ac91] ralph: mcp-resources-runtime 2026-05-13T16:53:15+09:00
+ 19 files changed, 307 insertions(+), 121 deletions(-)
+ rename docs/exec-plans/{active => completed}/mcp-resources-runtime-rca-npx-y-modelcontextprotocol-inspector-0-21-2-cli-.md (96%)
+ create mode 100644 state/artifacts/20260513T162946-mcp-resources-runtime-rca-npx-y-modelcontextprotocol-inspector-0-21-2-cli-/backlog.log
+ create mode 100644 state/artifacts/20260513T162946-mcp-resources-runtime-rca-npx-y-modelcontextprotocol-inspector-0-21-2-cli-/promote.log
+ create mode 100644 state/artifacts/20260513T164742-mcp-resources-runtime/commit.log
+ create mode 100644 state/artifacts/20260513T164742-mcp-resources-runtime/evaluator.log
+ create mode 100644 state/artifacts/20260513T164742-mcp-resources-runtime/task-prompt.log
+ create mode 100644 state/artifacts/20260513T164742-mcp-resources-runtime/worker.jsonl
+commit: created

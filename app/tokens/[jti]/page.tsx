@@ -27,7 +27,7 @@ export default async function TokenDetailPage({ params }: { params: Promise<{ jt
           <p className="eyebrow">OAuth bearer evidence</p>
           <h1>Token detail</h1>
           <p className="lede compact">
-            Inspect claims, endpoint permissions, expiry, and revocation state without redisplaying raw access tokens.
+            Inspect claims, tool/resource/prompt permissions, expiry, and revocation state without redisplaying raw access tokens.
           </p>
         </div>
         <div className="summary-strip" aria-label="Issued token counts">

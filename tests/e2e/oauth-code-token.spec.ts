@@ -48,7 +48,7 @@ test("OAuth authorization code exchanges once for endpoint-permission JWT @oauth
   await page.getByLabel("Username").fill("default");
   await page.getByLabel("Password").fill("default");
   await page.getByRole("button", { name: "Continue" }).click();
-  await page.getByRole("button", { name: "Approve selected endpoints" }).click();
+  await page.getByRole("button", { name: "Approve selected permissions" }).click();
   await page.waitForURL(/\/oauth\/callback\?code=.*state=state-token-e2e/);
 
   const callbackUrl = new URL(page.url());
@@ -197,7 +197,7 @@ test("OAuth authorization code supports PKCE S256 and standard revocation @oauth
   await page.getByLabel("Username").fill("default");
   await page.getByLabel("Password").fill("default");
   await page.getByRole("button", { name: "Continue" }).click();
-  await page.getByRole("button", { name: "Approve selected endpoints" }).click();
+  await page.getByRole("button", { name: "Approve selected permissions" }).click();
   await page.waitForURL(/\/oauth\/callback\?code=.*state=state-pkce/);
 
   const code = new URL(page.url()).searchParams.get("code") ?? "";

@@ -21,13 +21,13 @@ MCP connection guide examples
 - Bearer `401` challenges on MCP routes include `resource_metadata` pointing to `/.well-known/oauth-protected-resource` so standard clients can discover the mock authorization-server metadata before retrying with a token.
 - The server supports JSON-RPC over Streamable HTTP `POST`, lightweight Streamable HTTP `GET` SSE open events, and legacy SSE compatibility aliases at `/sse`, `/sse/none`, `/sse/basic`, and `/sse/oauth`.
 - Legacy SSE aliases open a live `text/event-stream`, emit an `endpoint` event for the matching message POST URL, process JSON-RPC messages through the same MCP runtime as Streamable HTTP, and send JSON-RPC responses back over the stream as `message` events.
-- SSE compatibility is intentionally in-memory and local-test oriented. It does not provide durable sessions, cross-process resumability, or production-grade event replay.
+- SSE compatibility is intentionally in-memory and local-test oriented. It supports best-effort resource subscription and resource/prompt list-change notifications for currently open legacy SSE sessions only. It does not provide durable sessions, cross-process resumability, or production-grade event replay.
 - MCP `POST` responses include the server protocol version header. Requests that provide an unsupported `MCP-Protocol-Version` header return HTTP `400` with a JSON-RPC invalid-request error; requests without that header remain accepted for compatibility with simple curl/Postman probes.
 - MCP routes are intentionally CORS-open for browser-based tools such as the upstream MCP Inspector UI on `http://localhost:6274`. `POST` responses include `Access-Control-Allow-Origin: *` and expose MCP/auth/debug headers that browser clients need to read.
 - MCP, SSE, REST, OAuth metadata, JWKS, token, and revocation routes answer browser preflight `OPTIONS` requests with HTTP `204`, `Access-Control-Allow-Methods: GET, POST, DELETE, OPTIONS`, and allow the standard MCP test headers, including `Authorization`, `Content-Type`, `Last-Event-ID`, `MCP-Session-Id`, and `MCP-Protocol-Version`.
 - MCP clients should send `Accept: application/json, text/event-stream`; the MVP server is lenient and does not reject missing `Accept` headers because many manual test clients omit them.
 - `initialize` returns protocol version `2025-06-18` when requested, otherwise the newest MVP-supported version from `2025-06-18` and `2025-03-26`.
-- `initialize` advertises only the `tools` capability with `listChanged: false`; resources, prompts, logging, sampling, durable session, and resumability capabilities are not claimed.
+- `initialize` advertises `tools: { listChanged: false }`, `resources: { subscribe: true, listChanged: true }`, `prompts: { listChanged: true }`, and `completions: {}` when the runtime handlers are available; logging, sampling, durable session, and resumability capabilities are not claimed.
 - `serverInfo` is `name: "mina-mock-mcpserver"` and `version: "1.0.0"`.
 - `notifications/initialized` is accepted as a JSON-RPC notification with HTTP `202` and no response body.
 - `tools/list` returns enabled endpoint tools only, with each tool's name, description, and generated endpoint-domain `inputSchema`.
@@ -39,6 +39,7 @@ MCP connection guide examples
 - Response-case tool errors return MCP `tools/call` results with `isError: true`; endpoint-level or response-case protocol errors return JSON-RPC `-32000` errors with `protocol_error` data.
 - Unsupported JSON-RPC methods return `-32601` with HTTP `200`.
 - `GET` on MCP endpoints opens a lightweight SSE compatibility response. `DELETE` on Streamable HTTP MCP endpoints returns deterministic `405 Method Not Allowed` with `Allow: GET, POST, OPTIONS` because durable Streamable HTTP session termination is not implemented.
+- Streamable HTTP `GET` remains a lightweight compatibility stream and is not a durable session or replay channel.
 - Future MCP session persistence, resumability, and event replay must be designed and tested as a separate transport feature. The server must not advertise durable session capabilities before those runtime paths exist.
 
 ## Validation

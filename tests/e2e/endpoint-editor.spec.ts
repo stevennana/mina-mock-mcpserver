@@ -51,7 +51,7 @@ test("endpoint editor supports persisted create, edit, search, screenshots, and 
   await page.goto("/endpoints");
   await page.getByLabel("Search").fill(endpointName);
   await expect(page.getByRole("link", { name: endpointName })).toBeVisible();
-  await expect(page.getByRole("navigation", { name: "Primary" })).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Primary", exact: true })).toBeVisible();
   await page.getByRole("link", { name: endpointName }).click();
   await page.getByRole("link", { name: "Failure", exact: true }).click();
   await expect(page.getByRole("region", { name: "Failure simulation" }).getByLabel("Failure mode", { exact: true })).toBeVisible();

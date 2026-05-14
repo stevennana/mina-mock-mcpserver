@@ -9,7 +9,7 @@ function run(command, args, options = {}) {
     const child = spawn(command, args, {
       stdio: "inherit",
       shell: false,
-      env: { ...process.env, ...options.env },
+      env: options.env ?? process.env,
     });
 
     child.on("exit", (code) => {
@@ -23,13 +23,15 @@ function run(command, args, options = {}) {
 }
 
 async function ensureRuntimeTemplate() {
+  const envWithoutDatabaseUrl = { ...process.env };
+  delete envWithoutDatabaseUrl.DATABASE_URL;
   try {
     await access(runtimeDbPath);
   } catch {
-    const envWithoutDatabaseUrl = { ...process.env };
-    delete envWithoutDatabaseUrl.DATABASE_URL;
     await run("npm", ["run", "db:prepare"], { env: envWithoutDatabaseUrl });
+    return;
   }
+  await run("npm", ["run", "db:prepare"], { env: envWithoutDatabaseUrl });
 }
 
 await mkdir("data", { recursive: true });

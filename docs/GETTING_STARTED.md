@@ -102,8 +102,10 @@ The scenario verifies:
 - endpoint create/detail/update
 - REST list/call/forced error
 - MCP initialize/list/call/protocol guard
+- MCP resources/list, resources/read, resources/templates/list, prompts/list, prompts/get, and completion/complete
+- legacy SSE resources/subscribe and resource update notifications
 - Basic Auth runtime
-- OAuth Bearer runtime, permission filtering, denial, token listing, revocation
+- OAuth Bearer runtime, tool/resource/prompt permission filtering, denial, token listing, revocation
 - audit evidence and reset guard
 - cleanup of temporary mutable records
 
@@ -125,7 +127,18 @@ http://127.0.0.1:3100/mcp/none
 
 Click **Run generic inspection**.
 
-The page checks `initialize`, `tools/list`, optional `tools/call`, response header evidence, and unsupported protocol-version behavior.
+The page checks `initialize`, one selected MCP method preset, response header evidence, and unsupported protocol-version behavior.
+
+Use **MCP method preset** for:
+
+- `tools/list` with optional `tools/call`
+- `resources/list`
+- `resources/read`
+- `resources/templates/list`
+- `prompts/list`
+- `prompts/get`
+- `completion/complete` for prompt arguments
+- `completion/complete` for resource-template arguments
 
 Use route presets for:
 
@@ -180,6 +193,23 @@ http://localhost:6274/?transport=sse&serverUrl=http%3A%2F%2F127.0.0.1%3A3100%2Fs
 ```
 
 More upstream Inspector examples are in [MCP Browser Inspector guide](../MCPBrowserInspector.md).
+
+Upstream Inspector CLI `0.21.2` supports tools, resources, and prompts:
+
+```bash
+npm run inspector:cli:list
+npm run inspector:cli:call:echo
+npm run inspector:cli:resources:list
+npm run inspector:cli:resources:read
+npm run inspector:cli:resources:templates
+npm run inspector:cli:prompts:list
+npm run inspector:cli:prompts:get
+npm run inspector:cli:sse:list
+npm run inspector:cli:sse:resources
+npm run inspector:cli:sse:resources:read
+```
+
+For `completion/complete`, use the project Generic target preset or upstream browser Inspector if your installed Inspector version exposes Completion controls.
 
 ## 8. Inspect Tokens And Audit Events
 

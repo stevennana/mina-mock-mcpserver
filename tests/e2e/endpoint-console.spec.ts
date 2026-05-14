@@ -52,7 +52,7 @@ test("endpoint schema preview and console shell stay stable on desktop and mobil
   await expect(consoleRegion.getByText("Validated locally before REST execution.")).toBeVisible();
   await expect(consoleRegion.getByRole("region", { name: "Raw request" })).toContainText('"includeHumidity": true');
 
-  await expect(page.getByRole("navigation", { name: "Primary" })).toBeVisible();
+  await expect(page.getByRole("navigation", { name: "Primary", exact: true })).toBeVisible();
   await page.screenshot({ path: "test-results/ui-endpoint-console-desktop.png", fullPage: true });
 
   await page.setViewportSize({ width: 390, height: 900 });

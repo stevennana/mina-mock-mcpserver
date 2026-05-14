@@ -19,6 +19,8 @@ For the short project overview, see [README](../README.md). For end-to-end UI st
 
 The SSE bridge is for local compatibility and upstream Inspector checks. It is not durable session storage, resumable replay, or a production event queue.
 
+Legacy SSE sessions also support best-effort, in-memory `resources/subscribe` and `resources/unsubscribe` calls. When an open legacy SSE session is subscribed to an enabled resource URI, admin resource content mutations emit `notifications/resources/updated` on that stream. Enabled resource/template catalog changes emit `notifications/resources/list_changed`, and enabled prompt catalog changes emit `notifications/prompts/list_changed`. Streamable HTTP `GET` remains only a lightweight compatibility stream and does not provide durable session replay.
+
 ## Streamable HTTP No-Auth
 
 Initialize:
@@ -48,6 +50,68 @@ curl -X POST http://127.0.0.1:3100/mcp/none \
   -H 'accept: application/json, text/event-stream' \
   -H 'MCP-Protocol-Version: 2025-06-18' \
   -d '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"echo","arguments":{"message":"hello"}}}'
+```
+
+List resources:
+
+```bash
+curl -X POST http://127.0.0.1:3100/mcp/none \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -H 'MCP-Protocol-Version: 2025-06-18' \
+  -d '{"jsonrpc":"2.0","id":"resources","method":"resources/list"}'
+```
+
+Read the seeded resource:
+
+```bash
+curl -X POST http://127.0.0.1:3100/mcp/none \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -H 'MCP-Protocol-Version: 2025-06-18' \
+  -d '{"jsonrpc":"2.0","id":"read","method":"resources/read","params":{"uri":"mock://resources/server-status"}}'
+```
+
+List resource templates:
+
+```bash
+curl -X POST http://127.0.0.1:3100/mcp/none \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -H 'MCP-Protocol-Version: 2025-06-18' \
+  -d '{"jsonrpc":"2.0","id":"templates","method":"resources/templates/list"}'
+```
+
+List prompts and get the seeded prompt:
+
+```bash
+curl -X POST http://127.0.0.1:3100/mcp/none \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -H 'MCP-Protocol-Version: 2025-06-18' \
+  -d '{"jsonrpc":"2.0","id":"prompts","method":"prompts/list"}'
+
+curl -X POST http://127.0.0.1:3100/mcp/none \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -H 'MCP-Protocol-Version: 2025-06-18' \
+  -d '{"jsonrpc":"2.0","id":"prompt","method":"prompts/get","params":{"name":"support_reply","arguments":{"tone":"friendly"}}}'
+```
+
+Complete prompt and resource-template arguments:
+
+```bash
+curl -X POST http://127.0.0.1:3100/mcp/none \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -H 'MCP-Protocol-Version: 2025-06-18' \
+  -d '{"jsonrpc":"2.0","id":"complete-prompt","method":"completion/complete","params":{"ref":{"type":"ref/prompt","name":"support_reply"},"argument":{"name":"tone","value":"fri"}}}'
+
+curl -X POST http://127.0.0.1:3100/mcp/none \
+  -H 'content-type: application/json' \
+  -H 'accept: application/json, text/event-stream' \
+  -H 'MCP-Protocol-Version: 2025-06-18' \
+  -d '{"jsonrpc":"2.0","id":"complete-resource","method":"completion/complete","params":{"ref":{"type":"ref/resource","uri":"mock://resources/customers/{customerId}"},"argument":{"name":"customerId","value":"cust"}}}'
 ```
 
 ## Streamable HTTP Basic Auth
@@ -93,7 +157,7 @@ curl -X POST http://127.0.0.1:3100/mcp/oauth \
 OAuth Bearer behavior:
 
 - valid and permitted token -> `200`
-- valid token without endpoint permission -> `403`
+- valid token without tool/resource/prompt permission -> `403`
 - missing, invalid, expired, revoked, or wrong-audience token -> `401`
 
 ## Legacy SSE No-Auth
@@ -234,8 +298,17 @@ npm run inspector:mcp:oauth
 npm run inspector:mcp:sse
 npm run inspector:cli:list
 npm run inspector:cli:call:echo
+npm run inspector:cli:resources:list
+npm run inspector:cli:resources:read
+npm run inspector:cli:resources:templates
+npm run inspector:cli:prompts:list
+npm run inspector:cli:prompts:get
 npm run inspector:cli:basic:list
 npm run inspector:cli:sse:list
+npm run inspector:cli:sse:resources
+npm run inspector:cli:sse:resources:read
 ```
+
+Upstream Inspector CLI `0.21.2` does not expose `completion/complete`; use the project Generic target completion presets or upstream browser Inspector when your installed version supports Completion controls.
 
 See [MCP Browser Inspector guide](../MCPBrowserInspector.md) for browser UI screenshots and [Inspector integration](INSPECTOR.md) for the full project Inspector model.

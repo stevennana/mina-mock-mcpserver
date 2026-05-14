@@ -616,6 +616,10 @@ h1 {
 .secondary-button,
 .danger-button {
   min-height: 44px;
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
   border: 1px solid transparent;
   border-radius: 8px;
   padding: 0 14px;
@@ -629,6 +633,13 @@ h1 {
   align-items: center;
   justify-content: center;
   text-decoration: none;
+}
+
+.button-icon {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 auto;
+  stroke-width: 2.4;
 }
 
 .primary-button {
@@ -952,6 +963,10 @@ h1 {
   min-width: 920px;
 }
 
+.resource-table {
+  min-width: 760px;
+}
+
 .endpoint-table th,
 .endpoint-table td {
   border-bottom: 1px solid var(--line);
@@ -1000,6 +1015,7 @@ h1 {
 .sub-nav a {
   min-height: 40px;
   display: inline-flex;
+  gap: 7px;
   align-items: center;
   border: 1px solid transparent;
   border-radius: 8px;
@@ -1364,6 +1380,10 @@ h1 {
   min-height: 132px;
 }
 
+.resource-content-area {
+  min-height: 260px;
+}
+
 .console-actions {
   display: flex;
   flex-wrap: wrap;
@@ -1373,6 +1393,14 @@ h1 {
 .console-actions .secondary-button {
   white-space: normal;
   text-align: left;
+}
+
+.evidence-panel h4 {
+  margin: 0 0 8px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 850;
+  text-transform: uppercase;
 }
 
 .delete-confirmation {

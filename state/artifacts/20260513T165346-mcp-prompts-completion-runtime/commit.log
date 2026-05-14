@@ -1,0 +1,12 @@
+[codex/mcp-resources-prompts-plans bf4a252] ralph: mcp-prompts-completion-runtime 2026-05-13T17:05:20+09:00
+ 24 files changed, 901 insertions(+), 73 deletions(-)
+ rename docs/exec-plans/{active => completed}/031-mcp-resources-runtime.md (97%)
+ create mode 100644 state/artifacts/20260513T164742-mcp-resources-runtime/backlog.log
+ create mode 100644 state/artifacts/20260513T164742-mcp-resources-runtime/promote.log
+ create mode 100644 state/artifacts/20260513T165346-mcp-prompts-completion-runtime/commit.log
+ create mode 100644 state/artifacts/20260513T165346-mcp-prompts-completion-runtime/evaluator.log
+ create mode 100644 state/artifacts/20260513T165346-mcp-prompts-completion-runtime/task-prompt.log
+ create mode 100644 state/artifacts/20260513T165346-mcp-prompts-completion-runtime/worker.jsonl
+ create mode 100644 tests/e2e/mcp-prompts-completion.spec.ts
+ create mode 100644 tests/unit/mcp-prompts-runtime.test.ts
+commit: created

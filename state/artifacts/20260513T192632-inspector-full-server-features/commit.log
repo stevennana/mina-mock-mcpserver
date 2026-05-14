@@ -1,0 +1,10 @@
+[codex/mcp-resources-prompts-plans f8a02e0] ralph: inspector-full-server-features 2026-05-13T19:34:22+09:00
+ 19 files changed, 342 insertions(+), 96 deletions(-)
+ rename docs/exec-plans/{active => completed}/inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b.md (96%)
+ create mode 100644 state/artifacts/20260513T192130-inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b/backlog.log
+ create mode 100644 state/artifacts/20260513T192130-inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b/promote.log
+ create mode 100644 state/artifacts/20260513T192632-inspector-full-server-features/commit.log
+ create mode 100644 state/artifacts/20260513T192632-inspector-full-server-features/evaluator.log
+ create mode 100644 state/artifacts/20260513T192632-inspector-full-server-features/task-prompt.log
+ create mode 100644 state/artifacts/20260513T192632-inspector-full-server-features/worker.jsonl
+commit: created

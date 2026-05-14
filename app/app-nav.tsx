@@ -2,8 +2,11 @@ import Link from "next/link";
 import {
   Activity,
   BarChart3,
+  Braces,
+  MessageSquareText,
   KeyRound,
   ListChecks,
+  Library,
   RotateCcw,
   ScrollText,
   ServerCog,
@@ -31,6 +34,9 @@ type AppNavGroup = {
 export type AppNavKey =
   | "dashboard"
   | "endpoints"
+  | "resources"
+  | "resource-templates"
+  | "prompts"
   | "inspector"
   | "basic-users"
   | "oauth-users"
@@ -49,6 +55,9 @@ const navGroups: AppNavGroup[] = [
     label: "Tools",
     items: [
       { key: "endpoints", href: "/endpoints", label: "Endpoints", icon: ListChecks },
+      { key: "resources", href: "/resources", label: "Resources", icon: Library },
+      { key: "resource-templates", href: "/resource-templates", label: "Resource Templates", icon: Braces },
+      { key: "prompts", href: "/prompts", label: "Prompts", icon: MessageSquareText },
       { key: "inspector", href: "/inspector", label: "Inspector", icon: TestTube2 },
     ],
   },

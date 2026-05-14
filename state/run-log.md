@@ -892,3 +892,293 @@
 - health: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxooooooooooooooooxooxoxooxoxo
 - cycle: finished
 No remaining task. Stopping loop.
+## loop start 2026-05-13T14:54:01+09:00
+
+### cycle 2026-05-13T14:54:01+09:00 task=mcp-resource-prompt-domain-schema
+- artifacts: state/artifacts/20260513T145401-mcp-resource-prompt-domain-schema
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260513T145401-mcp-resource-prompt-domain-schema/worker.jsonl
+- worker-summary: Completed `mcp-resource-prompt-domain-schema`.
+- evaluator: started
+- evaluator: status=done promotion=true Deterministic checks passed; task is eligible for automatic promotion. -> state/artifacts/20260513T145401-mcp-resource-prompt-domain-schema/evaluator.log
+- commit: commit: created
+- promote: Promoted mcp-resource-prompt-domain-schema -> mcp-resource-management-ui
+- backlog: rendered current=mcp-resource-management-ui
+- health: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxooooooooooooooooxooxoxooxoxoo
+- cycle: finished
+
+### cycle 2026-05-13T15:07:02+09:00 task=mcp-resource-management-ui
+- artifacts: state/artifacts/20260513T150702-mcp-resource-management-ui
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260513T150702-mcp-resource-management-ui/worker.jsonl
+- worker-summary: Implemented `mcp-resource-management-ui` and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+- evaluator: started
+- evaluator: status=done promotion=true Deterministic checks passed; task is eligible for automatic promotion. -> state/artifacts/20260513T150702-mcp-resource-management-ui/evaluator.log
+- next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260513T150702-mcp-resource-management-ui/npm-run-test-e2e-tests-e2e-resources-ui-spec-ts--next-server.log
+- commit: commit: created
+- promote: Promoted mcp-resource-management-ui -> mcp-resource-template-management-ui
+- backlog: rendered current=mcp-resource-template-management-ui
+- health: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxooooooooooooooooxooxoxooxoxooo
+- cycle: finished
+
+### cycle 2026-05-13T15:18:22+09:00 task=mcp-resource-template-management-ui
+- artifacts: state/artifacts/20260513T151822-mcp-resource-template-management-ui
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260513T151822-mcp-resource-template-management-ui/worker.jsonl
+- worker-summary: Implemented `mcp-resource-template-management-ui` and updated [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+- evaluator: started
+- evaluator: status=done promotion=true Deterministic checks passed; task is eligible for automatic promotion. -> state/artifacts/20260513T151822-mcp-resource-template-management-ui/evaluator.log
+- next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260513T151822-mcp-resource-template-management-ui/npm-run-test-e2e-tests-e2e-resource-templates-ui-next-server.log
+- commit: commit: created
+- promote: Promoted mcp-resource-template-management-ui -> mcp-prompt-management-ui
+- backlog: rendered current=mcp-prompt-management-ui
+- health: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxooooooooooooooooxooxoxooxoxoooo
+- cycle: finished
+
+### cycle 2026-05-13T15:30:41+09:00 task=mcp-prompt-management-ui
+- artifacts: state/artifacts/20260513T153041-mcp-prompt-management-ui
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260513T153041-mcp-prompt-management-ui/worker.jsonl
+- worker-summary: Implemented `mcp-prompt-management-ui` and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+- evaluator: started
+- evaluator: status=done promotion=true Deterministic checks passed; task is eligible for automatic promotion. -> state/artifacts/20260513T153041-mcp-prompt-management-ui/evaluator.log
+- next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260513T153041-mcp-prompt-management-ui/npm-run-test-e2e-tests-e2e-prompts-ui-spec-ts-gr-next-server.log
+- commit: commit: created
+- promote: Promoted mcp-prompt-management-ui -> mcp-resources-runtime
+- backlog: rendered current=mcp-resources-runtime
+- health: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxooooooooooooooooxooxoxooxoxooooo
+- cycle: finished
+
+### cycle 2026-05-13T15:43:00+09:00 task=mcp-resources-runtime
+- artifacts: state/artifacts/20260513T154300-mcp-resources-runtime
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260513T154300-mcp-resources-runtime/worker.jsonl
+- worker-summary: Implemented `mcp-resources-runtime` and wrote the handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+- evaluator: started
+- evaluator: status=not_done promotion=false Deterministic checks failed; task is not ready for promotion. -> state/artifacts/20260513T154300-mcp-resources-runtime/evaluator.log
+- next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260513T154300-mcp-resources-runtime/npm-run-test-e2e-tests-e2e-mcp-resources-spec-ts-next-server.log
+- commit: commit: skipped (deterministic checks not passing)
+- blocker: signature=deterministic_failure|npx-y-modelcontextprotocol-inspector-0-21-2-cli-|no-path-details repeat=1 kind=evaluation Repeated required-command failure: npx -y @modelcontextprotocol/inspector@0.21.2 --cli http://127.0.0.1:3100/mcp/none --transport http --method resources/list
+- promote: Task mcp-resources-runtime not eligible for promotion.
+- backlog: rendered current=mcp-resources-runtime
+- health: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxooooooooooooooooxooxoxooxoxooooox
+- cycle: finished
+
+### cycle 2026-05-13T15:57:34+09:00 task=mcp-resources-runtime
+- artifacts: state/artifacts/20260513T155734-mcp-resources-runtime
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260513T155734-mcp-resources-runtime/worker.jsonl
+- worker-summary: Implemented and verified the MCP resources runtime slice already present in the tree, then updated the task progress log and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+- evaluator: started
+- evaluator: status=not_done promotion=false Deterministic checks failed; task is not ready for promotion. -> state/artifacts/20260513T155734-mcp-resources-runtime/evaluator.log
+- next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260513T155734-mcp-resources-runtime/npm-run-test-e2e-tests-e2e-mcp-resources-spec-ts-next-server.log
+- commit: commit: skipped (deterministic checks not passing)
+- blocker: signature=deterministic_failure|npx-y-modelcontextprotocol-inspector-0-21-2-cli-|no-path-details repeat=2 kind=evaluation Repeated required-command failure: npx -y @modelcontextprotocol/inspector@0.21.2 --cli http://127.0.0.1:3100/mcp/none --transport http --method resources/list
+- promote: Task mcp-resources-runtime not eligible for promotion.
+- backlog: rendered current=mcp-resources-runtime
+- health: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxooooooooooooooooxooxoxooxoxoooooxx
+- cycle: finished
+
+### cycle 2026-05-13T16:04:37+09:00 task=mcp-resources-runtime
+- artifacts: state/artifacts/20260513T160437-mcp-resources-runtime
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260513T160437-mcp-resources-runtime/worker.jsonl
+- worker-summary: Implemented and verified the MCP resources runtime slice, and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+- evaluator: started
+- evaluator: status=not_done promotion=false Deterministic checks failed; task is not ready for promotion. -> state/artifacts/20260513T160437-mcp-resources-runtime/evaluator.log
+- next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260513T160437-mcp-resources-runtime/npm-run-test-e2e-tests-e2e-mcp-resources-spec-ts-next-server.log
+- commit: commit: skipped (deterministic checks not passing)
+- blocker: signature=deterministic_failure|npx-y-modelcontextprotocol-inspector-0-21-2-cli-|no-path-details repeat=3 kind=evaluation Repeated required-command failure: npx -y @modelcontextprotocol/inspector@0.21.2 --cli http://127.0.0.1:3100/mcp/none --transport http --method resources/list
+- blocker: auto-branched signature=deterministic_failure|npx-y-modelcontextprotocol-inspector-0-21-2-cli-|no-path-details -> mcp-resources-runtime-rca-npx-y-modelcontextprotocol-inspector-0-21-2-cli-
+- backlog: rendered current=mcp-resources-runtime-rca-npx-y-modelcontextprotocol-inspector-0-21-2-cli-
+- health: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxooooooooooooooooxooxoxooxoxoooooxxx
+- cycle: finished
+
+### cycle 2026-05-13T16:10:11+09:00 task=mcp-resources-runtime-rca-npx-y-modelcontextprotocol-inspector-0-21-2-cli-
+- artifacts: state/artifacts/20260513T161011-mcp-resources-runtime-rca-npx-y-modelcontextprotocol-inspector-0-21-2-cli-
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260513T161011-mcp-resources-runtime-rca-npx-y-modelcontextprotocol-inspector-0-21-2-cli-/worker.jsonl
+- worker-summary: Updated the RCA evidence and parent task log.
+- evaluator: started
+- evaluator: status=not_done promotion=false Deterministic checks failed; task is not ready for promotion. -> state/artifacts/20260513T161011-mcp-resources-runtime-rca-npx-y-modelcontextprotocol-inspector-0-21-2-cli-/evaluator.log
+- commit: commit: skipped (deterministic checks not passing)
+- blocker: signature=deterministic_failure|npx-y-modelcontextprotocol-inspector-0-21-2-cli-|no-path-details repeat=1 kind=evaluation Repeated required-command failure: npx -y @modelcontextprotocol/inspector@0.21.2 --cli http://127.0.0.1:3100/mcp/none --transport http --method resources/list
+- promote: Task mcp-resources-runtime-rca-npx-y-modelcontextprotocol-inspector-0-21-2-cli- not eligible for promotion.
+- backlog: rendered current=mcp-resources-runtime-rca-npx-y-modelcontextprotocol-inspector-0-21-2-cli-
+- health: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxooooooooooooooooxooxoxooxoxoooooxxxx
+- cycle: finished
+
+### cycle 2026-05-13T16:23:44+09:00 task=mcp-resources-runtime-rca-npx-y-modelcontextprotocol-inspector-0-21-2-cli-
+- artifacts: state/artifacts/20260513T162344-mcp-resources-runtime-rca-npx-y-modelcontextprotocol-inspector-0-21-2-cli-
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260513T162344-mcp-resources-runtime-rca-npx-y-modelcontextprotocol-inspector-0-21-2-cli-/worker.jsonl
+- worker-summary: Updated the RCA evidence and operator handoff.
+- evaluator: started
+- evaluator: status=not_done promotion=false Deterministic checks failed; task is not ready for promotion. -> state/artifacts/20260513T162344-mcp-resources-runtime-rca-npx-y-modelcontextprotocol-inspector-0-21-2-cli-/evaluator.log
+- commit: commit: skipped (deterministic checks not passing)
+- blocker: signature=deterministic_failure|npx-y-modelcontextprotocol-inspector-0-21-2-cli-|no-path-details repeat=2 kind=evaluation Repeated required-command failure: npx -y @modelcontextprotocol/inspector@0.21.2 --cli http://127.0.0.1:3100/mcp/none --transport http --method resources/list
+- promote: Task mcp-resources-runtime-rca-npx-y-modelcontextprotocol-inspector-0-21-2-cli- not eligible for promotion.
+- backlog: rendered current=mcp-resources-runtime-rca-npx-y-modelcontextprotocol-inspector-0-21-2-cli-
+- health: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxooooooooooooooooxooxoxooxoxoooooxxxxx
+- cycle: finished
+
+### cycle 2026-05-13T16:29:46+09:00 task=mcp-resources-runtime-rca-npx-y-modelcontextprotocol-inspector-0-21-2-cli-
+- artifacts: state/artifacts/20260513T162946-mcp-resources-runtime-rca-npx-y-modelcontextprotocol-inspector-0-21-2-cli-
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260513T162946-mcp-resources-runtime-rca-npx-y-modelcontextprotocol-inspector-0-21-2-cli-/worker.jsonl
+- worker-summary: Resolved the RCA blocker and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+- evaluator: started
+- evaluator: status=done promotion=true The RCA task satisfies its blocker-specific exit criteria. The original repeated failure is documented as an environment-specific Inspector CLI path issue, first from npm registry lookup failure and then loopback EPERM behavior. The exact required Inspector command now passes in the current workspace and returns the seeded server_status resource. The RCA plan has next_task_on_success set to mcp-resources-runtime, the parent task remains present and blocked with this RCA as its blocker, and the parent progress log records the resolution before return. -> state/artifacts/20260513T162946-mcp-resources-runtime-rca-npx-y-modelcontextprotocol-inspector-0-21-2-cli-/evaluator.log
+- commit: commit: created
+- promote: Promoted mcp-resources-runtime-rca-npx-y-modelcontextprotocol-inspector-0-21-2-cli- -> mcp-resources-runtime
+- backlog: rendered current=mcp-resources-runtime
+- health: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxooooooooooooooooxooxoxooxoxoooooxxxxxo
+- cycle: finished
+
+### cycle 2026-05-13T16:47:42+09:00 task=mcp-resources-runtime
+- artifacts: state/artifacts/20260513T164742-mcp-resources-runtime
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260513T164742-mcp-resources-runtime/worker.jsonl
+- worker-summary: Implemented/verified the MCP Resources Runtime slice and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt). Also updated the progress log in [031-mcp-resources-runtime.md](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/docs/exec-plans/active/031-mcp-resources-runtime.md).
+- evaluator: started
+- evaluator: status=done promotion=true Deterministic checks passed; task is eligible for automatic promotion. -> state/artifacts/20260513T164742-mcp-resources-runtime/evaluator.log
+- next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260513T164742-mcp-resources-runtime/npm-run-test-e2e-tests-e2e-mcp-resources-spec-ts-next-server.log
+- commit: commit: created
+- promote: Promoted mcp-resources-runtime -> mcp-prompts-completion-runtime
+- backlog: rendered current=mcp-prompts-completion-runtime
+- health: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxooooooooooooooooxooxoxooxoxoooooxxxxxoo
+- cycle: finished
+
+### cycle 2026-05-13T16:53:46+09:00 task=mcp-prompts-completion-runtime
+- artifacts: state/artifacts/20260513T165346-mcp-prompts-completion-runtime
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260513T165346-mcp-prompts-completion-runtime/worker.jsonl
+- worker-summary: Implemented MCP prompts and completion runtime for this slice.
+- evaluator: started
+- evaluator: status=done promotion=true Deterministic checks passed; task is eligible for automatic promotion. -> state/artifacts/20260513T165346-mcp-prompts-completion-runtime/evaluator.log
+- next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260513T165346-mcp-prompts-completion-runtime/npm-run-test-e2e-tests-e2e-mcp-prompts-completio-next-server.log
+- commit: commit: created
+- promote: Promoted mcp-prompts-completion-runtime -> oauth-resource-prompt-permissions
+- backlog: rendered current=oauth-resource-prompt-permissions
+- health: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxooooooooooooooooxooxoxooxoxoooooxxxxxooo
+- cycle: finished
+
+### cycle 2026-05-13T17:05:51+09:00 task=oauth-resource-prompt-permissions
+- artifacts: state/artifacts/20260513T170551-oauth-resource-prompt-permissions
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260513T170551-oauth-resource-prompt-permissions/worker.jsonl
+- worker-summary: Implemented OAuth Resource And Prompt Permissions and wrote the operator handoff to `state/last-result.txt`.
+- evaluator: started
+- evaluator: status=done promotion=true Deterministic checks passed; task is eligible for automatic promotion. -> state/artifacts/20260513T170551-oauth-resource-prompt-permissions/evaluator.log
+- next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260513T170551-oauth-resource-prompt-permissions/npm-run-test-e2e-tests-e2e-oauth-resource-prompt-next-server.log
+- commit: commit: created
+- promote: Promoted oauth-resource-prompt-permissions -> mcp-resource-subscription-notifications
+- backlog: rendered current=mcp-resource-subscription-notifications
+- health: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxooooooooooooooooxooxoxooxoxoooooxxxxxoooo
+- cycle: finished
+
+### cycle 2026-05-13T17:52:35+09:00 task=mcp-resource-subscription-notifications
+- artifacts: state/artifacts/20260513T175235-mcp-resource-subscription-notifications
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260513T175235-mcp-resource-subscription-notifications/worker.jsonl
+- worker-summary: Implemented the scoped MCP resource subscription notification slice and wrote the handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+- evaluator: started
+- evaluator: status=done promotion=true Deterministic checks passed; task is eligible for automatic promotion. -> state/artifacts/20260513T175235-mcp-resource-subscription-notifications/evaluator.log
+- next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260513T175235-mcp-resource-subscription-notifications/npm-run-test-e2e-tests-e2e-mcp-resource-subscrip-next-server.log
+- commit: commit: created
+- promote: Promoted mcp-resource-subscription-notifications -> inspector-full-server-features
+- backlog: rendered current=inspector-full-server-features
+- health: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxooooooooooooooooxooxoxooxoxoooooxxxxxooooo
+- cycle: finished
+
+### cycle 2026-05-13T18:09:42+09:00 task=inspector-full-server-features
+- artifacts: state/artifacts/20260513T180942-inspector-full-server-features
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260513T180942-inspector-full-server-features/worker.jsonl
+- worker-summary: Implemented the Inspector full-server-features slice and wrote the handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+- evaluator: started
+- evaluator: status=not_done promotion=false Deterministic checks failed; task is not ready for promotion. -> state/artifacts/20260513T180942-inspector-full-server-features/evaluator.log
+- next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260513T180942-inspector-full-server-features/npm-run-test-e2e-next-server.log
+- commit: commit: skipped (deterministic checks not passing)
+- blocker: signature=deterministic_failure|npm-run-inspector-mock|no-path-details repeat=1 kind=evaluation Repeated required-command failure: npm run inspector:mock
+- promote: Task inspector-full-server-features not eligible for promotion.
+- backlog: rendered current=inspector-full-server-features
+- health: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxooooooooooooooooxooxoxooxoxoooooxxxxxooooox
+- cycle: finished
+
+### cycle 2026-05-13T19:00:10+09:00 task=inspector-full-server-features
+- artifacts: state/artifacts/20260513T190010-inspector-full-server-features
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260513T190010-inspector-full-server-features/worker.jsonl
+- worker-summary: Implemented and verified the final Inspector full-server-features slice.
+- evaluator: started
+- evaluator: status=not_done promotion=false Deterministic checks failed; task is not ready for promotion. -> state/artifacts/20260513T190010-inspector-full-server-features/evaluator.log
+- next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260513T190010-inspector-full-server-features/npm-run-test-e2e-next-server.log
+- commit: commit: skipped (deterministic checks not passing)
+- blocker: signature=deterministic_failure|npm-run-inspector-mock|no-path-details repeat=2 kind=evaluation Repeated required-command failure: npm run inspector:mock
+- promote: Task inspector-full-server-features not eligible for promotion.
+- backlog: rendered current=inspector-full-server-features
+- health: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxooooooooooooooooxooxoxooxoxoooooxxxxxoooooxx
+- cycle: finished
+
+### cycle 2026-05-13T19:13:02+09:00 task=inspector-full-server-features
+- artifacts: state/artifacts/20260513T191302-inspector-full-server-features
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260513T191302-inspector-full-server-features/worker.jsonl
+- worker-summary: Implemented and verified the `inspector-full-server-features` slice. I also updated [README.md](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/README.md) so the top-level Inspector helper list includes resource-template and SSE resource-read checks, updated the active task progress log, and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt).
+- evaluator: started
+- evaluator: status=not_done promotion=false Deterministic checks failed; task is not ready for promotion. -> state/artifacts/20260513T191302-inspector-full-server-features/evaluator.log
+- next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260513T191302-inspector-full-server-features/npm-run-test-e2e-next-server.log
+- commit: commit: skipped (deterministic checks not passing)
+- blocker: signature=deterministic_failure|npm-run-inspector-mock|no-path-details repeat=3 kind=evaluation Repeated required-command failure: npm run inspector:mock
+- blocker: auto-branched signature=deterministic_failure|npm-run-inspector-mock|no-path-details -> inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b
+- backlog: rendered current=inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b
+- health: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxooooooooooooooooxooxoxooxoxoooooxxxxxoooooxxx
+- cycle: finished
+
+### cycle 2026-05-13T19:21:30+09:00 task=inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b
+- artifacts: state/artifacts/20260513T192130-inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260513T192130-inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b/worker.jsonl
+- worker-summary: Resolved the RCA blocker and wrote the operator handoff to [state/last-result.txt](/Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/last-result.txt:1).
+- evaluator: started
+- evaluator: status=done promotion=true The RCA task is complete in substance. The repeated failure is isolated to loopback unavailability before the inspector health check, the fallback now covers local ECONNREFUSED for 127.0.0.1 HTTP targets, the required npm run inspector:mock check is recorded passing, and the RCA plan/parent log document the resolution and normal return path. -> state/artifacts/20260513T192130-inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b/evaluator.log
+- commit: commit: created
+- promote: Promoted inspector-full-server-features-rca-npm-run-inspector-mock-9d318f2b -> inspector-full-server-features
+- backlog: rendered current=inspector-full-server-features
+- health: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxooooooooooooooooxooxoxooxoxoooooxxxxxoooooxxxo
+- cycle: finished
+
+### cycle 2026-05-13T19:26:32+09:00 task=inspector-full-server-features
+- artifacts: state/artifacts/20260513T192632-inspector-full-server-features
+- prompt: rendered -> scripts/ralph/generated/current-task-prompt.txt
+- worker: started
+- worker: completed -> state/artifacts/20260513T192632-inspector-full-server-features/worker.jsonl
+- worker-summary: Completed the handoff for `inspector-full-server-features`.
+- evaluator: started
+- evaluator: status=done promotion=true Deterministic checks passed; task is eligible for automatic promotion. -> state/artifacts/20260513T192632-inspector-full-server-features/evaluator.log
+- next-server-log: /Users/stevenna/WebstormProjects/mina-mock-mcpserver/state/artifacts/20260513T192632-inspector-full-server-features/npm-run-test-e2e-next-server.log
+- commit: commit: created
+- promote: Promoted inspector-full-server-features -> NONE
+- backlog: rendered current=NONE
+- health: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxooooooooooooooooxooxoxooxoxoooooxxxxxoooooxxxoo
+- cycle: finished
+No remaining task. Stopping loop.

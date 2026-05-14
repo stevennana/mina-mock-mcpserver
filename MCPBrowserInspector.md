@@ -86,7 +86,18 @@ Expected result:
 
 ![Tool result](docs/assets/mcp-browser-inspector/04-tool-result.png)
 
-## 4. Verify Legacy SSE Transport
+## 4. Verify Resources, Prompts, And Completion
+
+Use the upstream Inspector tabs for server-side MCP features:
+
+- **Resources**: list resources, then read `mock://resources/server-status`.
+- **Resource Templates**: list templates and confirm `mock://resources/customers/{customerId}`.
+- **Prompts**: list prompts, then get `support_reply` with `tone = friendly`.
+- **Completion**: if your Inspector version shows Completion controls, complete prompt `support_reply` argument `tone` with prefix `fri`, or resource template `mock://resources/customers/{customerId}` argument `customerId` with prefix `cust`.
+
+If your installed Inspector version does not expose Completion controls, use the project Generic target completion presets from `npm run inspector:ui`.
+
+## 5. Verify Legacy SSE Transport
 
 MCP Mock Server supports legacy-style SSE compatibility routes in addition to Streamable HTTP:
 
@@ -112,7 +123,7 @@ Expected result:
 
 ![SSE tools list](docs/assets/mcp-browser-inspector/05-sse-tools-list.png)
 
-## 5. Verify Basic Auth
+## 6. Verify Basic Auth
 
 Open this URL:
 
@@ -149,7 +160,7 @@ For Basic SSE, use the same header with:
 http://localhost:6274/?MCP_PROXY_AUTH_TOKEN=PASTE_PROXY_TOKEN&transport=sse&serverUrl=http%3A%2F%2F127.0.0.1%3A3100%2Fsse%2Fbasic
 ```
 
-## 6. Verify OAuth Bearer
+## 7. Verify OAuth Bearer
 
 Issue a local OAuth token with the seeded `default/default` client:
 
@@ -186,7 +197,7 @@ Expected result:
 
 - Inspector shows `Connected`
 - `tools/list` succeeds
-- only tools allowed by the token permissions are listed
+- only tools/resources/prompts allowed by the token permissions are listed or readable
 
 The screenshot below intentionally keeps the Authentication panel closed so the Bearer token is not visible.
 
@@ -198,7 +209,7 @@ For OAuth SSE, use the same Bearer header with:
 http://localhost:6274/?MCP_PROXY_AUTH_TOKEN=PASTE_PROXY_TOKEN&transport=sse&serverUrl=http%3A%2F%2F127.0.0.1%3A3100%2Fsse%2Foauth
 ```
 
-## 7. Related Project Inspector Paths
+## 8. Related Project Inspector Paths
 
 If you want to test flows that upstream Inspector does not make easy, use the project-owned standalone Inspector:
 
@@ -214,8 +225,8 @@ http://127.0.0.1:3200
 
 Use:
 
-- `/mock` for broad Mock Server E2E coverage
-- `/generic` for one MCP endpoint with no-auth/Basic/Bearer helpers
+- `/mock` for broad Mock Server E2E coverage, including tools, resources, prompts, completion, OAuth permissions, and SSE notifications
+- `/generic` for one MCP endpoint with no-auth/Basic/Bearer helpers and method presets
 - `/oauth` for browser login, consent, PKCE code exchange, and final Bearer MCP verification
 
 ## Troubleshooting

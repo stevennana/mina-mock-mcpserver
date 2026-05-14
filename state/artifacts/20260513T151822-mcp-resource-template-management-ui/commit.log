@@ -1,0 +1,25 @@
+[codex/mcp-resources-prompts-plans dad03eb] ralph: mcp-resource-template-management-ui 2026-05-13T15:30:10+09:00
+ 36 files changed, 1457 insertions(+), 61 deletions(-)
+ create mode 100644 app/api/resource-templates/[id]/route.ts
+ create mode 100644 app/api/resource-templates/route.ts
+ create mode 100644 app/resource-templates/[id]/arguments/page.tsx
+ create mode 100644 app/resource-templates/[id]/completion/page.tsx
+ create mode 100644 app/resource-templates/[id]/console/page.tsx
+ create mode 100644 app/resource-templates/[id]/content/page.tsx
+ create mode 100644 app/resource-templates/[id]/delete/page.tsx
+ create mode 100644 app/resource-templates/[id]/edit/page.tsx
+ create mode 100644 app/resource-templates/[id]/page.tsx
+ create mode 100644 app/resource-templates/new/page.tsx
+ create mode 100644 app/resource-templates/page.tsx
+ create mode 100644 app/resource-templates/resource-template-manager.tsx
+ create mode 100644 app/resource-templates/workflow-page.tsx
+ rename docs/exec-plans/{active => completed}/028-mcp-resource-management-ui.md (94%)
+ create mode 100644 lib/mcp-fixtures/template-render.ts
+ create mode 100644 state/artifacts/20260513T150702-mcp-resource-management-ui/backlog.log
+ create mode 100644 state/artifacts/20260513T150702-mcp-resource-management-ui/promote.log
+ create mode 100644 state/artifacts/20260513T151822-mcp-resource-template-management-ui/commit.log
+ create mode 100644 state/artifacts/20260513T151822-mcp-resource-template-management-ui/evaluator.log
+ create mode 100644 state/artifacts/20260513T151822-mcp-resource-template-management-ui/task-prompt.log
+ create mode 100644 state/artifacts/20260513T151822-mcp-resource-template-management-ui/worker.jsonl
+ create mode 100644 tests/e2e/resource-templates-ui.spec.ts
+commit: created

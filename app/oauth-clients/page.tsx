@@ -15,7 +15,7 @@ export default async function OAuthClientsPage() {
           <p className="eyebrow">OAuth relying parties</p>
           <h1>OAuth clients</h1>
           <p className="lede compact">
-            Manage mock OAuth clients, redirect URIs, generated secrets, and maximum endpoint permissions.
+            Manage mock OAuth clients, redirect URIs, generated secrets, and maximum tool/resource/prompt permissions.
           </p>
         </div>
         <div className="summary-strip" aria-label="OAuth client counts">

@@ -106,12 +106,42 @@ function normalizeAllowedEndpointIds(value: string[] | undefined, fieldErrors: R
   return uniqueEndpointIds;
 }
 
+function normalizeAllowedResourceIds(value: string[] | undefined, fieldErrors: Record<string, string>) {
+  const resourceIds = Array.isArray(value) ? value.map((id) => id.trim()).filter(Boolean) : [];
+  const uniqueResourceIds = Array.from(new Set(resourceIds));
+  if (uniqueResourceIds.some((id) => id.length > 128)) {
+    fieldErrors.allowedResourceIds = "Allowed resource IDs are invalid.";
+  }
+  return uniqueResourceIds;
+}
+
+function normalizeAllowedResourceTemplateIds(value: string[] | undefined, fieldErrors: Record<string, string>) {
+  const resourceTemplateIds = Array.isArray(value) ? value.map((id) => id.trim()).filter(Boolean) : [];
+  const uniqueResourceTemplateIds = Array.from(new Set(resourceTemplateIds));
+  if (uniqueResourceTemplateIds.some((id) => id.length > 128)) {
+    fieldErrors.allowedResourceTemplateIds = "Allowed resource template IDs are invalid.";
+  }
+  return uniqueResourceTemplateIds;
+}
+
+function normalizeAllowedPromptIds(value: string[] | undefined, fieldErrors: Record<string, string>) {
+  const promptIds = Array.isArray(value) ? value.map((id) => id.trim()).filter(Boolean) : [];
+  const uniquePromptIds = Array.from(new Set(promptIds));
+  if (uniquePromptIds.some((id) => id.length > 128)) {
+    fieldErrors.allowedPromptIds = "Allowed prompt IDs are invalid.";
+  }
+  return uniquePromptIds;
+}
+
 export function validateOAuthClientCreateInput(input: OAuthClientCreateInput): OAuthClientCreateInput {
   const fieldErrors: Record<string, string> = {};
   const clientId = input.clientId.trim();
   const displayName = input.displayName.trim();
   const redirectUris = normalizeRedirectUris(input.redirectUris, fieldErrors);
   const allowedEndpointIds = normalizeAllowedEndpointIds(input.allowedEndpointIds, fieldErrors);
+  const allowedResourceIds = normalizeAllowedResourceIds(input.allowedResourceIds, fieldErrors);
+  const allowedResourceTemplateIds = normalizeAllowedResourceTemplateIds(input.allowedResourceTemplateIds, fieldErrors);
+  const allowedPromptIds = normalizeAllowedPromptIds(input.allowedPromptIds, fieldErrors);
 
   if (!CLIENT_ID_PATTERN.test(clientId)) {
     fieldErrors.clientId = "Use 1-96 letters, numbers, dots, underscores, hyphens, or colons.";
@@ -132,6 +162,9 @@ export function validateOAuthClientCreateInput(input: OAuthClientCreateInput): O
     redirectUris,
     clientCredentialsTtlSeconds: input.clientCredentialsTtlSeconds,
     allowedEndpointIds,
+    allowedResourceIds,
+    allowedResourceTemplateIds,
+    allowedPromptIds,
   };
 }
 
@@ -151,6 +184,15 @@ export function validateOAuthClientUpdateInput(input: OAuthClientUpdateInput): O
   }
   if (input.allowedEndpointIds !== undefined) {
     output.allowedEndpointIds = normalizeAllowedEndpointIds(input.allowedEndpointIds, fieldErrors);
+  }
+  if (input.allowedResourceIds !== undefined) {
+    output.allowedResourceIds = normalizeAllowedResourceIds(input.allowedResourceIds, fieldErrors);
+  }
+  if (input.allowedResourceTemplateIds !== undefined) {
+    output.allowedResourceTemplateIds = normalizeAllowedResourceTemplateIds(input.allowedResourceTemplateIds, fieldErrors);
+  }
+  if (input.allowedPromptIds !== undefined) {
+    output.allowedPromptIds = normalizeAllowedPromptIds(input.allowedPromptIds, fieldErrors);
   }
   if (input.clientCredentialsTtlSeconds !== undefined) {
     validateClientTtl(input.clientCredentialsTtlSeconds, fieldErrors);

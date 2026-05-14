@@ -22,6 +22,9 @@ export type OAuthBearerPrincipal = {
   jti: string;
   resource: string;
   endpointIds: string[];
+  resourceIds: string[];
+  resourceTemplateIds: string[];
+  promptIds: string[];
 };
 
 export type OAuthBearerAuthorizationResolution =
@@ -67,12 +70,24 @@ function parseClaims(value: unknown): OAuthAccessTokenClaims | null {
     typeof value.jti !== "string" ||
     typeof value.scope !== "string" ||
     !Array.isArray(value.endpoint_permissions) ||
-    !value.endpoint_permissions.every((endpointId) => typeof endpointId === "string")
+    !value.endpoint_permissions.every((endpointId) => typeof endpointId === "string") ||
+    !Array.isArray(value.resource_permissions) ||
+    !value.resource_permissions.every((resourceId) => typeof resourceId === "string") ||
+    (value.resource_template_permissions !== undefined &&
+      (!Array.isArray(value.resource_template_permissions) ||
+        !value.resource_template_permissions.every((templateId) => typeof templateId === "string"))) ||
+    !Array.isArray(value.prompt_permissions) ||
+    !value.prompt_permissions.every((promptId) => typeof promptId === "string")
   ) {
     return null;
   }
 
-  return value as OAuthAccessTokenClaims;
+  return {
+    ...value,
+    resource_template_permissions: Array.isArray(value.resource_template_permissions)
+      ? value.resource_template_permissions
+      : [],
+  } as OAuthAccessTokenClaims;
 }
 
 function parseBearerJwt(token: string): OAuthAccessTokenClaims | null {
@@ -97,6 +112,17 @@ function parseStoredEndpointPermissions(value: string) {
   try {
     const parsed = JSON.parse(value);
     return Array.isArray(parsed) && parsed.every((endpointId) => typeof endpointId === "string")
+      ? Array.from(new Set(parsed)).sort()
+      : null;
+  } catch {
+    return null;
+  }
+}
+
+function parseStoredStringPermissions(value: string) {
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) && parsed.every((id) => typeof id === "string")
       ? Array.from(new Set(parsed)).sort()
       : null;
   } catch {
@@ -180,8 +206,23 @@ export async function resolveOAuthBearerAuthorizationHeader(
   }
 
   const storedEndpointIds = parseStoredEndpointPermissions(storedToken.endpointPermissionsJson);
+  const storedResourceIds = parseStoredStringPermissions(storedToken.resourcePermissionsJson);
+  const storedResourceTemplateIds = parseStoredStringPermissions(storedToken.resourceTemplatePermissionsJson);
+  const storedPromptIds = parseStoredStringPermissions(storedToken.promptPermissionsJson);
   const claimEndpointIds = Array.from(new Set(claims.endpoint_permissions)).sort();
-  if (!storedEndpointIds || JSON.stringify(storedEndpointIds) !== JSON.stringify(claimEndpointIds)) {
+  const claimResourceIds = Array.from(new Set(claims.resource_permissions)).sort();
+  const claimResourceTemplateIds = Array.from(new Set(claims.resource_template_permissions)).sort();
+  const claimPromptIds = Array.from(new Set(claims.prompt_permissions)).sort();
+  if (
+    !storedEndpointIds ||
+    !storedResourceIds ||
+    !storedResourceTemplateIds ||
+    !storedPromptIds ||
+    JSON.stringify(storedEndpointIds) !== JSON.stringify(claimEndpointIds) ||
+    JSON.stringify(storedResourceIds) !== JSON.stringify(claimResourceIds) ||
+    JSON.stringify(storedResourceTemplateIds) !== JSON.stringify(claimResourceTemplateIds) ||
+    JSON.stringify(storedPromptIds) !== JSON.stringify(claimPromptIds)
+  ) {
     return { kind: "unauthorized", reason: "invalid_token" };
   }
 
@@ -194,6 +235,9 @@ export async function resolveOAuthBearerAuthorizationHeader(
       jti: claims.jti,
       resource: claims.resource,
       endpointIds: claimEndpointIds,
+      resourceIds: claimResourceIds,
+      resourceTemplateIds: claimResourceTemplateIds,
+      promptIds: claimPromptIds,
     },
   };
 }

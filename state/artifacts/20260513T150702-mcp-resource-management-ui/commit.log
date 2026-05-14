@@ -1,0 +1,23 @@
+[codex/mcp-resources-prompts-plans ffa212b] ralph: mcp-resource-management-ui 2026-05-13T15:17:52+09:00
+ 35 files changed, 1341 insertions(+), 88 deletions(-)
+ create mode 100644 app/api/resources/[id]/route.ts
+ create mode 100644 app/api/resources/route.ts
+ create mode 100644 app/resources/[id]/console/page.tsx
+ create mode 100644 app/resources/[id]/content/page.tsx
+ create mode 100644 app/resources/[id]/delete/page.tsx
+ create mode 100644 app/resources/[id]/edit/page.tsx
+ create mode 100644 app/resources/[id]/page.tsx
+ create mode 100644 app/resources/new/page.tsx
+ create mode 100644 app/resources/page.tsx
+ create mode 100644 app/resources/resource-manager.tsx
+ create mode 100644 app/resources/workflow-page.tsx
+ rename docs/exec-plans/{active => completed}/027-mcp-resource-prompt-domain-schema.md (94%)
+ create mode 100644 lib/mcp-fixtures/api.ts
+ create mode 100644 state/artifacts/20260513T145401-mcp-resource-prompt-domain-schema/backlog.log
+ create mode 100644 state/artifacts/20260513T145401-mcp-resource-prompt-domain-schema/promote.log
+ create mode 100644 state/artifacts/20260513T150702-mcp-resource-management-ui/commit.log
+ create mode 100644 state/artifacts/20260513T150702-mcp-resource-management-ui/evaluator.log
+ create mode 100644 state/artifacts/20260513T150702-mcp-resource-management-ui/task-prompt.log
+ create mode 100644 state/artifacts/20260513T150702-mcp-resource-management-ui/worker.jsonl
+ create mode 100644 tests/e2e/resources-ui.spec.ts
+commit: created

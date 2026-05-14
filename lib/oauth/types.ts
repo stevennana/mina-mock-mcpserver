@@ -111,6 +111,29 @@ export type OAuthClientEndpointOption = {
   enabled: boolean;
 };
 
+export type OAuthClientResourceOption = {
+  id: string;
+  uri: string;
+  name: string;
+  title: string;
+  enabled: boolean;
+};
+
+export type OAuthClientResourceTemplateOption = {
+  id: string;
+  uriTemplate: string;
+  name: string;
+  title: string;
+  enabled: boolean;
+};
+
+export type OAuthClientPromptOption = {
+  id: string;
+  name: string;
+  title: string;
+  enabled: boolean;
+};
+
 export type OAuthClientSummary = {
   id: string;
   clientId: string;
@@ -121,6 +144,12 @@ export type OAuthClientSummary = {
   clientCredentialsTtlSeconds: number;
   allowedEndpointIds: string[];
   allowedEndpoints: OAuthClientEndpointOption[];
+  allowedResourceIds: string[];
+  allowedResources: OAuthClientResourceOption[];
+  allowedResourceTemplateIds: string[];
+  allowedResourceTemplates: OAuthClientResourceTemplateOption[];
+  allowedPromptIds: string[];
+  allowedPrompts: OAuthClientPromptOption[];
   createdAt: string;
   updatedAt: string;
 };
@@ -131,6 +160,9 @@ export type OAuthClientListResult = {
   disabled: number;
   clients: OAuthClientSummary[];
   endpointOptions: OAuthClientEndpointOption[];
+  resourceOptions: OAuthClientResourceOption[];
+  resourceTemplateOptions: OAuthClientResourceTemplateOption[];
+  promptOptions: OAuthClientPromptOption[];
   ttlPresets: typeof OAUTH_CLIENT_CREDENTIALS_TTL_PRESETS;
 };
 
@@ -141,6 +173,9 @@ export type OAuthClientCreateInput = {
   redirectUris: string[];
   clientCredentialsTtlSeconds: number;
   allowedEndpointIds: string[];
+  allowedResourceIds?: string[];
+  allowedResourceTemplateIds?: string[];
+  allowedPromptIds?: string[];
 };
 
 export type OAuthClientUpdateInput = {
@@ -149,6 +184,9 @@ export type OAuthClientUpdateInput = {
   redirectUris?: string[];
   clientCredentialsTtlSeconds?: number;
   allowedEndpointIds?: string[];
+  allowedResourceIds?: string[];
+  allowedResourceTemplateIds?: string[];
+  allowedPromptIds?: string[];
 };
 
 export type OAuthClientSecretResult = {
@@ -206,6 +244,9 @@ export type OAuthAuthorizationCodeSummary = {
   codeChallenge: string | null;
   codeChallengeMethod: string | null;
   selectedEndpointIds: string[];
+  selectedResourceIds: string[];
+  selectedResourceTemplateIds: string[];
+  selectedPromptIds: string[];
   expiresAt: string;
   usedAt: string | null;
   createdAt: string;
@@ -248,6 +289,9 @@ export type OAuthAccessTokenClaims = {
   jti: string;
   scope: string;
   endpoint_permissions: string[];
+  resource_permissions: string[];
+  resource_template_permissions: string[];
+  prompt_permissions: string[];
 };
 
 export type OAuthTokenExchangeResult = {
@@ -260,6 +304,29 @@ export type OAuthTokenExchangeResult = {
 export type OAuthIssuedTokenStatus = "active" | "expired" | "revoked";
 
 export type OAuthIssuedTokenEndpointPermission = {
+  id: string;
+  name: string | null;
+  title: string | null;
+  enabled: boolean | null;
+};
+
+export type OAuthIssuedTokenResourcePermission = {
+  id: string;
+  uri: string | null;
+  name: string | null;
+  title: string | null;
+  enabled: boolean | null;
+};
+
+export type OAuthIssuedTokenResourceTemplatePermission = {
+  id: string;
+  uriTemplate: string | null;
+  name: string | null;
+  title: string | null;
+  enabled: boolean | null;
+};
+
+export type OAuthIssuedTokenPromptPermission = {
   id: string;
   name: string | null;
   title: string | null;
@@ -282,11 +349,17 @@ export type OAuthIssuedTokenSummary = {
   expiresAt: string;
   revokedAt: string | null;
   endpointPermissionCount: number;
+  resourcePermissionCount: number;
+  resourceTemplatePermissionCount: number;
+  promptPermissionCount: number;
 };
 
 export type OAuthIssuedTokenDetail = OAuthIssuedTokenSummary & {
   claims: OAuthAccessTokenClaims;
   endpoint_permissions: OAuthIssuedTokenEndpointPermission[];
+  resource_permissions: OAuthIssuedTokenResourcePermission[];
+  resource_template_permissions: OAuthIssuedTokenResourceTemplatePermission[];
+  prompt_permissions: OAuthIssuedTokenPromptPermission[];
 };
 
 export type OAuthIssuedTokenListFilters = {

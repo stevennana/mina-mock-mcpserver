@@ -26,7 +26,7 @@ export default async function Home() {
         description={
           <>
             Public remote MCP mock server for testing no-auth, Basic Auth, mock OAuth bearer tokens,
-            endpoint permissions, and tool-call failure modes. Use the <Link href="/config">connection guide</Link> for
+            tool/resource/prompt permissions, and tool-call failure modes. Use the <Link href="/config">connection guide</Link> for
             MCP, OAuth discovery metadata, and JWKS URLs.
           </>
         }

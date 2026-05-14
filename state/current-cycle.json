@@ -1,8 +1,8 @@
 {
-  "task_id": "docker-nginx-final-hardening",
-  "started_at": "2026-05-05T23:25:06+09:00",
-  "artifact_dir": "state/artifacts/20260505T232506-docker-nginx-final-hardening",
+  "task_id": "inspector-full-server-features",
+  "started_at": "2026-05-13T19:26:32+09:00",
+  "artifact_dir": "state/artifacts/20260513T192632-inspector-full-server-features",
   "phase": "finished",
   "status": "finished",
-  "updated_at": "2026-05-05T14:34:27.961Z"
+  "updated_at": "2026-05-13T10:34:22.946Z"
 }
