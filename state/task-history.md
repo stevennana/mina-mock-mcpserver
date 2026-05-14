@@ -44,3 +44,4 @@
 - 2026-05-14T07:30:19.999Z: promoted mcp-runtime-tools-prompts-json-rpc -> mcp-runtime-http-consumer-fixture
 - 2026-05-14T07:35:29.412Z: promoted mcp-runtime-http-consumer-fixture -> mock-server-runtime-adapter-migration
 - 2026-05-14T07:48:02.208Z: promoted mock-server-runtime-adapter-migration -> mcp-runtime-inspector-docs-hardening
+- 2026-05-14T08:04:57.197Z: promoted mcp-runtime-inspector-docs-hardening -> NONE

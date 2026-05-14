@@ -1,0 +1,19 @@
+Auto packing the repository in background for optimum performance.
+See "git help gc" for manual housekeeping.
+warning: The last gc run reported the following. Please correct the root cause
+and remove .git/gc.log
+Automatic cleanup will not be performed until the file is removed.
+
+warning: There are too many unreachable loose objects; run 'git prune' to remove them.
+
+[codex/mcp-runtime-library-docs 0c70cb3] ralph: mcp-runtime-inspector-docs-hardening 2026-05-14T17:04:57+09:00
+ 30 files changed, 625 insertions(+), 58 deletions(-)
+ create mode 100644 docs/MCP_RUNTIME_PACKAGE.md
+ rename docs/exec-plans/{active => completed}/041-mock-server-runtime-adapter-migration.md (95%)
+ create mode 100644 state/artifacts/20260514T163559-mock-server-runtime-adapter-migration/backlog.log
+ create mode 100644 state/artifacts/20260514T163559-mock-server-runtime-adapter-migration/promote.log
+ create mode 100644 state/artifacts/20260514T164832-mcp-runtime-inspector-docs-hardening/commit.log
+ create mode 100644 state/artifacts/20260514T164832-mcp-runtime-inspector-docs-hardening/evaluator.log
+ create mode 100644 state/artifacts/20260514T164832-mcp-runtime-inspector-docs-hardening/task-prompt.log
+ create mode 100644 state/artifacts/20260514T164832-mcp-runtime-inspector-docs-hardening/worker.jsonl
+commit: created

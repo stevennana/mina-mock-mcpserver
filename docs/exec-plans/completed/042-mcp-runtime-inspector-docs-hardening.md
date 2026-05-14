@@ -5,7 +5,7 @@
   "id": "mcp-runtime-inspector-docs-hardening",
   "title": "MCP Runtime Inspector Docs Hardening",
   "order": 42,
-  "status": "active",
+  "status": "completed",
   "next_task_on_success": null,
   "prompt_docs": [
     "AGENTS.md",
@@ -39,7 +39,8 @@
     "Inspector compatibility regresses for existing Tools, Resources, Prompts, or SSE checks.",
     "The final hardening task introduces new runtime behavior instead of proving the migration."
   ],
-  "promotion_mode": "deterministic_only"
+  "promotion_mode": "deterministic_only",
+  "completed_at": "2026-05-14T08:04:57.197Z"
 }
 ```
 
@@ -84,3 +85,7 @@ Complete documentation and integration proof for the reusable MCP runtime packag
 - 2026-05-14T07:48:02.208Z: restored as current task after mock-server-runtime-adapter-migration promotion.
 - 2026-05-14T07:49:46Z: added downstream-facing runtime package documentation, updated README/protocol/Inspector docs to describe Mock Server's package-backed runtime integration, and recorded npm publish/API-stability follow-up in the tech-debt tracker.
 - 2026-05-14T08:01:40Z: fixed Next dev resolution for the workspace-private runtime package, preserved prompt-name evidence for embedded-resource permission denials, aligned E2E unsupported-method expectations with package error data, and verified every required command passes.
+
+## Progress log
+
+- 2026-05-14T08:04:57.197Z: automatically promoted after deterministic checks and evaluator approval.

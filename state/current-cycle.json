@@ -2,7 +2,7 @@
   "task_id": "mcp-runtime-inspector-docs-hardening",
   "started_at": "2026-05-14T16:48:32+09:00",
   "artifact_dir": "state/artifacts/20260514T164832-mcp-runtime-inspector-docs-hardening",
-  "phase": "commit",
-  "status": "running",
-  "updated_at": "2026-05-14T08:04:57.018Z"
+  "phase": "finished",
+  "status": "finished",
+  "updated_at": "2026-05-14T08:04:57.295Z"
 }
