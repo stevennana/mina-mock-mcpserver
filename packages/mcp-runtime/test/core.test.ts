@@ -426,7 +426,7 @@ test("provider thrown errors are sanitized as internal JSON-RPC errors", async (
     {
       id: "resources-read-throws",
       method: "resources/read",
-      params: { uri: "minakeep://articles/note/private" },
+      params: { uri: "content://articles/note/private" },
     },
     {
       id: "tools-call-throws",

@@ -34,7 +34,7 @@ npm pack
 
 Then install the generated `.tgz` in a separate TypeScript project.
 
-## Minakeep-Style Resources-Only Route
+## Resources-Only Route
 
 ```ts
 // app/api/mcp/route.ts
@@ -59,7 +59,7 @@ async function verifyBearerToken(request: Request): Promise<{ userId: string } |
 function createProvider(): McpRuntimeProvider {
   return {
     serverInfo: {
-      name: "minakeep-content",
+      name: "published-content",
       version: "0.1.0",
     },
     resources: {
@@ -69,7 +69,7 @@ function createProvider(): McpRuntimeProvider {
         return {
           items: [
             {
-              uri: "minakeep://articles/note/welcome",
+              uri: "content://articles/note/welcome",
               name: "welcome",
               title: "Welcome note",
               mimeType: "text/markdown",
@@ -82,7 +82,7 @@ function createProvider(): McpRuntimeProvider {
         const user = context.principal as { userId: string } | null;
         if (!user) return { kind: "forbidden", message: "Authentication required." };
 
-        const prefix = "minakeep://articles/note/";
+        const prefix = "content://articles/note/";
         if (!uri.startsWith(prefix)) {
           return { kind: "not_found", message: "Unknown article note." };
         }
@@ -94,7 +94,7 @@ function createProvider(): McpRuntimeProvider {
             {
               uri,
               mimeType: "text/markdown",
-              text: `# ${slug}\n\nPublished Minakeep content.`,
+              text: `# ${slug}\n\nPublished content from the host app.`,
             },
           ],
         };
@@ -104,7 +104,7 @@ function createProvider(): McpRuntimeProvider {
           return {
             items: [
               {
-                uriTemplate: "minakeep://articles/note/{slug}",
+                uriTemplate: "content://articles/note/{slug}",
                 name: "article-note-by-slug",
                 title: "Article note by slug",
                 mimeType: "text/markdown",
@@ -152,7 +152,7 @@ const provider: McpRuntimeProvider = {
       return {
         items: [
           {
-            uri: "minakeep://articles/note/welcome",
+            uri: "content://articles/note/welcome",
             name: "welcome",
             title: "Welcome note",
             mimeType: "text/markdown",
@@ -161,7 +161,7 @@ const provider: McpRuntimeProvider = {
       };
     },
     async read({ uri }) {
-      if (!uri.startsWith("minakeep://articles/note/")) {
+      if (!uri.startsWith("content://articles/note/")) {
         return { kind: "not_found", message: "Unknown resource" };
       }
 
@@ -171,7 +171,7 @@ const provider: McpRuntimeProvider = {
           {
             uri,
             mimeType: "text/markdown",
-            text: "# Published Minakeep content",
+            text: "# Published content",
           },
         ],
       };

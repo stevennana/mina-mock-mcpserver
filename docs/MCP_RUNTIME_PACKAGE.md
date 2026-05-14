@@ -50,9 +50,9 @@ npm pack
 
 Then install the generated `.tgz` in the downstream app.
 
-## Minakeep-Style Resource Provider
+## Published Content Resource Provider
 
-A content app such as Minakeep can expose published content as MCP resources by adapting its own records to `McpRuntimeProvider`.
+A content app can expose published content as MCP resources by adapting its own records to `McpRuntimeProvider`.
 
 ```ts
 import type { McpRuntimeProvider } from "@minasoft/mcp-runtime";
@@ -84,7 +84,7 @@ async function readPublishedContent(slug: string, userId: string | undefined): P
 export function createPublishedContentProvider(): McpRuntimeProvider {
   return {
     serverInfo: {
-      name: "minakeep-content",
+      name: "published-content",
       version: "0.1.0",
     },
     resources: {
@@ -94,7 +94,7 @@ export function createPublishedContentProvider(): McpRuntimeProvider {
 
         return {
           items: items.map((item) => ({
-            uri: `minakeep://articles/note/${item.slug}`,
+            uri: `content://articles/note/${item.slug}`,
             name: item.slug,
             title: item.title,
             mimeType: "text/markdown",
@@ -105,7 +105,7 @@ export function createPublishedContentProvider(): McpRuntimeProvider {
         };
       },
       async read({ uri, context }) {
-        const prefix = "minakeep://articles/note/";
+        const prefix = "content://articles/note/";
         if (!uri.startsWith(prefix)) {
           return { kind: "not_found", message: "Unknown resource URI." };
         }
@@ -218,7 +218,7 @@ npx -y @modelcontextprotocol/inspector@0.21.2 \
   --cli http://127.0.0.1:3000/api/mcp \
   --transport http \
   --method resources/read \
-  --uri minakeep://articles/note/welcome
+  --uri content://articles/note/welcome
 ```
 
 Add `--header "Authorization: Bearer ..."` or another auth header when the host route requires it.

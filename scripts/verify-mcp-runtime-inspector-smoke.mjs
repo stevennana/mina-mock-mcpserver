@@ -67,7 +67,7 @@ const provider = {
       return {
         items: [
           {
-            uri: "minakeep://articles/note/welcome",
+            uri: "content://articles/note/welcome",
             name: "welcome",
             title: "Welcome note",
             mimeType: "text/markdown",
@@ -76,7 +76,7 @@ const provider = {
       };
     },
     async read({ uri }) {
-      if (uri !== "minakeep://articles/note/welcome") {
+      if (uri !== "content://articles/note/welcome") {
         return { kind: "not_found", message: "Resource not found." };
       }
 
@@ -96,7 +96,7 @@ const provider = {
         return {
           items: [
             {
-              uriTemplate: "minakeep://articles/note/{slug}",
+              uriTemplate: "content://articles/note/{slug}",
               name: "article-note-by-slug",
               title: "Article note by slug",
               mimeType: "text/markdown",
@@ -161,15 +161,15 @@ async function runInspector(method, extraArgs = []) {
 try {
   const listed = await runInspector("resources/list");
   const templates = await runInspector("resources/templates/list");
-  const read = await runInspector("resources/read", ["--uri", "minakeep://articles/note/welcome"]);
+  const read = await runInspector("resources/read", ["--uri", "content://articles/note/welcome"]);
 
-  if (!listed.resources?.some((resource) => resource.uri === "minakeep://articles/note/welcome")) {
+  if (!listed.resources?.some((resource) => resource.uri === "content://articles/note/welcome")) {
     throw new Error("resources/list did not return the expected smoke resource.");
   }
-  if (!templates.resourceTemplates?.some((template) => template.uriTemplate === "minakeep://articles/note/{slug}")) {
+  if (!templates.resourceTemplates?.some((template) => template.uriTemplate === "content://articles/note/{slug}")) {
     throw new Error("resources/templates/list did not return the expected smoke template.");
   }
-  if (!read.contents?.some((content) => content.uri === "minakeep://articles/note/welcome")) {
+  if (!read.contents?.some((content) => content.uri === "content://articles/note/welcome")) {
     throw new Error("resources/read did not return the expected smoke content.");
   }
 

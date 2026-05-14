@@ -7,7 +7,7 @@ The package is a protocol runtime boundary, not a Mock Server feature bundle.
 
 ## Users
 - TypeScript and Next.js developers adding MCP server capability to an existing app
-- downstream apps such as Minakeep that want to expose published content as MCP resources
+- downstream apps that want to expose published content as MCP resources
 - MCP Mock Server maintainers who need one reusable protocol implementation
 
 ## User-Visible Behavior
