@@ -7,6 +7,9 @@ MCP Mock Server is a public remote MCP mock server and web UI for testing no-aut
 ### Primary user
 MCP client developers, AI agent developers, demo/QA users, and the server operator.
 
+### Secondary user
+TypeScript and Next.js application developers who want to expose their own content through MCP without copying mina-mock-mcpserver protocol code.
+
 ## User Problem
 MCP client and AI-agent developers need a configurable remote server that behaves enough like a real MCP server to prove connection, auth, token, permission, and tool-call behavior before integrating with production systems.
 
@@ -35,6 +38,7 @@ Remote MCP adoption is moving auth, transport, and permission bugs into client i
 - simulate failure cases that clients often mishandle, including bounded artificial delays, forced REST/MCP errors, and endpoint-scoped malformed responses
 - persist configuration and provide root-password-protected reset/recovery for a public test service
 - expose health, public config, deterministic base URL behavior, connection examples, and operator-visible logs for runtime handoff
+- provide a reusable MCP runtime package boundary so other npm projects can implement resources, optional tools, and optional prompts with their own storage/auth model
 
 ## Non-Goals for v1
 - production-grade identity management
@@ -61,5 +65,6 @@ Remote MCP adoption is moving auth, transport, and permission bugs into client i
 - public UI can be abused or reset if root/delete-code handling is weak
 - OAuth semantics can drift into unrealistic behavior unless routes and E2E checks pin 401/403/token claims
 - MCP spec details may change, so the implementation must isolate protocol formatting
+- reusable runtime extraction can become a false boundary if MCP Mock Server does not consume the package itself
 - failure simulation can intentionally violate protocol behavior and needs visible warnings plus raw console evidence
 - persistent SQLite state can make tests flaky unless seeded and isolated deterministically

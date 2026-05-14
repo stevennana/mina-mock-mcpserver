@@ -14,6 +14,7 @@ MCP Mock Server is a web application with:
 
 ## Architectural Priorities
 - isolate MCP protocol formatting from endpoint matching and auth decisions
+- make the reusable MCP JSON-RPC runtime package the only protocol implementation used by this app and by downstream npm consumers
 - keep auth mode resolution explicit and fail closed for invalid Basic/Bearer headers
 - store immutable endpoint IDs and treat names as external labels
 - make seeded built-in users/clients impossible to delete or disable through normal flows
@@ -34,12 +35,23 @@ The repository is intended to work well with long-running agent loops. Strict bo
 | Resource catalog | Direct resource CRUD, resource templates, URI validation, content storage, annotations, and completion candidates |
 | Prompt catalog | Prompt CRUD, argument definitions, prompt messages, embedded resource references, and completion candidates |
 | Matcher/runtime | Argument normalization, exact match, default/no-match, delay/error/malformed behavior |
-| MCP protocol | JSON-RPC request handling, initialize, tools/list, tools/call, resources/list/read/templates/subscribe, prompts/list/get, completion/complete, MCP errors |
+| MCP runtime package | Framework-light JSON-RPC request handling, initialize, tools/list, tools/call, resources/list/read/templates, prompts/list/get, completion/complete, MCP errors, and provider interfaces for npm consumers |
 | REST API | Tool list/call responses and REST error mapping |
 | Basic auth | Basic users, password hashing, built-in default protection, 401 behavior |
 | OAuth | Users, clients, codes, JWTs, tool/resource/resource-template/prompt permissions, revocation, discovery metadata |
 | Admin UI | Dashboards, editors, console, config, reset, audit screens |
 | Operations | SQLite prep, seed defaults, base URL, Docker/Nginx docs, logs, health |
+
+## Reusable Runtime Boundary
+The MCP JSON-RPC runtime is planned as `@minasoft/mcp-runtime`, documented in `docs/design-docs/mcp-runtime-library-architecture.md`.
+
+The package boundary is intentionally narrower than the Mock Server product:
+- it owns MCP DTOs, JSON-RPC envelope handling, provider-driven method dispatch, protocol-version negotiation, pagination shapes, and standard MCP errors
+- it does not own endpoint catalogs, OAuth screens, Prisma persistence, audit logs, admin UI, failure-simulation authoring, or standalone Inspector screens
+- MCP Mock Server must consume the package for its own protocol handling so the package is proven by the production app before downstream reuse
+- app-owned adapters translate endpoint, resource, prompt, auth, and permission decisions into package provider results
+
+This keeps the Mock Server useful as a product while allowing other npm projects, such as Minakeep, to expose their own content as MCP resources without copying protocol code.
 
 ## Frontend / Backend Shape
 ### Frontend
