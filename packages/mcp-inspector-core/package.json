@@ -4,6 +4,15 @@
   "description": "Framework-light MCP inspector client core for Streamable HTTP and legacy SSE targets.",
   "license": "Apache-2.0",
   "type": "module",
+  "homepage": "https://github.com/stevennana/mina-mock-mcpserver#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stevennana/mina-mock-mcpserver.git",
+    "directory": "packages/mcp-inspector-core"
+  },
+  "bugs": {
+    "url": "https://github.com/stevennana/mina-mock-mcpserver/issues"
+  },
   "engines": {
     "node": ">=20.11"
   },

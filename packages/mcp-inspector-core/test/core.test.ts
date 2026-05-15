@@ -64,6 +64,14 @@ describe("mcp inspector core", () => {
     assert.equal(buildMcpRequest({ family: "prompts", action: "get", name: "reply", args: { tone: "brief" } }).method, "prompts/get");
     assert.equal(buildMcpRequest({ family: "completion", action: "prompt", name: "reply", argument: { name: "tone" } }).method, "completion/complete");
     assert.equal(buildMcpRequest({ family: "raw", action: "raw", method: "resources/list" }).method, "resources/list");
+    assert.throws(
+      () => buildMcpRequest({ family: "completion", action: "prompt", argument: { name: "tone" } }),
+      /requires --name/,
+    );
+    assert.throws(
+      () => buildMcpRequest({ family: "completion", action: "resource", argument: { name: "customerId" } }),
+      /requires --uri/,
+    );
   });
 
   it("parses key-value args and redacts sensitive headers", () => {

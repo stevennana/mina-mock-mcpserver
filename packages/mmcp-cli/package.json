@@ -4,6 +4,15 @@
   "description": "Command line MCP inspector for tools, resources, prompts, completion, and raw JSON-RPC calls.",
   "license": "Apache-2.0",
   "type": "module",
+  "homepage": "https://github.com/stevennana/mina-mock-mcpserver#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stevennana/mina-mock-mcpserver.git",
+    "directory": "packages/mmcp-cli"
+  },
+  "bugs": {
+    "url": "https://github.com/stevennana/mina-mock-mcpserver/issues"
+  },
   "engines": {
     "node": ">=20.11"
   },

@@ -136,9 +136,15 @@ export function buildMcpRequest(options: BuildMcpRequestOptions): JsonRpcPayload
 
   if (options.family === "completion" && (options.action === "prompt" || options.action === "resource")) {
     if (!options.argument?.name) throw new Error("completion requires --argument name=value.");
+    if (options.action === "prompt" && !options.name) {
+      throw new Error("completion prompt requires --name.");
+    }
+    if (options.action === "resource" && !options.uri) {
+      throw new Error("completion resource requires --uri.");
+    }
     const ref: JsonObject = options.action === "prompt"
-      ? { type: "ref/prompt", name: options.name ?? "" }
-      : { type: "ref/resource", uri: options.uri ?? "" };
+      ? { type: "ref/prompt", name: options.name as string }
+      : { type: "ref/resource", uri: options.uri as string };
     return {
       jsonrpc: "2.0",
       id,
@@ -388,7 +394,8 @@ async function createSseSender(
     while (Date.now() < deadline) {
       const event = takeEventFromBuffer();
       if (event && (!expectedEvent || event.event === expectedEvent)) return event;
-      const chunk = await reader.read();
+      const remainingMs = Math.max(1, deadline - Date.now());
+      const chunk = await readWithTimeout(reader, remainingMs);
       if (chunk.done) break;
       buffer += decoder.decode(chunk.value, { stream: true });
     }
@@ -450,4 +457,21 @@ async function createSseSender(
       }
     },
   };
+}
+
+async function readWithTimeout(
+  reader: ReadableStreamDefaultReader<Uint8Array>,
+  timeoutMs: number,
+): Promise<ReadableStreamReadResult<Uint8Array>> {
+  let timeout: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      reader.read(),
+      new Promise<ReadableStreamReadResult<Uint8Array>>((_, reject) => {
+        timeout = setTimeout(() => reject(new Error("SSE read timeout.")), timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timeout) clearTimeout(timeout);
+  }
 }

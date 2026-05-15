@@ -1055,7 +1055,17 @@ function appendGenericResult(steps, diagnostics, result, options = {}) {
     ? result.steps.filter((step) => !step.name.startsWith("MCP tools/list"))
     : result.steps;
   steps.push(...nextSteps);
-  diagnostics.push(...result.diagnostics);
+  appendDiagnostics(diagnostics, result.diagnostics);
+}
+
+function appendDiagnostics(diagnostics, nextDiagnostics) {
+  const seen = new Set(diagnostics.map(([check, value]) => `${check}\u0000${String(value)}`));
+  for (const [check, value] of nextDiagnostics) {
+    const key = `${check}\u0000${String(value)}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    diagnostics.push([check, value]);
+  }
 }
 
 async function issueMockOAuthToken(input) {

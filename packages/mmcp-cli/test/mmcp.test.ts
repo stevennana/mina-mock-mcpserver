@@ -77,6 +77,12 @@ describe("mmcp cli", () => {
     assert.notEqual(result.code, 0);
     assert.match(result.stderr, /JSON/);
   });
+
+  it("returns non-zero for invalid transport", async () => {
+    const result = await runMmcp(["tools", "list", baseUrl, "--transport", "see"]);
+    assert.notEqual(result.code, 0);
+    assert.match(result.stderr, /--transport must be either http or sse/);
+  });
 });
 
 function runMmcp(args: string[]): Promise<{ code: number | null; stdout: string; stderr: string }> {

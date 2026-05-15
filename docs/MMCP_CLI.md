@@ -44,6 +44,11 @@ mmcp completion prompt http://127.0.0.1:3100/mcp/none --name support_reply --arg
 mmcp raw http://127.0.0.1:3100/mcp/none --method resources/list --params '{}'
 ```
 
+The same commands work against any compatible MCP endpoint, not only Mina Mock
+Server. Mina Mock Server is used in examples because it provides deterministic
+seeded tools, resources, prompts, Basic Auth, OAuth Bearer routes, and legacy
+SSE routes.
+
 ## Shared Options
 
 ```bash
@@ -113,4 +118,12 @@ other MCP-compatible services.
 npm run mcp-inspector-core:test
 npm run mmcp:test
 npm run mmcp:smoke
+```
+
+Before publishing package updates:
+
+```bash
+npm run mcp-inspector-core:build
+npm run mmcp:build
+npm run mmcp:pack
 ```

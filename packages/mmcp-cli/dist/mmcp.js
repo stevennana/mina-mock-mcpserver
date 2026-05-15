@@ -177,12 +177,20 @@ function buildInspectOptions(options) {
         basic: typeof options.basic === "string" ? options.basic : undefined,
         bearer: typeof options.bearer === "string" ? options.bearer : undefined,
     });
+    const transport = parseTransport(options.transport);
     return {
-        transport: options.transport === "sse" ? "sse" : "http",
+        transport,
         headers,
         protocolVersion: typeof options.protocolVersion === "string" ? options.protocolVersion : undefined,
         insecureTls: Boolean(options.insecureTls),
     };
+}
+function parseTransport(value) {
+    if (value === undefined)
+        return "http";
+    if (value === "http" || value === "sse")
+        return value;
+    throw new Error("--transport must be either http or sse.");
 }
 function mergeArgs(options) {
     const fromJson = parseJsonObject(typeof options.jsonArgs === "string" ? options.jsonArgs : undefined, "json-args");
