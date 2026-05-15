@@ -17,7 +17,7 @@
     "node": ">=20.11"
   },
   "bin": {
-    "mmcp": "./dist/bin/mmcp.js"
+    "mmcp": "dist/bin/mmcp.js"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
