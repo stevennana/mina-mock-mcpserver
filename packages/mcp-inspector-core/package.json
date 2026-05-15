@@ -1,10 +1,10 @@
 {
   "name": "@minasoft/mcp-inspector-core",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Framework-light MCP inspector client core for Streamable HTTP and legacy SSE targets.",
   "license": "Apache-2.0",
   "type": "module",
-  "homepage": "https://github.com/stevennana/mina-mock-mcpserver#readme",
+  "homepage": "https://github.com/stevennana/mina-mock-mcpserver/tree/main/packages/mcp-inspector-core#readme",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/stevennana/mina-mock-mcpserver.git",
