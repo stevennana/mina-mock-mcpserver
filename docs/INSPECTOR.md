@@ -21,6 +21,7 @@ This repository provides two local inspector paths:
 
 - a standalone Inspector UI that can inspect any MCP Streamable HTTP endpoint, even when the target is not this Mock Server
 - a Mock Server scenario runner, available from both the standalone UI and the project-specific CLI, for full mock-server smoke coverage across HTTP admin APIs, REST, MCP, Basic Auth, OAuth, tokens, audit, and reset guards
+- a standalone `mmcp` command line inspector for tools/resources/prompts/completion/raw calls, powered by the same framework-light generic inspection core used by the standalone UI
 
 The Mock Server admin UI also includes `/inspector`, a focused verification hub that collects the standalone UI command, local inspector commands, upstream Inspector targets, Basic/OAuth setup steps, and protocol diagnostics guidance in one place.
 The hub also renders an authorization-code guide from the current base URL and configured OAuth clients: authorization URL, token-exchange curl, Bearer MCP curl, issuer/token endpoint diagnostics, selected client, redirect callback origin, and allowed endpoint count.
@@ -140,6 +141,29 @@ Run the project-specific inspector when you want the same Mock Server scenario c
 ```bash
 npm run inspector:mock
 ```
+
+## `mmcp` Generic CLI
+
+Use `mmcp` when you want a terminal-first inspector for a single MCP endpoint:
+
+```bash
+npm run mcp-inspector-core:build
+npm run mmcp:build
+node packages/mmcp-cli/dist/bin/mmcp.js tools list http://127.0.0.1:3100/mcp/none
+node packages/mmcp-cli/dist/bin/mmcp.js resources read http://127.0.0.1:3100/mcp/none --uri mock://resources/server-status
+node packages/mmcp-cli/dist/bin/mmcp.js prompts get http://127.0.0.1:3100/mcp/none --name support_reply --arg tone=friendly
+```
+
+The CLI supports:
+
+- `tools list`, `tools call`
+- `resources list`, `resources read`, `resources templates`
+- `prompts list`, `prompts get`
+- `completion prompt`, `completion resource`
+- `raw --method <mcp/method>`
+- `--transport http|sse`, `--basic`, `--bearer`, repeated `--header`, `--format json`, and `--verbose`
+
+See [`docs/MMCP_CLI.md`](MMCP_CLI.md) for the full command map and Homebrew distribution notes.
 
 It connects to `http://127.0.0.1:3100` by default and verifies:
 

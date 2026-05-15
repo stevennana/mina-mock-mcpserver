@@ -1,0 +1,36 @@
+{
+  "name": "@minasoft/mmcp-cli",
+  "version": "0.1.0",
+  "description": "Command line MCP inspector for tools, resources, prompts, completion, and raw JSON-RPC calls.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "engines": {
+    "node": ">=20.11"
+  },
+  "bin": {
+    "mmcp": "./dist/bin/mmcp.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@minasoft/mcp-inspector-core": "^0.1.0"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && node --import tsx --test --test-concurrency=1 \"test/**/*.test.ts\""
+  },
+  "sideEffects": false
+}

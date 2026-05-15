@@ -1,0 +1,31 @@
+{
+  "name": "@minasoft/mcp-inspector-core",
+  "version": "0.1.0",
+  "description": "Framework-light MCP inspector client core for Streamable HTTP and legacy SSE targets.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "engines": {
+    "node": ">=20.11"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "npm run build && node --import tsx --test --test-concurrency=1 \"test/**/*.test.ts\""
+  },
+  "sideEffects": false
+}

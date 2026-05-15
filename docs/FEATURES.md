@@ -8,6 +8,7 @@ Use this with:
 - [Getting started](GETTING_STARTED.md) for step-by-step local use
 - [Transports](TRANSPORTS.md) for MCP, SSE, REST, and OAuth call examples
 - [Inspector integration](INSPECTOR.md) for project and upstream Inspector workflows
+- [`mmcp` CLI](MMCP_CLI.md) for terminal-first MCP inspection
 
 ## Product Purpose
 
@@ -120,6 +121,7 @@ MCP Mock Server provides three verification paths:
 
 - **Standalone project Inspector UI**: `npm run inspector:ui`, then open `http://127.0.0.1:3200` for Mock Server scenario, Generic method presets, and OAuth popup verification.
 - **Project CLI smoke Inspector**: `npm run inspector:mock`.
+- **Generic `mmcp` CLI Inspector**: `node packages/mmcp-cli/dist/bin/mmcp.js tools list http://127.0.0.1:3100/mcp/none`, with tools/resources/prompts/completion/raw support for HTTP and legacy SSE.
 - **Upstream MCP Inspector**: `npx @modelcontextprotocol/inspector` for browser and CLI tools/resources/prompts checks. Upstream CLI `0.21.2` does not expose `completion/complete`; use the upstream browser UI or project Generic target for completion.
 
 The standalone project Inspector is the easiest way to prove the full Mock Server product flow. The upstream Inspector is best for standard MCP protocol debugging and compatibility checks.

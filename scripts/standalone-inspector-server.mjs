@@ -7,6 +7,10 @@ import { performance } from "node:perf_hooks";
 import { URL, URLSearchParams } from "node:url";
 import { TextDecoder } from "node:util";
 import { fetchWithTls } from "./lib/fetch-with-tls.mjs";
+import {
+  buildMcpRequest as buildGenericMcpRequest,
+  inspectMcpTarget as inspectGenericMcpTarget,
+} from "../packages/mcp-inspector-core/dist/index.js";
 
 const DEFAULT_HOST = process.env.INSPECTOR_UI_HOST ?? "127.0.0.1";
 const DEFAULT_PORT = Number(process.env.INSPECTOR_UI_PORT ?? "3200");
@@ -177,14 +181,6 @@ function parseJsonObject(value, label) {
   return parsed;
 }
 
-function redactHeaders(headers) {
-  const redacted = {};
-  for (const [key, value] of Object.entries(headers)) {
-    redacted[key] = /authorization|token|secret|cookie/i.test(key) ? "<redacted>" : value;
-  }
-  return redacted;
-}
-
 function normalizeBaseUrl(value) {
   const baseUrl = String(value ?? "").trim() || DEFAULT_MOCK_BASE_URL;
   const url = new URL(baseUrl);
@@ -208,29 +204,6 @@ function resolveMcpTargetUrl(input) {
   const baseUrl = normalizeBaseUrl(input.baseUrl);
   const endpointPath = normalizeEndpointPath(input.endpointPath);
   return new URL(endpointPath, `${baseUrl}/`).toString();
-}
-
-async function fetchJson(url, payload, headers, options = {}) {
-  const startedAt = performance.now();
-  const response = await fetchWithTls(url, {
-    method: "POST",
-    headers,
-    body: JSON.stringify(payload),
-  }, { insecureTls: options.insecureTls });
-  const elapsedMs = Math.round(performance.now() - startedAt);
-  const contentType = response.headers.get("content-type") ?? "";
-  const text = await response.text();
-  let body = text;
-  if (contentType.includes("application/json") && text) {
-    body = JSON.parse(text);
-  }
-  return {
-    status: response.status,
-    ok: response.ok,
-    elapsedMs,
-    headers: Object.fromEntries(response.headers.entries()),
-    body,
-  };
 }
 
 function makeStep(name, status, data) {
@@ -976,71 +949,64 @@ async function inspectMcpTarget(input) {
   const protocolVersion = String(input.protocolVersion || DEFAULT_PROTOCOL_VERSION);
   const insecureTls = input.insecureTls === true || input.insecureTls === "on";
   const userHeaders = parseHeadersJson(input.headersJson);
-  const baseHeaders = {
-    "content-type": "application/json",
-    accept: "application/json, text/event-stream",
-    ...userHeaders,
-  };
-  const protocolHeaders = {
-    ...baseHeaders,
-    "MCP-Protocol-Version": protocolVersion,
-  };
+  const methodPreset = String(input.methodPreset || "tools");
   const steps = [];
   const diagnostics = [];
-  diagnostics.push(["tls verification", insecureTls ? "self-signed allowed" : "default"]);
 
-  const initializePayload = {
-    jsonrpc: "2.0",
-    id: "inspector-initialize",
-    method: "initialize",
-    params: {
-      protocolVersion,
-      capabilities: {},
-      clientInfo: { name: "standalone-local-inspector", version: "1.0.0" },
-    },
-  };
-  const initialize = await fetchJson(targetUrl, initializePayload, baseHeaders, { insecureTls });
-  steps.push(makeStep("MCP initialize", initialize.ok ? "pass" : "fail", {
-    request: { url: targetUrl, headers: redactHeaders(baseHeaders), body: initializePayload },
-    response: initialize,
-  }));
-  diagnostics.push(["initialize status", initialize.status]);
-  const negotiated = initialize.body?.result?.protocolVersion ?? initialize.headers["mcp-protocol-version"] ?? "not reported";
-  diagnostics.push(["negotiated protocol", negotiated]);
-
-  const methodPreset = String(input.methodPreset || "tools");
   if (methodPreset === "tools") {
-    const listPayload = { jsonrpc: "2.0", id: "inspector-tools-list", method: "tools/list" };
-    const list = await fetchJson(targetUrl, listPayload, protocolHeaders, { insecureTls });
-    const tools = Array.isArray(list.body?.result?.tools) ? list.body.result.tools : [];
-    steps.push(makeStep("MCP tools/list", list.ok && Array.isArray(tools) ? "pass" : "fail", {
-      request: { url: targetUrl, headers: redactHeaders(protocolHeaders), body: listPayload },
-      response: list,
-      evidence: `${tools.length} tools returned`,
-    }));
+    const list = await inspectGenericMcpTarget({
+      url: targetUrl,
+      method: "tools/list",
+      headers: userHeaders,
+      protocolVersion,
+      insecureTls,
+      includeProtocolProbe: false,
+      clientInfo: { name: "standalone-local-inspector", version: "1.0.0" },
+    });
+    appendGenericResult(steps, diagnostics, list);
+    const tools = Array.isArray(list.raw?.body?.result?.tools) ? list.raw.body.result.tools : [];
+    const listStep = steps.find((step) => step.name === "MCP tools/list");
+    if (listStep) listStep.evidence = `${tools.length} tools returned`;
     diagnostics.push(["tools returned", tools.length]);
-    diagnostics.push(["response protocol header", list.headers["mcp-protocol-version"] ?? "not reported"]);
 
     const toolName = String(input.toolName ?? "").trim();
     if (toolName) {
       const args = parseToolArgs(input.toolArgsJson);
-      const callPayload = {
-        jsonrpc: "2.0",
+      const callPayload = buildGenericMcpRequest({
+        family: "tools",
+        action: "call",
         id: "inspector-tools-call",
-        method: "tools/call",
-        params: { name: toolName, arguments: args },
-      };
-      const call = await fetchJson(targetUrl, callPayload, protocolHeaders, { insecureTls });
-      const hasResultOrJsonRpcError = Boolean(call.body?.result || call.body?.error);
-      steps.push(makeStep("MCP tools/call", call.ok && hasResultOrJsonRpcError ? "pass" : "fail", {
-        request: { url: targetUrl, headers: redactHeaders(protocolHeaders), body: callPayload },
-        response: call,
-      }));
+        name: toolName,
+        args,
+      });
+      const call = await inspectGenericMcpTarget({
+        url: targetUrl,
+        method: callPayload.method,
+        params: callPayload.params,
+        headers: userHeaders,
+        protocolVersion,
+        insecureTls,
+        initialize: false,
+        includeProtocolProbe: true,
+        clientInfo: { name: "standalone-local-inspector", version: "1.0.0" },
+      });
+      appendGenericResult(steps, diagnostics, call);
       diagnostics.push(["called tool", toolName]);
     } else {
       steps.push(makeStep("MCP tools/call", "skip", {
         evidence: "No tool name was provided.",
       }));
+      const probe = await inspectGenericMcpTarget({
+        url: targetUrl,
+        method: "tools/list",
+        headers: userHeaders,
+        protocolVersion,
+        insecureTls,
+        initialize: false,
+        includeProtocolProbe: true,
+        clientInfo: { name: "standalone-local-inspector", version: "1.0.0" },
+      });
+      appendGenericResult(steps, diagnostics, probe, { skipFirstMethodStep: true });
     }
   } else {
     const params = parseJsonObject(input.methodParamsJson, "Method params JSON");
@@ -1055,45 +1021,19 @@ async function inspectMcpTarget(input) {
     };
     const method = methodByPreset[methodPreset];
     if (!method) throw new Error(`Unknown MCP method preset: ${methodPreset}`);
-    const payload = {
-      jsonrpc: "2.0",
-      id: `inspector-${method.replaceAll("/", "-")}`,
-      method,
-      ...(Object.keys(params).length ? { params } : {}),
-    };
-    const result = await fetchJson(targetUrl, payload, protocolHeaders, { insecureTls });
-    const hasResultOrJsonRpcError = Boolean(result.body?.result || result.body?.error);
-    steps.push(makeStep(`MCP ${method}`, result.ok && hasResultOrJsonRpcError ? "pass" : "fail", {
-      request: { url: targetUrl, headers: redactHeaders(protocolHeaders), body: payload },
-      response: result,
-    }));
-    diagnostics.push(["method preset", method]);
-    diagnostics.push(["response protocol header", result.headers["mcp-protocol-version"] ?? "not reported"]);
-  }
-
-  const badVersionPayload = { jsonrpc: "2.0", id: "inspector-bad-version", method: "tools/list" };
-  const badVersion = await fetchJson(
-    targetUrl,
-    badVersionPayload,
-    {
-      ...baseHeaders,
-      "MCP-Protocol-Version": "1900-01-01",
-    },
-    { insecureTls },
-  );
-  const badVersionStatus = badVersion.status >= 400 ? "pass" : "warn";
-  steps.push(makeStep("Unsupported protocol-version probe", badVersionStatus, {
-    request: {
+    const result = await inspectGenericMcpTarget({
       url: targetUrl,
-      headers: redactHeaders({ ...baseHeaders, "MCP-Protocol-Version": "1900-01-01" }),
-      body: badVersionPayload,
-    },
-    response: badVersion,
-    evidence: badVersionStatus === "pass"
-      ? "Target rejects an intentionally unsupported protocol version."
-      : "Target accepted the unsupported probe; this may be allowed by that server, but strict mock targets should reject it.",
-  }));
-  diagnostics.push(["bad version probe", badVersion.status]);
+      method,
+      params,
+      headers: userHeaders,
+      protocolVersion,
+      insecureTls,
+      includeProtocolProbe: true,
+      clientInfo: { name: "standalone-local-inspector", version: "1.0.0" },
+    });
+    appendGenericResult(steps, diagnostics, result);
+    diagnostics.push(["method preset", method]);
+  }
 
   const failed = steps.filter((step) => step.status === "fail").length;
   return {
@@ -1108,6 +1048,14 @@ async function inspectMcpTarget(input) {
       fail: failed,
     },
   };
+}
+
+function appendGenericResult(steps, diagnostics, result, options = {}) {
+  const nextSteps = options.skipFirstMethodStep
+    ? result.steps.filter((step) => !step.name.startsWith("MCP tools/list"))
+    : result.steps;
+  steps.push(...nextSteps);
+  diagnostics.push(...result.diagnostics);
 }
 
 async function issueMockOAuthToken(input) {

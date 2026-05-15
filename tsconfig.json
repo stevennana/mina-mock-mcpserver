@@ -21,6 +21,7 @@
     ],
     "paths": {
       "@minasoft/mcp-runtime": ["./packages/mcp-runtime/src/index.ts"],
+      "@minasoft/mcp-inspector-core": ["./packages/mcp-inspector-core/src/index.ts"],
       "@/*": ["./*"]
     }
   },

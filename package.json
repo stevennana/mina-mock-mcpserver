@@ -3,6 +3,11 @@
   "version": "1.0.11",
   "description": "Public remote MCP mock server and web UI for testing MCP auth and tool calls.",
   "license": "Apache-2.0",
+  "workspaces": [
+    "packages/mcp-runtime",
+    "packages/mcp-inspector-core",
+    "packages/mmcp-cli"
+  ],
   "scripts": {
     "dev": "next dev --hostname 127.0.0.1 --port 3100",
     "build": "next build",
@@ -14,6 +19,12 @@
     "mcp-runtime:pack": "cd packages/mcp-runtime && npm pack --dry-run",
     "mcp-runtime:consumer:test": "node scripts/verify-mcp-runtime-consumer.mjs",
     "mcp-runtime:inspector:smoke": "node scripts/verify-mcp-runtime-inspector-smoke.mjs",
+    "mcp-inspector-core:build": "npm --prefix packages/mcp-inspector-core run build",
+    "mcp-inspector-core:test": "npm --prefix packages/mcp-inspector-core run test",
+    "mmcp:build": "npm --prefix packages/mmcp-cli run build",
+    "mmcp:test": "npm --prefix packages/mmcp-cli run test",
+    "mmcp:pack": "cd packages/mmcp-cli && npm pack --dry-run",
+    "mmcp:smoke": "node scripts/mmcp-smoke.mjs",
     "db:prepare": "node scripts/db-prepare.mjs",
     "test:unit": "node --import tsx --test --test-concurrency=1 \"tests/unit/**/*.test.ts\"",
     "test:e2e": "playwright test",

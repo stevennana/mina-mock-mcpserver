@@ -23,6 +23,7 @@ This is a good fit if you want:
 - endpoint response cases, generated MCP `inputSchema`, and failure simulation
 - token inspection, audit logs, reset, health, Docker, Nginx, and local TLS guidance
 - a standalone project Inspector UI plus upstream `npx @modelcontextprotocol/inspector` examples
+- a standalone `mmcp` command line inspector for tools, resources, prompts, completion, raw JSON-RPC, HTTP, and legacy SSE
 - reusable MCP JSON-RPC runtime package guidance for TypeScript apps that want to expose their own resources, tools, or prompts
 
 This is not a good fit if you need production identity management, multi-tenant isolation, enterprise RBAC, external OAuth provider integration, or MCP client-side Sampling, Roots, Elicitation, or task-augmented execution.
@@ -35,6 +36,7 @@ Highlights:
 
 - product-grade Mock Server admin navigation with bundled SVG icons
 - standalone Inspector UI with focused Mock scenario, Generic target, and OAuth popup pages
+- new `@minasoft/mcp-inspector-core` and `@minasoft/mmcp-cli` packages for terminal MCP inspection
 - Streamable HTTP and legacy SSE-compatible MCP routes
 - MCP Resources, Resource Templates, Prompts, Completion, OAuth resource/resource-template/prompt permissions, and SSE resource notifications
 - upstream MCP Inspector browser and CLI verification paths
@@ -103,6 +105,7 @@ Start here:
 - [Getting started guide](docs/GETTING_STARTED.md)
 - [MCP transports, SSE, REST, and OAuth calls](docs/TRANSPORTS.md)
 - [Inspector integration](docs/INSPECTOR.md)
+- [`mmcp` command line inspector](docs/MMCP_CLI.md)
 - [Reusable MCP runtime package guide](docs/MCP_RUNTIME_PACKAGE.md), including positioning, auth/router integration, and Mock Server host-app examples
 - [Runtime package README](packages/mcp-runtime/README.md)
 
@@ -127,6 +130,9 @@ npm run mcp-runtime:build
 npm run mcp-runtime:test
 npm run mcp-runtime:pack
 npm run mcp-runtime:consumer:test
+npm run mcp-inspector-core:test
+npm run mmcp:test
+npm run mmcp:smoke
 npm run test:unit
 npm run test:e2e
 npm run verify
@@ -137,6 +143,7 @@ Inspector helpers:
 ```bash
 npm run inspector:ui
 npm run inspector:mock
+npm run mmcp:smoke
 npm run inspector:mcp:none
 npm run inspector:cli:list
 npm run inspector:cli:call:echo
